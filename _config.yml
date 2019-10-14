@@ -1,2 +1,3 @@
 name: Daniel Lowengrub
 markdown: kramdown
+permalink: /blog/:year/:month/:day/:title
