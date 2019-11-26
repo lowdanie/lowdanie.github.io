@@ -50,7 +50,7 @@ Let $f(t): \mathbb{R} \rightarrow \mathbb{R}$ be a continuous periodic function 
  It turns out that any continuous function with period $T$ can be approximated arbitrarily well by a function of the form:
 
 \\[
-f(t) \sim a_0 + \sum_{n=0}^N(a_n\cos(n\frac{2\pi}{T}t) + b_n\sin(n\frac{2\pi}{T}t))
+f(t) \sim a_0 + \sum_{n=0}^N\left(a_n\cos\left(n\frac{2\pi}{T}t\right) + b_n\sin\left(n\frac{2\pi}{T}t\right)\right)
 \\]
 
 for some $N$. If this approximation is exact, we say that the function has _bandwidth_ $N$. This is another way of saying that all of the frequencies appearing in the function are between $0$ and $N$. 
