@@ -99,10 +99,12 @@ where $\Vert f \Vert := \sqrt{\langle f, f \rangle} = \left(\int_{-\infty}^{\inf
 
 Applying this to \ref{integral-product} we get
 
-\\[
+<div style="font-size: 1.2em;">
+\begin{equation*}
 \left(\int_{-\infty}^{\infty}[\hat{x}(Z) - x]^2 p(Z | x)dZ \right)^{1/2}
 \left(\int_{-\infty}^{\infty}\left(\frac{\partial \ln{p(Z | x)}}{\partial x}\right)^2 p(Z | x)dZ \right)^{1/2} \geq 1
-\\]
+\end{equation*}
+</div>
 
 which can be written as
 

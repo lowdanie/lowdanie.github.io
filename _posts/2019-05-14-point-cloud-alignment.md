@@ -221,17 +221,19 @@ This means that each skew-symmetric matrix can be identified with a column vecto
 
 In particular, we can write every antisymmetric matrix $M$ as a linear combination of the matrices
 
-\\[
+<div>
+\begin{equation*}
 (\mathbf{e}\_1)\_\times =
-\begin{bmatrix} 0 & 1 & 0 \\\\ -1 & 0 & 0 \\\\ 0 & 0 & 0
+\begin{bmatrix} 0 & 1 & 0 \\ -1 & 0 & 0 \\ 0 & 0 & 0
 \end{bmatrix}, \,
 (\mathbf{e}\_2)\_\times =
-\begin{bmatrix} 0 & 0 & 1 \\\\ 0 & 0 & 0 \\\\ -1 & 0 & 0
+\begin{bmatrix} 0 & 0 & 1 \\ 0 & 0 & 0 \\ -1 & 0 & 0
 \end{bmatrix}, \,
 (\mathbf{e}\_3)\_\times =
-\begin{bmatrix} 0 & 0 & 0 \\\\ 0 & 0 & 1 \\\\ 0 & -1 & 0
+\begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & 1 \\ 0 & -1 & 0
 \end{bmatrix}
-\\]
+\end{equation*}
+</div>
 
 Where $\mathbf{e}_i$ is the i-th standard basis vector of $\mathbb{R}^3$. Concretely, we have:
 

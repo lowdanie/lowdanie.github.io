@@ -128,11 +128,13 @@ W_{2N+1}^{-kN}f(t_k) = \sum_{m=0}^{2N} F_{m-N} W_{2N+1}^{-km}
 
 At last, the sum on the right is indeed the expression for the $k$-th row of the multiplication of a matrix and a vector which we can write out explicitly as follows
 
+<div>
 \begin{equation}\label{fft-matrix}
-\begin{bmatrix} f(t_0) \\\\ W_{2N+1}^{-N}f(t_1) \\\\ W_{2N+1}^{-2N}f(t_2) \\\\ \vdots \\\\ W_{2N+1}^{-2N^2}f(t_{2N}) \end{bmatrix} =
-\begin{bmatrix} 1 & 1 & 1 & \cdots & 1 \\\\ 1 & W_{2N+1}^{-1} & W_{2N+1}^{-2} & \cdots & W_{2N+1}^{-2N} \\\\ 1 & W_{2N+1}^{-2} & W_{2N+1}^{-4} & \cdots & W_{2N+1}^{-2 \cdot 2N} \\\\ \vdots & \vdots & \vdots & \ddots & \vdots \\\\ 1 & W_{2N+1}^{-2N} & W_{2N+1}^{-2N \cdot 2} & \cdots & W_{2N+1}^{-2N \cdot 2N} \end{bmatrix}
-\begin{bmatrix} F_{-N} \\\\ F_{-N + 1} \\\\ F_{-N + 2} \\\\ \vdots \\\\ F_N \end{bmatrix}
+\begin{bmatrix} f(t_0) \\ W_{2N+1}^{-N}f(t_1) \\ W_{2N+1}^{-2N}f(t_2) \\ \vdots \\ W_{2N+1}^{-2N^2}f(t_{2N}) \end{bmatrix} =
+\begin{bmatrix} 1 & 1 & 1 & \cdots & 1 \\ 1 & W_{2N+1}^{-1} & W_{2N+1}^{-2} & \cdots & W_{2N+1}^{-2N} \\ 1 & W_{2N+1}^{-2} & W_{2N+1}^{-4} & \cdots & W_{2N+1}^{-2 \cdot 2N} \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ 1 & W_{2N+1}^{-2N} & W_{2N+1}^{-2N \cdot 2} & \cdots & W_{2N+1}^{-2N \cdot 2N} \end{bmatrix}
+\begin{bmatrix} F_{-N} \\ F_{-N + 1} \\\\ F_{-N + 2} \\ \vdots \\ F_N \end{bmatrix}
 \end{equation}
+</div>
 
 Let's denote this matrix by $M_{2N + 1}$. It is an interesting exercise in the properties of the root of unity $W_{2N+1}$ to show that the columns of $M_{2N + 1}$ are orthogonal and that they all have a norm of $2N + 1$. From this it immediately follows that 
 
@@ -142,12 +144,14 @@ M_{2N + 1}^{-1} = \frac{1}{2N + 1} M_{2N+1}^*
 
 where $M_{2N+1}^\*$ denotes the conjugate transpose. By multiplying both sides of \ref{fft-matrix} with $M_{2N+1}^*$ and using the fact that the complex conjugate of  $W_{2N+1}^{-1}$ is $W_{2N+1}$ we arrive at the following key equality:
 
-\\[
-\begin{bmatrix} F_{-N} \\\\ F_{-N + 1} \\\\ F_{-N + 2} \\\\ \vdots \\\\ F_N \end{bmatrix} =
+<div>
+\begin{equation*}
+\begin{bmatrix} F_{-N} \\ F_{-N + 1} \\ F_{-N + 2} \\ \vdots \\ F_N \end{bmatrix} =
 \frac{1}{2N + 1}
-\begin{bmatrix} 1 & 1 & 1 & \cdots & 1 \\\\ 1 & W_{2N+1}^{1} & W_{2N+1}^{2} & \cdots & W_{2N+1}^{2N} \\\\ 1 & W_{2N+1}^{2} & W_{2N+1}^{4} & \cdots & W_{2N+1}^{2 \cdot 2N} \\\\ \vdots & \vdots & \vdots & \ddots & \vdots \\\\ 1 & W_{2N+1}^{2N} & W_{2N+1}^{2N \cdot 2} & \cdots & W_{2N+1}^{2N \cdot 2N} \end{bmatrix}
-\begin{bmatrix} f(t_0) \\\\ W_{2N+1}^{-N}f(t_1) \\\\ W_{2N+1}^{-2N}f(t_2) \\\\ \vdots \\\\ W_{2N+1}^{-2N^2}f(t_{2N}) \end{bmatrix}
-\\]
+\begin{bmatrix} 1 & 1 & 1 & \cdots & 1 \\ 1 & W_{2N+1}^{1} & W_{2N+1}^{2} & \cdots & W_{2N+1}^{2N} \\ 1 & W_{2N+1}^{2} & W_{2N+1}^{4} & \cdots & W_{2N+1}^{2 \cdot 2N} \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ 1 & W_{2N+1}^{2N} & W_{2N+1}^{2N \cdot 2} & \cdots & W_{2N+1}^{2N \cdot 2N} \end{bmatrix}
+\begin{bmatrix} f(t_0) \\ W_{2N+1}^{-N}f(t_1) \\ W_{2N+1}^{-2N}f(t_2) \\ \vdots \\ W_{2N+1}^{-2N^2}f(t_{2N}) \end{bmatrix}
+\end{equation*}
+</div>
 
 The matrix appearing in the above equality is known as the _discrete Fourier transform_ which is denoted by DFT. So we can rewrite the equality more compactly as:
 
@@ -187,7 +191,9 @@ import numpy as np
 # -----
 N = 2  # The bandwidth of f(t)
 T = 2*np.pi  # The period of f(t)
-T_s = T / (2*N + 1) # The space between consecutive samples
+
+# The space between consecutive samples
+T_s = T / (2*N + 1)
 
 # The 2N+1'th root of unity
 W = np.exp(-(2*np.pi*1j)/(2*N + 1))
@@ -204,13 +210,16 @@ t = np.array([n*T_s for n in range(2*N + 1)])
 # Evaluate f(t_i) for i = 0, ..., 2N
 ft = f(t)
 
-# Reconstruct the coefficients of the Fourier series
-# of f(t):  F_{-2}, F_{-1}, F_0, F_1, F_2
+# Reconstruct the coefficients of the Fourier
+# series of f(t):  F_{-2}, F_{-1}, F_0, F_1, F_2
 # using equation (3) above.
 # ----------------------------------------------
-scaled_ft = np.array([W**(-i*N) * ft[i] for i in range(2*N + 1)])
-F = np.fft.fft(scaled_ft) / (2*N + 1)  # Apply the fast Fourier transform
-print("The Fourier series of f(t) is: ", F)</pre>
+scaled_ft = np.array([W**(-i*N) * ft[i]
+                      for i in range(2*N + 1)])
+
+# Apply the fast Fourier transform
+F = np.fft.fft(scaled_ft) / (2*N + 1)
+print("The Fourier series of f(t) is: ", F)
 ```
 
 The output of this program is:
