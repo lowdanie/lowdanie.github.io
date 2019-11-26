@@ -4,6 +4,9 @@ title: "The Sampling Theorem"
 date: 2019-09-01
 mathjax: true
 ---
+
+![Currents](/assets/currents.jpeg){: .center-image}
+
 # Introduction
 
 In order to process an analog signal such as sound or light with a digital computer it is necessary to convert it to a digital signal by taking measurements at discrete intervals. For example, consider the process of sending sound to another person via cellphone. The analog sound signal is first converted to an analog electric signal by the microphone. The electric signal is then sampled in order to produce a digital signal which can be processed by the phone. On the receiving end, the digital signal is converted back into an analog one by the speaker. Sending the signal to and from cell towers require additional conversions between the digital signal and an analog radio wave.
