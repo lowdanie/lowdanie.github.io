@@ -23,7 +23,7 @@ In the remainder of this post we will show why the sampling theorem isn't all th
 
 In this section we'll go into a bit more technical detail in order to state the sampling theorem more rigorously and show why it makes sense.
 
-Let $f(t) : \mathbb{R} \rightarrow \mathbb{R}$ be a periodic function with period $2\pi$. This means that for any $t$, $f(t + 2\pi) = f(t)$. Furthermore, suppose that $f(t)$ can be expressed as a sum of trigonometric functions as follows
+
 
 \\[
 f(t) = a_0 + a_1 \cos(t) + b_1 \sin(t) + a_2 \cos(2t) + b_2 \sin(2t)
@@ -63,12 +63,12 @@ e^{i\theta} = \cos(\theta) + i \sin(\theta)
 
 From this together with the identities $\cos(-t) = \cos(t)$ and $\sin(-t) = -\sin(t)$ it is easy to deduce:
 
-\\[
-\begin{aligned}
+<div style="font-size: 1.4em;">
+\begin{align*}
 \cos(\theta) &= \frac{1}{2}(e^{i\theta} + e^{-i\theta}) \\
 \sin(\theta) &= -\frac{i}{2}(e^{i\theta} - e^{-i\theta})
-\end{aligned}
-\\]
+\end{align*}
+</div>
 
 Therefore, we can represent a function with bandwidth $N$ by
 
@@ -94,13 +94,13 @@ For $k = 0, \dots , 2N$. Here is an example of a function with period $T = 2\pi$
 
 Let's try to express the value of the sample taken at the $k$-th point in terms of the Fourier series of $f(t)$. Using the Fourier expansion of $f(t)$ we have
 
-\\[
-\begin{aligned}
+<div style="font-size: 1.4em;">
+\begin{align*}
 f(t_k) &= \sum_{n=-N}^{N} F_n e^{n \frac{2\pi i}{T}t_k}
 = \sum_{n=-N}^{N} F_n e^{n \frac{2\pi i}{T} k\frac{T}{2N+1}} \\
 &= \sum_{n=-N}^{N} F_n e^{\frac{2\pi i}{2N + 1}nk}
-\end{aligned}
-\\]
+\end{align*}
+</div>
 
 We can simplify this expression by introducing the $2N + 1$-th _root of unity_ $W_{2N+1}$ which is defined to be 
 
