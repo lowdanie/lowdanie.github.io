@@ -343,7 +343,7 @@ The fourth equality comes from a general fact about the skew-symmetrization oper
 \mathbf{v}\_\times \cdot \mathbf{w} = -\mathbf{w}\_\times \cdot \mathbf{v}
 \\]
 
-In conclusion, the first column of $\frac{\partial}{\partial \theta_1}E_i\vert_\mathbf{0}$ is simply the first column of $-(R_\mathrm{op}\mathbf{x}_i)_\times$. Since the analogous result holds for the rest of the columns, we get the simple expression
+In conclusion, the first column of $\frac{\partial}{\partial \theta_1}E_i\vert_\mathbf{0}$ is simply the first column of $-(R\_\mathrm{op}\mathbf{x}\_i)\_\times$. Since the analogous result holds for the rest of the columns, we get the simple expression
 
 \\[
 \left. \frac{\partial}{\partial \theta\_1}E\_i \right\rvert\_\mathbf{0} =
