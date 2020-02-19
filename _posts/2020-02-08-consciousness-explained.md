@@ -126,16 +126,57 @@ In this example, Adele's eyes and mouth have locally been flipped upside-down. T
 
 Another interesting line of research studies the relationship between the objects familiarity and the mental rotation speed. In general, we rotate familiar objects significantly faster than arbitrary ones. E.g, we can rotate letters of the alphabet more quickly than arbitrary squiggles. A cool demonstration of this was given by Sayeki (1981) [^Sayeki] who showed that even providing the subject with a familiar _interpretation_ of an abstract shape reduced the time they needed to solve a mental rotation problem by as much as 2 seconds! For example, in the case of the block image above they told subjects to imagine that the left image represented a person sitting on a chair and sticking out their left arm.
 
-One takeaway from these results is that solving mental rotation problems is not a simple matter of turning a literal picture around in our head. Rather, it appears as though we are also interacting with abstract mental structures (such as a face or chair) that we associate with the reference image. As usual, this is not irreconcilable with the Cartesian Theater but clearly our initial intuitions must be modified.
+One takeaway from these results is that solving mental rotation problems is not a simple matter of turning a literal picture around in our head. Rather, it appears as though we are also interacting with abstract mental structures (such as a face or chair) that we associate with the reference image. As usual, this is not irreconcilable with the Cartesian Theater but clearly our initial intuitions do not tell the full story.
 
 # Qualia
 
-## Mary the Neurologist
+The philosophical notion of _qualia_ frequenctly comes up in the context of understanding consciousness. The idea is that objects in the world seem to possess certain subjective _qualities_ which can not be explained in terms of their physical attributes. A common example is the quality of the color red. Consider this beautiful red square:
+
+{% include image_with_source.html url="/assets/red_square.png" source_url="https://en.wikipedia.org/wiki/Qualia" %}
+
+Proponents of qualia would note that even if you perfectly describe the wavelength of the light coming off the screen, the electrochemical reactions it triggers in your retina and the neural activity induced in your brain, there is still some essential _reddness_ which has not been explained. Since this reddness is clearly part of our consciousness, doesn't this mean that physical explainations of consciousness are doomed to failure?
+
+Since the very definition of qualia is debated by philosphers, in this section we will content ourselves with two classical thought experiments which approach the topic from different angles.
+
+## Mary the Color Scientist
+
+There is a famous thought experiment proposed by Frank Jackson [^Mary] which goes as follows:
+
+> Mary the color scientist knows all the physical facts about color, including every _physical_ fact about the experience of color in other people, from the behavior a particular color is likely to elicit to the specific sequence of neurological firings that register that a color has been seen. However, she has been confined from birth to a room that is black and white, and is only allowed to observe the outside world through a black and white monitor. When she is allowed to leave the room, it must be admitted that she learns something about the color red the first time she sees it — specifically, she learns what it is like to see that color.
+
+The takeaway is that there is a subjective aspect to color that can not be captured by physical facts. The only way to know _what it feels like_ to see color is to actually see it. We can all imagine Mary seeing a red rose for the first time and exclaiming "So _that's_ what red looks like!".
+
+In this case we will confront the issue directly rather than following our usual program and tracing the back to a lingering belief in the Cartesian Theater.
+
+According to Dennett, the fundamental problem with this thought experiment is that we take it for granted that even after knowing _every physical fact_ about color, Mary will still be surprised when she steps outside of the room and sees red for the first time. In Dennett's words, we are "mistaking a failure of imagination for an insight into necessity." 
+
+In other words, we are greatly under-estimating what it would take to really know _everything_ about the color red. As a first approximation, maybe this involves knowing that the wavelength of red light is about 680nm and that this light triggers a specific set of cells in our eyes. Everyone agrees that if all Mary knew was a perhaps embellished version of this description then upon actually seeing red she would be quite surprised indeed.
+
+But what really _is_ color? It is now well known that our color perception of an object is influenced by many factors including, but not determined by, the wavelength of light it reflects. As a cool illustration of this, consider the following image:
+
+{% include image_with_source.html url="/assets/illusion_colorballs_stripes.jpg" source_url="https://www.syfy.com/syfywire/another-brain-frying-optical-illusion-what-color-are-these-spheres" %}
+
+It may suprise you to hear that all of the balls in the image are the exact same color and shade. You can verify this by covering up the lines (the source contains an animation of the lines being added and removed). From this example we learn that the color we associate with an object is influenced by it's environment. 
+
+Another demonstration of the precarious relationship between color and wavelength is that the lack of a wavelength corresponding to the color brown. Look at a rainbow and note that there is no brown to be seen! There is clearly _some_ visual property shared by chocolate, chipmunks and violins but wavelength alone can not describe it. I'd recommend checking out [this video](https://www.youtube.com/watch?v=wh4aWZRtTwU) if you want to learn more about brown.
+
+Finally, phenomena such as [The Dress](https://en.wikipedia.org/wiki/The_dress) show that even people with perfectly healthy retinas may not be able to agree on what colors appear in a given picture. In fact, even an individual may experiance color differently depending on the season of the year [^Seasons].
+
+From these sorts of examples we conclude that it is not possible to define color in the abstract without referring to the specific human brain that is observing the world. A _complete_ description of the color red only makes sense in the context of a single person at a particular point in time, and would involve specifying a precise mental pattern that is triggered by various objects and images.
+
+What does this mean for Mary? Well, in the process of learning everything there is to know about the color red she must have discovered the exact pattern of mental activity that firetrucks and roses would trigger in her brain. She could use this knowledge to create a machine that would stimulate her brain in that precise fashion. In this scenario it is reasonable to expect that she would not experiance anything new when she steps out of the room.
+
+You may object that creating a machine brain interface is not allowed. But why should be Mary's brain modification technology be restricted to old fashioned tools such as words and diagrams? It is possible that language is simply not rich enough to convey something as subtle as reddness. Also, it is not out of the question that a person with Mary's capabilities could devise a clever string of words that would unlock the desired neurological response.
 
 ## Inverted Qualia
 
+
+
 # Philosophical Zombies
 
+# Conclusion
 
 [^Shepard]: Shepard, Roger N., and Jacqueline Metzler. "Mental rotation of three-dimensional objects." _Science_ 171.3972 (1971): 701-703.
 [^Sayeki]: Sayeki Y (1981) "Body analogy" and the cognition of rotated figures. _The Quarterly Newsletter of the Laboratory of Comparative Human Cognition_
+[^Mary]: Jackson, Frank (1982). "Epiphenomenal Qualia". _The Philosophical Quarterly_. 32 (127): 127–136
+[^Seasons]: Welbourne, Lauren E., Antony B. Morland, and Alex R. Wade. "Human colour perception changes between seasons." _Current Biology_ 25.15 (2015): R646-R647.
