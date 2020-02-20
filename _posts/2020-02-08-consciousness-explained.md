@@ -150,7 +150,7 @@ But what really _is_ color? It is now well known that our color perception of an
 
 {% include image_with_source.html url="/assets/illusion_colorballs_stripes.jpg" source_url="https://www.syfy.com/syfywire/another-brain-frying-optical-illusion-what-color-are-these-spheres" %}
 
-It may suprise you to hear that all of the balls in the image have exactly the same RGB values. You can verify this by covering up the lines (the source contains an animation of the lines being added and removed). From this example we learn that the color we associate with an object is influenced by it's environment. 
+It may suprise you to hear that all of the balls in the image have exactly the same RGB values. You can verify this by covering up the lines (the source contains an animation of the lines being added and removed) or zooming in until the lines become far apart. From this example we learn that the color we associate with an object is influenced by it's environment. 
 
 Another demonstration of the precarious relationship between color and wavelength is the absense of a wavelength corresponding to the color brown. Look at a rainbow and note that there is no brown to be seen! There is clearly _some_ visual property shared by chocolate, chipmunks and violins but wavelength alone can not describe it. I'd recommend checking out [this video](https://www.youtube.com/watch?v=wh4aWZRtTwU) if you want to learn more about brown.
 
@@ -184,7 +184,9 @@ I hope I have been successful at explaining why Dennett has changed the way I th
 
 The next step was to consider a possible alternative such as the Multiple Drafts model.
 
-Then came the real work of shifting my _intuition_ from the tenacious Cartesian Theater to this new model. This was done by carefully inspecting key aspects of consciousness such as speech, thought, awareness and subjective experiance ("qualia") which defy a simple theater theoretic interpretation.
+Then came the real work of shifting my _intuition_ from the pernicious Cartesian Theater to this new model. This was done by carefully inspecting key aspects of consciousness such as speech, thought, awareness and subjective experiance ("qualia") which defy a simple theater theoretic interpretation.
+
+Contrary to the books title, I still have no idea how consciousness really works but I have a lot less trouble accepting that _in principle_ it could be explained in terms of simpler functional units such as neurons or other biological machinery.
 
 To conclude, here is a quote from the book in which Dennett provides a "thumbnail sketch" of his theory:
 > There is no single, definitive “stream of consciousness,” because there is no central Headquarters, no Cartesian Theater where “it all comes together” for the perusal of a Central Meaner. Instead of such a single stream (however wide), there are multiple channels in which specialist circuits try, in parallel pandemoniums, to do their various things, creating Multiple Drafts as they go. Most of these fragmentary drafts of “narrative” play short-lived roles in the modulation of current activity but some get promoted to further functional roles, in swift succession, by the activity of a virtual machine in the brain. The seriality of this machine (its “von Neumannesque” character) is not a “hard-wired” design feature, but rather the upshot of a succession of coalitions of these specialists.
