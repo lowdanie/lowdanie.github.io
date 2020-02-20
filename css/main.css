@@ -48,3 +48,9 @@ ul.posts li {
     margin: 0 auto;
     display: block;
 }
+
+.center-figure {
+    margin: auto;
+    display: block;
+    text-align: center;
+}
