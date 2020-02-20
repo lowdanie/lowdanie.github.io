@@ -13,9 +13,7 @@ Throughout highschool I indulged in this interest with books like _Godel Escher 
 
 Continuing in this tradition, when I picked up _Consciousness Explained_ by Daniel Dennet I expected more of the same. However, this time when I put down the book my first thought was "Huh.". I still don't have an answer to the hard problem, but Dennet's book certainly changed the way I think about consiousness and our prospects of ultimately understanding it. One consequence of this change of perspective is that when I started to write the sections on some classically mysterious topics such as qualia and philosophical zombies, I had to got to Wikipedia to remind myself exactly why I found them so confusing in the first place.
 
-In this post I will describe the key idea that I learned from the book, and show how it cleared up, or at least reduced, my confusion about a number of instances of the hard problem.
-
-None of the ideas in this post are original. I am simply trying to summarize what I learned from _Consciousness Explained_. I will occasionaly use quotes to borrow useful phrases and expressions.
+In this post I will describe the key idea that I learned from the book, and show how it cleared up, or at least reduced, my confusion about the hard problem.
 
 # The Cartesian Theater
 
@@ -136,11 +134,7 @@ The philosophical notion of _qualia_ frequenctly comes up in the context of unde
 
 Proponents of qualia would note that even if you perfectly describe the wavelength of the light coming off the screen, the electrochemical reactions it triggers in your retina and the neural activity induced in your brain, there is still some essential _reddness_ which has not been explained. Since this reddness is clearly part of our consciousness, doesn't this mean that physical explainations of consciousness are doomed to failure?
 
-Since the very definition of qualia is debated by philosphers, in this section we will content ourselves with two classical thought experiments which approach the topic from different angles.
-
-## Mary the Color Scientist
-
-There is a famous thought experiment proposed by Frank Jackson [^Mary] which goes as follows:
+Since the very definition of qualia is debated by philosphers, in this section we will focus on a famous thought experiment proposed by Frank Jackson [^Mary] which goes as follows:
 
 > Mary the color scientist knows all the physical facts about color, including every _physical_ fact about the experience of color in other people, from the behavior a particular color is likely to elicit to the specific sequence of neurological firings that register that a color has been seen. However, she has been confined from birth to a room that is black and white, and is only allowed to observe the outside world through a black and white monitor. When she is allowed to leave the room, it must be admitted that she learns something about the color red the first time she sees it — specifically, she learns what it is like to see that color.
 
@@ -168,13 +162,36 @@ What does this mean for Mary? Well, in the process of learning everything there 
 
 You may object that creating a machine brain interface is not allowed. But why should be Mary's brain modification technology be restricted to old fashioned tools such as words and diagrams? It is possible that language is simply not rich enough to convey something as subtle as reddness. It is also possible that a person with Mary's capabilities could devise a clever string of words that would unlock the desired neurological response.
 
-## Inverted Qualia
-
-
 
 # Philosophical Zombies
 
+A philosophical zombie is an being which behaves exactly like a human but has no subjective experiance. It is easy to imagine such an entity. For example, maybe it is a robot controlled wirelessly by a massive array of GPUs running the latest and greatest machine learning algorithms. On the outside it would engage in typical human activities such as watching Netflix and tweeting stuff. But on the inside it would be cold and dark - just electric impulses shuttleing through wires with no one "at home".
+
+The existance of such a zombie seems plausible, but doesn't this imply that no physical description of the brain could ever bridge the gap between a mindless zombie and a conscious human being?
+
+Dennett's answer to this question is simple: No, philosophical zombies are _not_ possible. 
+
+One of the reasons we think we can imagine them is our persistent intuition for the Cartesian Theater. Following this intuition, one makes a zombie by replicating all of the machinery in the brain _except_ for that special area containing the theater.
+
+But as we have seen, such a theater is logically inconsistent with reductionism. Furthermore, even the theater's intuitive appeal is diminished after careful inspection of some common subjective experiances.
+
+Another reason for the seductive nature of the zombie argument is that we greatly oversimplify what it would take to build one. For example, it must be possible for you to collaborate with this zombie on a complex project for many years without you noticing that anything is off. Such a machine would be significantly more advanced than anything we could build today and it is premature to assume that we know anything about it at all. We certainly are not in a position to speculate about the nature of its consciousness.
+
+
 # Conclusion
+
+I hope I have been successful at explaining why Dennett has changed the way I think about consciousness. The key realization was that the philosophical knots I used to tie myself in while thinking about the subject could be traced to my simultaneous belief in reductionism and intuition for the Cartesian Theater.
+
+The next step was to consider a possible alternative such as the Multiple Drafts model.
+
+Then came the real work of shifting my _intuition_ from the tenacious Cartesian Theater to this new model. This was done by carefully inspecting key aspects of consciousness such as speech, thought, awareness and subjective experiance ("qualia") which defy a simple theater theoretic interpretation.
+
+To conclude, here is a quote from the book in which Dennett provides a "thumbnail sketch" of his theory:
+> There is no single, definitive “stream of consciousness,” because there is no central Headquarters, no Cartesian Theater where “it all comes together” for the perusal of a Central Meaner. Instead of such a single stream (however wide), there are multiple channels in which specialist circuits try, in parallel pandemoniums, to do their various things, creating Multiple Drafts as they go. Most of these fragmentary drafts of “narrative” play short-lived roles in the modulation of current activity but some get promoted to further functional roles, in swift succession, by the activity of a virtual machine in the brain. The seriality of this machine (its “von Neumannesque” character) is not a “hard-wired” design feature, but rather the upshot of a succession of coalitions of these specialists.
+
+> The basic specialists are part of our animal heritage. They were not developed to perform peculiarly human actions, such as reading and writing, but ducking, predator-avoiding, face-recognizing, grasping, throwing, berry-picking, and other essential tasks. They are often opportunistically enlisted in new roles, for which their native talents more or less suit them. The result is not bedlam only because the trends that are imposed on all this activity are themselves the product of design. Some of this design is innate, and is shared with other animals. But it is augmented, and sometimes even overwhelmed in importance, by microhabits of thought that are developed in the individual, partly idiosyncratic results of self-exploration and partly the predesigned gifts of culture. Thousands of memes, mostly borne by language, but also by wordless “images” and other data structures, take up residence in an individual brain, shaping its tendencies and thereby turning it into a mind.
+
+----
 
 [^Shepard]: Shepard, Roger N., and Jacqueline Metzler. "Mental rotation of three-dimensional objects." _Science_ 171.3972 (1971): 701-703.
 [^Sayeki]: Sayeki Y (1981) "Body analogy" and the cognition of rotated figures. _The Quarterly Newsletter of the Laboratory of Comparative Human Cognition_
