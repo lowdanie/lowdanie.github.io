@@ -7,7 +7,7 @@ mathjax: false
 
 # Introduction
 
-I have always been fascinated by what philosophers call the "hard problem of consciousness". This refers to the problem of explaining how our subjective experience can arise from a physical system such as the brain. If the brain is ultimately a collection of atoms following the laws of physics, couldn't it function perfectly well without there being anyone "at home"?
+I have always been fascinated by what philosophers call the _hard problem of consciousness_. This refers to the problem of explaining how our subjective experience can arise from a physical system such as the brain. If the brain is ultimately a collection of atoms following the laws of physics, couldn't it function perfectly well without there being anyone "at home"?
 
 Over the years I've read many books on the subject, but none of them seemed to address this fundamental difficulty. On the one hand there were mathematically oriented books filled with many entertaining insights into the nature of recursion and abstraction but lacking content on actual human brains. On the other hand were the cognitive science and psychology books which investigated topics such as human behavior and language in great detail but, in my opinion, failed to provide a convincing account about why we ultimately feel anything.
 
