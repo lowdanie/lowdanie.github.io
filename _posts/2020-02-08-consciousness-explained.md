@@ -53,7 +53,7 @@ In the sections that follow, the burden will be upon us to demonstrate that the 
 
 The [phi phenomenon](https://en.m.wikipedia.org/wiki/Phi_phenomenon) (as seen on tv) is the apparent motion one observes when nearby signals alternate at high frequency. For example, consider the following image:
 
-![Phi Phenomenon](/assets/phi_phenomenon.gif){: .center-image}
+{% include image_with_source.html url="/assets/phi_phenomenon.gif" source_url="https://en.m.wikipedia.org/wiki/Phi_phenomenon" %}
 
 The blue circles in this image are just blinking in place with an offset of 150ms, but we observe a moving white dot which seems to exist even in the empty space between them.
 
