@@ -9,7 +9,7 @@ mathjax: false
 
 I have always been fascinated by what philosophers call the "hard problem of consciousness". This refers to the problem of explaining how our subjective experience can arise from a physical system such as the brain. If the brain is ultimately a collection of atoms following the laws of physics, couldn't it function perfectly well without there being anyone "at home"?
 
-Over the years I've read many books on the subject, but none of seemed to address this fundamental difficulty. On the one hand there were mathematically oriented books filled with many entertaining insights into the nature of recursion and abstraction but lacking content on actual human brains. On the other hand were the cognitive science and psychology books which investigated topics such as human behavior and language in great detail but, in my opinion, failed to provide a convincing account about why we ultimately feel anything.
+Over the years I've read many books on the subject, but none of them seemed to address this fundamental difficulty. On the one hand there were mathematically oriented books filled with many entertaining insights into the nature of recursion and abstraction but lacking content on actual human brains. On the other hand were the cognitive science and psychology books which investigated topics such as human behavior and language in great detail but, in my opinion, failed to provide a convincing account about why we ultimately feel anything.
 
 I recently finished reading _Consciousness Explained_ by Daniel Dennett and as a result, for the first time I feel as though I have made progress in understanding the hard problem. In my opinion, the defining feature of the book is that Dennett isolates a deeply held intuition many of us share which makes the "hard problem" so confusing. He then proceeds to weaken this intuition via careful examination of some of our common subjective experiences.
 
@@ -19,7 +19,7 @@ In this post I will describe the key idea that I learned from the book, and show
 
 # The Cartesian Theater
 
-## Why Makes Consciousness So Confusing?
+## What Makes Consciousness So Confusing?
 
 > Suppose that there be a machine, the structure of which produces thinking, feeling, and perceiving; imagine this machine enlarged but preserving the same proportions, so that you could enter it as if it were a mill. This being supposed, you might visit its inside; but what would you observe there? Nothing but parts which push and move each other, and never anything that could explain perception. -- Gottfried Wilhelm Leibniz
 
@@ -41,7 +41,7 @@ This intuitive notion of consciousness is clearly at odds with reductionism and 
 
 Despite the Cartesian Theater's logical flaws, it plays a major role in our intuitive understanding of the mind. As we will see later, our intuitive embrace of the theater is the foundation of many confusing paradoxes and thought experiments surrounding the study of consciousness.
 
-The plan for the rest of this post in straightforward. We start by describing Dennett's _Multiple Drafts_ model which is his alternative to the Cartesian Theater. We will then revisit some of the more vexing paradoxes of consciousness. In each case, we will expose the Carteisan Theater as the underlying source of confusion, and show that a carefully inspection of everyday experience favors the Multiple Drafts model, even at an intuitive level. Once this is accomplished, the clash between intuition and logic disappears and the force of the paradox is greatly diminished.
+The plan for the rest of this post in straightforward. We start by describing Dennett's _Multiple Drafts_ model which is his alternative to the Cartesian Theater. We will then revisit some of the more vexing paradoxes of consciousness. In each case, we will expose the Carteisan Theater as the underlying source of confusion, and show that a careful inspection of everyday experience favors the Multiple Drafts model, even at an intuitive level. Once this is accomplished, the clash between intuition and logic disappears and the force of the paradox is greatly diminished.
 
 # The Multiple Drafts Model
 
@@ -121,7 +121,7 @@ One strong source of intuition for an internal observer is the phenomenon of the
 
 ![Mental Rotation](/assets/mental_rotation_2.gif){: .center-image}
 
-As you attempt to solve these sorts of puzzles, it may feel like you are rotating the shapes in your minds eye. This intuition is supported by the fact that the time it takes to answer these type of questions has been show to be linear in the degrees of rotation that are required. This seems to be good news for the Cartesian Theater - we solve mental rotation problems by projecting a rotating version of the reference shape in the theater and waiting until it looks the same as the comparison shape.
+As you attempt to solve these sorts of puzzles, it may feel like you are rotating the shapes in your minds eye. This intuition is supported by the fact that the time it takes to answer these type of questions has been shown to be linear in the degrees of rotation that are required. This seems to be good news for the Cartesian Theater - we solve mental rotation problems by projecting a rotating version of the reference shape in the theater and waiting until it looks the same as the comparison shape.
 
 Things start to get interesting when we consider simple variations of this experiment. Perhaps the most famous is the [Thatcher Effect](https://en.wikipedia.org/wiki/Thatcher_effect) where our random assortment of blocks is replaced with a human face. The result is that local changes to the face are significantly harder to detect when the face is turned upside-down. Here is an example with Adele:
 
@@ -172,7 +172,7 @@ You may object that creating a machine brain interface is not allowed. But why s
 
 # Philosophical Zombies
 
-A philosophical zombie is an being which behaves exactly like a human but has no subjective experience. It is easy to imagine such an entity. For example, maybe it is a robot controlled by a massive array of GPUs running the latest and greatest machine learning algorithms. On the outside it would engage in typical human activities such as watching Netflix and tweeting stuff. But on the inside it would be cold and dark - just electric impulses shuffling through wires without anyone "at home".
+A philosophical zombie is a being which behaves exactly like a human but has no subjective experience. It is easy to imagine such an entity. For example, maybe it is a robot controlled by a massive array of GPUs running the latest and greatest machine learning algorithms. On the outside it would engage in typical human activities such as watching Netflix and tweeting stuff. But on the inside it would be cold and dark - just electric impulses shuffling through wires without anyone "at home".
 
 The existence of such a zombie seems plausible, but doesn't this imply that no physical description of the brain could ever bridge the gap between a mindless zombie and a conscious human being?
 
@@ -191,7 +191,7 @@ I hope I have been successful at explaining why Dennett has changed the way I th
 
 The next step was to consider a possible alternative such as the Multiple Drafts model.
 
-Then came the real work of shifting my _intuition_ from the pernicious Cartesian Theater to this new model. This was done by carefully inspecting key aspects of consciousness such as speech, thought, awareness and subjective experience ("qualia") which defy a simple theater theoretic interpretation.
+Then came the real work of shifting my _intuition_ from the pernicious Cartesian Theater to this new model. This was done by carefully inspecting key aspects of consciousness such as speech, thought and awareness which defy simple theater theoretic interpretations.
 
 To conclude, here is a quote from the book in which Dennett provides a "thumbnail sketch" of his theory:
 > There is no single, definitive “stream of consciousness,” because there is no central Headquarters, no Cartesian Theater where “it all comes together” for the perusal of a Central Meaner. Instead of such a single stream (however wide), there are multiple channels in which specialist circuits try, in parallel pandemoniums, to do their various things, creating Multiple Drafts as they go. Most of these fragmentary drafts of “narrative” play short-lived roles in the modulation of current activity but some get promoted to further functional roles, in swift succession, by the activity of a virtual machine in the brain. The seriality of this machine (its “von Neumannesque” character) is not a “hard-wired” design feature, but rather the upshot of a succession of coalitions of these specialists.
