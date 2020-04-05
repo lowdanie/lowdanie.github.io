@@ -317,7 +317,46 @@ We can display the remaining stones after each turn like this:
 # # # # # # # # # # # # # # # # # # # # #
 ```
 
-__Project__: Make a program that lets a person play the 21 game against a computer. For this version, let the person make the first move and make the computer play second. Also, program the computer player to  make random moves. _Hint_: Follow the general structure of _Guess the Number_. Just like in that game, you can use a `while` loop that keeps running until the game is over. In each iteration of the loop you first ask the player if they want to remove 1 or 2 stones, print the remaining stones, and then make the computer randomly remove 1 or 2 stones. Make the `while` loop run until there are no more stones. _Bonus_: Make the computer use a better strategy. It turns out that there is a strategy the computer can use that will allow it to win every game!
+Here is a simple version of the game.
+
+```python
+import random
+
+print("21 Game")
+print("=======")
+
+print("There are currently 21 stones. On each turn, remove 1 or 2 stones.")
+print("The person that removes the last stone wins!")
+
+num_stones = 21
+
+while True:
+    print(num_stones * "# ")
+    player_move = int(input("How many stones would you like to remove (1-2) > "))
+    num_stones = num_stones - player_move
+
+    if num_stones <= 0:
+        print("You win!")
+        break
+
+    print(num_stones * "# ")
+    computer_move = random.randint(1, 2)
+    num_stones = num_stones - computer_move
+    print("The computer removed", computer_move, "stones.")
+    
+    if num_stones <= 0:
+        print("The computer wins!")
+        break
+    
+print("Please play again!")
+```
+
+Note that in this code the condition for the while loop is simply `True` which means that the loop should keep running indefinitely. In this case, we exit the loop when a player wins by using the `break` command which causes the loop to immediately exit.
+
+In game programming this type of loop is typically called the _game loop_.
+
+__Exercise__: Make the computer use a better strategy. It turns out there there is a strategy that the computer can use to win every game!  
+__Exercise__: Add code that checks that the player's move is really 1 or 2.
 
 # Part 6: Functions
 In programs that are more than a few lines long it is helpful to define _functions_ which allow you to run many lines in a single command. Here is a program with a function that executes two print statements.
