@@ -5,7 +5,7 @@ date: 2020-04-16
 mathjax: true
 ---
 
-In this post we will discuss a method for quickly solving seemingly intractable search problems called the _Metrolopis algorithm_. This is one of the most popular algorithms in applied science and engineering -- its use cases include finding stable states of matter, exploring the genome and Google's PageRank algorithm.
+In this post we will discuss a method for quickly solving seemingly intractable search problems called the _Metrolopis algorithm_. This is one of the most popular algorithms in applied science and engineering -- its use cases include optimizing the layout of circuit elements on a chip, finding a region of the genome that causes a specific disease and Google's PageRank algorithm.
 
 We'll demonstrate the method via a neat application to encryption which is due to [Persi Diaconis](https://math.uchicago.edu/~shmuel/Network-course-readings/MCMCRev.pdf). We will then try to understand why the method works and see that it can be explained using the beautiful theory of _Markov chains_.
 
@@ -18,13 +18,13 @@ a b c d e f g h i j k l m n o p q r s t u v w x y z . , ? ! _
 l f _ o r , y h q s v e c ? g a t . w j n z p d ! m x u b k i
 ```
 
-When we apply this cipher to a message, each letter in the top row will be replaced by the letter below it. For example, this is what we get when we apply the cipher to line from _Alice and Wonderland_:
+When we apply this cipher to a message, each letter in the top row will be replaced by the letter below it. For instance, every `a` in the message will be replaced by an `l`. As an example, this is what we get when we apply the cipher to line from _Alice and Wonderland_:
 ```
 plaintext:  the rabbit hole went straight on like a tunnel for some way
 ciphertext: jhri.lffqjihgeripr?jiwj.lqyhjig?ieqvrilijn??rei,g.iwgcripl!
 ```
 
-We are following the convention of calling the original message the _plaintext_ and the encrypted message the _ciphertext_. In order to decode the ciphertext, we must find the _key_ which tells us how to convert letters in the ciphertext back to the original letters in the plaintext. For example, since the cipher turns each `p` into an `a`, the key would convert `a` back to `p`. In our example the full key would be:
+We are following the convention of calling the original message the _plaintext_ and the encrypted message the _ciphertext_. In order to decode the ciphertext, we must find the _key_ which tells us how to convert letters in the ciphertext back to the original letters in the plaintext. For example, since the cipher turns each `q` into an `t`, the key would convert `t` back to `q`. In our example the full key would be:
 
 ```
 a b c d e f g h i j k l m n o p q r s t u v w x y z . , ? ! _
@@ -74,38 +74,48 @@ In practice, to avoid overflow issues we will typically be interested in the _lo
     \mathrm{LogLikelihood}(c_1\dots c_N) := \log(\mathrm{Likelihood}(c_1\dots c_N)) = \sum_{i=1}^{N-1}\log (\mathrm{PairProb}(c_i,c_{i+1}))
 \\]
 
-Let's now write some code that estimates $\mathrm{PairProb}(c_1,c_2)$ using a large text file and uses it to compute the loglikelihood of an arbitrary sequence of characters.
+Let's write some code that estimates $\mathrm{PairProb}(c_1,c_2)$ using a large text file and use it to compute the loglikelihood of an arbitrary sequence of characters.
 
 To begin, we must be explicit about which characters we will include in our calculations. We will be using lowercase letters, common punctuation and of course the useful "space":
 ```python
 CHARACTERS = "abcdefghijklmnopqrstuvwxyz.,?! "
 ```
 
-It will also be useful to refer to characters based on their index in `CHARACTERS`.
+It will also be useful to refer to characters based on their index in `CHARACTERS`. Here are some handy utility functions to that end.
 
 ```python
 import collections
 import numpy as np
 
 def build_char_to_idx_dict():
+    """Build a dictionary that maps characters to their index in our list
+       CHARACTERS. Characters that are not in the list will be mapped to
+       len(CHARACTERS)-1 which represents a space.
+    """
     char_to_idx = collections.defaultdict(lambda: len(CHARACTERS) - 1)
     char_to_idx.update({char: i for i, char in enumerate(CHARACTERS)})    
     return char_to_idx
 
 def text_to_idx(text, char_to_idx):
+    """Convert each character in the text to an index using char_to_idx."""
     return np.array([char_to_idx[char] for char in text.lower()], np.int32)
 
 def idx_to_text(text_idx):
+    """Convert each index to a character using the CHARACTERS array."""
     return ''.join([CHARACTERS[idx] for idx in text_idx])
 ```
 
-We will now write a method that computes the table $\log P(c_1, c_2)$ using a text file.
+We will now write a method that computes the table $\log \mathrm{PairProb}(c_1, c_2)$ using a text file.
 ```python
 def update_pair_counts(line, pair_counts, char_to_idx):
+    """Use the line to update the counts of consecutive pairs."""
     for first, second in zip(line, line[1:]):
         pair_counts[char_to_idx[first], char_to_idx[second]] += 1
 
 def compute_pair_log_probabilities(text_filename):
+    """Use the text in the file to compute the array P defined by:
+       P[i, j] := log probability of CHARACTERS[j] following CHARACTERS[i]
+    """
     char_to_idx = build_char_to_idx_dict()
     P = np.zeros((len(CHARACTERS), len(CHARACTERS)))
     
@@ -126,12 +136,15 @@ def compute_pair_log_probabilities(text_filename):
 Finally, we can use the table returned by `compute_pair_log_probabilities` to compute the loglikelihood of a string.
 ```python
 def compute_log_likelihood(text_idx, pair_log_probs):
+    """Compute the loglikelihood of a list of character indices
+       using the specified array of pairwise log probabilities.
+    """
     first = text_idx[:-1]
     second = text_idx[1:]
     return np.sum(pair_log_probs[first, second])
 ```
 
-We'll now demonstrate these methods by generating a table of pariwise log probabilities from _War and Peace_ which you can download [here](http://www.gutenberg.org/files/2600/2600-0.txt)
+We'll now demonstrate these methods by generating a table of pairwise log probabilities from _War and Peace_ which you can download [here](http://www.gutenberg.org/files/2600/2600-0.txt)
 
 ```
 >>> pair_log_probs = compute_pair_log_probabilities("war_and_peace.txt")
@@ -168,22 +181,22 @@ So at the very least, our model gives Harry Potter a high likelihood of being En
 # The Metropolis Algorithm
 We will now return to our original goal of reading messages that were encrypted with a substitution cipher. As we discussed earlier, in order to read a ciphertext message we must find the _key_ which tells us how to convert characters in the ciphertext back to their original values.
 
-Intuitively, we can assess the quality of a key by applying it to the ciphertext and evaluating the result with out language model. For instance, the true key converts the ciphertext back to the original plaintext which should have a high likelihood if our language model is doing its job. Conversely, applying a random key would result in a garbled string of characters which, as we saw earlier, should have a relatively low likelihood.
+Intuitively, we can assess the quality of a key by applying it to the ciphertext and evaluating the result with our language model. For instance, the true key converts the ciphertext back to the original plaintext which should have a high likelihood if our language model is doing its job. Conversely, applying a random key would result in a garbled string of characters which, as we saw earlier, should have a relatively low likelihood.
 
-With this in mind, our strategy for reading a ciphertext $C=c_1c_2\dots c_N$ will be to find the key $K$ that maximize the loglikelihood of $K(C)$ which by definition is equal to
+With this in mind, our strategy for reading a ciphertext $C=c_1c_2\dots c_N$ will be to find the key $K$ that maximizes the loglikelihood of $K(C)$ which by definition is equal to
 \\[
     \mathrm{LogLikelihood}(K(C)) = \sum_{i=1}^{N-1}\log (\mathrm{PairProb}(K(c_i),K(c_{i+1})))
 \\]
 
-If we had infinite computing power, we could simply enumerate all possible keys and find the one with the highest likelihood. Unfortunately, there are approximately $10^32$ keys which renders brute force impractical.
+If we had infinite computing power, we could simply enumerate all possible keys and find the one with the highest likelihood. Unfortunately, there are approximately $10^{32}$ keys which renders brute force impractical.
 
 Instead, we will use the following "hill climbing" strategy which we will later identify as a special case of the _Metrolopis algorithm_.
 
 1. Choose a random key $K$.
 2. Swap two random outputs of $K$ to get a new key $K'$.
-3. Let $r = \frac{\mathrm{Likelihood}(K')}{\mathrm{Likelihood}(K)}$. If $r \geq 1$, meaning that $K'$ has a higher likelihood than $K'$, update $K := K'$.
+3. Let $r = \frac{\mathrm{Likelihood}(K'(C))}{\mathrm{Likelihood}(K(C))}$. If $r \geq 1$, meaning that $K'$ has a higher likelihood than $K'$, update $K := K'$.
 4. If $r < 1$, flip a weighted coin where heads has weight $r$. If it comes up heads, update $K := K'$.
-5. If we have exceeded 5000 iterations, go back to step 2. Otherwise, return $K$.
+5. If we have not exceeded 5000 iterations, go back to step 2. Otherwise, return $K$.
 
 Generally speaking, we start at a random key and keep trying to improve it by making random changes to its outputs. If the new key is better we take it. And even if it's worse, there is a small probability that we still take it. This last part is important since it prevents us from being trapped at a local minimum.
 
@@ -196,16 +209,23 @@ def apply_key(key, text_idx):
 
 
 def random_transposition(N):
+    """Generate a random pair of integers (i, j)
+       such that i!=j and 0 <= i,j < N.
+    """
     return np.random.choice(N, size=(2,), replace=False)
 
 
 def apply_transposition(sigma, permutation):
+    """Apply the transposition sigma=(i,j) to the permutation."""
     output = permutation.copy()
     output[sigma[0]], output[sigma[1]] = output[sigma[1]], output[sigma[0]]
     return output
 
 
 def find_key(ciphertext_idx, pair_log_probs, n_iter=5000):
+    """Find the key that decodes the ciphertext using the language
+       model defined by pair_log_probs.
+    """
     key = np.random.permutation(len(CHARACTERS))
     text_idx = apply_key(key, ciphertext_idx)
     key_ll = compute_log_likelihood(text_idx, pair_log_probs)
@@ -288,13 +308,13 @@ If you look at the implementation of `find_key` you'll see that the only parts t
 
 This suggests that the algorithm can work more generally in a setting in which we have many states $x_1,\dots,x_n$ and a measure of the value of each state, together with a way of sampling nearby states. In this type of setting, we can apply an analog of `find_key` to find the state with the highest value.
 
-Indeed, this version is called the _Metropolis Algorithm_ and it has many applications in applied science and engineering. 
+Indeed, this is called the _Metropolis Algorithm_ which has many applications in applied science and engineering. 
 
 In the next few sections we will explain why the algorithm works. We'll start by introducing the theory of _Markov chains_ which was developed specifically to understand what happens if you randomly jump between a set of states. In the last section we'll apply this theory to the Metropolis algorithm.
 
 # Markov Chains
 ## What is a Markov Chain
-A _Markov chain_ describes a process which is defined by a set of _states_ $\\{x_1,\dots,x_N\\}$ and an array of _transition probabilities_ $[p_{ij}]\_{1 \leq i,j \leq j}$. The process starts at some initial state $x_\mathrm{initial}$. If we are currently at state $x_i$, the probability that we will move to state $x_j$ is $p_{ij}$.
+A _Markov chain_ describes a process which is defined by a set of _states_ $\\{x_1,\dots,x_n\\}$ and an array of _transition probabilities_ $[p_{ij}]\_{1 \leq i,j \leq n}$. The process starts at some initial state $x_\mathrm{initial}$. If we are currently at state $x_i$, the probability that we will move to state $x_j$ is $p_{ij}$.
 
 Here is an example from [Wikipedia](https://en.wikipedia.org/wiki/Examples_of_Markov_chains) involving the following simplified weather model:
 {% include image_with_source.html url="/assets/weather_markov_chain.png" source_url="https://en.wikipedia.org/wiki/Examples_of_Markov_chains" %}
@@ -307,26 +327,54 @@ In this model there are only two states - $S$ and $R$ representing sunny and rai
 
 The first row of $P$ tells us the transition probabilities assuming that the weather is currently sunny. In that case, the next day will be sunny with probability $p_{11} = 0.9$ and rainy with probability $p_{12} = 0.1$. Similarly, the bottom row tells us that if it is rainy today, then tomorrow it is equally likely to be sunny or rainy.
 
-We can use the transition matrix to simulate a sequence of states.
-CODE
+We call this process a _chain_ because we can use it to simulate a random sequence (or "chain") of states. Here is some code that samples a sequence from a Markov chain with two states like the one in our example.
+```python
+def sample_chain(P, initial_state, n_steps):
+    """Sample n_steps iterations of a Markov chain with two states."""
+    chain = [initial_state]
+    for _ in range(n_steps-1):
+        state = chain[-1]
 
-50 states: SSRSSRSRSSRSRSSRSRSRS
+        # Go to state 0 with probability P[state, 0]
+        if np.random.random() < P[state, 0]:
+            chain.append(0)
+        else:
+            chain.append(1)
+    
+    return chain
+```
 
-When presented with a Markov chain, we are typically interested questions about the long term behavior such as: What is the probability that in 50 days the weather will be sunny?
+We use it to generate 5 simulations of 50 days of weather using our model:
+```
+>>> P = np.array([[0.9, 0.1], [0.5, 0.5]])
+>>> state_names = ['S', 'R']
+
+>>> for _ in range(5):
+>>>    chain = sample_chain(P, initial_state=0, n_steps=50)
+>>>    print(''.join([state_names[s] for s in chain]))
+SSSRSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+SSSSSSSSSSSSSSSSSSSSRRRSSSSRRRRSSSSSSSSRSSRRRRSSSS
+SSSSSSSSSSSSSSSRRRRRSSSSRSSSSSSSSSSRRRRRSSRRSSSSSS
+SSRRRRRSSSSSSSSSSSSSSSSSSSSSSRRSSSSSSSSSSSSSSSRSSS
+SSSRRRRSSSSSRSSSSSSSSSSSSRSSSSSSSSSSSRRRSSSSRRRRRR
+```
+
+## The Stationary Distribution
+When presented with a Markov chain, we are typically interested questions about the long term behavior such as: What is the probability that in 50 days the weather will be sunny? Based on the 5 samples above we may expect the answer to be around $\frac{4}{5} = 0.8$, but how can we calculate the precise answer?
 
 For starters, let's figure out the probability $p^{(2)}\_{11}$ of it being sunny in two days from now assuming it is sunny today. There are two ways for this to happen. One option is for it to be sunny tomorrow and also sunny the day after. According to the transition matrix (or the diagram) this will happen with a $p_{11}p_{11} = 0.9\cdot 0.9 = 0.81$ probability. The other option is for it to be rainy tomorrow and then sunny the day after. This latter possibility occurs with a $p_{12}p_{21} = 0.1\cdot 0.5=0.05$ probability. Putting both options together we find the the probability of it being sunny in two days from now is:
 \\[
     p^{(2)}\_{11} = p_{11}p_{11} + p_{12}p_{21} = 0.81 + 0.05 = 0.86
 \\]
 
-You may recognize this as the expression for $(P^2)\_{11}$. In general, if the current state is $x_i$, then the probability that we will be in state $j$ after _two_ steps is $(P^2)\_{ij}$. In our example:
+You may recognize this as the expression for $(P^2)\_{11}$ - the top left element in the matrix $P^2$. In general, if the current state is $x_i$, then the probability that we will be in state $j$ after _two_ steps is $(P^2)\_{ij}$. In our example:
 \\[
     P^2 = \begin{bmatrix} 0.86 & 0.14 \\\\ 0.7 & 0.3 \end{bmatrix}
 \\]
 
 From the bottom row we can see that if it is rainy today, the probability of it being rainy in two days from now is $0.3$.
 
-In fact, this rule holds any number of transitions. Specifically, if the current state is $x_i$ then the probability that we will reach state $x_j$ after $n$ transitions is $(P^n)\_{ij}$.
+In fact, this rule holds for any number of transitions. Specifically, if the current state is $x_i$ then the probability that we will reach state $x_j$ after $n$ transitions is $(P^n)\_{ij}$.
 
 Let's see what this implies for our weather forecasts:
 \\[
@@ -341,23 +389,36 @@ Further calculations show that for all $n \geq 3$,
 P^n = \begin{bmatrix} 0.833 & 0.167 \\\\ 0.833 & 0.167 \end{bmatrix}
 \\]
 
-So after three days the probability of it being sunny converges to $0.833$.
+So after three days the probability of it being sunny converges to $0.833$, and this holds for any number of days greater than $3$.
 
-SHOW A HISTOGRAM OF THE STATIONARY DISTRIBUTION
-CODE
-HIST
+To test this out, let's generate 10000 sequences of 20 days of weather and check which fraction of them are sunny:
 
-The probability distribution $[0.833 0.167]$ is called the _stationary distribution_ because after a sufficiently large number of steps we reach this distribution and from then on it stops changing.
+```
+>>> N = 10000
+>>> num_sunny = 0
+>>> for _ in range(N):
+>>>    state = np.random.randint(0,2)
+>>>    chain = sample_chain(P, initial_state=state, n_steps=20)
+>>>    if chain[-1] == 0:
+>>>       num_sunny += 1
+>>>    
+>>> print(f"Fraction of chains that ended sunny: {num_sunny / N}")
+0.8305
+```
+
+We get the answer of $0.8305$ which is pretty close to our theoretical calculation of $0.833$.
+
+The probability distribution $\begin{bmatrix}0.833 & 0.167\end{bmatrix}$ is called the _stationary distribution_ because after a sufficiently large number of steps we reach this distribution and from then on it stops changing.
 
 ## Regular Markov Chains
 It is natural to wonder if all Markov chains have a stationary distribution. In order to see that this is false, consider the following alternative transition matrix for our weather model:
 \\[
-    P = \begin{bmatrix} 0 & 1 \\\\ 1 & 0 \end{bmatrix}
+    P' = \begin{bmatrix} 0 & 1 \\\\ 1 & 0 \end{bmatrix}
 \\]
 
 This transition matrix implies that sunny days are always followed by rainy days and vice versa. Therefore, if today is sunny, our state in $n$ days from now will be sunny if $n$ is even and rainy if $n$ is odd. This means that the Markov chain has no stationary distribution because the probability of being in any given state jumps around over time rather than converging to a fixed value.
 
-Fortunately, a common type of Markov chains called _regular_ Markov chains do have stationary distributions. Here is the definition.
+Fortunately, a common type of Markov chains called _regular_ Markov chains do have stationary distributions.
 
 {%include definition.html
 name = "Definition" content = "A Markov chain with transition matrix $P$ is called <b>regular</b> if there exists an integer $n$ such that all of the entries of $P^n$ are greater than zero."
@@ -382,7 +443,7 @@ For example, we already saw that our weather forecasting Markov chain was regula
 
 so in this case, $W = \begin{bmatrix} 0.833 & 0.167 \\\\ 0.833 & 0.167 \end{bmatrix}$ and $\mathbf{w} = \begin{bmatrix}0.833 & 0.167\end{bmatrix}$. As we mentioned earlier, the row matrix $\mathbf{w}$ is called the stationary distribution.
 
-Proving this theorem is outside the scope of this article, but if you are curious I suggest looking at chapter 11 of the excellent book [Introduction to Probability](http://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html) by Grinstead and Snell.
+Proving this theorem is outside the scope of this post, but if you are curious I suggest looking at chapter 11 of the excellent book [Introduction to Probability](http://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html) by Grinstead and Snell.
 
 ## Calculating the Stationary Distribution
 As we have seen, every regular Markov chain has a stationary distribution. This is great because once we know this distribution, we can predict the probability of landing in any state after a large number of iterations without actually having to simulate the chain. For instance, in our weather example we know that the probability of it being sunny in $1000$ days is $0.833$, regardless of what the weather is today.
@@ -410,23 +471,53 @@ We will prove this theorem at the end of the section. For now, let's apply this 
 
 as implied by the theorem.
 
-There are two primary ways by which this theorem helps us calculate the stationary distribution $\mathbf{w}$.
+There are two common ways by which this theorem helps us calculate the stationary distribution $\mathbf{w}$.
 
-The first way uses the fact that according to the theorem, $\mathbf{w}$ is the unique eigenvector (up to a scalar) of $P$ with an eigenvalue of $1$. Therefore, we can find $\mathbf{w}$  using one of the many off-the-shelf linear algebra libraries.
+The first way uses the fact that according to the theorem, $\mathbf{w}$ is the unique left eigenvector (up to a scalar) of $P$ with an eigenvalue of $1$. Therefore, we can find $\mathbf{w}$  using an off-the-shelf linear algebra library to compute the eigenvectors of $P$.
 
-However, in many cases of practical interest $P$ is so large that even calculating eigenvectors is not possible. In those cases, sometimes it is possible to _guess_ that the stationary distribution is some vector $\mathbf{x}$. According to the theorem, we can verify our guess by checking if $\mathbf{x}P = \mathbf{x}$. This may sound a bit silly, but this is the method we will use in our analysis of the Metropolis algorithm in the following section.
+However, in many cases of practical interest $P$ is so large that even calculating eigenvectors is not feasible. In those cases, is is sometimes possible to _guess_ that the stationary distribution is some vector $\mathbf{x}$. According to the theorem, we can verify our guess by checking if $\mathbf{x}P = \mathbf{x}$. This may sound a bit silly, but this is the method we will use in our analysis of the Metropolis algorithm in the following section.
 
-We will finish this section by proving the theorem.
+## Proof of Theorem 2
+We will now prove [theorem 2](#thm:eigen-vec). Feel free to skip ahead if you are more interested in seeing how the theorem is used to analyze the Metropolis algorithm.
+
+First let's show that if $\mathbf{w}$ is the stationary distribution then $\mathbf{w}P=\mathbf{w}$. By [theorem 1](#thm:stat-dist) we know that
+\\[
+    \lim_{n\rightarrow\infty}P^n = W
+\\]
+
+where all the rows of $W$ are equal to the stationary distribution $\mathbf{w}$. Now note that
+<div style="font-size: 1.4em;">
+\begin{align*}
+    W &= \lim_{n\rightarrow\infty}P^n = \lim_{n\rightarrow\infty}P^{n+1} \\
+      &= \lim_{n\rightarrow\infty}P^n\cdot P = (\lim_{n\rightarrow\infty} P^n) \cdot P = WP
+\end{align*}
+</div>
+
+In summary we've shown that $WP = W$. But since each row of $W$ is equal to $\mathbf{w}$, it follows that $\mathbf{w}P = \mathbf{w}$.
+
+For the other direction, suppose that $\mathbf{x}P = \mathbf{x}$ for some row vector $\mathbf{x}$. It easily follows by induction that $\mathbf{x}P^n = \mathbf{x}$ for all $n$. Therefore,
+\\[
+    \mathbf{x}W = \mathbf{x}\lim_{n\rightarrow\infty}P^n = \lim_{n\rightarrow\infty}\mathbf{x}P^n = \lim_{n\rightarrow\infty}\mathbf{x} = \mathbf{x}
+\\]
+ which means that $\mathbf{x}W = \mathbf{x}$. 
+ 
+ Let $r$ be equal to the sum of the components of $\mathbf{x}$. Since all of the rows of $W$ are equal to $\mathbf{w}$, it is easy to see that $\mathbf{x}W = r\mathbf{w}$.
+
+ Together, with our previous observation that $\mathbf{x}W = \mathbf{x}$ it follows that $\mathbf{x} = r\mathbf{w}$. Indeed, $\mathbf{x}$ is proportional to $\mathbf{w}$ which is what we wanted to show.
+
+
 
 # Why the Metropolis Algorithm Works
 We are finally in a position to understand the logic behind the Metropolis algorithm. Recall that the algorithm works by starting at an initial key, and then at each stage we with some probability either stay at the same key or move to a random neighboring key. We can now recognize this rule as describing a Markov chain $M$ whose states are the possible keys $K_1,\dots,K_n$. We will soon describe this chain in more detail.
 
-The fundamental idea behind the Metropolis algorithm is that $M$ is a _regular_ Markov chain, and its stationary distribution is proportional to a row vector whose $i$-th element is equal to the likelihood of the key $K_i$. By the definition of the stationary distribution, this means that once we run enough iterations of the chain, or in this case, the Metropolis algorithm, _the probability of landing on a key will be proportional to its likelihood_. In particular, we have a good chance of landing on the key with the highest likelihood!
+The fundamental idea behind the Metropolis algorithm is that $M$ is a _regular_ Markov chain, and that its stationary distribution is proportional to a row vector whose $i$-th element is equal to the likelihood of the key $K_i$. By the definition of the stationary distribution, this means that once we run enough iterations of the chain, or in this case, the Metropolis algorithm, _the probability of landing on a key will be proportional to its likelihood_. In particular, we have a good chance of landing on the key with the highest likelihood!
 
 The remainder of this section will be devoted to describing the Markov chain $M$, and proving the properties we alluded to above.
 
 ## The Transition Matrix $P$
-Recall that we earlier defined the likelihood of a key $K$ to be the likelihood that the model assigns to the result of applying the key to the ciphertext $C=c_1\dots c_m$:
+In this section we will compute the transition matrix $P$ for the Markov chain $M$.
+
+First let's nail down some notation. Let $C=c_1\dots c_m$ denote our ciphertext. Recall that we earlier defined the likelihood of a key $K$ to be the likelihood that the language model assigns to $K(C)$:
 \\[
     \mathrm{Likelihood}(K(C)) = \\prod_{i=1}^{N-1}\mathrm{PairProb}(K(c_i),K(c_{i+1}))
 \\]
@@ -438,14 +529,14 @@ To facilitate notation, we will use the abbreviation
 
 In addition, let $A$ denote the number of characters in the alphabet.
 
-Finally, we will define $\mathrm{Nbd}(K)$, short for the _neighborhood of $K$, to be the set of keys that can be obtained by applying a transposition to $K$. Note that for all $i$, the size of the neighborhood is
+Finally, we will define $\mathrm{Nbd}(K)$, short for the _neighborhood_ of $K$, to be the set of keys that can be obtained by applying a transposition to $K$. Note that for all $i$, the size of the neighborhood is
 \\[
     |\mathrm{Nbd}(K)| = \binom{A}{2}
 \\]
 
 This is because there is exactly one transposition for each pair of distinct characters in the alphabet.
 
-Let us now determine the transition matrix $P_{ij}$ of the Markov chain $M$. By definition, $P_{ij}$ is equal to the probability of moving from the key $K_i$ to the key $K_j$. We have 4 cases to cover.
+Let us now calculate the coefficients of the transition matrix $P_{ij}$ of the Markov chain $M$. By definition, $P_{ij}$ is equal to the probability of moving from the key $K_i$ to the key $K_j$. We will determine these probabilities by following the update rule of the Metropolis algorithm. There are 4 cases to cover.
 
 Since we only jump to keys in the neighborhood of $K_i$, if $K_j \notin \mathrm{Nbd}(K_i)$ then $P_{ij} = 0$.
 
@@ -473,7 +564,7 @@ content = "The stationary distribution of the Markov chain $M$ is proportional t
 \]"
 %} 
 
-As we mentioned earlier, this claim is the fundamental reason that the Metropolis algorithm works. To reiterate, if the stationary distribution of $M$ is $\mathbf{w}$ then, by definition, if we start from a random key an apply many iterations of the Markov chain, then the probability of ending up at key $K_i$ is proportional to $\mathbf{w}_i$. According to the claim, $\mathbf{w}_i=L(K_i)$. Therefore, the probability of ending up at $K_i$ is proportional to its likelihood $L(K_i)$. 
+As we mentioned earlier, this claim is the fundamental reason that the Metropolis algorithm works. To reiterate, if the stationary distribution of $M$ is $\mathbf{w}$ then, by definition, if we start from a random key and apply many iterations of the Markov chain, then the probability of ending up at key $K_i$ is proportional to $\mathbf{w}_i$. According to the claim, $\mathbf{w}_i=L(K_i)$. Therefore, the probability of ending up at $K_i$ is proportional to its likelihood $L(K_i)$. 
 
 But we defined the Markov chain so that making a step in the chain is exactly the same as doing an iteration of the Metropolis algorithm. Therefore, at the end of the algorithm the probability of ending up at $K_i$ is also proportional $L(K_i)$. In particular, there is a high chance that we end up at the the true key which has by far the greatest likelihood.
 
@@ -497,7 +588,7 @@ content = "For any indices $i$ and $j$,
 "
 %}
 
-Before proving this lemma let's use it to prove equation \ref{eq:eigen-vec} and thus [claim 1](#clm:stat-dist). Indeed, note that
+Before proving this lemma let's use it to prove equation \ref{eq:eigen-vec} and thus [claim 1](#clm:stat-dist). Indeed, note that it follows from the lemma that that for any $i$:
 
 <div style="font-size: 1.4em;">
 \begin{align*}
@@ -509,7 +600,9 @@ Before proving this lemma let's use it to prove equation \ref{eq:eigen-vec} and 
 \end{align*}
 </div>
 
-Let's unpack this. Equality $(1)$ is just the definition of matrix multiplication. Equality $(2)$ follows from the definition of $\mathbf{w}$. The key nontrivial step is $(3)$ which follows from [lemma 1](#lem:swap-idx). Finally, $(4)$ holds because the sum of any row of a transition matrix is equal to $1$.
+Let's unpack this. Equality $(1)$ is just the definition of matrix multiplication. Equality $(2)$ follows from the definition of $\mathbf{w}$. The key nontrivial step is $(3)$ which uses [lemma 1](#lem:swap-idx). Finally, $(4)$ holds because the sum of any row of a transition matrix is equal to $1$.
+
+In summary, we have shown that for all $i$, $(\mathbf{w}P)_i = \mathbf{w}_i$. Therefore $\mathbf{w}P = \mathbf{w}$ which is what we wanted to show.
 
 Now all that remains is to prove [lemma 1](#lem:swap-idx). We will break it down into the same four cases that we encountered while calculating $P_{ij}$.
 
