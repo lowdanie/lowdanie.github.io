@@ -40,6 +40,8 @@ We will then replace these springs by pneumatic tubes filled with gas. Using the
 
 Finally, we'll put everything together to write down a formula for the speed of sound in a gas in terms of its mass, temperature and heat capacity and verify that it is consistent with the table.
 
+# The Ball and Spring Model
+
 {% include video.html src="/assets/sound_waves/sine_wave.mp4" %}
 ____
 
