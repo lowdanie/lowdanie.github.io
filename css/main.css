@@ -55,3 +55,22 @@ ul.posts li {
     display: block;
     text-align: center;
 }
+
+.center-video {
+    margin: auto;
+    display: block;
+}
+
+tr {
+    font-size: 1.5em;
+    line-height: 1.4em;
+    color: #333;
+}
+
+td, th {
+    padding-right: 1em;
+}
+
+.footnotes p {
+    font-size: 1em;
+}
