@@ -45,6 +45,8 @@ Sounds waves are an example of a _compression wave_. In this section we will stu
 
 Our model consists of a series of balls connected by springs as in the diagram below:
 
+![Force](/assets/sound_waves/ball_springs.png){: .center-image}
+
 The balls all have the same mass which we denote by $m$. Similarly, all of the springs have the same stiffness $k$ and length $h$.
 
 What happens if we squeeze the springs on one of the ends? Here is a simulation comparing two systems with 100 balls that differ only in the spring stiffness. Each line represents a ball and the springs have been omitted for clarity. Also, a few of the "balls" have been colored red to make it easier to track their motion but they are physically identical to the rest of the balls.
@@ -140,11 +142,12 @@ How well does this explain our simulations at the beginning of the section? Reca
 # Making a Spring out of Gas
 We now relate the ball and spring model to sound by replacing the springs with tubes of gas. Consider a tube which is filled with gas and sealed at the end by a piston. As part of this model we will also assume that the the tube is thermally insulated from the environment. 
 
-[[ DIAGRAM ]]
+In the equilibrium state, the pressure in the tube is equal to the atmospheric pressure so the piston is stationary. But when the piston is displaced out it oscillates around the equilibrium point as though it was connected to a spring:
 
-In the equilibrium state, the pressure in the tube is equal to the atmospheric pressure so the piston is stationary. But if the piston is pulled out, the pressure in the tube decreases and so the piston is pushed back in. Similarly, if the piston is pressed in the pressure inside increases and the piston is pushed back out. The net result is that if the piston is displaced, it oscillates around the equilibrium point like a spring:
+{% include video.html src="/assets/sound_waves/piston.mp4"
+   width="700" height="400" %}
 
-[[ SIMULATED DIAGRAM ]]
+The reason for this is that when the piston is pulled out the pressure in the tube decreases and so the piston is pushed back in. Similarly, if the piston is pressed in the pressure inside increases and the piston is pushed back out. In the simulation above, a darker color indicates a higher pressure.
 
 The goal of this section will be to complete this analogy by computing the _stiffness_ $k$ of a pneumatic tube in terms of properties of the gas inside.
 
@@ -156,7 +159,8 @@ dF = -k \cdot dx
 
 So to compute $k$ we must determine how the change in force force $dF$ depends on the change in position $dx$.
 
-[[ DIAGRAM ]]
+![Force](/assets/sound_waves/piston_annotated.png){: .center-image}
+
 
 Let $A$ denote the area of the piston, $p_a$ denote the atmospheric pressure and $p$ denote the pressure in the tube. Then the force on the piston is equal to $F = A \cdot (p - p_a)$. Therefore:
 \begin{equation}\label{eq:piston-dF}
@@ -198,17 +202,21 @@ k = \gamma A^2 \frac{p_0}{V_0}
 \end{equation}
 
 # Calculating the Speed of Sound
-We will now merge the ball and spring model with the pneumatic tubes to compute the speed of sound in a gas. Specifically, we want to compute the speed of a sound wave propagating through a long cylinder of gas with cross section $A$. 
+We will now merge the ball and spring model with the pneumatic tubes to compute the speed of sound in a gas. Specifically, we want to compute the speed of a sound wave propagating through a long cylinder of gas with cross section $A$.
 
-Sound waves are examples of compression waves. For instance, suppose someone claps their hand on the left side of the cylinder. This will displace push on the gas at that end and cause it to become compressed. This compressed gas will push back and end up compressing the gas next to it and so on. The end result is a compression wave which is very similar to the ones we studied earlier with the ball and spring model.
+Sound waves are examples of compression waves. For instance, suppose someone claps their hand on the left side of the cylinder. This will displace push on the gas at that end and cause it to become compressed. This compressed gas will push back and end up compressing the gas next to it and so on. Here is a simulation in which a darker color indicates a more compressed gas:
 
-To push the analogy further, lets subdivide the cylinder of gas into many small tubes each with length $h$:
+{% include video.html src="/assets/sound_waves/pressure_wave.mp4"
+   width="900" height="200" %}
 
-[[ DIAGRAM ]]
+To relate this to the ball and springs model, lets subdivide the cylinder into many smaller tubes each with length $h$:
 
-As a crude approximation, we will assume that the mass $m$ in each tube is concentrated on its left wall. In the previous section we saw that a tube of gas reacts to compression like a spring.  We can thus model the cylinder of gas as a series of balls (the walls) connected by springs (the tubes of gas).
+{% include video.html src="/assets/sound_waves/pressure_wave_walls.mp4"
+   width="900" height="200" %}
 
-What is the stiffness coefficient of the springs? Let $p_0$ denote the equilibrium pressure of the gas and $V_0 = hA$ equilibrium volume. By equation \ref{eq:piston-k-final} the stiffness is:
+Observe the similarity to our ball and spring simulations! Specifically, we can think of the walls as "balls" which are separated by springs created out of gas as in the previous section. As a crude approximation, we will assume that the mass $m$ in each tube is concentrated on its left wall.
+
+What is the stiffness coefficient of these springs? Let $p_0$ denote the equilibrium pressure of the gas and $V_0 = hA$ equilibrium volume. By equation \ref{eq:piston-k-final} the stiffness is:
 
 \\[
 k = \gamma A^2 \frac{p_0}{V_0}
@@ -260,49 +268,40 @@ Now that we have a precise formula, we can test it on the table of speeds that w
 
 The agreement between the experimentally observed speeds and our formula is quite remarkable! This reinforces our theory that the speed of sound in an ideal gas depends only on the temperature, mass of the molecules and the adiabatic index of the gas.
 
-It makes sense that wave would have a harder time traveling through a gas with heavier molecules. But what does the adiabatic index have to do with it? In the next section we will discuss the index in more detail and develop some intuition for why a higher adiabatic index implies a faster speed of sound.
+It makes sense that a wave would have a harder time traveling through a gas with heavier molecules. But what does the adiabatic index have to do with it? In the next section we will discuss the index in more detail and develop some intuition for why a higher adiabatic index implies a faster speed of sound.
 
 # Heat Capacity and the Adiabatic Index
 
-In  the previous section we showed that in order to calculate the speed of sound in a gas one must know its adiabatic index. We will now provide an interpretation for this index and explain what it has to do with the speed of sound. The emphasis of this section will on  intuitive rather than formal explanations. 
+In the previous section we showed that in order to calculate the speed of sound in a gas one must know its adiabatic index. The technical reason for this is equation \ref{eq:piston-k-final} which says that the adiabatic index determines the gas's stiffness. But what is the adiabatic index and what does it have to do with stiffness?
 
-The adiabatic index of an ideal gas can be expressed in terms of the gas's heat capacity [^WIKI2]:
+In this section we interpret the adiabatic index in terms of the more intuitive concept of _heat capacity_ and then try to understand the connection between heat capacity and the compressibility of a gas.
+
+For starters, adiabatic index of an ideal gas can be expressed in terms of the gas's heat capacity [^WIKI2]:
 \begin{equation}\label{eq:gamma-cv}
 \gamma = 1 + \frac{R}{c_V}
 \end{equation}
 
 As before, $R$ is the ideal gas constant. The interesting term here is $c_V$ which denotes the heat capacity of one mole of gas at a constant volume - also known by the fancier name of the _isochoric specific heat_.
 
-In concrete terms, suppose you have one mole of gas molecules in a sealed container. By definition, raising the temperature of the gas by $1$ degree Kelvin requires $c_V$ Joules of energy.
+Intuitively, the heat capacity of a gas measures the amount of energy that each molecule can store internally. Common types of internal energy are vibrations and rotations of the molecule's atoms with respect to one another. It has units of Joules per Kelvin and kilogram: $J/(K\, kg)$. I.e, the amount of energy that can be stored in a kilogram of the material for each degree Kelvin.
 
-For example Helium ($He$) has a specific heat of $c_V = 12.486$ so raising the temperature of one mole of Helium by $1\,K$ requires $12.486$ Joules of energy. On the other hand, the specific heat of Ethane ($C_2H_6$) is $c_V = 44.186$ so far more energy is required to raise the temperature of Ethane by the same amount.
+As an example, let's compare Helium ($He$) to Ethane ($C_2H_6$).
 
-What is the reason for this difference? It ultimately comes down to the number of ways in which a molecule of the gas can move. In a monatomic (i.e, each molecule has a single atom) gas like Helium each molecule can move in the $x$, $y$ and $z$ directions so we say that it has $3$ _degrees of freedom_. In contrast, an each Oxygen molecule ($O_2$) has two atoms. So in addition to the molecule being able to move linearly in $3$ directions, the two atoms can rotate relative to one another in two ways (e.g $\phi$ and $\psi$ in spherical coordinates) so Oxygen has a total of $5$ degrees of freedom. Finally, each Ethane molecule has $8$ atoms which means that it has even more degrees of freedom.
+![Force](/assets/sound_waves/helium_ethane.png){: .center-image}
 
-Now, the temperature of a gas is roughly proportional to the average energy of motion in each degree of freedom. So in order to raise the temperature we must increase the energy _in each degree of freedom_ of the gas. Since Ethane has more degrees of freedom than Helium it takes more energy to raise its temperature. This explains why Ethane has a higher specific heat.
+Ethane molecules each have 6 atoms and clearly there are many interesting ways for them to move relative to one another. In contrast, Helium molecules are quite lonely with only a single atom. And indeed, the specific heat of Ethane is $44.186\, J/(K\, kg)$ whereas the specific heat of Helium is only  $12.486 J/(K\, kg)$.
 
-We can use this degrees of freedom interpretation to explain the relationship between specific heat and the speed of sound. Recall that in our discussion of the ball and spring model we found that the speed of compression waves is proportional to the _stiffness_ of the springs. In the case of sound waves the springs can be modeled as tubes filled with gas. By equations \ref{eq:piston-k-final} and  \ref{eq:gamma-cv} the stiffness of such a tube is inversely proportional to the specific heat.
+What does this have to do with stiffness? 
 
-So we can rephrase our question as: Why are gasses with a higher specific heat easier to compress?
+We claim that a tube filled with Helium is harder to compress, i.e stiffer, than a tube of Ethane with the same volume. To see why, first imagine pressing down on the Helium tube. This pressing is a form of work which increases the energy of the Helium molecules. Since Helium molecules have a relatively low heat capacity, most of this energy will be used to increase the molecule's kinetic energy rather than their internal energy.
 
-Consider two pneumatic tubes, one filled with Helium ($He$) and one with Ethane ($C_2H_6$). 
+Now let's imagine pressing on the Ethane tube. As before, this will increase the energy of the Ethane molecules. But in this case, a lot of the energy will used to increase the internal energy of the molecules - for example by spinning them around or vibrating bonded pairs of atoms. Therefore comparatively little energy will be left for the kinetic energy.
 
-[[ DIAGRAM ]]
+The end result is that the Helium molecules will be moving more quickly than the Ethane molecules. As a consequence the pressure in the Helium tube will be greater thus making it harder to compress.
 
-Suppose we now press down on the pistons by the same amount, thus increasing the energy of the gas. In the case of Helium, all of this energy will be spent on increasing the kinetic energy of the gas molecules since, as we mentioned earlier, these are the only degrees of freedom. On the other hand, the Ethane gas will use part of the energy to increase the kinetic energy, and use the rest of it to make the molecules spin around:
+Finally, recall that in our analysis of the ball and spring model we found that the speed of a compression wave is proportional to the stiffness of the springs. Since gasses with lower heat capacity are "stiffer", sound waves travel through them more quickly.
 
-[[ DIAGRAM ]]
-
-The net result is that Helium molecules will end up moving faster, thus raising the pressure more quickly compared to the Ethane gas. The difference came down to the fact that Helium molecules have fewer degrees of freedom, and hence a smaller heat capacity, than Ethane molecules. This provides some intuition for equation \ref{eq:dpdV} which played a key role in our calculation of the stiffness of a tube of gas:
-\\[
-\frac{dp}{dV} = -\gamma \frac{p_0}{V_0} = -(1 + \frac{R}{c_V})\frac{p_0}{V_0}
-\\]
-
-For a formal derivation I suggest looking at the wikipedia page [^WIKI].
-
-In summary, we've seen that the speed of sound in a gas depends on its temperature, mass and specific heat. If the gas molecules have a larger mass then they are harder to move which makes sound travel more slowly. If the gas has a higher specific heat then it reacts less forcefully to compression which also causes sound to travel more slowly. We formalized this relationship with an explicit equation (\ref{eq:sound-c-3}) and found that it agrees quite nicely with experimental evidence!
-
-
+In summary, we've seen that the speed of sound in a gas depends on its temperature, mass and heat capacity. If the gas molecules have a larger mass then they are harder to move which makes sound travel more slowly. If the gas has a lower heat capacity then it reacts more forcefully to compression which causes sound to propagate more quickly. We formalized this relationship in equation \ref{eq:sound-c-3} and found that it agrees quite nicely with experimental evidence!
 
 ____
 
