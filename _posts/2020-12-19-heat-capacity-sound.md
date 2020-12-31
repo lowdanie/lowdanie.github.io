@@ -174,7 +174,7 @@ Let $A$ denote the area of the piston, $p_a$ denote the atmospheric pressure and
 dF = A \cdot dp
 \end{equation}
 
-Furthermore, let $V$ denote the volume of the tube and let $V_0$ denote the volume of the piston at equilibrium. Then $V = V_0 + A\cdot dx$ which means that:
+Furthermore, let $V$ denote the volume of the tube and let $V_0$ denote the volume at equilibrium. Then $V = V_0 + A\cdot dx$ which means that:
 \begin{equation}\label{eq:piston-dx}
 dx = \frac{dV}{A}
 \end{equation}
@@ -279,11 +279,11 @@ It makes sense that a wave would have a harder time traveling through a gas with
 
 # Heat Capacity and the Adiabatic Index
 
-In the previous section we showed that in order to calculate the speed of sound in a gas one must know its adiabatic index. The technical reason for this is equation \ref{eq:piston-k-final} which says that the adiabatic index determines the gas's stiffness. But what is the adiabatic index and what does it have to do with stiffness?
+In the previous section we showed that the speed of sound in a gas is proportional to its adiabatic index. The technical reason for this is equation \ref{eq:piston-k-final} which says that the adiabatic index determines the gas's stiffness. But what is the adiabatic index and what does it have to do with stiffness?
 
 In this section we interpret the adiabatic index in terms of the more intuitive concept of [_heat capacity_](https://en.wikipedia.org/wiki/Heat_capacity) and then try to understand the connection between heat capacity and the compressibility of a gas.
 
-For starters, adiabatic index of an ideal gas can be expressed in terms of the gas's heat capacity [^WIKI2]:
+For starters, the adiabatic index of an ideal gas can be expressed in terms of the gas's heat capacity [^WIKI2]:
 \begin{equation}\label{eq:gamma-cv}
 \gamma = 1 + \frac{R}{c_V}
 \end{equation}
@@ -306,7 +306,7 @@ Now let's imagine pressing on the Ethane tube. As before, this will increase the
 
 The end result is that the Helium molecules will be moving faster than the Ethane molecules. As a consequence the pressure in the Helium tube will be greater thus making it harder to compress.
 
-Finally, recall that in our analysis of the ball and spring model we found that the speed of a compression wave is proportional to the stiffness of the springs. Since gases with lower heat capacity like Helium are "stiffer", sound waves travel through them more quickly.
+Coming back to the speed of sound, recall that in our analysis of the ball and spring model we found that the speed of a compression wave is proportional to the stiffness of the springs. Since gases with lower heat capacity like Helium are "stiffer", sound waves travel through them more quickly.
 
 In summary, we've seen that the speed of sound in a gas depends on its temperature, mass and heat capacity. If the gas molecules have a larger mass then they are harder to move which makes sound travel more slowly. If the gas has a lower heat capacity then it reacts more forcefully to compression which causes sound to propagate more quickly. We formalized this relationship in equation \ref{eq:sound-c-3} and found that it agrees quite nicely with experimental evidence!
 
