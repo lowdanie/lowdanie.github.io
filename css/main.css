@@ -74,3 +74,9 @@ td, th {
 .footnotes p {
     font-size: 1em;
 }
+
+pre {
+    overflow-x: auto;
+    padding: 10px;
+    border: 1px solid #aaa
+}
