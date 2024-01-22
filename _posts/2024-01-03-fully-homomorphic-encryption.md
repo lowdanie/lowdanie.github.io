@@ -216,21 +216,32 @@ LweCiphertext(
 >>> 3
 ```
 
-## LWE is Additively Homomorphic
+## Homomorphic Operations
 
 ### Motivation
-In this section we will show that the LWE scheme above is *additively homomorphic*.
+In this section we will show that the LWE scheme above is homomorphic under addition and multiplication by plaintext.
 
-Before showing how this works let's take a minute to explain why this is interesting and useful. Suppose you have two secret numbers $m_1$ and $m_2$ and you want to use an untrusted server to compute their sum. Since the server is untrusted, you do not want to send $m_1$ or $m_2$. Instead you can leverage the additive homomorphic property of LWE by following these steps:
+Before showing how this works let's take a minute to explain why this is interesting and useful. Suppose a server hosts a simple linear regression model whose linear part is defined by:
+
+\\[
+    f(x_0, x_1) = w_0\cdot x_0 + w_1 \cdot x_1
+\\]
+
+for weights $w_0$ and $w_1$. In addition, suppose you have two secret numbers $m_0$ and $m_1$ and you want to use the server to compute $f(m_0, m_1)$. Since the server is untrusted, you do not want to send $m_0$ or $m_1$. Instead you can leverage the homomorphic properties of LWE by following these steps:
+
+SEQUENCE DIAGRAM?
 
 1. Generate an LWE key $\mathbf{s}$ locally.
-1. Encrypt $m_1$ and $m_2$ locally to obtain $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$.
-1. Send $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$ to the server.
-1. The server uses the additive homomorphic property to compute a ciphertext $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$. Note that the server does this *without* have access to $\mathbf{s}$, $m_1$, $m_2$ or $m_1 + m_2$.
-1. The server sends $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ back to the client.
-1. The client uses $\mathrm{s}$ to decrypt $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ and obtain the result $m_1 + m_2$.
+1. Encrypt $m_0$ and $m_1$ locally to obtain $\mathrm{Enc}\_\mathbf{s}(m_0)$ and $\mathrm{Enc}\_\mathbf{s}(m_1)$.
+1. Send $\mathrm{Enc}\_\mathbf{s}(m_0)$ and $\mathrm{Enc}\_\mathbf{s}(m_1)$ to the server.
+1. The server uses homomorphic multiplication of $\mathrm{Enc}\_\mathbf{s}(m_i)$ by the plaintext $c_i$ to compute a ciphertext $\mathrm{Enc}\_\mathbf{s}(c_i \cdot m_i)$
+1. The server uses homomorphic addition of $\mathrm{Enc}\_\mathbf{s}(c_0\cdot m_0)$ and $\mathrm{Enc}\_\mathbf{s}(c_1\cdot m_1)$ to compute a ciphertext $\mathrm{Enc}\_\mathbf{s}(f(m_0, m_1)) = \mathrm{Enc}\_\mathbf{s}(c_0\cdot m_0 + c_1 \cdot m_1)$.
+1. The server sends $\mathrm{Enc}\_\mathbf{s}(f(m_0, m_1))$ back to the client.
+1. The client uses $\mathbf{s}$ to decrypt $\mathrm{Enc}\_\mathbf{s}(f(m\_0, m\_1))$ and obtain the result $f(m\_0, m\_1)$.
 
-### Evaluation Addition Homomorphically
+Note that this example can easily be extended to general dot product between a vector a weights $\mathbf{w}$ and a vector of features $\mathbf{x}$ which is a core component of neural networks.
+
+### Homomorphic Addition
 
 Let $\mathbf{s}$ be a LWE key, let $m_1, m_2 \in \mathbb{Z}\_q$ be two messages and let  $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$ be the corresponding ciphertexts. In order to show that LWE is additively homomorphic we must find a way to produce a ciphertext $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ of the sum of the messages $m_1 + m_2$ from only the ciphertexts $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$.
 
@@ -258,7 +269,7 @@ Let's define $\mathbf{a}\_\mathrm{sum} = \mathbf{a_1} + \mathbf{a_2}$ and $e\_\m
     \mathrm{Enc}\_\mathbf{s}(m_1) + \mathrm{Enc}\_\mathbf{s}(m_1) = (\mathbf{a}\_\mathrm{sum}, \mathbf{a}\_\mathrm{sum} \cdot \mathbf{s} + (m_1 + m_2) + e\_\mathrm{sum})
 \end{equation}
 
-Note that right side of the above equation looks like an encryption of $m_1 + m_2$. Indeed, since $\mathbf{a_1}$ and $\mathbf{a_2}$ are uniformly random in $\mathbb{Z}_q^n$, $\mathbf{a}\_\mathrm{sum}$ is uniformly random as well. And since $e_1$ and $e_2$ are small errors, $e\_\mathrm{sum}$ is small as well. In summary, $\mathrm{Enc}\_\mathbf{s}(m_1) + \mathrm{Enc}\_\mathbf{s}(m_1) $ is a valid encryption of $m_1 + m_2$.
+Note that right side of the above equation looks like an encryption of $m_1 + m_2$. Indeed, since $\mathbf{a_1}$ and $\mathbf{a_2}$ are uniformly random in $\mathbb{Z}_q^n$, $\mathbf{a}\_\mathrm{sum}$ is uniformly random as well. And since $e_1$ and $e_2$ are small errors, $e\_\mathrm{sum}$ is small as well. In summary, $\mathrm{Enc}\_\mathbf{s}(m_1) + \mathrm{Enc}\_\mathbf{s}(m_1) $ is a valid encryption of $m_1 + m_2$. DECRYPT TO CONFIRM
 
 Here is an implementation:
 
@@ -325,9 +336,32 @@ LwePlaintext(message=1610616071)
 3
 ```
 
+### Homomorphic Multiplication By Plaintext
+
+The idea of homomorphic multiplication by a plaintext is similar to the homomorphic addition in the previous section.
+
+Let $\mathbf{s}$ be a LWE key, $m \in \mathbb{Z}\_q$ a message and $\mathrm{Enc}\_\mathbf{s}(m)$ a LWE ciphertext of $m$ with the $\mathbf{s}$. Let $c \in \mathbb{Z}_q$ be a plaintext constant.
+
+Our goal in this section is to homomorphically multiply the ciphertext $\mathrm{Enc}\_\mathbf{s}(m)$ with the plaintext $c$ in order to obtain a ciphertext $\mathrm{Enc}_\mathbf{s}(c \cdot m)$ encrypting $c \cdot m$.
+
+Similarly to the previous section, we start by explicitly writing $\mathrm{Enc}\_\mathbf{s}(m)$ as
+
+\\[
+    \mathrm{Enc}_\mathbf{s}(m) = (\mathbf{a}, \mathbf{a} \cdot \mathbf{s} + m + e) \in \mathbb{Z}_q^n \times \mathbb{Z}_q
+\\]
+
+where $\mathbf{a} \in \mathbb{Z}\_q^n$ is a uniformly random vector and $e \in \mathbb{Z}\_q$ is a small error. How can we produce a ciphertext of $\mathrm{Enc}\_\mathbf{s}(c \cdot m)$? Drawing inspiration from the previous section, let's see what happens if we simply multiply each element of $\mathrm{Enc}\_\mathbf{s}(m)$ with $c$:
+
+\\[
+    (c \cdot \mathbf{a}, c \cdot (\mathbf{a} \cdot \mathbf{s} + m + e)) =
+    (c \cdot \mathbf{a}, (c \cdot \mathbf{a}) \cdot \mathbf{s} + (c \cdot m) + (c\cdot e))
+\\]
+
+The expression on the right hand side is indeed an encryption of $c \cdot m$ with the key $\mathbf{s}$ using the random vector $c \cdot \mathbf{a}$ and noise $c \cdot e$. DECRYPT
+
 ### A Word About Noise
 
-In the previous section we glossed over a key point related to the *noise* in the ciphertext $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$. Recall that by \ref{eq:lwe-sum}, if the noise in $\mathrm{Enc}\_\mathbf{s}(m_1)$ is $e_1$ and the noise in $\mathrm{Enc}\_\mathbf{s}(m_2)$ is $e_2$ then after adding those two ciphertexts together the resulting ciphertext $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ has noise $e_1 + e_2$. Even though $e_1 + e_2$ is still "small", it is still larger than the noise in the original ciphertexts. Eventually, after a large number of additions the noise could grow to the same order of magnitude as the message itself, in which case the decryption would result in meaningless noise. To be concrete, recall that the encoding/decoding scheme from the previous section can only reliably remove noise that is less than $2^{28}$.
+In the previous sections we glossed over a key point related to the *noise* in the ciphertexts $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ and $\mathrm{Enc}\_\mathbf{s}(c \cdot m))$. Recall that by \ref{eq:lwe-sum}, if the noise in $\mathrm{Enc}\_\mathbf{s}(m_1)$ is $e_1$ and the noise in $\mathrm{Enc}\_\mathbf{s}(m_2)$ is $e_2$ then after adding those two ciphertexts together the resulting ciphertext $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ has noise $e_1 + e_2$. Similarly, $\mathrm{Enc}\_\mathbf{s}(c \cdot m))$ will have noise $c \cdot e$. Even though $e_1 + e_2$ and $c \cdot e$ are still "small", they are still larger than the noise in the original ciphertexts. Eventually, after a large number of additions and plaintext multiplications the noise could grow to the same order of magnitude as the message itself, in which case the decryption would result in meaningless noise. To be concrete, recall that the encoding/decoding scheme from the previous section can only reliably remove noise that is less than $2^{28}$.
 
 For this reason, there is a limit to the number of homomorphic additions we can evaluate with LWE. In the following sections we will introduce the process of *bootstrapping* which will remove this limitation.
 
@@ -475,6 +509,556 @@ Polynomial(N=8, coeff=array([0, 0, 1, 0, 0, 0, 0, 0], dtype=int32))
 >>> q = polynomial_multiply(p1, p2)
 Polynomial(N=8, coeff=array([-6, -7,  0,  1,  2,  3,  4,  5], dtype=int32))
 ```
+
+## The RLWE Encryption Scheme
+
+In this section we will define the *RLWE Encryption Scheme* which is very
+similar to the LWE encryption scheme but with messages in $\mathbb{Z}_q[x] / (x^n + 1)$
+rather than $\mathbb{Z}_q$.
+
+A secret key in RLWE is a polynomial in $\mathbb{Z}_q[x] / (x^n + 1)$ with 
+random *binary* coefficients. For example, if $n=4$ then a secret key may look
+like:
+
+\\[
+s(x) = 1 + 0\cdot x + 1\cdot x^2 + 1\cdot x^3 = 1 + x^2 + x^3
+\\]
+
+To encrypt a message $m(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ with a secret key $s(x)$
+we first sample a polynomial $a(x)\in \mathbb{Z}_q[x]$ with uniformly random
+coefficients in $\mathbb{Z}_q$ and an error polynomial $e(x)\in \mathbb{Z}_q[x]$
+with small error coefficients sampled from $\mathcal{N}_q$. The encryption of
+$m(x)$ by $s(x)$ is then given by the pair:
+
+\\[
+    \mathrm{Enc}_{s(x)}(m(x)) = (a(x), a(x)\cdot s(x) + m(x) + e(x))
+\\]
+
+To decrypt a ciphertext $(a(x), b(x))$ we compute:
+
+\\[
+    \mathrm{Dec}_{s(x)}((a(x), b(x))) = b(x) - a(x)\cdot s(x) = m(x) + e(x)
+\\]
+
+Similarly to LWE, after decrypting a ciphertext $\mathrm{Enc}_{s(x)}(m(x))$ we
+get the original message $m(x)$ together with a small amount of noise. As in the
+LWE case, if we are interested in noiseless decryptions we can use a *restricted* 
+message space of polynomials whose coefficients are in $\mathbb{Z}_8$ and extend
+our encoding and decoding functions to polynomials by applying our original 
+$\mathrm{Encode}$ and $\mathrm{Decode}$ methods to each coefficient:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+    \mathrm{EncodePolynomial}: \mathbb{Z}_8[x] &\rightarrow \mathbb{Z}_q[x] \\
+    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto 
+    \mathrm{Encode}(a_0) + \mathrm{Encode}(a_1)x + \dots \mathrm{Encode}(a_{n-1})x^{n-1} 
+\end{align*} 
+</div>
+
+and
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+    \mathrm{DecodePolynomial}: \mathbb{Z}_q[x] &\rightarrow \mathbb{Z}_8[x]\\
+    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto 
+    \mathrm{Decode}(a_0) + \mathrm{Decode}(a_1)x + \dots \mathrm{Decode}(a_{n-1})x^{n-1} 
+\end{align*} 
+</div>
+
+Just like with LWE, if we work with elements in the restricted message space $r(x) \in \mathbb{Z}_8[x]$ and encode them before encryption and decode after decryption then we end up with the initial $r(x)$ without noise:
+
+\\[
+\mathrm{DecodePolynomial}(\mathrm{Dec}\_{s(x)}(\mathrm{Enc}\_{s(x)}(\mathrm{EncodePolynomial}(r(x))))) = r(x)
+\\]
+
+Here is an implementation of the RLWE encryption scheme together with the encoding and decoding functions:
+
+```python
+@dataclasses.dataclass
+class RlweConfig:
+    degree: int  # The messages are in Z_q[x] / (x^degree + 1)
+    noise_std: float  # The noise added during encryption.
+
+@dataclasses.dataclass
+class RlweEncryptionKey:
+    config: RlweConfig
+    key: Polynomial
+
+@dataclasses.dataclass
+class RlwePlaintext:
+    config: RlweConfig
+    message: Polynomial
+
+@dataclasses.dataclass
+class RlweCiphertext:
+    config: RlweConfig
+    a: Polynomial
+    b: Polynomial
+
+def encode_rlwe(p: Polynomial, config: RlweConfig) -> RlwePlaintext:
+    """Encode a polynomial with coefficients in [-4,4) as an RLWE plaintext."""
+    encode_coeff = np.array([encode_lwe(i).message for i in p.coeff])
+    return RlwePlaintext(
+        config=config, message=Polynomial(N=p.N, coeff=encode_coeff))
+
+def decode_rlwe(plaintext: RlwePlaintext) -> Polynomial:
+    """Decode an RLWE plaintext to a polynomial with coefficients in [-4,4)."""
+    decode_coeff = np.array(
+        [decode_lwe(LwePlaintext(i)) for i in plaintext.message.coeff])
+    return Polynomial(N=plaintext.message.N, coeff=decode_coeff)
+
+def generate_rlwe_key(config: LweConfig) -> np.ndarray:
+    return RlweEncryptionKey(
+        config=config,
+        key=Polynomial(
+            N=config.degree,
+            coeff=np.random.randint(
+                low=0, high=2, size=config.degree, dtype=np.int32)))
+
+def rlwe_encrypt(
+    plaintext: RlwePlaintext, key: RlweEncryptionKey) -> RlweCiphertext:
+    a = Polynomial(
+        N=key.config.degree,
+        coeff=np.random.randint(
+            low=INT32_MIN, high=INT32_MAX+1, size=key.config.degree, dtype=np.int32))
+    noise = Polynomial(
+        N=key.config.degree,
+        coeff=np.int32(
+            INT32_MAX * np.random.normal(loc=0.0, scale=key.config.noise_std, size=key.config.degree)))
+
+    b = polynomial_add(polynomial_multiply(a, key.key), plaintext.message)
+    b = polynomial_add(b, noise)
+
+    return RlweCiphertext(config=key.config, a=a, b=b)
+
+def rlwe_decrypt(ciphertext: RlweCiphertext, key: RlweEncryptionKey) -> RlwePlaintext:
+    message = polynomial_subtract(
+        ciphertext.b, polynomial_multiply(ciphertext.a, key.key))
+    return RlwePlaintext(config=key.config, message=message)
+```
+
+Here is an example:
+
+```python
+>>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-20))
+>>> rlwe_key = generate_rlwe_key(rlwe_config)
+RlweEncryptionKey(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    key=Polynomial(N=1024, coeff=array([1, 0, 1, ..., 1, 1, 0], dtype=int32)))
+>>> # Build a polynomial r(x) = x^2 in the restricted message space.
+>>> r = build_monomial(c=1, i=2, N=rlwe_config.degree)
+Polynomial(N=1024, coeff=array([0, 0, 1, ..., 0, 0, 0], dtype=int32))
+>>> # Encode r(x) as an RLWE plaintext.
+>>> rlwe_plaintext = encode_rlwe(r, rlwe_config)
+RlwePlaintext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    message=Polynomial(
+        N=1024,
+        coeff=array([0, 0, 536870912, ..., 0, 0, 0], dtype=int32)))
+>>> # Encrypt the plaintext with the key.
+>>> rlwe_ciphertext = rlwe_encrypt(rlwe_plaintext, rlwe_key)
+RlweCiphertext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
+    a=Polynomial(
+        N=1024,
+        coeff=array([265525746, 339619264, 25096818, ...,  -336116691, 1946582588, -1796375564], dtype=int32)),
+    b=Polynomial(
+        N=1024, 
+        coeff=array([2133834000, 1387586285, 1458261587, ..., 405447664, -1104510688, -434404325], dtype=int32)))
+>>> # Decrypt the ciphertext. Note that the result is close to the rlwe_plaintext
+>>> # with a small amount of noise. I.e, all of the coefficients are small except
+>>> # for the third one.
+>>> rlwe_decrypted = rlwe_decrypt(rlwe_ciphertext, rlwe_key)
+RlwePlaintext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
+    message=Polynomial(
+        N=1024, 
+        coeff=array([-3068, -1970, 536872441, ..., 1159, -13, -2289], dtype=int32)))
+>>> # Decode rlwe_decrypted to obtain the original r(x) without noise.
+>>> decode_rlwe(rlwe_decrypted)
+Polynomial(N=1024, coeff=array([0, 0, 1, ..., 0, 0, 0]))
+```
+
+## Homomorphic Operations
+
+Similarly to LWE, it is possible to homomorphically add RLWE ciphertexts and
+multiply them by plaintext constants.
+
+### Homomorphic Addition
+
+Let $s(x)$ be an RLWE encryption key, $m_1(x), m_2(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ 
+be RLWE plaintexts and 
+
+\\[
+    \mathrm{Enc}\_{s(x)}(m_i(x)) = (a_i(x), b_i(x)) \in \left( \mathbb{Z}_q[x] / (x^n + 1) \right)^2
+\\]
+
+encryptions of $m_i(x)$ with $s(x)$. Just as in the LWE case, we can generate an encryption
+of $m_1(x) + m_2(x)$ by adding $\mathrm{Enc}\_{s(x)}(m_1(x))$ and $\mathrm{Enc}\_{s(x)}(m_2(x))$
+element wise:
+
+\\[
+    \mathrm{Enc}\_{s(x)}(m_1(x) + m_2(x)) = (a_1(x) + a_2(x), b_1(x) + b_2(x))
+\\]
+
+DECRYPT
+
+Here is the corresponding code:
+
+```python
+def rlwe_add(
+    ciphertext_left: RlweCiphertext, 
+    ciphertext_right: RlweCiphertext) -> RlweCiphertext:
+    """Homomorphic RLWE addition.
+    
+       If ciphertext_left is an encryption of message_left and ciphertext_right
+       is an encryption of message_right, then return an encryption of
+       message_left + message_right.
+    """
+    return RlweCiphertext(
+        ciphertext_left.config,
+        polynomial_add(ciphertext_left.a, ciphertext_right.a),
+        polynomial_add(ciphertext_left.b, ciphertext_right.b))
+
+def rlwe_subtract(
+    ciphertext_left: RlweCiphertext, 
+    ciphertext_right: RlweCiphertext) -> RlweCiphertext:
+    """Homomorphic RLWE subtraction.
+    
+       If ciphertext_left is an encryption of message_left and ciphertext_right
+       is an encryption of message_right, then return an encryption of
+       message_left - message_right.
+    """
+    return RlweCiphertext(
+        ciphertext_left.config,
+        polynomial_subtract(ciphertext_left.a, ciphertext_right.a),
+        polynomial_subtract(ciphertext_left.b, ciphertext_right.b))
+```
+
+Here is an example:
+```python
+>>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-20))
+>>> rlwe_key = generate_rlwe_key(rlwe_config)
+
+>>> # Create two messages
+>>> m_1 = build_monomial(c=1, i=1, N=rlwe_config.degree)
+Polynomial(N=1024, coeff=array([0, 1, 0, ..., 0, 0, 0], dtype=int32))
+>>> m_2 = build_monomial(c=2, i=2, N=rlwe_config.degree)
+Polynomial(N=1024, coeff=array([0, 0, 2, ..., 0, 0, 0], dtype=int32))
+
+>>> # Encode them as RLWE plaintexts
+>>> rlwe_plaintext_1 = encode_rlwe(m_1, rlwe_config)
+RlwePlaintext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    message=Polynomial(N=1024, coeff=array([0, 536870912, 0, ..., 0, 0, 0], dtype=int32)))
+>>> rlwe_plaintext_2 = encode_rlwe(m_2, rlwe_config)
+RlwePlaintext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    message=Polynomial(N=1024, coeff=array([0, 0, 1073741824, ..., 0, 0, 0], dtype=int32)))
+
+>>> # Encrypt the plaintexts
+>>> rlwe_ciphertext_1 = rlwe_encrypt(rlwe_plaintext_1, rlwe_key)
+RlweCiphertext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    a=Polynomial(N=1024, coeff=array([ -400522947, 780160233, -1240339714, ..., -1201843621, -921665597,   782809419], dtype=int32)), 
+    b=Polynomial(N=1024, coeff=array([1518284929, 1076194805, 682351634, ..., -2051751750, 1146815193, -1616790507], dtype=int32)))
+>>> rlwe_ciphertext_2 = rlwe_encrypt(rlwe_plaintext_2, rlwe_key)
+RlweCiphertext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    a=Polynomial(N=1024, coeff=array([-972658319, -948445572, 1516104424, ..., -523471090, -213239951,
+       -456683796], dtype=int32)),
+    b=Polynomial(N=1024, coeff=array([1362163316, -70198416, -1400655871, ..., -1427181350, 529214435,  1280406048], dtype=int32)))
+
+>>> # Homomorphically add the ciphertexts.
+>>> rlwe_ciphertext_sum = rlwe_add(rlwe_ciphertext_1, rlwe_ciphertext_2)
+RlweCiphertext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
+    a=Polynomial(N=1024, coeff=array([-1373181266, -168285339, 275764710, ..., -1725314711, -1134905548,   326125623], dtype=int32)),
+    b=Polynomial(N=1024, coeff=array([-1414519051,  1005996389, -718304237, ..., 816034196, 1676029628,  -336384459], dtype=int32)))
+
+>>> # Decrypt the ciphertext of the sum.
+>>> rlwe_decrypted_sum = rlwe_decrypt(rlwe_ciphertext_sum, rlwe_key)
+RlwePlaintext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
+    message=Polynomial(N=1024, coeff=array([1260,  536871447, 1073742677, ..., -2906, -309, 3050], dtype=int32)))
+
+>>> # Decode the plaintext to remove the noise. The result is m_1(x) + m_2(x)
+>>> decode_rlwe(rlwe_decrypted_sum)
+Polynomial(N=1024, coeff=array([0, 1, 2, ..., 0, 0, 0]))
+```
+
+### Homomorphic Multiplication by Plaintext
+
+Just as with LWE, if $(a(x), b(x)) \in \left(\mathbb{Z}_q[x] / (x^n + 1)\right)^2$
+is an RLWE encryption of $m(x)$ and $c(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ is a plaintext
+then
+
+\\[
+    (c(x) \cdot a(x), c(x) \cdot b(x))
+\\]
+
+is an encryption of $c(x) \cdot m(x)$. DECRYPT An important feature of RLWE multiplication
+is that we can use the polynomial structure to homomorphically rotate the coefficients of $m(x)$
+by choosing an appropriate plaintext monomial $c(x)$. For example, consider the message
+
+\\[
+    m(x) = 0 + x + 2x^2 + 3x^3 \in \mathbb{Z}\_q[x] / (x^4 + 1)
+\\]
+
+with coefficients $(0, 1, 2, 3)$ and an encryption $\mathrm{Enc}\_{s(x)}(m(x))$.
+If we homomorphically multiply $\mathrm{Enc}_{s(x)}(m(x))$
+by $c(x) = x$ then we get an encryption of
+
+\\[
+    c(x) \cdot m(x) = x \cdot m(x) = -3 + x^2 + 2x^3
+\\]
+whose coefficients $(-3, 0, 1, 2)$ are a negacyclic rotation of the original
+coefficients $(0, 1, 2, 3)$.
+
+Here is an implementation of homomorphic multiplication followed by an example:
+
+```python
+def rlwe_plaintext_multiply(
+    c: RlwePlaintext, 
+    ciphertext: RlweCiphertext) -> RlweCiphertext:
+    """Homomorphic multiplication by a plaintext.
+    
+       If ciphertext is an encryption of m(x) then return an encryption of
+       c(x) * m(x)
+    """
+    return RlweCiphertext(
+        ciphertext.config,
+        polynomial_multiply(c.message, ciphertext.a),
+        polynomial_multiply(c.message, ciphertext.b))
+```
+
+```python
+>>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-20))
+>>> rlwe_key = generate_rlwe_key(rlwe_config)
+
+>>> # m(x) = x + 2x^2
+>>> m = zero_polynomial(N=rlwe_config.degree)
+>>> m.coeff[1] = 1
+>>> m.coeff[2] = 2
+Polynomial(N=1024, coeff=array([0, 1, 2, 0, ..., 0, 0, 0], dtype=int32))
+
+>>> # c(x) = x
+>>> c = build_monomial(c=1, i=1, N=rlwe_config.degree)
+Polynomial(N=1024, coeff=array([0, 1, 0, ..., 0, 0, 0], dtype=int32))
+
+>>> # Encode m(x) as an RLWE plaintext.
+>>> rlwe_plaintext_m = encode_rlwe(m, rlwe_config)
+RlwePlaintext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
+    message=Polynomial(N=1024, coeff=array([0,  536870912, 1073741824, ..., 0, 0, 0], dtype=int32)))
+
+>>> # Create a plaintext containing c(x). Note that there is no need to encode
+>>> # c(x) since it will not be encrypted.
+>>> rlwe_plaintext_c = RlwePlaintext(config=rlwe_config, message=c)
+RlwePlaintext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    message=Polynomial(N=1024, coeff=array([0, 1, 0, ..., 0, 0, 0], dtype=int32)))
+
+>>> # Encrypt m(x)
+>>> rlwe_ciphertext_m = rlwe_encrypt(rlwe_plaintext_m, rlwe_key)
+RlweCiphertext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
+    a=Polynomial(N=1024, coeff=array([-844666424, 36686307, -526564388, ...,442029872, -654507604, 422241135], dtype=int32)),
+    b=Polynomial(N=1024, coeff=array([1558596496, -2028009664, -607932665, ..., 88956176, -416446807,  1405543399], dtype=int32)))
+
+>>> # Homomorphically multiply the ciphertext with c(x)=x.
+>>> rlwe_ciphertext_prod = rlwe_plaintext_multiply(rlwe_plaintext_c, rlwe_ciphertext_m)
+RlweCiphertext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    a=Polynomial(N=1024, coeff=array([-422241135, -844666424, 36686307, ..., -791176239, 442029872,-654507604], dtype=int32)),
+    b=Polynomial(N=1024, coeff=array([-1405543399, 1558596496, -2028009664, ..., -826447358, 88956176,  -416446807], dtype=int32)))
+
+>>> # Decrypt the encrypted product.
+>>> rlwe_decrypt_prod = rlwe_decrypt(rlwe_ciphertext_prod, rlwe_key)
+RlwePlaintext(
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    message=Polynomial(N=1024, coeff=array([-1260, -207, 536871162, 1073742042, ..., -1165, 459, 1412], dtype=int32)))
+
+>>> # Decode to remove the noise. Note that, as expected, we get coefficients of
+>>> # c(x) * m(x) = x * (x + 2x^2) = x^2 + 2x^3
+>>> decode_rlwe(rlwe_decrypt_prod)
+Polynomial(N=1024, coeff=array([0, 0, 1, 2, 0, ..., 0, 0, 0]))
+```
+
+## Ciphertext Size
+
+One of the advantages of RLWE over LWE is that the ratio of ciphertext size to plaintext size is significantly smaller. Recall that with LWE encryption, a plaintext is a single integer $m \in \mathbb{Z}_q$
+and a ciphertext $(\mathbf{a}, b) \in \mathbb{Z}_q^n \times \mathbb{Z}_q$ contains $n+1$ integers.
+Therefore, encrypting a message increases the data size by a factor of $n+1$ which significant since
+$n$ is typically around 1000.
+
+Let's see how RLWE compares. An RLWE plaintext is a polynomial $m(x)\in \mathbb{Z}_q[x]/(x^n+1)$ which has
+$n$ coefficients. A plaintext is a tuple $(a(x), b(x)) \in \left(\mathbb{Z}_q[x]/(x^n+1)\right)^2$ which has
+$n + n = 2n$ coefficients. So encrypting a message only increases the data size by a factor of 2 - a significant improvements.
+
+The key difference is that with RLWE we can encrypt a polynomial with $n$ coefficients 
+at once, whereas with LWE we encode one number at a time.
+
+# A Homomorphic Multiplexer
+
+In this section we will show how to homomorphically evaluate a [Multiplexer](https://en.wikipedia.org/wiki/Multiplexer) gate. Specifically, we will homomorphically evaluate a 2-1 multiplexer: 
+
+IMAGE
+
+A standard (plaintext) 2-1 multiplexer $\mathrm{Mux}(b, l_0, l_1)$ has three inputs: a *selector* bit $b$ and two *lines* $l_0$ and $l_1$. The output is defined by:
+
+<div style="font-size: 1.4em;">
+$$
+\mathrm{Mux}(b, l_0, l_1) = 
+\begin{cases} l_0 & \mathrm{if}\ b = 0 \\
+              l_1 & \mathrm{if}\ b = 1 
+\end{cases}
+$$
+</div>
+
+As a stepping stone on the way to fully homomorphic encryption, we would like to be able to evaluate a 2-1 multiplexer on *encrypted* inputs. Following the TFHE terminology, we will call the encrypted version a *CMux* gate:
+
+IMAGE
+
+Just like the $\mathrm{Mux}$ function, the $\mathrm{CMux}$ function has three inputs: An encrypted selector bit $\mathrm{Enc}(b)$ and two RLWE encrypted lines $\mathrm{Enc}\_{s(x)}(l_0(x))$ and $\mathrm{Enc}\_{s(x)}(l_1(x))$. The output is an encryption $\mathrm{Enc}_{s(x)}(\mathrm{Mux}(b, l_0(x), l_1(x)))$:
+
+\\[
+    \mathrm{CMux}(\mathrm{Enc}(b), \mathrm{Enc}\_{s(x)}(l_0(x)), \mathrm{Enc}\_{s(x)}(l_1(x))) =
+    \mathrm{Enc}\_{s(x)}(\mathrm{Mux}(b, l_0(x), l_1(x)))
+\\]
+
+Note that, for reasons that will soon become clear, we have not yet specified the encryption scheme used to encrypt $b$.
+
+The main point is that the $\mathrm{CMux}$ function allows us to use an encrypted bit $\mathrm{Enc}(b)$ to select one of the two ciphertexts $\mathrm{Enc}(l_0)$ and $\mathrm{Enc}(l_1)$, without us ever having access to the underlying plaintext bit $b$, plaintext lines $l_0$ and $l_1$ or the final result.
+
+How is this possible? First, note that we can express the standard $\mathrm{Mux}$ function in terms of addition an multiplication:
+
+\begin{equation}\label{eq:mux}
+    \mathrm{Mux}(b, l_0, l_1) = b \cdot (l_1 - l_0) + l_0
+\end{equation}
+
+Therefore, all we need to do to implement the $\mathrm{CMux}$ function is to homomorphically
+evaluate the expression \ref{eq:mux}. In a previous section LINK we saw how to homomorphically evaluate addition and subtraction of RLWE ciphertexts. We also saw LINK how to homomorphically multiply an RLWE *plaintext* with an RLWE ciphertext.
+This is not quite enough to homomorphically evaluate the $\mathrm{Mux}$ expression \ref{eq:mux}
+since we'd like both the selection bit $b$ and the lines $l_0$ and $l_1$ to be encrypted.
+
+In the next section we will focus on the problem of homomorphically multiplying two
+RLWE ciphertexts. We can then combine that with the homomorphic addition of ciphertexts to
+implement $\mathrm{CMux}$.
+
+## Homomorphic Ciphertext Multiplication
+
+Let $m_0(x) \in \mathbb{Z}_q[x]/(x^n+1)$ and $m_1(x) \in \mathbb{Z}_q[x]/(x^n+1)$  be RLWE plaintexts. Let 
+\\[
+    \mathrm{Enc}\_{s(x)}(m_i(x)) = (a_i(x), b_i(x)) \in \mathbb{Z}_q[x]/(x^n+1) \times \mathbb{Z}_q[x]/(x^n+1)
+\\]
+
+be an RLWE encryption of $m_i(x)$. Our goal in this section will be to show how to 
+homomorphically multiply $\mathrm{Enc}\_{s(x)}(m_0(x))$ and $\mathrm{Enc}\_{s(x)}(m_1(x))$
+to produce an encryption of $m_0(x)\cdot m_1(x)$. In other words, how can we combine
+$(a_0(x), b_0(x))$ and $(a_1(x), b_1(x))$ to produce a valid encryption of $m_0(x)\cdot m_1(x)$?
+
+Following our strategy for homomorphic multiplication by a *plaintext* LINK, a natural first guess
+would be to multiply $(a_0(x), b_0(x))$ and $(a_1(x), b_1(x))$ element-wise:
+
+\\[
+    (a_0(x)\cdot a_1(x), b_0(x)\cdot b_1(x))
+\\]
+
+Unfortunately, $(a_0(x)\cdot a_1(x), b_0(x)\cdot b_1(x))$ is not a valid RLWE encryption
+of $m_0(x)\cdot m_1(x)$.
+
+Going back to the drawing board, note that $(a_0(x), b_0(x))$ is a length $2$ row vector
+and that such a vector "wants" to be multiplied with a $2 \times 2$ matrix. If we knew the
+plaintext $m_1(x)$ then we could form the $2\times 2$ diagonal matrix:
+
+<div style="font-size: 1.4em;">
+$$
+M_1 = \left(\begin{matrix}m_1(x) & 0 \\ 0 & m_1(x)\end{matrix}\right)
+$$
+</div>
+
+and multiply it with $(a_0(x), b_0(x))$:
+
+<div style="font-size: 1.4em;">
+$$
+(a_0(x), b_0(x)) \cdot M_1 = 
+(a_0(x), b_0(x)) \cdot \left(\begin{matrix}m_1(x) & 0 \\ 0 & m_1(x)\end{matrix}\right) =
+(a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x))
+$$
+</div>
+
+We claim that the expression on the right is a valid RLWE encryption of $m_0(x)\cdot m_1(x)$ 
+if $m_1(x)$ is small. As usual, to prove this we need to show that $\mathrm{Dec}_{s(x)}((a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x)))$ is equal to $m_0(x) \cdot m_1(x)$ plus a small error. Indeed:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+\mathrm{Dec}_{s(x)}((a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x))) 
+&= b_0(x)\cdot m_1(x) - (a_0(x)\cdot m_1(x))\cdot s(x) \\
+&= (b_0(x) - a_0(x)\cdot s(x))\cdot m_1(x) \\
+&\overset{\mathrm{(1)}}{=} (m_0(x) + e(x)) \cdot m_1(x) \\
+&= (m_0(x) \cdot m_1(x)) + (e(x)\cdot m_1(x))
+\end{align*}
+</div>
+
+where $e(x)$ is an error polynomial with small coefficients.
+Equality $\mathrm{(1)}$ follow from the fact that $(a_0(x), b_0(x))$ is an RLWE
+encryption of $m_0(x)$. If we assume that the coefficients of $m_1(x))$ are small
+enough then $(e(x)\cdot m_1(x))$ is still a small error.
+
+There are two big problems with this idea:
+
+1. We do not actually know $m_1(x)$, but only the ciphertext $\mathrm{Enc}_{s(x)}(m_1(x))$.
+1. The coefficients of $m_1(x)$ may be large.
+
+In the next section we will fix the first problem by introducing the *GSW* encryption scheme.
+After that we will fix the second problem by representing the coefficients of $m_1(x)$ in terms
+of a small basis.
+
+## The GSW Encryption Scheme
+
+In the previous section we defined
+
+<div style="font-size: 1.4em;">
+$$
+M_1 = \left(\begin{matrix}m_1(x) & 0 \\ 0 & m_1(x)\end{matrix}\right)
+$$
+</div>
+
+and showed that 
+
+<div style="font-size: 1.4em;">
+$$
+(a_0(x), b_0(x)) \cdot M_1
+$$
+</div>
+
+is a valid RLWE encryption of $m_0(x)\cdot m_1(x)$. However, our goal is to construct
+an encryption of $m_0(x)\cdot m_1(x)$ using only *encryptions* of $m_0(x)$ and $m_1(x)$.
+This rules out the use of $M_1$ which contains the plaintext $m_1(x)$.
+
+The *GSW* encryption scheme solves this problem by adding an "encryption of zero"
+to each row of $M$. Adding these encryptions obfuscates $M$ such that the plaintext
+$m_1(x)$ is no longer exposed. At the same time, we will see that this obfuscated
+matrix is still a valid encryption of $m_0(x)\cdot m_1(x)$.
+
+
+$z_i = \mathrm{Enc}_{s(x)}(0)$ to the $i$-th row of $M_1$. To facilitate notation, define $Z$ to be the $2\times 2$ matrix whose $i$-th row is $z_i$.
+Adding $Z$ to $M_1$ solves the problem of the $m_1(x)$ plaintext since $Z + M_1$ hides the value of $m_1(x)$.
+At the same time, $(a_0(x), b_0(x)) \cdot (M_1 + Z)$ is still an encryption of $m_0(x)\cdot m_1(x)$
+since
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+\mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot (M_1 + Z)) 
+&= \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot M_1 + (a_0(x), b_0(x)) \cdot Z) \\
+&= \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot M_1) + \mathrm{Dec}_{s(x)}(a_0(x)\cdot z_0(x) + b_0(x)\cdot z_1(x)) \\
+&\overset{\mathrm{(1)}}{=} (m_0(x)\cdot m_1(x) + e(x)) +  \\
+&= (m_0(x) \cdot m_1(x)) + (e(x)\cdot m_1(x))
+\end{align*}
+</div>
+
+
 
 
 
