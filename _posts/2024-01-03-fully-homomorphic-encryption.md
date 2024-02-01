@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Fully Homomorphic Encryption from Scratch"
+title: "Fully Homomorphic Encryption from Scratch - DRAFT"
 date: 2024-01-03
 mathjax: true
 ---
@@ -1011,12 +1011,28 @@ There are two big problems with this idea:
 1. We do not actually know $m_1(x)$, but only the ciphertext $\mathrm{Enc}_{s(x)}(m_1(x))$.
 1. The coefficients of $m_1(x)$ may be large.
 
-In the next section we will fix the first problem by introducing the *GSW* encryption scheme.
-After that we will fix the second problem by representing the coefficients of $m_1(x)$ in terms
-of a small basis.
+In the next section we will fix the both problems by introducing the *GSW* encryption scheme.
+
+As we will see, the GSW scheme solves the first problem by adding an "encryption of zero"
+to each row of $M$. Adding these encryptions mask the plaintext
+$m_1(x)$ so that it is no longer exposed. At the same time, we will see that this masked
+matrix is still a valid encryption of $m_0(x)\cdot m_1(x)$.
+
+GSW's solution to the second problem is a bit tricky. The idea is to represent
+the coefficients of $m_1(x)$ in terms of a small basis.
+For example, if we work with the binary basis then each coefficient would be 
+represented as a binary number. Even if a coefficient is large, the elements of its binary
+representation are small as they are all equal to $0$ or $1$. The GSW scheme uses this
+simple fact in a clever way to limit the error introduced by multiplication with $m_1(x)$
+even when $m_1(x)$ is large.
 
 ## The GSW Encryption Scheme
 
+SOMEWHERE PUT A NOTE THAT IT IS RECOMMENDED TO SKIP GSW AND CMUL AND JUST ASSUME THAT
+THERE IS A GSW ENCRYPTION SCHEME AND CMul: RLWE(f(x)) \times GSW(g(x)) -> RLWE(f(x)g(x))
+ALSO, EXPLICITLY WRITE THIS AS A GOAL BEFORE THE GSW SECTIONS BELOW
+
+### Encryptions Of Zero
 In the previous section we defined
 
 <div style="font-size: 1.4em;">
@@ -1033,29 +1049,364 @@ $$
 $$
 </div>
 
-is a valid RLWE encryption of $m_0(x)\cdot m_1(x)$. However, our goal is to construct
-an encryption of $m_0(x)\cdot m_1(x)$ using only *encryptions* of $m_0(x)$ and $m_1(x)$.
-This rules out the use of $M_1$ which contains the plaintext $m_1(x)$.
+is a valid RLWE encryption of $m_0(x)\cdot m_1(x)$ when $m_1(x)$ is small.
+However, our goal is to construct an encryption of $m_0(x)\cdot m_1(x)$ using 
+only *encryptions* of $m_0(x)$ and $m_1(x)$. This rules out the use of $M_1$ 
+which contains the plaintext $m_1(x)$.
 
-The *GSW* encryption scheme solves this problem by adding an "encryption of zero"
-to each row of $M$. Adding these encryptions obfuscates $M$ such that the plaintext
-$m_1(x)$ is no longer exposed. At the same time, we will see that this obfuscated
-matrix is still a valid encryption of $m_0(x)\cdot m_1(x)$.
+As promised in the end of the previous section we'll now solve this problem by 
+adding an "encryption of zero" to each row of $M$. 
 
+An *encryption of zero* is an RLWE encryption of the zero polynomial.
+By the definition of RLWE encryption, an encryption of zero is a pair $\mathbf{z} = (a(x), b(x)) \in \left(\mathbb{Z}_q[x]/(x^n+1)\right)^2$ such that:
 
-$z_i = \mathrm{Enc}_{s(x)}(0)$ to the $i$-th row of $M_1$. To facilitate notation, define $Z$ to be the $2\times 2$ matrix whose $i$-th row is $z_i$.
-Adding $Z$ to $M_1$ solves the problem of the $m_1(x)$ plaintext since $Z + M_1$ hides the value of $m_1(x)$.
-At the same time, $(a_0(x), b_0(x)) \cdot (M_1 + Z)$ is still an encryption of $m_0(x)\cdot m_1(x)$
-since
+\\[
+    b(x) = a(x)s(x) + e(x)
+\\]
+
+where $a(x)$ is uniformly random and e(x) is a small random error polynomial.
+
+Let $\mathbf{z}_i$ be an encryption of zero for $i=0,1$ and
+let $Z$ to be the $2\times 2$ matrix whose $i$-th row is $z_i$.
+
+We will soon show that $(a_0(x), b_0(x)) \cdot (M_1 + Z)$ is still an RLWE encryption of $m_0(x)\cdot m_1(x)$. The idea of the GSW encryption scheme will be to encrypt a message $m(x)\in \mathbb{Z}_q[x]/(x^n+1)$
+with a ciphertext of the form
+
+\\[
+    \mathrm{Enc}^{\mathrm{GSW}}\_{s(x)}(m(x)) = m(x)I_{2\times 2} + Z
+\\]
+
+The point of this encryption scheme is that we can then homomorphically *multiply*
+an RLWE encryption of $m_0(x)$ and a GSW encryption of $m_1(x)$ by computing $(a_0(x), b_0(x)) \cdot (M_1 + Z)$ which is a valid ciphertext of $m_0(x)\cdot m_1(x)$. MAKE THIS MORE CLEAR!!!
 
 <div style="font-size: 1.4em;">
 \begin{align*}
 \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot (M_1 + Z)) 
 &= \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot M_1 + (a_0(x), b_0(x)) \cdot Z) \\
-&= \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot M_1) + \mathrm{Dec}_{s(x)}(a_0(x)\cdot z_0(x) + b_0(x)\cdot z_1(x)) \\
-&\overset{\mathrm{(1)}}{=} (m_0(x)\cdot m_1(x) + e(x)) +  \\
-&= (m_0(x) \cdot m_1(x)) + (e(x)\cdot m_1(x))
+&= \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot M_1) + 
+    \mathrm{Dec}_{s(x)}(a_0(x)\cdot \mathbf{z}_0(x) + b_0(x)\cdot \mathbf{z}_1(x)) \\
+&\overset{\mathrm{(1)}}{=} (m_0(x)\cdot m_1(x) + e(x) \cdot m_1(x)) +  
+                           a_0(x)\cdot \mathrm{Dec}_{s(x)}(\mathbf{z}_0(x)) + 
+                           b_0(x)\cdot \mathrm{Dec}_{s(x)}(\mathbf{z}_1(x)) \\
+&= m_0(x)\cdot m_1(x) + m_1(x)\cdot e(x) + a_0(x)e_0(x) + b_0(x)e_1(x)
 \end{align*}
+</div>
+
+If the coefficients of $m_1(c)$, $a_0(x)$ and $b_0(x)$ are small enough, then the last line
+of the equation above is of the form $m_0(x) \cdot m_1(x)$ plus a small error term which proves that
+is an RLWE encryption of $m_0(x) \cdot m_1(x)$. In the next section we will overcome this limitation
+on coefficient sizes.
+
+### The Radix Decomposition
+
+Let $(a(x), b(x))$ be an RLWE encryption of $f(x)$ with noise 
+$e(x)$
+and let $g(x)I_{2\times2} + Z$ be a GSW encryption of $g(x)$ where the rows have
+noise $e_0(x)$ and $e_1(x)$.
+In the previous section we saw that 
+
+\\[
+    ((a(x), b(x)) \cdot (g(x)I_{2\times2} + Z)
+\\]
+
+is an RLWE encryption of $f(x)g(x)$ with noise: DEFINE NOISE IN A PREVIOUS SECTION TO BE
+DECRYPTION - PLAINTEXT
+
+\\[
+    g(x)\cdot e(x) + a(x)e_0(x) + b(x)e_1(x)
+\\]
+
+The first noise term is easy to bound in terms of the input $g(x)$. In fact, as we will see below,
+in our implementation of the homomorphic NAND gate $g(x)$ will be equal to one of the constant polynomials  $0$ or $1$.
+
+The second two terms $a(x)e_0(x)$ and $b(x)e_1(x)$ are problematic since they involve the randomly generated 
+ciphertext polynomials $a(x)$
+and $b(x)$ whose coefficients can be arbitrary elements in $\mathbb{Z}_q$. The goal of this section
+is to reduce this latter source of noise.
+
+To make things concrete, we'll set $n=2$ and $q=16$.
+Note that because $n=2$, all polynomials in $\mathbb{Z}_{16}[x] / (x^2 + 1)$ can be represented with two coefficients: $c_0 + c_1x$. Furthermore, since $q=16$ the coefficients $c_0$ and $c_1$ will be in $\mathbb{Z}\_{16}$ and can be represented by 4-bit integers in the interval $[-8,8)$.
+
+Perhaps the simplest way to decrease the magnitude of the error $a(x)e_0(x) + b(x)e_1(x)$
+is to divide the ciphertext $(a(x), b(x))$ by a constant $p > 1$ inside of $\mathrm{CMul}$. In order for the output to still be a ciphertext of
+$f(x)g(x)$, we can balance this out by redefining the GSW encryption of $g(x)$ to be $p \cdot g(x)I_{2\times 2} + Z$. Together we get:
+
+\\[
+\mathrm{CMul}((a(x), b(x)), p \cdot g(x)I_{2\times 2} + Z) := 
+\frac{1}{p}(a(x), b(x)) \cdot (p \cdot g(x)I_{2\times 2} + Z) =
+(a(x), b(x))\cdot g(x)I_{2\times 2} + \frac{1}{p}(a(x), b(x))\cdot Z
+\\]
+
+Following the same derivation as REF, it is not hard to see that this is still an RLWE
+encryption of $f(x)g(x)$ but this time with an error of
+
+\\[
+    g(x)\cdot e(x) + \frac{1}{p}(a(x)e_0(x) + b(x)e_1(x))
+\\]
+
+Since we've set $q=16$, the coefficients of $a(x)$ and $b(x)$ are between $-8$ and $7$.
+So we can choose $p=2^3$ and decrease the noise by a factor of $8$ which is significant compared to $q$.
+
+Unfortunately, $\frac{1}{8}(a(x), b(x))$ is not well defined in $\mathbb{Z}_{16}$ since $8$ is not
+invertible. The best we can do is divide modulo $2^3$ but then we'd be throwing out the remainder and loosing a lot of precision. We can fix this by iteratively dividing the remainder modulo $2^2$, and then the remainder of that modulo $2$. In other words, we can replace the coefficients of $a(x)$ and $b(x)$ with their *binary expansion*. 
+
+To be more precision, note that we can express a coefficient $c \in [-8, 8)$ as a sum:
+
+\\[
+    c = c_0 + 2\cdot c_1 + 2^2 \cdot c_2 + 2^3\cdot c_3
+\\]
+
+where $c_i \in \{-1, 0, 1}$. Here are two examples:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+  -8 &= 0 + 2\cdot 0 + 2^2\cdot 0 + 2^3 \cdot -1 \\
+   6 &= 0 + 2\cdot 1 + 2^2\cdot 1 + 2^3 \cdot 0
+\end{align*}
+</div>
+
+We call this decomposition of $c$ into coefficients $c_0,\ c_1,\ c_2,\ c_3$ a _Radix Decomposition_. In base-2, this is similar to a binary decomposition except that it is extended to include negative numbers.
+Note that in this case where $q=2^4$, the decomposition in base $p=2^1$ has $4 = \log_2(q/p)+1$ terms.
+In general, the base-$p$ radix decomposition of an element of $\mathbb{Z}_q$
+will have $\log_2(q/p) + 1$ terms:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+\mathrm{Radix}_p&: \mathbb{Z}_q \rightarrow \left(\mathbb{Z}_p\right)^{\log(q/p)+1} \\
+    c &\mapsto (c_0,\dots,c_{\log_2(q/p)})
+
+\end{align*}
+</div>
+
+We can similarly decompose a polynomial $p(x)$ into polynomials $p_0(x)$, $p_1(x)$, $p_2(x)$ and $p_3(x)$ with coefficients in $\{-1,0,1\}$:
+
+\\[
+p(x) = p_0(x) + 2\cdot p_1(x) + 2^2 \cdot p_2(x) + 2^3 \cdot p_3(x)
+\\]
+
+For example:
+
+\\[
+    7 - 5x = (1 - x) + 2\cdot 1 + 2^2 \cdot (1 - x) + 2^3 \cdot 0
+\\]
+
+So $p_0(x) = 1-x$, $p_1(x) = 1$, $p_2(x) = 1 - x$ and $p_3(x)=0$.
+In general, the base-$p$ radix decomposition of a polynomial is obtained from the base-$p$ radix decomposition of each coefficient.
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+\mathrm{Radix}_p&: \mathbb{Z}_q[x]/(x^n+1) \rightarrow \left(\mathbb{Z}_p[x]/(x^n+1)\right)^{\log_2(q/p)+1}
+\\
+    p(x) &\mapsto (p_0(x),\dots,p_{\log_2(q/p)}(x))
+\end{align*}
+</div>
+
+It will also be convenient to define the base-$p$ *radix decomposition matrix* to be
+the $2(\log_2(q/p)+1) \times 2$ matrix:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+    H_p = 
+        \left(\begin{matrix}
+            1 & 0 \\
+            2 & 0 \\
+            \vdots & \vdots \\
+            2^{\log_2(q/p)} & 0 \\
+            0 & 1 \\
+            0 & 2 \\
+            \vdots & \vdots \\
+            0 & 2^{\log_2(q/p)}
+        \end{matrix}\right)
+\end{align*}
+</div>
+
+Note that if $(a(x), b(x))$ is an RLWE ciphertext,
+$\mathrm{Radix}\_p(a(x)) = (a_0(x),\dots,a_{\log_2(q/p)}(x))$ is the base-$p$ decomposition
+of $a(x)$ and 
+$\mathrm{Radix}\_p(b(x)) = (b_0(x),\dots,b_{\log_2(q/p)}(x))$ the base-$p$ decomposition of $b(x)$ then:
+
+\\[
+    (a_0(x),\dots,a_{\log_2(q/p)}(x), b_0(x),\dots,b_{\log_2(q/p)}(x)) \cdot H_p = (a(x), b(x))
+\\]
+
+In other words, multiplying by $H_p$ "cancels out" a base-$p$ radix decomposition.
+
+We'll now use the radix decomposition to improve our homomorphic multiplication $\mathrm{CMul}$.
+The idea is that instead of dividing $(a(x), b(x))$ by $p$ and multiplying $g(x)$ by $p$, we can instead
+replace $a(x)$ and $b(x)$ with their base-$p$ radix decompositions and multiply $g(x)$ by $H_p$.
+
+More precisely, we will define the GSW encryption of $g(x)$ to be
+$g(x)H_p + Z$ where $Z$ is a $2(\log_2(q/p)+1) \times 2$ matrix and each row of $Z$ is an RLWE
+encryption of $0$.
+
+Finally, we can provide our final construction of homomorphic multiplication between an RLWE ciphertext and a GSW ciphertext. As before, let $(a(x), b(x)) \in \mathrm{RLWE}(f(x))$ be an RLWE encryption of
+$f(x)$ with noise $e(x)$ and let 
+$g(x)H_p + Z \in GSW(g(x))$ be a GSW encryption of $g(x)$ where the $2(\log_2(q/p)+1)$ rows of
+$Z$ are RLWE encryptions of zero with noise $e_0(x),\dots,e_{2\log_2(q/p)+1}(x)$
+
+\\[
+\mathrm{CMul}((a(x), b(x)), g(x)H_p + Z) := 
+(\mathrm{Radix}\_p(a(x)), \mathrm{Radix}\_p(b(x))) \cdot (g(x)H_p + Z)
+\\]
+
+We claim that this gives us an RLWE encryption of $f(x)g(x)$ with noise
+
+\\[
+    g(x)\cdot e(x) + \sum_{i=0}^{\log_2(q/p)}a_i(x)e_i(x) + 
+    \sum_{i=0}^{\log_2(q/p)}b_i(x)e_{\log_2(q/p) + 1 + i}(x)
+\\]
+
+if the coefficients of $e_i(x)$ are less than $\epsilon$, then the noise in each of the
+terms on the right is bounded by: (\log_2(q/p) + 1) \cdot n \cdot \epsilon
+
+in contrast, $a(x)e(x)$ can be as big as $q\cdot n \cdot \epsilon$ which is significantly greater.
+
+CLEAN UP THIS NOISE EXPLANATION
+
+The proof is by direct calculation:
+
+Now let's use the radix decomposition to solve our original problem with the error
+in RLWE multiplication. Recall that the error had the form:
+
+\\[
+    g(x)\cdot e(x) + a(x)e_0(x) + b(x)e_1(x)
+\\]
+
+Let's focus on the term $a(x)e_0(x)$. The problem is that the absolute values of the coefficients of $a(x)$ can be arbitrarily large, which in terms mean that the error could be arbitrarily large. In our current example
+with $q=16$, "large" means that the absolute value of the coefficients could be as high as $8$. For example
+$a(x)$ could be
+
+\\[
+    a(x) = 7 - 5x
+\\]
+
+We just saw that the base-2 radix decomposition of $\mathrm{Radix}_2(a(x)) = (1-x, 1, 1-x)$.
+Our solution will be somehow redefine the RLWE product so that the error term $a(x)e(x)$ is replaced with with $(a_1(x) + a_2(x))e(x)$. In our example we get:
+
+\\[
+    (a_1(x) + a_2(x))e(x) = (2 - x)e(x)
+\\]
+
+In general, since the coefficients of the radix decomposition polynomials $a_i(x)$ are all between $-1$ and $1$, the coefficients of $a_1(x) + a_2(x)$ will be between $-2$ and $2$. This is more than
+four times as small as the coefficients of $a(x)$. In general the sum of the coefficients of a $k$-th order
+base-$p$ radix decomposition will be between $-kp/2$ $kp/2$. In practice we will use $k=3$, $p=2^3$ and $q^32$ and so $kp=24$ will be orders of magnitudes smaller than $q=2^32$ which will lead to a significant
+noise reduction.
+
+We will now continue with our toy parameters of and see how to incorporate the radix decomposition into RLWE multiplication. For simplicity, we will use the full 3-degree radix decomposition instead of degree two.
+Recall that our current version of RLWE multiplication takes as input a RLWE encryption of $f(x)$:
+$(a(x), b(x)) \in \mathrm{RLWE}(f(x))$ and a GSW encryption of $g(x)$: 
+$g(x)\cdot I_{2\times 2} + Z \in \mathrm{GSW}(g(x))$ and is defined
+by:
+
+<div style="font-size: 1.4em;">
+$$
+    \mathrm{CMul}\left((a(x), b(x)), \left(\begin{matrix}g(x) & 0 \\ 0 & g(x)\end{matrix}\right) + Z\right) = (a(x), b(x)) \cdot \left(\left(\begin{matrix}g(x) & 0 \\ 0 & g(x)\end{matrix}\right) + Z\right)
+$$
+</div>
+
+We'll modify the expression on the right by replacing $a(x)$ with it's full base-2 radix decomposition $\mathrm{Radix}\_{3,2}(a(x)) = (a_0(x), a_1(x), a_2(x))$ and similarly $b(x)$ with $\mathrm{Radix}\_{3,2}(b(x)) = (b_0(x), b_1(x), b_2(x))$. 
+Note that by the definition of the radix decomposition:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+    (a_0(x), a_1(x), a_2(x), b_0(x), b_1(x), b_2(x)) \cdot 
+        \left(\begin{matrix}
+            1 & 0 \\
+            2 & 0 \\
+            2^2 & 0 \\
+            0 & 1 \\
+            0 & 2 \\
+            0 & 2^2
+        \end{matrix}\right) = \\
+    (a_0(x) + 2\cdot a_1(x) + 2^2\cdot a_2(x), b_0(x) + 2\cdot b_1(x) + 2^2\cdot b_2(x)) = \\
+    (a(x), b(x))
+\end{align*}
+</div>
+
+Let's define the degree 3 base-2 *decomposition matrix* to be
+
+Putting everything together:
+
+<div style="font-size: 1.4em;">
+$$
+    (a_1(x), a_2(x), b_1(x), b_2(x)) \cdot 
+    \left(
+        \left(\begin{matrix}
+            2\cdot g(x) & 0 \\
+            2^2 \cdot g(x) & 0 \\
+            0 & 2 \cdot g(x) \\
+            0 & 2^2 \cdot g(x)
+        \end{matrix}\right) 
+        + Z
+    \right)
+$$
+</div>
+We'll start by choosing a secret key $s(x)$:
+
+\\[
+    s(x) = 0 + 1\cdot x = x
+\\]
+
+Now let's select the plaintext polynomials we'd like to multiply:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+    f(x) &= 3 + 5x \\
+    g(x) &= 0 + x
+\end{align*}
+</div>
+
+Note that the result of the plaintext multiplication in the negacyclic polynomial ring
+ $\mathbb{Z}_{16}[x] / (x^2 + 1)$  is
+
+\\[
+    f(x)g(x) = (3 + 5x) \cdot x = 3x + 5x^2 = -5 + 3x
+\\]
+
+where in the last step we used the negacyclic relation $x^2 + 1 = 0 \Rightarrow x^2 = -1$. LINK TO NEGACYCLIC
+
+We'll start by encrypting $f(x)$ with the RLWE scheme. To encrypt a polynomial in RLWE we first
+must choose a uniformly random polynomial $a(x)$ and a small error polynomial $e(x)$. Let's choose:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+a(x) &= 5 - 6x \\
+e(x) &= -1 + x
+\end{align*}
+</div>
+
+The corresponding RLWE encryption of $f(x)$ is $(a(x), b(x))$ where
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+b(x) &= s(x)a(x) + f(x) + e(x) \\
+     &= x(5 - 6x) + (3 + 5x) + (-1 + x) \\
+     &= (6 + 5x) + (3 + 5x) + (-1 + x) \\
+     &= 8 + 11x \\
+     &= -8 - 5x
+\end{align*}
+</div>
+
+where in the last step we replaced $8$ and $11$ with their representatives in $[-8,8)$ modulo $q=16$.
+
+Now let's encrypt $g(x)=x$ in the GSW scheme. Following the previous section, a GSW encryption
+of $g(x)=x$ is of the form
+
+<div style="font-size: 1.4em;">
+$$
+    \mathrm{Enc}_{s(x)}(g(x) = \left(\begin{matrix}x & 0 \\ 0 & x\end{matrix}\right) + Z
+$$
+</div>
+
+where each row of $Z$ is an RLWE encryption of zero.
+
+Now that we've setup our example we can return to our original goal of reducing the
+error in the product
+
+<div style="font-size: 1.4em;">
+$$
+    (a(x), b(x))_{1\times 2} \cdot \left(\left(\begin{matrix}g(x) & 0 \\ 0 & g(x)\end{matrix}\right) + Z\right)_{2 \times 2}
+$$
 </div>
 
 
