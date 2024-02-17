@@ -7,118 +7,198 @@ mathjax: true
 
 # Introduction
 
-_Fully Homomorphic Encryption_ (FHE) is a form of encryption that makes it possible to evaluate functions on encrypted inputs without needing to decrypt them. For example, let $K$ be an encryption key and let $Enc_K(x)$ denote the encryption of the integer $x$ with key $K$. With FHE it is possible for someone who only has access to the ciphertexts $Enc_K(x)$ and $Enc_K(y)$ to evaluate the addition function and produce the ciphertext $Enc_K(x+y)$.
+_Fully Homomorphic Encryption_ (FHE) is a form of encryption that makes it
+possible to evaluate functions on encrypted inputs without needing to decrypt
+them. For example, let $K$ be an encryption key and let $Enc_K(x)$ denote the
+encryption of the integer $x$ with key $K$. With FHE it is possible for someone
+who only has access to the ciphertexts $Enc_K(x)$ and $Enc_K(y)$ to evaluate the
+addition function and produce the ciphertext $Enc_K(x+y)$.
 
-As a more practical example, in principal FHE makes it possible to upload an encrypted image to a cloud service, ask it to run the _encrypted_ image through a neural network classifier and get back an encrypted response. This would happen without the cloud service ever having access to the unencrypted image.
+As a more practical example, in principal FHE makes it possible to upload an
+encrypted image to a cloud service, ask it to run the _encrypted_ image through
+a neural network classifier and get back an encrypted response. This would
+happen without the cloud service ever having access to the unencrypted image.
 
-At first glance it seems like FHE should be impossible. Going back to our first example, since $Enc_K(x)$ and $Enc_K(y)$ should be indistinguishable from random bytes to someone without the key $K$, how can they perform a meaningful calculation on them to obtain $Enc_K(x+y)$?
+At first glance it seems like FHE should be impossible. Going back to our first
+example, since $Enc_K(x)$ and $Enc_K(y)$ should be indistinguishable from random
+bytes to someone without the key $K$, how can they perform a meaningful
+calculation on them to obtain $Enc_K(x+y)$?
 
-In this post we will explore a popular FHE encryption scheme called [TFHE](https://eprint.iacr.org/2018/421.pdf) and implement it from scratch in Python. Everything in this post (and much more) can be found in that paper.
+In this post we will explore a popular FHE encryption scheme called
+[TFHE](https://eprint.iacr.org/2018/421.pdf) and implement it from scratch in
+Python. Everything in this post (and much more) can be found in that paper.
 
-The standard cryptography exposition disclaimer applies here. Namely, that it probably is not a good idea to copy paste code from this post to secure your sensitive data. You can use the official [TFHE library](https://github.com/tfhe/tfhe) instead.
+The standard cryptography exposition disclaimer applies here. Namely, that it
+probably is not a good idea to copy paste code from this post to secure your
+sensitive data. You can use the official
+[TFHE library](https://github.com/tfhe/tfhe) instead.
 
-# Outline 
-Encryption schemes are typically based on a fundamental mathematical problem that is assumed to be "hard". For example, the hardness of RSA is based on the assumption that is is hard to find the prime factors of large integers. Similarly, the hardness of TFHE is based on a problem called [Learning With Errors](https://en.wikipedia.org/wiki/Learning_with_errors) (LWE). In the next section we will define the LWE problem and use it to construct an encryption scheme in which it is possible to homomorphically _add_ ciphertexts but not to _multiply_ them. This type of encryption scheme is called _Partially Homomorphic_ because not all operations are supported.
+# Outline
 
-Next we will consider an extension of LWE called _Ring Learning With Errors_. This is essentially a version of LWE with extra structure. We will later use this extra structure to upgrade our partially homomorphic scheme to a scheme that supports homomorphic multiplication as well as addition.
+Encryption schemes are typically based on a fundamental mathematical problem
+that is assumed to be "hard". For example, the hardness of RSA is based on the
+assumption that is is hard to find the prime factors of large integers.
+Similarly, the hardness of TFHE is based on a problem called
+[Learning With Errors](https://en.wikipedia.org/wiki/Learning_with_errors)
+(LWE). In the next section we will define the LWE problem and use it to
+construct an encryption scheme in which it is possible to homomorphically _add_
+ciphertexts but not to _multiply_ them. This type of encryption scheme is called
+_Partially Homomorphic_ because not all operations are supported.
 
-Finally, we will complete our construction of TFHE by showing how homomorphic additions and multiplications can be used to implement a homomorphic [NAND](https://en.wikipedia.org/wiki/NAND_gate) gate. I.e, that from encryptions $Enc_K(x)$ and $Enc_K(y)$ of bits $x$ and $y$ it is possible to compute $Enc_K(NAND(x, y))$ without knowing the key $K$. From there it follows that TFHE is fully homomorphic as [any boolean expression can be constructed out of NAND gates](https://en.wikipedia.org/wiki/NAND_logic).
+Next we will consider an extension of LWE called _Ring Learning With Errors_.
+This is essentially a version of LWE with extra structure. We will later use
+this extra structure to upgrade our partially homomorphic scheme to a scheme
+that supports homomorphic multiplication as well as addition.
+
+Finally, we will complete our construction of TFHE by showing how homomorphic
+additions and multiplications can be used to implement a homomorphic
+[NAND](https://en.wikipedia.org/wiki/NAND_gate) gate. I.e, that from encryptions
+$Enc_K(x)$ and $Enc_K(y)$ of bits $x$ and $y$ it is possible to compute
+$Enc_K(NAND(x, y))$ without knowing the key $K$. From there it follows that TFHE
+is fully homomorphic as
+[any boolean expression can be constructed out of NAND gates](https://en.wikipedia.org/wiki/NAND_logic).
 
 # Learning With Errors
 
-In this section we will define the _Learning With Errors_ (LWE) problem and use it to construct a partially homomorphic encryption scheme.
+In this section we will define the _Learning With Errors_ (LWE) problem and use
+it to construct a partially homomorphic encryption scheme.
 
 ## Notation
 
-Let $q$ be a positive integer. We will denote the integers modulo $q$ by $\mathbb{Z}_q := \mathbb{Z} / q\mathbb{Z}$. In this post, it will be convenient to set $q=2^{32}$ so that elements of $\mathbb{Z}_q$ can be represented by 32-bit integers.
+Let $q$ be a positive integer. We will denote the integers modulo $q$ by
+$\mathbb{Z}_q := \mathbb{Z} / q\mathbb{Z}$. In this post, it will be convenient
+to set $q=2^{32}$ so that elements of $\mathbb{Z}_q$ can be represented by
+32-bit integers.
 
 ## The Learning With Errors Problem
 
-Let $\mathbf{s} \in \mathbb{Z}^n_q$ be a length $n$ vector with elements in $\mathbb{Z}_q$ (i.e int32) which is assumed to be secret. Let $\mathbf{a}_1, \ldots , \mathbf{a}_m \in \mathbb{Z}^n_q$ be random vectors and let $b_i = (\mathbf{a}_i, \mathbf{s})$ be the dot product of $\mathbf{a}_i$ with $\mathbf{s}$. As a warmup to the LWE problem we can ask:
+Let $\mathbf{s} \in \mathbb{Z}^n_q$ be a length $n$ vector with elements in
+$\mathbb{Z}_q$ (i.e int32) which is assumed to be secret. Let
+$\mathbf{a}_1, \ldots , \mathbf{a}_m \in \mathbb{Z}^n_q$ be random vectors and
+let $b_i = (\mathbf{a}_i, \mathbf{s})$ be the dot product of $\mathbf{a}_i$ with
+$\mathbf{s}$. As a warmup to the LWE problem we can ask:
 
-> Given $m \geq n$ random vectors $\mathbf{a}_1, \ldots , \mathbf{a}_m$ and the dot products $b_i, \ldots , b_m$, is it possible to efficiently *learn* the secret vector $\mathbf{s}$?
+> Given $m \geq n$ random vectors $\mathbf{a}_1, \ldots , \mathbf{a}_m$ and the
+> dot products $b_i, \ldots , b_m$, is it possible to efficiently _learn_ the
+> secret vector $\mathbf{s}$?
 
-It is not hard to see that the answer is "yes". Indeed, we can create an $m \times n$ matrix $A$ whose rows are the vectors $\mathbf{a}_i$ and a length $m$ vector $\mathbf{b}$ whose elements are $b_i$:
+It is not hard to see that the answer is "yes". Indeed, we can create an
+$m \times n$ matrix $A$ whose rows are the vectors $\mathbf{a}_i$ and a length
+$m$ vector $\mathbf{b}$ whose elements are $b_i$:
 
-\\[
-A = \begin{bmatrix} \mathbf{a}^T_1 \\\\ \vdots \\\\ \mathbf{a}^T_m \end{bmatrix}_{m \times n}
-\mathbf{b} = \begin{bmatrix} b_1 \\\\ \vdots \\\\ b_m \end{bmatrix}
-\\]
+\\[ A = \begin{bmatrix} \mathbf{a}^T_1 \\\\ \vdots \\\\ \mathbf{a}^T_m
+\end{bmatrix}_{m \times n} \mathbf{b} = \begin{bmatrix} b_1 \\\\ \vdots \\\\ b_m
+\end{bmatrix} \\]
 
 We can then express $\mathbf{s}$ as the solution to a linear equation:
 
-\\[
-    A \mathbf{s} = \mathbf{b}
-\\]
+\\[ A \mathbf{s} = \mathbf{b} \\]
 
-Finally, we can use [Gaussian Elimination](https://en.wikipedia.org/wiki/Gaussian_elimination) to solve for $\mathbf{s}$ in polynomial time. Note that the standard Gaussian elimination algorithm has to be [tweaked a bit](https://math.stackexchange.com/questions/12563/solving-systems-of-linear-equations-over-a-finite-ring) to account for the fact that $\mathbb{Z}_q$ is not a field but the general idea is the same.
+Finally, we can use
+[Gaussian Elimination](https://en.wikipedia.org/wiki/Gaussian_elimination) to
+solve for $\mathbf{s}$ in polynomial time. Note that the standard Gaussian
+elimination algorithm has to be
+[tweaked a bit](https://math.stackexchange.com/questions/12563/solving-systems-of-linear-equations-over-a-finite-ring)
+to account for the fact that $\mathbb{Z}_q$ is not a field but the general idea
+is the same.
 
-We can think of the above problem as *Learning Without Errors* since we are given the exact dot products $b_i = (\mathbf{a}_i, \mathbf{s})$. It turns out that if we introduce errors by adding a bit of noise $e_i$ to each $b_i$ then learning $\mathbf{s}$ from the random vectors $A$ and the *noisy* dot products $b_i = (\mathbf{a}_i, \mathbf{s}) + e_i$ is very hard. We can now state the *Learning With Errors* problem:
+We can think of the above problem as _Learning Without Errors_ since we are
+given the exact dot products $b_i = (\mathbf{a}_i, \mathbf{s})$. It turns out
+that if we introduce errors by adding a bit of noise $e_i$ to each $b_i$ then
+learning $\mathbf{s}$ from the random vectors $A$ and the _noisy_ dot products
+$b_i = (\mathbf{a}_i, \mathbf{s}) + e_i$ is very hard. We can now state the
+_Learning With Errors_ problem:
 
-> Given $m$ random vectors $\mathbf{a}_1, \ldots , \mathbf{a}_m$ and noisy dot products $b_i = (\mathbf{a}_i, \mathbf{s}) + e_i$, is it possible to efficiently learn the secret vector $\mathbf{s}$?
+> Given $m$ random vectors $\mathbf{a}_1, \ldots , \mathbf{a}_m$ and noisy dot
+> products $b_i = (\mathbf{a}_i, \mathbf{s}) + e_i$, is it possible to
+> efficiently learn the secret vector $\mathbf{s}$?
 
-Note that we have not yet specified which distribution the errors $e_i \in \mathbb{Z}_q$ drawn from. In TFHE, they are sampled by first sampling a real number $-\frac{1}{2} \geq x_i < \frac{1}{2}$ from a Gaussian distribution $\mathcal{N}(0, \sigma)$, and then converting $x$ to an integer in the interval $[-\frac{q}{2}, \frac{q}{2})$ by:
+Note that we have not yet specified which distribution the errors
+$e_i \in \mathbb{Z}_q$ drawn from. In TFHE, they are sampled by first sampling a
+real number $-\frac{1}{2} \geq x_i < \frac{1}{2}$ from a Gaussian distribution
+$\mathcal{N}(0, \sigma)$, and then converting $x$ to an integer in the interval
+$[-\frac{q}{2}, \frac{q}{2})$ by:
 
-\\[
-    e_i = \lfloor x \cdot \frac{q}{2} \rfloor
-\\]
+\\[ e_i = \lfloor x \cdot \frac{q}{2} \rfloor \\]
 
-We will denote the distribution on $\mathbb{Z}_q$ obtained in this way by $\mathcal{N}_q(0, \sigma)$.
+We will denote the distribution on $\mathbb{Z}_q$ obtained in this way by
+$\mathcal{N}_q(0, \sigma)$.
 
-In the next section we will see how to build a partially homomorphic encryption scheme based on the hardness of LWE.
+In the next section we will see how to build a partially homomorphic encryption
+scheme based on the hardness of LWE.
 
 ## A LWE Based Encryption Scheme
 
-In this section we will build a simple encryption scheme based on the LWE problem. 
+In this section we will build a simple encryption scheme based on the LWE
+problem.
 
 ### Encryption and Decryption
 
-Following the notation in the previous section, our encryption scheme will be parameterized by a modulus $q$, a dimension $n$ and a noise level $\sigma$. Typical values would be $q=2^32$, $n=500$ and $\sigma=2^{-20}$.
+Following the notation in the previous section, our encryption scheme will be
+parameterized by a modulus $q$, a dimension $n$ and a noise level $\sigma$.
+Typical values would be $q=2^32$, $n=500$ and $\sigma=2^{-20}$.
 
-The *message space* of our scheme (i.e, data type that will be encrypted) will be elements $m \in \mathbb{Z}_q$. The encryption keys will be random length $n$ binary vectors $\mathbf{s} \in \\{0, 1\\}^n \subset \mathbb{Z}^n_q$.
+The _message space_ of our scheme (i.e, data type that will be encrypted) will
+be elements $m \in \mathbb{Z}_q$. The encryption keys will be random length $n$
+binary vectors $\mathbf{s} \in \\{0, 1\\}^n \subset \mathbb{Z}^n_q$.
 
-To encrypt a message $m \in \mathbb{Z}_q$ with a key $\mathbf{s} \in \mathbb{Z}^n_q$ we first uniformly sample a vector $\mathbf{a} \in \mathbb{Z}^n_q$ and sample a noise element $e$ from the Gaussian distribution $\mathcal{N}_q(0, \sigma)$. The encrypted message is defined to be the pair
+To encrypt a message $m \in \mathbb{Z}_q$ with a key
+$\mathbf{s} \in \mathbb{Z}^n_q$ we first uniformly sample a vector
+$\mathbf{a} \in \mathbb{Z}^n_q$ and sample a noise element $e$ from the Gaussian
+distribution $\mathcal{N}_q(0, \sigma)$. The encrypted message is defined to be
+the pair
 
-\\[
-    \mathrm{Enc}_{\mathbf{s}}(m) := (\mathbf{a}, (\mathbf{a}, \mathbf{s}) + m + e)
-\\]
+\\[ \mathrm{Enc}_{\mathbf{s}}(m) := (\mathbf{a}, (\mathbf{a}, \mathbf{s}) + m +
+e) \\]
 
-If we know the secret key $\mathbf{s}$, we can decrypt a ciphertext $(\mathbf{a}, b)$ by computing:
+If we know the secret key $\mathbf{s}$, we can decrypt a ciphertext
+$(\mathbf{a}, b)$ by computing:
 
-\\[
-\mathrm{Dec}_{\mathbf{s}}((\mathbf{a}, b)) = (b - (\mathbf{a}, \mathbf{s}) = ((\mathbf{a}, \mathbf{s}) + m + e) - (\mathbf{a}, \mathbf{s}) = m + e
-\\]
+\\[ \mathrm{Dec}_{\mathbf{s}}((\mathbf{a}, b)) = (b - (\mathbf{a}, \mathbf{s}) =
+((\mathbf{a}, \mathbf{s}) + m + e) - (\mathbf{a}, \mathbf{s}) = m + e \\]
 
-Note that this does not quite recover $m$ but rather $m+e$. For some applications such as neural networks a small amount of error may be tolerable. An alternative approach is to restrict the set of possible values of $m$ so that $m$ can be recovered from $m+e$ by rounding to the nearest allowed value.
+Note that this does not quite recover $m$ but rather $m+e$. For some
+applications such as neural networks a small amount of error may be tolerable.
+An alternative approach is to restrict the set of possible values of $m$ so that
+$m$ can be recovered from $m+e$ by rounding to the nearest allowed value.
 
-For the purposes of this post we will only need to distinguish between 8 different messages and so we will always choose $m$ as one of the 8 multiples of $2^{29}$ modulo $2^{32}$:
+For the purposes of this post we will only need to distinguish between 8
+different messages and so we will always choose $m$ as one of the 8 multiples of
+$2^{29}$ modulo $2^{32}$:
 
 IMAGE
 
-Since the message can only have one of 8 values, we can represent it as a integer $i \in [-4, 4)$. We will call the interval $[-4, 4)$ the _restricted message space_. We will use the following *encoding* function to encode an integer $i \in [-4, 4)$ as an  element of $\mathbb{Z}_q$ before encrypting $i$:
+Since the message can only have one of 8 values, we can represent it as a
+integer $i \in [-4, 4)$. We will call the interval $[-4, 4)$ the _restricted
+message space_. We will use the following _encoding_ function to encode an
+integer $i \in [-4, 4)$ as an element of $\mathbb{Z}_q$ before encrypting $i$:
 
 <div style="font-size: 1.4em;">
 \begin{align*}
     \mathrm{Encode}: [-4, 4) &\rightarrow \mathbb{Z}_q \\
-    i &\mapsto i \cdot 2^{29} 
-\end{align*} 
+    i &\mapsto i \cdot 2^{29}
+\end{align*}
 </div>
 
-and the following *decoding* function to convert a 32-bit message back to an integer in $[-4, 4)$ after decryption:
-
+and the following _decoding_ function to convert a 32-bit message back to an
+integer in $[-4, 4)$ after decryption:
 
 <div style="font-size: 1.4em;">
 \begin{align*}
     \mathrm{Decode}: \mathbb{Z}_q & \rightarrow [-4, 4) \\
-    m &\mapsto \lfloor m \cdot 2^{-29} \rceil 
-\end{align*} 
+    m &\mapsto \lfloor m \cdot 2^{-29} \rceil
+\end{align*}
 </div>
 
-where $\lfloor \cdot \rceil$ denotes rounding to the nearest integer. EXPLAIN IN TERMS OF PICTURE Note that if $\vert e \vert < 2^{28}$ and $0 \leq i < 8$ then $\mathrm{Decode}(\mathrm{Encode}(i) + e) = i$. Therefore, if we encode $i$ before encrypting it and decode after decrypting we can precisely recover $i$ with no error:
+where $\lfloor \cdot \rceil$ denotes rounding to the nearest integer. EXPLAIN IN
+TERMS OF PICTURE Note that if $\vert e \vert < 2^{28}$ and $0 \leq i < 8$ then
+$\mathrm{Decode}(\mathrm{Encode}(i) + e) = i$. Therefore, if we encode $i$
+before encrypting it and decode after decrypting we can precisely recover $i$
+with no error:
 
 \\[
-\mathrm{Decode}(\mathrm{Dec}\_{\mathbf{s}}(\mathrm{Enc}\_\mathbf{s}(\mathrm{Encode}(i)))) = i
-\\]
+\mathrm{Decode}(\mathrm{Dec}\_{\mathbf{s}}(\mathrm{Enc}\_\mathbf{s}(\mathrm{Encode}(i))))
+= i \\]
 
 Here is an implementation of the LWE scheme we've described so far.
 
@@ -126,7 +206,7 @@ Here is an implementation of the LWE scheme we've described so far.
 import numpy as np
 import dataclasses
 
-# Our implementation assumes q=2^32 and so all scalars 
+# Our implementation assumes q=2^32 and so all scalars
 # will be between the minimum and maximum values of an int32.
 INT32_MIN = np.iinfo(np.int32).min
 INT32_MAX = np.iinfo(np.int32).max
@@ -187,7 +267,7 @@ def lwe_decrypt(ciphertext: LweCiphertext, key: LweEncryptionKey) -> LwePlaintex
     """Decrypt an LWE ciphertext with the specified key."""
     # m+e = b - (a, key)
     return LwePlaintext(
-        np.subtract(ciphertext.b, np.dot(ciphertext.a, key.key), 
+        np.subtract(ciphertext.b, np.dot(ciphertext.a, key.key),
                     dtype=np.int32))
 ```
 
@@ -204,7 +284,7 @@ LwePlaintext(message=1610612736)
 >>> lwe_ciphertext = lwe_encrypt(lwe_plaintext, lwe_key)
 LweCiphertext(
     config=LweConfig(dimension=1024, noise_std=9.5367431640625e-07),
-    a=array([-1902953972, ..., 711394225], dtype=int32), 
+    a=array([-1902953972, ..., 711394225], dtype=int32),
     b=-109982053)
 >>> # Decrypt the ciphertext. Note that the result is not exactly equal to
 >>> # the plaintext as it contains some noise.
@@ -219,31 +299,53 @@ LweCiphertext(
 ## Homomorphic Operations
 
 ### Motivation
-In this section we will show that the LWE scheme above is homomorphic under addition and multiplication by plaintext.
 
-Before showing how this works let's take a minute to explain why this is interesting and useful. Suppose a server hosts a simple linear regression model whose linear part is defined by:
+In this section we will show that the LWE scheme above is homomorphic under
+addition and multiplication by plaintext.
 
-\\[
-    f(x_0, x_1) = w_0\cdot x_0 + w_1 \cdot x_1
-\\]
+Before showing how this works let's take a minute to explain why this is
+interesting and useful. Suppose a server hosts a simple linear regression model
+whose linear part is defined by:
 
-for weights $w_0$ and $w_1$. In addition, suppose you have two secret numbers $m_0$ and $m_1$ and you want to use the server to compute $f(m_0, m_1)$. Since the server is untrusted, you do not want to send $m_0$ or $m_1$. Instead you can leverage the homomorphic properties of LWE by following these steps:
+\\[ f(x_0, x_1) = w_0\cdot x_0 + w_1 \cdot x_1 \\]
+
+for weights $w_0$ and $w_1$. In addition, suppose you have two secret numbers
+$m_0$ and $m_1$ and you want to use the server to compute $f(m_0, m_1)$. Since
+the server is untrusted, you do not want to send $m_0$ or $m_1$. Instead you can
+leverage the homomorphic properties of LWE by following these steps:
 
 SEQUENCE DIAGRAM?
 
 1. Generate an LWE key $\mathbf{s}$ locally.
-1. Encrypt $m_0$ and $m_1$ locally to obtain $\mathrm{Enc}\_\mathbf{s}(m_0)$ and $\mathrm{Enc}\_\mathbf{s}(m_1)$.
-1. Send $\mathrm{Enc}\_\mathbf{s}(m_0)$ and $\mathrm{Enc}\_\mathbf{s}(m_1)$ to the server.
-1. The server uses homomorphic multiplication of $\mathrm{Enc}\_\mathbf{s}(m_i)$ by the plaintext $c_i$ to compute a ciphertext $\mathrm{Enc}\_\mathbf{s}(c_i \cdot m_i)$
-1. The server uses homomorphic addition of $\mathrm{Enc}\_\mathbf{s}(c_0\cdot m_0)$ and $\mathrm{Enc}\_\mathbf{s}(c_1\cdot m_1)$ to compute a ciphertext $\mathrm{Enc}\_\mathbf{s}(f(m_0, m_1)) = \mathrm{Enc}\_\mathbf{s}(c_0\cdot m_0 + c_1 \cdot m_1)$.
+1. Encrypt $m_0$ and $m_1$ locally to obtain $\mathrm{Enc}\_\mathbf{s}(m_0)$ and
+   $\mathrm{Enc}\_\mathbf{s}(m_1)$.
+1. Send $\mathrm{Enc}\_\mathbf{s}(m_0)$ and $\mathrm{Enc}\_\mathbf{s}(m_1)$ to
+   the server.
+1. The server uses homomorphic multiplication of $\mathrm{Enc}\_\mathbf{s}(m_i)$
+   by the plaintext $c_i$ to compute a ciphertext
+   $\mathrm{Enc}\_\mathbf{s}(c_i \cdot m_i)$
+1. The server uses homomorphic addition of
+   $\mathrm{Enc}\_\mathbf{s}(c_0\cdot m_0)$ and
+   $\mathrm{Enc}\_\mathbf{s}(c_1\cdot m_1)$ to compute a ciphertext
+   $\mathrm{Enc}\_\mathbf{s}(f(m_0, m_1)) = \mathrm{Enc}\_\mathbf{s}(c_0\cdot m_0 + c_1 \cdot m_1)$.
 1. The server sends $\mathrm{Enc}\_\mathbf{s}(f(m_0, m_1))$ back to the client.
-1. The client uses $\mathbf{s}$ to decrypt $\mathrm{Enc}\_\mathbf{s}(f(m\_0, m\_1))$ and obtain the result $f(m\_0, m\_1)$.
+1. The client uses $\mathbf{s}$ to decrypt
+   $\mathrm{Enc}\_\mathbf{s}(f(m\_0, m\_1))$ and obtain the result
+   $f(m\_0, m\_1)$.
 
-Note that this example can easily be extended to general dot product between a vector a weights $\mathbf{w}$ and a vector of features $\mathbf{x}$ which is a core component of neural networks.
+Note that this example can easily be extended to general dot product between a
+vector a weights $\mathbf{w}$ and a vector of features $\mathbf{x}$ which is a
+core component of neural networks.
 
 ### Homomorphic Addition
 
-Let $\mathbf{s}$ be a LWE key, let $m_1, m_2 \in \mathbb{Z}\_q$ be two messages and let  $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$ be the corresponding ciphertexts. In order to show that LWE is additively homomorphic we must find a way to produce a ciphertext $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ of the sum of the messages $m_1 + m_2$ from only the ciphertexts $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$.
+Let $\mathbf{s}$ be a LWE key, let $m_1, m_2 \in \mathbb{Z}\_q$ be two messages
+and let $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$ be
+the corresponding ciphertexts. In order to show that LWE is additively
+homomorphic we must find a way to produce a ciphertext
+$\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ of the sum of the messages $m_1 + m_2$
+from only the ciphertexts $\mathrm{Enc}\_\mathbf{s}(m_1)$ and
+$\mathrm{Enc}\_\mathbf{s}(m_2)$.
 
 As a first step, recall that by the definition of LWE encryption:
 
@@ -251,34 +353,46 @@ As a first step, recall that by the definition of LWE encryption:
 \begin{align*}
     \mathrm{Enc}_\mathbf{s}(m_1) &= (\mathbf{a_1}, \mathbf{a_1} \cdot \mathbf{s} + m_1 + e_1) \in \mathbb{Z}_q^n \times \mathbb{Z}_q \\
     \mathrm{Enc}_\mathbf{s}(m_2) &= (\mathbf{a_2}, \mathbf{a_2} \cdot \mathbf{s} + m_2 + e_2) \in \mathbb{Z}_q^n \times \mathbb{Z}_q
-\end{align*} 
+\end{align*}
 </div>
 
-Where $\mathrm{a_i} \in \mathbb{Z}_q^n$ are uniformly random vectors and $e_i \in \mathbb{Z}_q$ are small errors. How can we combine these in order to get an encryption of $m_1 + m_2$? Let's try the simplest approach of just adding the terms in $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$ element wise:
+Where $\mathrm{a_i} \in \mathbb{Z}_q^n$ are uniformly random vectors and
+$e_i \in \mathbb{Z}_q$ are small errors. How can we combine these in order to
+get an encryption of $m_1 + m_2$? Let's try the simplest approach of just adding
+the terms in $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$
+element wise:
 
 <div style="font-size: 1.4em;">
 \begin{align*}
     \mathrm{Enc}_\mathbf{s}(m_1) + \mathrm{Enc}_\mathbf{s}(m_1) &= (\mathbf{a_1} + \mathbf{a_2}, (\mathbf{a_1} \cdot \mathbf{s} + m_1 + e_1) + (\mathbf{a_2} \cdot \mathbf{s} + m_2 + e_2)) \\
     &= (\mathbf{a_1} + \mathbf{a_2}, (\mathbf{a_1} + \mathbf{a_2}) \cdot \mathbf{s} + (m_1 + m_2) + (e_1 + e_2))
-\end{align*} 
+\end{align*}
 </div>
 
-Let's define $\mathbf{a}\_\mathrm{sum} = \mathbf{a_1} + \mathbf{a_2}$ and $e\_\mathrm{sum} = e_1 + e_2$. We then have:
+Let's define $\mathbf{a}\_\mathrm{sum} = \mathbf{a_1} + \mathbf{a_2}$ and
+$e\_\mathrm{sum} = e_1 + e_2$. We then have:
 
-\begin{equation}\label{eq:lwe-sum}
-    \mathrm{Enc}\_\mathbf{s}(m_1) + \mathrm{Enc}\_\mathbf{s}(m_1) = (\mathbf{a}\_\mathrm{sum}, \mathbf{a}\_\mathrm{sum} \cdot \mathbf{s} + (m_1 + m_2) + e\_\mathrm{sum})
+\begin{equation}\label{eq:lwe-sum} \mathrm{Enc}\_\mathbf{s}(m_1) +
+\mathrm{Enc}\_\mathbf{s}(m_1) = (\mathbf{a}\_\mathrm{sum},
+\mathbf{a}\_\mathrm{sum} \cdot \mathbf{s} + (m_1 + m_2) + e\_\mathrm{sum})
 \end{equation}
 
-Note that right side of the above equation looks like an encryption of $m_1 + m_2$. Indeed, since $\mathbf{a_1}$ and $\mathbf{a_2}$ are uniformly random in $\mathbb{Z}_q^n$, $\mathbf{a}\_\mathrm{sum}$ is uniformly random as well. And since $e_1$ and $e_2$ are small errors, $e\_\mathrm{sum}$ is small as well. In summary, $\mathrm{Enc}\_\mathbf{s}(m_1) + \mathrm{Enc}\_\mathbf{s}(m_1) $ is a valid encryption of $m_1 + m_2$. DECRYPT TO CONFIRM
+Note that right side of the above equation looks like an encryption of
+$m_1 + m_2$. Indeed, since $\mathbf{a_1}$ and $\mathbf{a_2}$ are uniformly
+random in $\mathbb{Z}_q^n$, $\mathbf{a}\_\mathrm{sum}$ is uniformly random as
+well. And since $e_1$ and $e_2$ are small errors, $e\_\mathrm{sum}$ is small as
+well. In summary,
+$\mathrm{Enc}\_\mathbf{s}(m_1) + \mathrm{Enc}\_\mathbf{s}(m_1) $ is a valid encryption of $m_1 + m_2$.
+DECRYPT TO CONFIRM
 
 Here is an implementation:
 
 ```python
 def lwe_add(
-    ciphertext_left: LweCiphertext, 
+    ciphertext_left: LweCiphertext,
     ciphertext_right: LweCiphertext) -> LweCiphertext:
     """Homomorphic addition evaluation.
-    
+
        If ciphertext_left is an encryption of m_left and ciphertext_right is
        an encryption of m_right then return an encryption of
        m_left + m_right.
@@ -289,10 +403,10 @@ def lwe_add(
         np.add(ciphertext_left.b, ciphertext_right.b, dtype=np.int32))
 
 def lwe_subtract(
-    ciphertext_left: LweCiphertext, 
+    ciphertext_left: LweCiphertext,
     ciphertext_right: LweCiphertext) -> LweCiphertext:
     """Homomorphic subtraction evaluation.
-    
+
        If ciphertext_left is an encryption of m_left and ciphertext_right is
        an encryption of m_right then return an encryption of
        m_left - m_right.
@@ -304,6 +418,7 @@ def lwe_subtract(
 ```
 
 Here is an example:
+
 ```python
 >>> lwe_config = LweConfig(dimension=1024, noise_std=2**(-20))
 >>> lwe_key = generate_lwe_key(lwe_config)
@@ -338,64 +453,116 @@ LwePlaintext(message=1610616071)
 
 ### Homomorphic Multiplication By Plaintext
 
-The idea of homomorphic multiplication by a plaintext is similar to the homomorphic addition in the previous section.
+The idea of homomorphic multiplication by a plaintext is similar to the
+homomorphic addition in the previous section.
 
-Let $\mathbf{s}$ be a LWE key, $m \in \mathbb{Z}\_q$ a message and $\mathrm{Enc}\_\mathbf{s}(m)$ a LWE ciphertext of $m$ with the $\mathbf{s}$. Let $c \in \mathbb{Z}_q$ be a plaintext constant.
+Let $\mathbf{s}$ be a LWE key, $m \in \mathbb{Z}\_q$ a message and
+$\mathrm{Enc}\_\mathbf{s}(m)$ a LWE ciphertext of $m$ with the $\mathbf{s}$. Let
+$c \in \mathbb{Z}_q$ be a plaintext constant.
 
-Our goal in this section is to homomorphically multiply the ciphertext $\mathrm{Enc}\_\mathbf{s}(m)$ with the plaintext $c$ in order to obtain a ciphertext $\mathrm{Enc}_\mathbf{s}(c \cdot m)$ encrypting $c \cdot m$.
+Our goal in this section is to homomorphically multiply the ciphertext
+$\mathrm{Enc}\_\mathbf{s}(m)$ with the plaintext $c$ in order to obtain a
+ciphertext $\mathrm{Enc}_\mathbf{s}(c \cdot m)$ encrypting $c \cdot m$.
 
-Similarly to the previous section, we start by explicitly writing $\mathrm{Enc}\_\mathbf{s}(m)$ as
+Similarly to the previous section, we start by explicitly writing
+$\mathrm{Enc}\_\mathbf{s}(m)$ as
 
-\\[
-    \mathrm{Enc}_\mathbf{s}(m) = (\mathbf{a}, \mathbf{a} \cdot \mathbf{s} + m + e) \in \mathbb{Z}_q^n \times \mathbb{Z}_q
-\\]
+\\[ \mathrm{Enc}_\mathbf{s}(m) = (\mathbf{a}, \mathbf{a} \cdot \mathbf{s} + m +
+e) \in \mathbb{Z}_q^n \times \mathbb{Z}_q \\]
 
-where $\mathbf{a} \in \mathbb{Z}\_q^n$ is a uniformly random vector and $e \in \mathbb{Z}\_q$ is a small error. How can we produce a ciphertext of $\mathrm{Enc}\_\mathbf{s}(c \cdot m)$? Drawing inspiration from the previous section, let's see what happens if we simply multiply each element of $\mathrm{Enc}\_\mathbf{s}(m)$ with $c$:
+where $\mathbf{a} \in \mathbb{Z}\_q^n$ is a uniformly random vector and
+$e \in \mathbb{Z}\_q$ is a small error. How can we produce a ciphertext of
+$\mathrm{Enc}\_\mathbf{s}(c \cdot m)$? Drawing inspiration from the previous
+section, let's see what happens if we simply multiply each element of
+$\mathrm{Enc}\_\mathbf{s}(m)$ with $c$:
 
-\\[
-    (c \cdot \mathbf{a}, c \cdot (\mathbf{a} \cdot \mathbf{s} + m + e)) =
-    (c \cdot \mathbf{a}, (c \cdot \mathbf{a}) \cdot \mathbf{s} + (c \cdot m) + (c\cdot e))
-\\]
+\\[ (c \cdot \mathbf{a}, c \cdot (\mathbf{a} \cdot \mathbf{s} + m + e)) = (c
+\cdot \mathbf{a}, (c \cdot \mathbf{a}) \cdot \mathbf{s} + (c \cdot m) + (c\cdot
+e)) \\]
 
-The expression on the right hand side is indeed an encryption of $c \cdot m$ with the key $\mathbf{s}$ using the random vector $c \cdot \mathbf{a}$ and noise $c \cdot e$. DECRYPT
+The expression on the right hand side is indeed an encryption of $c \cdot m$
+with the key $\mathbf{s}$ using the random vector $c \cdot \mathbf{a}$ and noise
+$c \cdot e$. DECRYPT
 
 ### A Word About Noise
 
-In the previous sections we glossed over a key point related to the *noise* in the ciphertexts $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ and $\mathrm{Enc}\_\mathbf{s}(c \cdot m))$. Recall that by \ref{eq:lwe-sum}, if the noise in $\mathrm{Enc}\_\mathbf{s}(m_1)$ is $e_1$ and the noise in $\mathrm{Enc}\_\mathbf{s}(m_2)$ is $e_2$ then after adding those two ciphertexts together the resulting ciphertext $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ has noise $e_1 + e_2$. Similarly, $\mathrm{Enc}\_\mathbf{s}(c \cdot m))$ will have noise $c \cdot e$. Even though $e_1 + e_2$ and $c \cdot e$ are still "small", they are still larger than the noise in the original ciphertexts. Eventually, after a large number of additions and plaintext multiplications the noise could grow to the same order of magnitude as the message itself, in which case the decryption would result in meaningless noise. To be concrete, recall that the encoding/decoding scheme from the previous section can only reliably remove noise that is less than $2^{28}$.
+In the previous sections we glossed over a key point related to the _noise_ in
+the ciphertexts $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ and
+$\mathrm{Enc}\_\mathbf{s}(c \cdot m))$. Recall that by \ref{eq:lwe-sum}, if the
+noise in $\mathrm{Enc}\_\mathbf{s}(m_1)$ is $e_1$ and the noise in
+$\mathrm{Enc}\_\mathbf{s}(m_2)$ is $e_2$ then after adding those two ciphertexts
+together the resulting ciphertext $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ has
+noise $e_1 + e_2$. Similarly, $\mathrm{Enc}\_\mathbf{s}(c \cdot m))$ will have
+noise $c \cdot e$. Even though $e_1 + e_2$ and $c \cdot e$ are still "small",
+they are still larger than the noise in the original ciphertexts. Eventually,
+after a large number of additions and plaintext multiplications the noise could
+grow to the same order of magnitude as the message itself, in which case the
+decryption would result in meaningless noise. To be concrete, recall that the
+encoding/decoding scheme from the previous section can only reliably remove
+noise that is less than $2^{28}$.
 
-For this reason, there is a limit to the number of homomorphic additions we can evaluate with LWE. In the following sections we will introduce the process of *bootstrapping* which will remove this limitation.
+For this reason, there is a limit to the number of homomorphic additions we can
+evaluate with LWE. In the following sections we will introduce the process of
+_bootstrapping_ which will remove this limitation.
 
 # Ring LWE
 
 ## Introduction
 
-The LWE scheme from the previous section was a good start, but it has a few major issues:
+The LWE scheme from the previous section was a good start, but it has a few
+major issues:
 
 1. It only supports homomorphic addition.
 1. It only supports a limited number of homomorphic operations (due to noise).
-1. The result of encrypting a message $m \in \mathbb{Z}_q$ is a ciphertext in $\mathbb{Z}_q^n \times \mathbb{Z}_q$. For production level security $n$ is usually chosen to be around $1000$. This means that the ciphertext is around $1000$ times larger than the plaintext which can be a huge issue if the plaintext is large. For example if the plaintext is a 1MB image then after encrypting each pixel the result would be 1GB.
+1. The result of encrypting a message $m \in \mathbb{Z}_q$ is a ciphertext in
+   $\mathbb{Z}_q^n \times \mathbb{Z}_q$. For production level security $n$ is
+   usually chosen to be around $1000$. This means that the ciphertext is around
+   $1000$ times larger than the plaintext which can be a huge issue if the
+   plaintext is large. For example if the plaintext is a 1MB image then after
+   encrypting each pixel the result would be 1GB.
 
-As we will see, *Ring LWE* (RLWE) is a variation of LWE with an additional multiplication operation. This added structure can be used to solve the ciphertext size issue, and is also an important ingredient towards the solution of the first to problems.
+As we will see, _Ring LWE_ (RLWE) is a variation of LWE with an additional
+multiplication operation. This added structure can be used to solve the
+ciphertext size issue, and is also an important ingredient towards the solution
+of the first to problems.
 
 ## Negacyclic Polynomials
 
-The message space of the RLWE scheme will be the ring of polynomials  $\mathbb{Z}_q[x] / (x^n + 1)$. In this section we will describe the ring $\mathbb{Z}_q[x] / (x^n + 1)$ and in the next section we'll define the RLWE scheme.
+The message space of the RLWE scheme will be the ring of polynomials
+$\mathbb{Z}_q[x] / (x^n + 1)$. In this section we will describe the ring
+$\mathbb{Z}_q[x] / (x^n + 1)$ and in the next section we'll define the RLWE
+scheme.
 
-For starters, $\mathbb{Z}_q[x]$ denotes the ring of polynomials with coefficients in $\mathbb{Z}_q$. As before, we will assume that $q=2^{32}$ and identify $\mathbb{Z}_q$ with signed integers. In this case $\mathbb{Z}_q[x]$ denotes the ring of polynomials integer coefficients.
+For starters, $\mathbb{Z}_q[x]$ denotes the ring of polynomials with
+coefficients in $\mathbb{Z}_q$. As before, we will assume that $q=2^{32}$ and
+identify $\mathbb{Z}_q$ with signed integers. In this case $\mathbb{Z}_q[x]$
+denotes the ring of polynomials integer coefficients.
 
 An example of an element in $\mathbb{Z}_q[x]$ would be:
 
-\\[
-    f(x) = 1 + 2x + 5x^3
-\\]
+\\[ f(x) = 1 + 2x + 5x^3 \\]
 
-We call $\mathbb{Z}_q[x]$ a [Ring](https://en.wikipedia.org/wiki/Ring_(mathematics)) because we can add and multiply elements of $\mathbb{Z}_q[x]$. For example, if $f(x) = 1 + 2x + 5x^3$ and $g(x) = 1 + x$ then $f(x) + g(x) = 2 + 3x + 5x^3$ and $f(x)\cdot g(x) = 1 + 3x + 2x^2 + 5x^3 + 5x^4$.
+We call $\mathbb{Z}_q[x]$ a
+[Ring](<https://en.wikipedia.org/wiki/Ring_(mathematics)>) because we can add
+and multiply elements of $\mathbb{Z}_q[x]$. For example, if
+$f(x) = 1 + 2x + 5x^3$ and $g(x) = 1 + x$ then $f(x) + g(x) = 2 + 3x + 5x^3$ and
+$f(x)\cdot g(x) = 1 + 3x + 2x^2 + 5x^3 + 5x^4$.
 
-The highest power of $x$ in a polynomial is called the *degree*. For example, the degree of $f(x)$ is $3$ and the degree of $g(x)$ is $1$. Polynomials in $\mathbb{Z}_q[x]$ can have an arbitrarily high degree.
+The highest power of $x$ in a polynomial is called the _degree_. For example,
+the degree of $f(x)$ is $3$ and the degree of $g(x)$ is $1$. Polynomials in
+$\mathbb{Z}_q[x]$ can have an arbitrarily high degree.
 
-We now turn to the ring $\mathbb{Z}_q[x] / (x^n + 1)$. The denominator $x^n+1$ plays a similar role to the denominator in the definition $\mathbb{Z}_q = \mathbb{Z} / q\mathbb{Z}$. Just as $\mathbb{Z}_q$ is defined to be the integers modulo $q$, $\mathbb{Z}_q[x] / (x^n + 1)$ is the set of polynomials "modulo" the polynomial $x^n + 1$.
+We now turn to the ring $\mathbb{Z}_q[x] / (x^n + 1)$. The denominator $x^n+1$
+plays a similar role to the denominator in the definition
+$\mathbb{Z}_q = \mathbb{Z} / q\mathbb{Z}$. Just as $\mathbb{Z}_q$ is defined to
+be the integers modulo $q$, $\mathbb{Z}_q[x] / (x^n + 1)$ is the set of
+polynomials "modulo" the polynomial $x^n + 1$.
 
-What does this mean? We can represent elements of $\mathbb{Z}_q[x] / (x^n + 1)$ by polynomials whose degree is less than $n$. If we are given a polynomial with a degree larger than $n$, we can find it's representative modulo $x^n + 1$ by replacing $x^n$ with $-1$ as many times as necessary. For example, if $n=4$ then we have the following equivalences modulo $x^4 + 1$:
+What does this mean? We can represent elements of $\mathbb{Z}_q[x] / (x^n + 1)$
+by polynomials whose degree is less than $n$. If we are given a polynomial with
+a degree larger than $n$, we can find it's representative modulo $x^n + 1$ by
+replacing $x^n$ with $-1$ as many times as necessary. For example, if $n=4$ then
+we have the following equivalences modulo $x^4 + 1$:
 
 <div style="font-size: 1.4em;">
 \begin{align*}
@@ -411,13 +578,17 @@ x^8 &= x^4 \cdot x^4 = -1 \cdot -1 = 1\ (\mathrm{mod}\ x^n + 1)
 \end{align*}
 </div>
 
-Note that as the monomial pass $x^4$ they loop back to $1$ but with a negative sign. For this reason polynomials of this form are sometimes called *negacyclic*. This process is particularly useful when multiplying polynomials in $\mathbb{Z}_q[x] / (x^n + 1)$ so as to ensure that the final degree remains less than $n$. For example, let $f(x) = 1 + x^3$ and $g(x) = x$ be elements of $\mathbb{Z}_q[x] / (x^4 + 1)$. If we multiply them we get
+Note that as the monomial pass $x^4$ they loop back to $1$ but with a negative
+sign. For this reason polynomials of this form are sometimes called
+_negacyclic_. This process is particularly useful when multiplying polynomials
+in $\mathbb{Z}_q[x] / (x^n + 1)$ so as to ensure that the final degree remains
+less than $n$. For example, let $f(x) = 1 + x^3$ and $g(x) = x$ be elements of
+$\mathbb{Z}_q[x] / (x^4 + 1)$. If we multiply them we get
 
-\\[
-  f(x) \cdot g(x) = x + x^4 = x - 1 = -1 + x\ (\mathrm{mod}\ x^4 + 1)
-\\]
+\\[ f(x) \cdot g(x) = x + x^4 = x - 1 = -1 + x\ (\mathrm{mod}\ x^4 + 1) \\]
 
-As another example that will be relevant later on, if $f(x) = 1 + x + x^2 + x^3$ and $g(x) = x^2$ then
+As another example that will be relevant later on, if $f(x) = 1 + x + x^2 + x^3$
+and $g(x) = x^2$ then
 
 <div style="font-size: 1.4em;">
 \begin{align*}
@@ -441,14 +612,14 @@ class Polynomial:
 def polynomial_constant_multiply(c: int, p: Polynomial) -> Polynomial:
     """Multiply the polynomial by the constant c"""
     return Polynomial(coeff=np.multiply(c, p.coeff, dtype=np.int32))
-    
+
 def polynomial_multiply(p1: Polynomial, p2: Polynomial) -> Polynomial:
     """Multiply two polynomials in the ring Z[x]/(x^N + 1).
-    
+
        We assume p1.N = p2.N.
 
        Note that this method is a SUBOPTIMAL way to multiply two negacyclic
-       polynomials. It would be more efficient to use a negacyclic version 
+       polynomials. It would be more efficient to use a negacyclic version
        of the FFT polynomial multiplication algorithm as explained in the
        end of the post.
     """
@@ -512,47 +683,42 @@ Polynomial(N=8, coeff=array([-6, -7,  0,  1,  2,  3,  4,  5], dtype=int32))
 
 ## The RLWE Encryption Scheme
 
-In this section we will define the *RLWE Encryption Scheme* which is very
-similar to the LWE encryption scheme but with messages in $\mathbb{Z}_q[x] / (x^n + 1)$
-rather than $\mathbb{Z}_q$.
+In this section we will define the _RLWE Encryption Scheme_ which is very
+similar to the LWE encryption scheme but with messages in
+$\mathbb{Z}_q[x] / (x^n + 1)$ rather than $\mathbb{Z}_q$.
 
-A secret key in RLWE is a polynomial in $\mathbb{Z}_q[x] / (x^n + 1)$ with 
-random *binary* coefficients. For example, if $n=4$ then a secret key may look
+A secret key in RLWE is a polynomial in $\mathbb{Z}_q[x] / (x^n + 1)$ with
+random _binary_ coefficients. For example, if $n=4$ then a secret key may look
 like:
 
-\\[
-s(x) = 1 + 0\cdot x + 1\cdot x^2 + 1\cdot x^3 = 1 + x^2 + x^3
-\\]
+\\[ s(x) = 1 + 0\cdot x + 1\cdot x^2 + 1\cdot x^3 = 1 + x^2 + x^3 \\]
 
-To encrypt a message $m(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ with a secret key $s(x)$
-we first sample a polynomial $a(x)\in \mathbb{Z}_q[x]$ with uniformly random
-coefficients in $\mathbb{Z}_q$ and an error polynomial $e(x)\in \mathbb{Z}_q[x]$
-with small error coefficients sampled from $\mathcal{N}_q$. The encryption of
-$m(x)$ by $s(x)$ is then given by the pair:
+To encrypt a message $m(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ with a secret key
+$s(x)$ we first sample a polynomial $a(x)\in \mathbb{Z}_q[x]$ with uniformly
+random coefficients in $\mathbb{Z}_q$ and an error polynomial
+$e(x)\in \mathbb{Z}_q[x]$ with small error coefficients sampled from
+$\mathcal{N}_q$. The encryption of $m(x)$ by $s(x)$ is then given by the pair:
 
-\\[
-    \mathrm{Enc}_{s(x)}(m(x)) = (a(x), a(x)\cdot s(x) + m(x) + e(x))
-\\]
+\\[ \mathrm{Enc}_{s(x)}(m(x)) = (a(x), a(x)\cdot s(x) + m(x) + e(x)) \\]
 
 To decrypt a ciphertext $(a(x), b(x))$ we compute:
 
-\\[
-    \mathrm{Dec}_{s(x)}((a(x), b(x))) = b(x) - a(x)\cdot s(x) = m(x) + e(x)
-\\]
+\\[ \mathrm{Dec}_{s(x)}((a(x), b(x))) = b(x) - a(x)\cdot s(x) = m(x) + e(x) \\]
 
 Similarly to LWE, after decrypting a ciphertext $\mathrm{Enc}_{s(x)}(m(x))$ we
 get the original message $m(x)$ together with a small amount of noise. As in the
-LWE case, if we are interested in noiseless decryptions we can use a *restricted* 
-message space of polynomials whose coefficients are in $\mathbb{Z}_8$ and extend
-our encoding and decoding functions to polynomials by applying our original 
-$\mathrm{Encode}$ and $\mathrm{Decode}$ methods to each coefficient:
+LWE case, if we are interested in noiseless decryptions we can use a
+_restricted_ message space of polynomials whose coefficients are in
+$\mathbb{Z}_8$ and extend our encoding and decoding functions to polynomials by
+applying our original $\mathrm{Encode}$ and $\mathrm{Decode}$ methods to each
+coefficient:
 
 <div style="font-size: 1.4em;">
 \begin{align*}
     \mathrm{EncodePolynomial}: \mathbb{Z}_8[x] &\rightarrow \mathbb{Z}_q[x] \\
-    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto 
-    \mathrm{Encode}(a_0) + \mathrm{Encode}(a_1)x + \dots \mathrm{Encode}(a_{n-1})x^{n-1} 
-\end{align*} 
+    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto
+    \mathrm{Encode}(a_0) + \mathrm{Encode}(a_1)x + \dots \mathrm{Encode}(a_{n-1})x^{n-1}
+\end{align*}
 </div>
 
 and
@@ -560,18 +726,21 @@ and
 <div style="font-size: 1.4em;">
 \begin{align*}
     \mathrm{DecodePolynomial}: \mathbb{Z}_q[x] &\rightarrow \mathbb{Z}_8[x]\\
-    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto 
-    \mathrm{Decode}(a_0) + \mathrm{Decode}(a_1)x + \dots \mathrm{Decode}(a_{n-1})x^{n-1} 
-\end{align*} 
+    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto
+    \mathrm{Decode}(a_0) + \mathrm{Decode}(a_1)x + \dots \mathrm{Decode}(a_{n-1})x^{n-1}
+\end{align*}
 </div>
 
-Just like with LWE, if we work with elements in the restricted message space $r(x) \in \mathbb{Z}_8[x]$ and encode them before encryption and decode after decryption then we end up with the initial $r(x)$ without noise:
+Just like with LWE, if we work with elements in the restricted message space
+$r(x) \in \mathbb{Z}_8[x]$ and encode them before encryption and decode after
+decryption then we end up with the initial $r(x)$ without noise:
 
 \\[
-\mathrm{DecodePolynomial}(\mathrm{Dec}\_{s(x)}(\mathrm{Enc}\_{s(x)}(\mathrm{EncodePolynomial}(r(x))))) = r(x)
-\\]
+\mathrm{DecodePolynomial}(\mathrm{Dec}\_{s(x)}(\mathrm{Enc}\_{s(x)}(\mathrm{EncodePolynomial}(r(x)))))
+= r(x) \\]
 
-Here is an implementation of the RLWE encryption scheme together with the encoding and decoding functions:
+Here is an implementation of the RLWE encryption scheme together with the
+encoding and decoding functions:
 
 ```python
 @dataclasses.dataclass
@@ -643,7 +812,7 @@ Here is an example:
 >>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-20))
 >>> rlwe_key = generate_rlwe_key(rlwe_config)
 RlweEncryptionKey(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
     key=Polynomial(N=1024, coeff=array([1, 0, 1, ..., 1, 1, 0], dtype=int32)))
 >>> # Build a polynomial r(x) = x^2 in the restricted message space.
 >>> r = build_monomial(c=1, i=2, N=rlwe_config.degree)
@@ -651,7 +820,7 @@ Polynomial(N=1024, coeff=array([0, 0, 1, ..., 0, 0, 0], dtype=int32))
 >>> # Encode r(x) as an RLWE plaintext.
 >>> rlwe_plaintext = encode_rlwe(r, rlwe_config)
 RlwePlaintext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
     message=Polynomial(
         N=1024,
         coeff=array([0, 0, 536870912, ..., 0, 0, 0], dtype=int32)))
@@ -663,7 +832,7 @@ RlweCiphertext(
         N=1024,
         coeff=array([265525746, 339619264, 25096818, ...,  -336116691, 1946582588, -1796375564], dtype=int32)),
     b=Polynomial(
-        N=1024, 
+        N=1024,
         coeff=array([2133834000, 1387586285, 1458261587, ..., 405447664, -1104510688, -434404325], dtype=int32)))
 >>> # Decrypt the ciphertext. Note that the result is close to the rlwe_plaintext
 >>> # with a small amount of noise. I.e, all of the coefficients are small except
@@ -672,7 +841,7 @@ RlweCiphertext(
 RlwePlaintext(
     config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
     message=Polynomial(
-        N=1024, 
+        N=1024,
         coeff=array([-3068, -1970, 536872441, ..., 1159, -13, -2289], dtype=int32)))
 >>> # Decode rlwe_decrypted to obtain the original r(x) without noise.
 >>> decode_rlwe(rlwe_decrypted)
@@ -686,19 +855,17 @@ multiply them by plaintext constants.
 
 ### Homomorphic Addition
 
-Let $s(x)$ be an RLWE encryption key, $m_1(x), m_2(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ 
-be RLWE plaintexts and 
+Let $s(x)$ be an RLWE encryption key,
+$m_1(x), m_2(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ be RLWE plaintexts and
 
-\\[
-    \mathrm{Enc}\_{s(x)}(m_i(x)) = (a_i(x), b_i(x)) \in \left( \mathbb{Z}_q[x] / (x^n + 1) \right)^2
-\\]
+\\[ \mathrm{Enc}\_{s(x)}(m_i(x)) = (a_i(x), b_i(x)) \in \left( \mathbb{Z}\_q[x]
+/ (x^n + 1) \right)^2 \\]
 
-encryptions of $m_i(x)$ with $s(x)$. Just as in the LWE case, we can generate an encryption
-of $m_1(x) + m_2(x)$ by adding $\mathrm{Enc}\_{s(x)}(m_1(x))$ and $\mathrm{Enc}\_{s(x)}(m_2(x))$
-element wise:
+encryptions of $m_i(x)$ with $s(x)$. Just as in the LWE case, we can generate an
+encryption of $m_1(x) + m_2(x)$ by adding $\mathrm{Enc}\_{s(x)}(m_1(x))$ and
+$\mathrm{Enc}\_{s(x)}(m_2(x))$ element wise:
 
-\\[
-    \mathrm{Enc}\_{s(x)}(m_1(x) + m_2(x)) = (a_1(x) + a_2(x), b_1(x) + b_2(x))
+\\[ \mathrm{Enc}\_{s(x)}(m_1(x) + m_2(x)) = (a_1(x) + a_2(x), b_1(x) + b_2(x))
 \\]
 
 DECRYPT
@@ -707,10 +874,10 @@ Here is the corresponding code:
 
 ```python
 def rlwe_add(
-    ciphertext_left: RlweCiphertext, 
+    ciphertext_left: RlweCiphertext,
     ciphertext_right: RlweCiphertext) -> RlweCiphertext:
     """Homomorphic RLWE addition.
-    
+
        If ciphertext_left is an encryption of message_left and ciphertext_right
        is an encryption of message_right, then return an encryption of
        message_left + message_right.
@@ -721,10 +888,10 @@ def rlwe_add(
         polynomial_add(ciphertext_left.b, ciphertext_right.b))
 
 def rlwe_subtract(
-    ciphertext_left: RlweCiphertext, 
+    ciphertext_left: RlweCiphertext,
     ciphertext_right: RlweCiphertext) -> RlweCiphertext:
     """Homomorphic RLWE subtraction.
-    
+
        If ciphertext_left is an encryption of message_left and ciphertext_right
        is an encryption of message_right, then return an encryption of
        message_left - message_right.
@@ -736,6 +903,7 @@ def rlwe_subtract(
 ```
 
 Here is an example:
+
 ```python
 >>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-20))
 >>> rlwe_key = generate_rlwe_key(rlwe_config)
@@ -749,22 +917,22 @@ Polynomial(N=1024, coeff=array([0, 0, 2, ..., 0, 0, 0], dtype=int32))
 >>> # Encode them as RLWE plaintexts
 >>> rlwe_plaintext_1 = encode_rlwe(m_1, rlwe_config)
 RlwePlaintext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
     message=Polynomial(N=1024, coeff=array([0, 536870912, 0, ..., 0, 0, 0], dtype=int32)))
 >>> rlwe_plaintext_2 = encode_rlwe(m_2, rlwe_config)
 RlwePlaintext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
     message=Polynomial(N=1024, coeff=array([0, 0, 1073741824, ..., 0, 0, 0], dtype=int32)))
 
 >>> # Encrypt the plaintexts
 >>> rlwe_ciphertext_1 = rlwe_encrypt(rlwe_plaintext_1, rlwe_key)
 RlweCiphertext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
-    a=Polynomial(N=1024, coeff=array([ -400522947, 780160233, -1240339714, ..., -1201843621, -921665597,   782809419], dtype=int32)), 
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
+    a=Polynomial(N=1024, coeff=array([ -400522947, 780160233, -1240339714, ..., -1201843621, -921665597,   782809419], dtype=int32)),
     b=Polynomial(N=1024, coeff=array([1518284929, 1076194805, 682351634, ..., -2051751750, 1146815193, -1616790507], dtype=int32)))
 >>> rlwe_ciphertext_2 = rlwe_encrypt(rlwe_plaintext_2, rlwe_key)
 RlweCiphertext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
     a=Polynomial(N=1024, coeff=array([-972658319, -948445572, 1516104424, ..., -523471090, -213239951,
        -456683796], dtype=int32)),
     b=Polynomial(N=1024, coeff=array([1362163316, -70198416, -1400655871, ..., -1427181350, 529214435,  1280406048], dtype=int32)))
@@ -789,40 +957,36 @@ Polynomial(N=1024, coeff=array([0, 1, 2, ..., 0, 0, 0]))
 
 ### Homomorphic Multiplication by Plaintext
 
-Just as with LWE, if $(a(x), b(x)) \in \left(\mathbb{Z}_q[x] / (x^n + 1)\right)^2$
-is an RLWE encryption of $m(x)$ and $c(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ is a plaintext
+Just as with LWE, if
+$(a(x), b(x)) \in \left(\mathbb{Z}_q[x] / (x^n + 1)\right)^2$ is an RLWE
+encryption of $m(x)$ and $c(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ is a plaintext
 then
 
-\\[
-    (c(x) \cdot a(x), c(x) \cdot b(x))
-\\]
+\\[ (c(x) \cdot a(x), c(x) \cdot b(x)) \\]
 
-is an encryption of $c(x) \cdot m(x)$. DECRYPT An important feature of RLWE multiplication
-is that we can use the polynomial structure to homomorphically rotate the coefficients of $m(x)$
-by choosing an appropriate plaintext monomial $c(x)$. For example, consider the message
+is an encryption of $c(x) \cdot m(x)$. DECRYPT An important feature of RLWE
+multiplication is that we can use the polynomial structure to homomorphically
+rotate the coefficients of $m(x)$ by choosing an appropriate plaintext monomial
+$c(x)$. For example, consider the message
 
-\\[
-    m(x) = 0 + x + 2x^2 + 3x^3 \in \mathbb{Z}\_q[x] / (x^4 + 1)
-\\]
+\\[ m(x) = 0 + x + 2x^2 + 3x^3 \in \mathbb{Z}\_q[x] / (x^4 + 1) \\]
 
 with coefficients $(0, 1, 2, 3)$ and an encryption $\mathrm{Enc}\_{s(x)}(m(x))$.
-If we homomorphically multiply $\mathrm{Enc}_{s(x)}(m(x))$
-by $c(x) = x$ then we get an encryption of
+If we homomorphically multiply $\mathrm{Enc}_{s(x)}(m(x))$ by $c(x) = x$ then we
+get an encryption of
 
-\\[
-    c(x) \cdot m(x) = x \cdot m(x) = -3 + x^2 + 2x^3
-\\]
-whose coefficients $(-3, 0, 1, 2)$ are a negacyclic rotation of the original
-coefficients $(0, 1, 2, 3)$.
+\\[ c(x) \cdot m(x) = x \cdot m(x) = -3 + x^2 + 2x^3 \\] whose coefficients
+$(-3, 0, 1, 2)$ are a negacyclic rotation of the original coefficients
+$(0, 1, 2, 3)$.
 
 Here is an implementation of homomorphic multiplication followed by an example:
 
 ```python
 def rlwe_plaintext_multiply(
-    c: RlwePlaintext, 
+    c: RlwePlaintext,
     ciphertext: RlweCiphertext) -> RlweCiphertext:
     """Homomorphic multiplication by a plaintext.
-    
+
        If ciphertext is an encryption of m(x) then return an encryption of
        c(x) * m(x)
     """
@@ -856,7 +1020,7 @@ RlwePlaintext(
 >>> # c(x) since it will not be encrypted.
 >>> rlwe_plaintext_c = RlwePlaintext(config=rlwe_config, message=c)
 RlwePlaintext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
     message=Polynomial(N=1024, coeff=array([0, 1, 0, ..., 0, 0, 0], dtype=int32)))
 
 >>> # Encrypt m(x)
@@ -869,14 +1033,14 @@ RlweCiphertext(
 >>> # Homomorphically multiply the ciphertext with c(x)=x.
 >>> rlwe_ciphertext_prod = rlwe_plaintext_multiply(rlwe_plaintext_c, rlwe_ciphertext_m)
 RlweCiphertext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
     a=Polynomial(N=1024, coeff=array([-422241135, -844666424, 36686307, ..., -791176239, 442029872,-654507604], dtype=int32)),
     b=Polynomial(N=1024, coeff=array([-1405543399, 1558596496, -2028009664, ..., -826447358, 88956176,  -416446807], dtype=int32)))
 
 >>> # Decrypt the encrypted product.
 >>> rlwe_decrypt_prod = rlwe_decrypt(rlwe_ciphertext_prod, rlwe_key)
 RlwePlaintext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07), 
+    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
     message=Polynomial(N=1024, coeff=array([-1260, -207, 536871162, 1073742042, ..., -1165, 459, 1412], dtype=int32)))
 
 >>> # Decode to remove the noise. Note that, as expected, we get coefficients of
@@ -887,90 +1051,111 @@ Polynomial(N=1024, coeff=array([0, 0, 1, 2, 0, ..., 0, 0, 0]))
 
 ## Ciphertext Size
 
-One of the advantages of RLWE over LWE is that the ratio of ciphertext size to plaintext size is significantly smaller. Recall that with LWE encryption, a plaintext is a single integer $m \in \mathbb{Z}_q$
-and a ciphertext $(\mathbf{a}, b) \in \mathbb{Z}_q^n \times \mathbb{Z}_q$ contains $n+1$ integers.
-Therefore, encrypting a message increases the data size by a factor of $n+1$ which significant since
-$n$ is typically around 1000.
+One of the advantages of RLWE over LWE is that the ratio of ciphertext size to
+plaintext size is significantly smaller. Recall that with LWE encryption, a
+plaintext is a single integer $m \in \mathbb{Z}_q$ and a ciphertext
+$(\mathbf{a}, b) \in \mathbb{Z}_q^n \times \mathbb{Z}_q$ contains $n+1$
+integers. Therefore, encrypting a message increases the data size by a factor of
+$n+1$ which significant since $n$ is typically around 1000.
 
-Let's see how RLWE compares. An RLWE plaintext is a polynomial $m(x)\in \mathbb{Z}_q[x]/(x^n+1)$ which has
-$n$ coefficients. A plaintext is a tuple $(a(x), b(x)) \in \left(\mathbb{Z}_q[x]/(x^n+1)\right)^2$ which has
-$n + n = 2n$ coefficients. So encrypting a message only increases the data size by a factor of 2 - a significant improvements.
+Let's see how RLWE compares. An RLWE plaintext is a polynomial
+$m(x)\in \mathbb{Z}_q[x]/(x^n+1)$ which has $n$ coefficients. A plaintext is a
+tuple $(a(x), b(x)) \in \left(\mathbb{Z}_q[x]/(x^n+1)\right)^2$ which has
+$n + n = 2n$ coefficients. So encrypting a message only increases the data size
+by a factor of 2 - a significant improvements.
 
-The key difference is that with RLWE we can encrypt a polynomial with $n$ coefficients 
-at once, whereas with LWE we encode one number at a time.
+The key difference is that with RLWE we can encrypt a polynomial with $n$
+coefficients at once, whereas with LWE we encode one number at a time.
 
 # A Homomorphic Multiplexer
 
-In this section we will show how to homomorphically evaluate a [Multiplexer](https://en.wikipedia.org/wiki/Multiplexer) gate. Specifically, we will homomorphically evaluate a 2-1 multiplexer: 
+In this section we will show how to homomorphically evaluate a
+[Multiplexer](https://en.wikipedia.org/wiki/Multiplexer) gate. Specifically, we
+will homomorphically evaluate a 2-1 multiplexer:
 
 IMAGE
 
-A standard (plaintext) 2-1 multiplexer $\mathrm{Mux}(b, l_0, l_1)$ has three inputs: a *selector* bit $b$ and two *lines* $l_0$ and $l_1$. The output is defined by:
+A standard (plaintext) 2-1 multiplexer $\mathrm{Mux}(b, l_0, l_1)$ has three
+inputs: a _selector_ bit $b$ and two _lines_ $l_0$ and $l_1$. The output is
+defined by:
 
 <div style="font-size: 1.4em;">
 $$
-\mathrm{Mux}(b, l_0, l_1) = 
+\mathrm{Mux}(b, l_0, l_1) =
 \begin{cases} l_0 & \mathrm{if}\ b = 0 \\
-              l_1 & \mathrm{if}\ b = 1 
+              l_1 & \mathrm{if}\ b = 1
 \end{cases}
 $$
 </div>
 
-As a stepping stone on the way to fully homomorphic encryption, we would like to be able to evaluate a 2-1 multiplexer on *encrypted* inputs. Following the TFHE terminology, we will call the encrypted version a *CMux* gate:
+As a stepping stone on the way to fully homomorphic encryption, we would like to
+be able to evaluate a 2-1 multiplexer on _encrypted_ inputs. Following the TFHE
+terminology, we will call the encrypted version a _CMux_ gate:
 
 IMAGE
 
-Just like the $\mathrm{Mux}$ function, the $\mathrm{CMux}$ function has three inputs: An encrypted selector bit $\mathrm{Enc}(b)$ and two RLWE encrypted lines $\mathrm{Enc}\_{s(x)}(l_0(x))$ and $\mathrm{Enc}\_{s(x)}(l_1(x))$. The output is an encryption $\mathrm{Enc}_{s(x)}(\mathrm{Mux}(b, l_0(x), l_1(x)))$:
+Just like the $\mathrm{Mux}$ function, the $\mathrm{CMux}$ function has three
+inputs: An encrypted selector bit $\mathrm{Enc}(b)$ and two RLWE encrypted lines
+$\mathrm{Enc}\_{s(x)}(l_0(x))$ and $\mathrm{Enc}\_{s(x)}(l_1(x))$. The output is
+an encryption $\mathrm{Enc}_{s(x)}(\mathrm{Mux}(b, l_0(x), l_1(x)))$:
 
-\\[
-    \mathrm{CMux}(\mathrm{Enc}(b), \mathrm{Enc}\_{s(x)}(l_0(x)), \mathrm{Enc}\_{s(x)}(l_1(x))) =
-    \mathrm{Enc}\_{s(x)}(\mathrm{Mux}(b, l_0(x), l_1(x)))
-\\]
+\\[ \mathrm{CMux}(\mathrm{Enc}(b), \mathrm{Enc}\_{s(x)}(l_0(x)),
+\mathrm{Enc}\_{s(x)}(l_1(x))) = \mathrm{Enc}\_{s(x)}(\mathrm{Mux}(b, l_0(x),
+l_1(x))) \\]
 
-Note that, for reasons that will soon become clear, we have not yet specified the encryption scheme used to encrypt $b$.
+Note that, for reasons that will soon become clear, we have not yet specified
+the encryption scheme used to encrypt $b$.
 
-The main point is that the $\mathrm{CMux}$ function allows us to use an encrypted bit $\mathrm{Enc}(b)$ to select one of the two ciphertexts $\mathrm{Enc}(l_0)$ and $\mathrm{Enc}(l_1)$, without us ever having access to the underlying plaintext bit $b$, plaintext lines $l_0$ and $l_1$ or the final result.
+The main point is that the $\mathrm{CMux}$ function allows us to use an
+encrypted bit $\mathrm{Enc}(b)$ to select one of the two ciphertexts
+$\mathrm{Enc}(l_0)$ and $\mathrm{Enc}(l_1)$, without us ever having access to
+the underlying plaintext bit $b$, plaintext lines $l_0$ and $l_1$ or the final
+result.
 
-How is this possible? First, note that we can express the standard $\mathrm{Mux}$ function in terms of addition an multiplication:
+How is this possible? First, note that we can express the standard
+$\mathrm{Mux}$ function in terms of addition an multiplication:
 
-\begin{equation}\label{eq:mux}
-    \mathrm{Mux}(b, l_0, l_1) = b \cdot (l_1 - l_0) + l_0
-\end{equation}
+\begin{equation}\label{eq:mux} \mathrm{Mux}(b, l_0, l_1) = b \cdot (l_1 - l_0) +
+l_0 \end{equation}
 
-Therefore, all we need to do to implement the $\mathrm{CMux}$ function is to homomorphically
-evaluate the expression \ref{eq:mux}. In a previous section LINK we saw how to homomorphically evaluate addition and subtraction of RLWE ciphertexts. We also saw LINK how to homomorphically multiply an RLWE *plaintext* with an RLWE ciphertext.
-This is not quite enough to homomorphically evaluate the $\mathrm{Mux}$ expression \ref{eq:mux}
-since we'd like both the selection bit $b$ and the lines $l_0$ and $l_1$ to be encrypted.
+Therefore, all we need to do to implement the $\mathrm{CMux}$ function is to
+homomorphically evaluate the expression \ref{eq:mux}. In a previous section LINK
+we saw how to homomorphically evaluate addition and subtraction of RLWE
+ciphertexts. We also saw LINK how to homomorphically multiply an RLWE
+_plaintext_ with an RLWE ciphertext. This is not quite enough to homomorphically
+evaluate the $\mathrm{Mux}$ expression \ref{eq:mux} since we'd like both the
+selection bit $b$ and the lines $l_0$ and $l_1$ to be encrypted.
 
-In the next section we will focus on the problem of homomorphically multiplying two
-RLWE ciphertexts. We can then combine that with the homomorphic addition of ciphertexts to
-implement $\mathrm{CMux}$.
+In the next section we will focus on the problem of homomorphically multiplying
+two RLWE ciphertexts. We can then combine that with the homomorphic addition of
+ciphertexts to implement $\mathrm{CMux}$.
 
 ## Homomorphic Ciphertext Multiplication
 
-Let $m_0(x) \in \mathbb{Z}_q[x]/(x^n+1)$ and $m_1(x) \in \mathbb{Z}_q[x]/(x^n+1)$  be RLWE plaintexts. Let 
-\\[
-    \mathrm{Enc}\_{s(x)}(m_i(x)) = (a_i(x), b_i(x)) \in \mathbb{Z}_q[x]/(x^n+1) \times \mathbb{Z}_q[x]/(x^n+1)
-\\]
+Let $m_0(x) \in \mathbb{Z}_q[x]/(x^n+1)$ and
+$m_1(x) \in \mathbb{Z}_q[x]/(x^n+1)$ be RLWE plaintexts. Let \\[
+\mathrm{Enc}\_{s(x)}(m_i(x)) = (a_i(x), b_i(x)) \in \mathbb{Z}\_q[x]/(x^n+1)
+\times \mathbb{Z}\_q[x]/(x^n+1) \\]
 
-be an RLWE encryption of $m_i(x)$. Our goal in this section will be to show how to 
-homomorphically multiply $\mathrm{Enc}\_{s(x)}(m_0(x))$ and $\mathrm{Enc}\_{s(x)}(m_1(x))$
-to produce an encryption of $m_0(x)\cdot m_1(x)$. In other words, how can we combine
-$(a_0(x), b_0(x))$ and $(a_1(x), b_1(x))$ to produce a valid encryption of $m_0(x)\cdot m_1(x)$?
+be an RLWE encryption of $m_i(x)$. Our goal in this section will be to show how
+to homomorphically multiply $\mathrm{Enc}\_{s(x)}(m_0(x))$ and
+$\mathrm{Enc}\_{s(x)}(m_1(x))$ to produce an encryption of $m_0(x)\cdot m_1(x)$.
+In other words, how can we combine $(a_0(x), b_0(x))$ and $(a_1(x), b_1(x))$ to
+produce a valid encryption of $m_0(x)\cdot m_1(x)$?
 
-Following our strategy for homomorphic multiplication by a *plaintext* LINK, a natural first guess
-would be to multiply $(a_0(x), b_0(x))$ and $(a_1(x), b_1(x))$ element-wise:
+Following our strategy for homomorphic multiplication by a _plaintext_ LINK, a
+natural first guess would be to multiply $(a_0(x), b_0(x))$ and
+$(a_1(x), b_1(x))$ element-wise:
 
-\\[
-    (a_0(x)\cdot a_1(x), b_0(x)\cdot b_1(x))
-\\]
+\\[ (a_0(x)\cdot a_1(x), b_0(x)\cdot b_1(x)) \\]
 
-Unfortunately, $(a_0(x)\cdot a_1(x), b_0(x)\cdot b_1(x))$ is not a valid RLWE encryption
-of $m_0(x)\cdot m_1(x)$.
+Unfortunately, $(a_0(x)\cdot a_1(x), b_0(x)\cdot b_1(x))$ is not a valid RLWE
+encryption of $m_0(x)\cdot m_1(x)$.
 
-Going back to the drawing board, note that $(a_0(x), b_0(x))$ is a length $2$ row vector
-and that such a vector "wants" to be multiplied with a $2 \times 2$ matrix. If we knew the
-plaintext $m_1(x)$ then we could form the $2\times 2$ diagonal matrix:
+Going back to the drawing board, note that $(a_0(x), b_0(x))$ is a length $2$
+row vector and that such a vector "wants" to be multiplied with a $2 \times 2$
+matrix. If we knew the plaintext $m_1(x)$ then we could form the $2\times 2$
+diagonal matrix:
 
 <div style="font-size: 1.4em;">
 $$
@@ -982,18 +1167,20 @@ and multiply it with $(a_0(x), b_0(x))$:
 
 <div style="font-size: 1.4em;">
 $$
-(a_0(x), b_0(x)) \cdot M_1 = 
+(a_0(x), b_0(x)) \cdot M_1 =
 (a_0(x), b_0(x)) \cdot \left(\begin{matrix}m_1(x) & 0 \\ 0 & m_1(x)\end{matrix}\right) =
 (a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x))
 $$
 </div>
 
-We claim that the expression on the right is a valid RLWE encryption of $m_0(x)\cdot m_1(x)$ 
-if $m_1(x)$ is small. As usual, to prove this we need to show that $\mathrm{Dec}_{s(x)}((a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x)))$ is equal to $m_0(x) \cdot m_1(x)$ plus a small error. Indeed:
+We claim that the expression on the right is a valid RLWE encryption of
+$m_0(x)\cdot m_1(x)$ if $m_1(x)$ is small. As usual, to prove this we need to
+show that $\mathrm{Dec}_{s(x)}((a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x)))$ is
+equal to $m_0(x) \cdot m_1(x)$ plus a small error. Indeed:
 
 <div style="font-size: 1.4em;">
 \begin{align*}
-\mathrm{Dec}_{s(x)}((a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x))) 
+\mathrm{Dec}_{s(x)}((a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x)))
 &= b_0(x)\cdot m_1(x) - (a_0(x)\cdot m_1(x))\cdot s(x) \\
 &= (b_0(x) - a_0(x)\cdot s(x))\cdot m_1(x) \\
 &\overset{\mathrm{(1)}}{=} (m_0(x) + e(x)) \cdot m_1(x) \\
@@ -1001,38 +1188,42 @@ if $m_1(x)$ is small. As usual, to prove this we need to show that $\mathrm{Dec}
 \end{align*}
 </div>
 
-where $e(x)$ is an error polynomial with small coefficients.
-Equality $\mathrm{(1)}$ follow from the fact that $(a_0(x), b_0(x))$ is an RLWE
-encryption of $m_0(x)$. If we assume that the coefficients of $m_1(x))$ are small
-enough then $(e(x)\cdot m_1(x))$ is still a small error.
+where $e(x)$ is an error polynomial with small coefficients. Equality
+$\mathrm{(1)}$ follow from the fact that $(a_0(x), b_0(x))$ is an RLWE
+encryption of $m_0(x)$. If we assume that the coefficients of $m_1(x))$ are
+small enough then $(e(x)\cdot m_1(x))$ is still a small error.
 
 There are two big problems with this idea:
 
-1. We do not actually know $m_1(x)$, but only the ciphertext $\mathrm{Enc}_{s(x)}(m_1(x))$.
+1. We do not actually know $m_1(x)$, but only the ciphertext
+   $\mathrm{Enc}_{s(x)}(m_1(x))$.
 1. The coefficients of $m_1(x)$ may be large.
 
-In the next section we will fix the both problems by introducing the *GSW* encryption scheme.
+In the next section we will fix the both problems by introducing the _GSW_
+encryption scheme.
 
-As we will see, the GSW scheme solves the first problem by adding an "encryption of zero"
-to each row of $M$. Adding these encryptions mask the plaintext
-$m_1(x)$ so that it is no longer exposed. At the same time, we will see that this masked
-matrix is still a valid encryption of $m_0(x)\cdot m_1(x)$.
+As we will see, the GSW scheme solves the first problem by adding an "encryption
+of zero" to each row of $M$. Adding these encryptions mask the plaintext
+$m_1(x)$ so that it is no longer exposed. At the same time, we will see that
+this masked matrix is still a valid encryption of $m_0(x)\cdot m_1(x)$.
 
 GSW's solution to the second problem is a bit tricky. The idea is to represent
-the coefficients of $m_1(x)$ in terms of a small basis.
-For example, if we work with the binary basis then each coefficient would be 
-represented as a binary number. Even if a coefficient is large, the elements of its binary
-representation are small as they are all equal to $0$ or $1$. The GSW scheme uses this
-simple fact in a clever way to limit the error introduced by multiplication with $m_1(x)$
-even when $m_1(x)$ is large.
+the coefficients of $m_1(x)$ in terms of a small basis. For example, if we work
+with the binary basis then each coefficient would be represented as a binary
+number. Even if a coefficient is large, the elements of its binary
+representation are small as they are all equal to $0$ or $1$. The GSW scheme
+uses this simple fact in a clever way to limit the error introduced by
+multiplication with $m_1(x)$ even when $m_1(x)$ is large.
 
 ## The GSW Encryption Scheme
 
-SOMEWHERE PUT A NOTE THAT IT IS RECOMMENDED TO SKIP GSW AND CMUL AND JUST ASSUME THAT
-THERE IS A GSW ENCRYPTION SCHEME AND CMul: RLWE(f(x)) \times GSW(g(x)) -> RLWE(f(x)g(x))
-ALSO, EXPLICITLY WRITE THIS AS A GOAL BEFORE THE GSW SECTIONS BELOW
+SOMEWHERE PUT A NOTE THAT IT IS RECOMMENDED TO SKIP GSW AND CMUL AND JUST ASSUME
+THAT THERE IS A GSW ENCRYPTION SCHEME AND CMul: RLWE(f(x)) \times GSW(g(x)) ->
+RLWE(f(x)g(x)) ALSO, EXPLICITLY WRITE THIS AS A GOAL BEFORE THE GSW SECTIONS
+BELOW
 
 ### Encryptions Of Zero
+
 In the previous section we defined
 
 <div style="font-size: 1.4em;">
@@ -1041,7 +1232,7 @@ M_1 = \left(\begin{matrix}m_1(x) & 0 \\ 0 & m_1(x)\end{matrix}\right)
 $$
 </div>
 
-and showed that 
+and showed that
 
 <div style="font-size: 1.4em;">
 $$
@@ -1050,368 +1241,517 @@ $$
 </div>
 
 is a valid RLWE encryption of $m_0(x)\cdot m_1(x)$ when $m_1(x)$ is small.
-However, our goal is to construct an encryption of $m_0(x)\cdot m_1(x)$ using 
-only *encryptions* of $m_0(x)$ and $m_1(x)$. This rules out the use of $M_1$ 
+However, our goal is to construct an encryption of $m_0(x)\cdot m_1(x)$ using
+only _encryptions_ of $m_0(x)$ and $m_1(x)$. This rules out the use of $M_1$
 which contains the plaintext $m_1(x)$.
 
-As promised in the end of the previous section we'll now solve this problem by 
-adding an "encryption of zero" to each row of $M$. 
+As promised in the end of the previous section we'll now solve this problem by
+adding an "encryption of zero" to each row of $M$.
 
-An *encryption of zero* is an RLWE encryption of the zero polynomial.
-By the definition of RLWE encryption, an encryption of zero is a pair $\mathbf{z} = (a(x), b(x)) \in \left(\mathbb{Z}_q[x]/(x^n+1)\right)^2$ such that:
+An _encryption of zero_ is an RLWE encryption of the zero polynomial. By the
+definition of RLWE encryption, an encryption of zero is a pair
+$\mathbf{z} = (a(x), b(x)) \in \left(\mathbb{Z}_q[x]/(x^n+1)\right)^2$ such
+that:
 
-\\[
-    b(x) = a(x)s(x) + e(x)
-\\]
+\\[ b(x) = a(x)s(x) + e(x) \\]
 
 where $a(x)$ is uniformly random and e(x) is a small random error polynomial.
 
-Let $\mathbf{z}_i$ be an encryption of zero for $i=0,1$ and
-let $Z$ to be the $2\times 2$ matrix whose $i$-th row is $z_i$.
+Let $\mathbf{z}_i$ be an encryption of zero for $i=0,1$ and let $Z$ to be the
+$2\times 2$ matrix whose $i$-th row is $z_i$.
 
-We will soon show that $(a_0(x), b_0(x)) \cdot (M_1 + Z)$ is still an RLWE encryption of $m_0(x)\cdot m_1(x)$. The idea of the GSW encryption scheme will be to encrypt a message $m(x)\in \mathbb{Z}_q[x]/(x^n+1)$
-with a ciphertext of the form
+We will soon show that $(a_0(x), b_0(x)) \cdot (M_1 + Z)$ is still an RLWE
+encryption of $m_0(x)\cdot m_1(x)$. The idea of the GSW encryption scheme will
+be to encrypt a message $m(x)\in \mathbb{Z}_q[x]/(x^n+1)$ with a ciphertext of
+the form
 
-\\[
-    \mathrm{Enc}^{\mathrm{GSW}}\_{s(x)}(m(x)) = m(x)I_{2\times 2} + Z
-\\]
+\\[ \mathrm{Enc}^{\mathrm{GSW}}\_{s(x)}(m(x)) = m(x)I_{2\times 2} + Z \\]
 
-The point of this encryption scheme is that we can then homomorphically *multiply*
-an RLWE encryption of $m_0(x)$ and a GSW encryption of $m_1(x)$ by computing $(a_0(x), b_0(x)) \cdot (M_1 + Z)$ which is a valid ciphertext of $m_0(x)\cdot m_1(x)$. MAKE THIS MORE CLEAR!!!
+The point of this encryption scheme is that we can then homomorphically
+_multiply_ an RLWE encryption of $m_0(x)$ and a GSW encryption of $m_1(x)$ by
+computing $(a_0(x), b_0(x)) \cdot (M_1 + Z)$ which is a valid ciphertext of
+$m_0(x)\cdot m_1(x)$. MAKE THIS MORE CLEAR!!!
 
 <div style="font-size: 1.4em;">
 \begin{align*}
-\mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot (M_1 + Z)) 
+\mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot (M_1 + Z))
 &= \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot M_1 + (a_0(x), b_0(x)) \cdot Z) \\
-&= \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot M_1) + 
+&= \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot M_1) +
     \mathrm{Dec}_{s(x)}(a_0(x)\cdot \mathbf{z}_0(x) + b_0(x)\cdot \mathbf{z}_1(x)) \\
 &\overset{\mathrm{(1)}}{=} (m_0(x)\cdot m_1(x) + e(x) \cdot m_1(x)) +  
-                           a_0(x)\cdot \mathrm{Dec}_{s(x)}(\mathbf{z}_0(x)) + 
+                           a_0(x)\cdot \mathrm{Dec}_{s(x)}(\mathbf{z}_0(x)) +
                            b_0(x)\cdot \mathrm{Dec}_{s(x)}(\mathbf{z}_1(x)) \\
 &= m_0(x)\cdot m_1(x) + m_1(x)\cdot e(x) + a_0(x)e_0(x) + b_0(x)e_1(x)
 \end{align*}
 </div>
 
-If the coefficients of $m_1(c)$, $a_0(x)$ and $b_0(x)$ are small enough, then the last line
-of the equation above is of the form $m_0(x) \cdot m_1(x)$ plus a small error term which proves that
-is an RLWE encryption of $m_0(x) \cdot m_1(x)$. In the next section we will overcome this limitation
-on coefficient sizes.
+If the coefficients of $m_1(c)$, $a_0(x)$ and $b_0(x)$ are small enough, then
+the last line of the equation above is of the form $m_0(x) \cdot m_1(x)$ plus a
+small error term which proves that is an RLWE encryption of
+$m_0(x) \cdot m_1(x)$. In the next section we will overcome this limitation on
+coefficient sizes.
 
-### The Radix Decomposition
+### The Base $p$ Representation
 
-Let $(a(x), b(x))$ be an RLWE encryption of $f(x)$ with noise 
-$e(x)$
-and let $g(x)I_{2\times2} + Z$ be a GSW encryption of $g(x)$ where the rows have
-noise $e_0(x)$ and $e_1(x)$.
-In the previous section we saw that 
+Let $(a(x), b(x))$ be an RLWE encryption of $f(x)$ with noise $e(x)$ and let
+$g(x)I_{2\times2} + Z$ be a GSW encryption of $g(x)$ where the rows have noise
+$e_0(x)$ and $e_1(x)$. In the previous section we saw that
 
-\\[
-    ((a(x), b(x)) \cdot (g(x)I_{2\times2} + Z)
-\\]
+\\[ ((a(x), b(x)) \cdot (g(x)I_{2\times2} + Z) \\]
 
-is an RLWE encryption of $f(x)g(x)$ with noise: DEFINE NOISE IN A PREVIOUS SECTION TO BE
-DECRYPTION - PLAINTEXT
+is an RLWE encryption of $f(x)g(x)$ with noise: DEFINE NOISE IN A PREVIOUS
+SECTION TO BE DECRYPTION - PLAINTEXT
 
-\\[
-    g(x)\cdot e(x) + a(x)e_0(x) + b(x)e_1(x)
-\\]
+\\[ g(x)\cdot e(x) + a(x)e_0(x) + b(x)e_1(x) \\]
 
-The first noise term is easy to bound in terms of the input $g(x)$. In fact, as we will see below,
-in our implementation of the homomorphic NAND gate $g(x)$ will be equal to one of the constant polynomials  $0$ or $1$.
+The first noise term is easy to bound in terms of the input $g(x)$. In fact, as
+we will see below, in our implementation of the homomorphic NAND gate $g(x)$
+will be equal to one of the constant polynomials $0$ or $1$.
 
-The second two terms $a(x)e_0(x)$ and $b(x)e_1(x)$ are problematic since they involve the randomly generated 
-ciphertext polynomials $a(x)$
-and $b(x)$ whose coefficients can be arbitrary elements in $\mathbb{Z}_q$. The goal of this section
-is to reduce this latter source of noise.
+The second two terms $a(x)e_0(x)$ and $b(x)e_1(x)$ are problematic since they
+involve the randomly generated ciphertext polynomials $a(x)$ and $b(x)$ whose
+coefficients can be arbitrary elements in $\mathbb{Z}_q$. The goal of this
+section is to reduce this latter source of noise.
 
-To make things concrete, we'll set $n=2$ and $q=16$.
-Note that because $n=2$, all polynomials in $\mathbb{Z}_{16}[x] / (x^2 + 1)$ can be represented with two coefficients: $c_0 + c_1x$. Furthermore, since $q=16$ the coefficients $c_0$ and $c_1$ will be in $\mathbb{Z}\_{16}$ and can be represented by 4-bit integers in the interval $[-8,8)$.
+To make things concrete, we'll set $n=2$ and $q=16$. Note that because $n=2$,
+all polynomials in $\mathbb{Z}_{16}[x] / (x^2 + 1)$ can be represented with two
+coefficients: $c_0 + c_1x$. Furthermore, since $q=16$ the coefficients $c_0$ and
+$c_1$ will be in $\mathbb{Z}\_{16}$ and can be represented by 4-bit integers in
+the interval $[-8,8)$.
 
-Perhaps the simplest way to decrease the magnitude of the error $a(x)e_0(x) + b(x)e_1(x)$
-is to divide the ciphertext $(a(x), b(x))$ by a constant $p > 1$ inside of $\mathrm{CMul}$. In order for the output to still be a ciphertext of
-$f(x)g(x)$, we can balance this out by redefining the GSW encryption of $g(x)$ to be $p \cdot g(x)I_{2\times 2} + Z$. Together we get:
-
-\\[
-\mathrm{CMul}((a(x), b(x)), p \cdot g(x)I_{2\times 2} + Z) := 
-\frac{1}{p}(a(x), b(x)) \cdot (p \cdot g(x)I_{2\times 2} + Z) =
-(a(x), b(x))\cdot g(x)I_{2\times 2} + \frac{1}{p}(a(x), b(x))\cdot Z
-\\]
-
-Following the same derivation as REF, it is not hard to see that this is still an RLWE
-encryption of $f(x)g(x)$ but this time with an error of
-
-\\[
-    g(x)\cdot e(x) + \frac{1}{p}(a(x)e_0(x) + b(x)e_1(x))
-\\]
-
-Since we've set $q=16$, the coefficients of $a(x)$ and $b(x)$ are between $-8$ and $7$.
-So we can choose $p=2^3$ and decrease the noise by a factor of $8$ which is significant compared to $q$.
-
-Unfortunately, $\frac{1}{8}(a(x), b(x))$ is not well defined in $\mathbb{Z}_{16}$ since $8$ is not
-invertible. The best we can do is divide modulo $2^3$ but then we'd be throwing out the remainder and loosing a lot of precision. We can fix this by iteratively dividing the remainder modulo $2^2$, and then the remainder of that modulo $2$. In other words, we can replace the coefficients of $a(x)$ and $b(x)$ with their *binary expansion*. 
-
-To be more precision, note that we can express a coefficient $c \in [-8, 8)$ as a sum:
-
-\\[
-    c = c_0 + 2\cdot c_1 + 2^2 \cdot c_2 + 2^3\cdot c_3
-\\]
-
-where $c_i \in \{-1, 0, 1}$. Here are two examples:
+Perhaps the simplest way to decrease the magnitude of the error
+$a(x)e_0(x) + b(x)e_1(x)$ is to divide the ciphertext $(a(x), b(x))$ by a
+constant $p > 1$ inside of $\mathrm{CMul}$. In order for the output to still be
+a ciphertext of $f(x)g(x)$, we can balance this out by redefining the GSW
+encryption of $g(x)$ to be $p \cdot g(x)I_{2\times 2} + Z$. Together we get:
 
 <div style="font-size: 1.4em;">
-\begin{align*}
-  -8 &= 0 + 2\cdot 0 + 2^2\cdot 0 + 2^3 \cdot -1 \\
-   6 &= 0 + 2\cdot 1 + 2^2\cdot 1 + 2^3 \cdot 0
+\begin{align*}\label{cmul-divide-by-p}
+\mathrm{CMul}((a(x), b(x)), p \cdot g(x)I_{2\times 2} + Z) &:=
+\frac{1}{p}(a(x), b(x)) \cdot (p \cdot g(x)I_{2\times 2} + Z) \\
+&= (a(x), b(x))\cdot g(x)I_{2\times 2} + \frac{1}{p}(a(x), b(x))\cdot Z \\
+&= g(x) \cdot (a(x), b(x)) + \frac{1}{p}(a(x), b(x))\cdot Z
 \end{align*}
 </div>
 
-We call this decomposition of $c$ into coefficients $c_0,\ c_1,\ c_2,\ c_3$ a _Radix Decomposition_. In base-2, this is similar to a binary decomposition except that it is extended to include negative numbers.
-Note that in this case where $q=2^4$, the decomposition in base $p=2^1$ has $4 = \log_2(q/p)+1$ terms.
-In general, the base-$p$ radix decomposition of an element of $\mathbb{Z}_q$
-will have $\log_2(q/p) + 1$ terms:
+Following the same derivation as REF, it is not hard to see that this is still
+an RLWE encryption of $f(x)g(x)$ but this time with an error of
+
+\\[ g(x)\cdot e(x) + \frac{1}{p}(a(x)e_0(x) + b(x)e_1(x)) \\]
+
+Since we've set $q=16$, the coefficients of $a(x)$ and $b(x)$ are between $-8$
+and $7$. So we can choose $p=2^3$ and decrease the noise by a factor of $8$
+which is significant compared to $q$.
+
+Unfortunately, $\frac{1}{8}(a(x), b(x))$ is not well defined in
+$\mathbb{Z}\_{16}$ since $8$ is not invertible. The best we can do is divide
+modulo $2^3$ but then we'd be throwing out the remainder and loosing a lot of
+precision. We can fix this by iteratively dividing the remainder modulo $2^2$,
+and then the remainder of that modulo $2$. In other words, we can replace the
+coefficients of $a(x)$ and $b(x)$ with their _binary representation_.
+
+More precisely, note that we can express a coefficient $c \in [-8, 8)$ as a sum:
+
+\\[ c = c_0 + c_1 \cdot 2 + c_2 \cdot 2^2 + c_3 \cdot 2^3\\]
+
+where $\vert c_i \vert < 2$. Here are two examples:
 
 <div style="font-size: 1.4em;">
 \begin{align*}
-\mathrm{Radix}_p&: \mathbb{Z}_q \rightarrow \left(\mathbb{Z}_p\right)^{\log(q/p)+1} \\
-    c &\mapsto (c_0,\dots,c_{\log_2(q/p)})
-
+  -8 &= 0 + 0\cdot 2 + 0 \cdot 2^2 -1 \cdot 2^3 \\
+   6 &= 0 + 1\cdot 2 + 1 \cdot 2^2 + 0 \cdot 2^3
 \end{align*}
 </div>
 
-We can similarly decompose a polynomial $p(x)$ into polynomials $p_0(x)$, $p_1(x)$, $p_2(x)$ and $p_3(x)$ with coefficients in $\{-1,0,1\}$:
+We call this representation of $c$ by the coefficients $c_0,\ c_1,\ c_2,\ c_3$
+the base-$2$ representation. This is similar to the usual binary representation
+except that it is extended to include negative numbers.
 
-\\[
-p(x) = p_0(x) + 2\cdot p_1(x) + 2^2 \cdot p_2(x) + 2^3 \cdot p_3(x)
-\\]
+More generally, the base-$p$ representation of $\mathbb{Z}_q$ represents
+elements of $\mathbb{Z}_q$ as a sum of multiples of powers of $p$. Note that
+$m = \lfloor \log_p(q) \rfloor$ is the largest integer satisfying
+$p^m \leq q/2$. The base-$p$ representation of an element $c\in\mathbb{Z}_q$ is
+a sequence $c_0,\dots,c_m$ satisfying $\vert c_i \vert < p$ and:
+
+\\[ c = c_0 + c_1\cdot p + \dots + c_m \cdot p^m \\]
+
+We'll denote the base-$p$ representation of an element $c\in\mathbb{Z}_q$ by
+$\mathrm{Base}_p(c)$:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+\mathrm{Base}_p: \mathbb{Z}_q &\rightarrow \mathbb{Z}^{\lfloor \log_p(q) \rfloor} \\
+                  c &\mapsto (c_0,\dots,c_{\lfloor \log_p(q/2) \rfloor})
+\end{align*}
+</div>
+
+Later it will be important to recover an element $c\in\mathbb{Z}_q$ from it's
+base-$p$ representation $\mathrm{Base}_p$. For this purpose we define the
+inverse of $\mathrm{Base}_p$ which takes a sequence
+$(c_0,\dots,c_{\lfloor \log_p(q/2) \rfloor})$ and combines them with powers of
+$p$ to produce the original constant $c$:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+\mathrm{Base}^{-1}_p: \mathbb{Z}^{\lfloor \log_p(q/2) \rfloor} &\rightarrow \mathbb{Z}_q   \\
+                  (c_0,\dots,c_{\lfloor \log_p(q/2) \rfloor}) &\mapsto \sum_{i=0}^{i=\lfloor \log_p(q/2) \rfloor} c_ip^i
+\end{align*}
+</div>
+
+It is easy to check that for all $c\in\mathbb{Z}_q$:
+
+\\[ \mathrm{Base}^{-1}_p(\mathrm{Base}_p(c)) = c \\]
+
+The key idea is that $\mathrm{Base}_p$ is analogous to division by $p$ and its
+inverse $\mathrm{Base}^{-1}_p$ is analogous to multiplication by $p$. Unlike
+simple division, $\mathrm{Base}_p$ is well defined in $\mathbb{Z}_q$.
+
+Soon we will upgrade our previous attempt at defining $\mathrm{CMul}$ by using
+$\mathrm{Base}_p$ and $\mathrm{Base}^{-1}_p$ in place of the division by $p$ and
+the multiplication by $p$ operations in \ref{cmul-divide-by-p}.
+
+Here are implementations of $\mathrm{Base}_p$ (`int_to_base_p`) and
+$\mathrm{Base}^{-1}_p$ (`base_p_to_int`). To simplify calculations, in this
+implementation $q=2^k$ and $p=2^l$ are given in terms of their base-$2$
+logarithms $k$ and $l$.
+
+```python
+def get_base_p_rep_length(log_q, log_p):
+    """Get number of powers of p in the base-p radix decomposition of
+       Z_q = [-q/2, q/2).
+
+       log_q: The logarithm of q base 2.
+       log_p: The logarithm of p base 2.
+    """
+    # Get the highest multiple of log_p that is less than or equal to log_q - 1.
+    # Note that this is also the highest power of p that is less than or equal to q/2.
+    m = (log_q - 1) // log_p
+
+    # Add one to account for the 0-th power p^0=1.
+    return m + 1
+
+
+def int_to_base_p(x: int, log_q: int, log_p: int) -> list[int]:
+    """Get the base-p representation of an integer in Z_q.
+
+       log_q: The base 2 logarithm of q.
+       log_p: The base 2 logarithm of p.
+    """
+    num_powers = get_base_p_rep_length(log_q, log_p)
+
+    remainder = x
+    rep = []
+
+    for i in reversed(range(num_powers)):
+        p_i = 2**(i * log_p) # p^i
+        rep.append(remainder // p_i)
+        remainder -= rep[-1] * p_i
+
+    return list(reversed(rep))
+
+
+def base_p_to_int(base_p_rep: list[int], log_q: int, log_p: int):
+    """Convert a base-p representation to an integer in Z_q.
+
+       log_q: The base 2 logarithm of q.
+       log_p: The base 2 logarithm of p.
+    """
+
+    # c_0 + c_1 * p  + ... + c_m * p^m
+    return sum(c * 2**(i * log_p) for i, c in enumerate(base_p_rep))
+```
+
+Here are some concrete examples where $q=2^8$ and $p=2^2$:
+
+```
+>>> base_p_representation(103, log_q=8, log_p=2)
+[3, 1, 2, 1]
+>>> base_p_to_int([3, 1, 2, 1], log_q=8, log_p=2)
+103
+>>> base_p_representation(-60, log_q=8, log_p=2)
+[0, 1, 0, -1]
+>>> base_p_representation(5, log_q=8, log_p=2)
+[1, 1, 0, 0]
+```
+
+Note that `int_to_base_p` also accepts arrays of integers. Here is the base-2
+representation of all elements of $\mathbb{Z}_8$. The `i-th` column is the
+base-2 representation of the `i-th` element:
+
+```python
+>>> int_to_base_p(np.arange(-4, 4, dtype=np.int32), log_q=3, log_p=1)
+[array([ 0,  1,  0,  1, 0, 1, 0, 1], dtype=int32),
+ array([ 0,  0,  1,  1, 0, 0, 1, 1], dtype=int32),
+ array([-1, -1, -1, -1, 0, 0, 0, 0], dtype=int32)]
+```
+
+We can similarly define the base-$p$ representation of a polynomial $f(x)$ to be
+a sequence of $m=\lfloor \log_p(q/2) \rfloor$ polynomials $f_0(x),\dots,f_m(x)$
+satisfying:
+
+\\[ f(x) = f_0(x) + f_1(x)\cdot p + \dots + f_m(x) \cdot p^m \\]
+
+such that the absolute values of the coefficients of $f_i(x)$ are all less than
+$p$.
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+\mathrm{Base}_p&: \mathbb{Z}_q[x]/(x^n+1) \rightarrow \left(\mathbb{Z}[x]/(x^n+1)\right)^{\log_p(q/2)+1}
+\\
+    f(x) &\mapsto (f_0(x),\dots,f_{\log_2(q/p)}(x))
+\end{align*}
+</div>
+
+For example, when $q=16$ and $p=2$:
+
+\\[ \mathrm{Base}_p(7 + 5x) = ((1 + x), 1, (1 + x), 0) \\]
+
+The base-$p$ representation of a polynomial can be computed from the base-$p$
+representation of each coefficient:
+
+```python
+def polynomial_to_base_p(f: Polynomial, log_q: int, log_p: int) -> Sequence[Polynomial]:
+    return [Polynomial(coeff=v, N=f.N) for v in int_to_base_p(f.coeff, log_q=log_q, log_p=log_p)]
+```
 
 For example:
 
-\\[
-    7 - 5x = (1 - x) + 2\cdot 1 + 2^2 \cdot (1 - x) + 2^3 \cdot 0
+```python
+>>> # f(x) = x + 2x + 3x^3
+>>> f = Polynomial(N=4, coeff=np.arange(4, dtype=np.int32))
+>>> f
+Polynomial(N=4, coeff=array([0, 1, 2, 3], dtype=int32))
+>>> polynomial_to_base_p(f, log_q=3, log_p=1)
+[Polynomial(N=4, coeff=array([0, 1, 0, 1], dtype=int32)),
+ Polynomial(N=4, coeff=array([0, 0, 1, 1], dtype=int32)),
+ Polynomial(N=4, coeff=array([0, 0, 0, 0], dtype=int32))]
+```
+
+Now we have everything we need to define our final versions of $\mathrm{CMul}$
+and GSW encryption. As above, let $m=\lfloor \log_p(q/2) \rfloor$ be the largest
+power of $p$ appearing in a base-$p$ representation of $\mathbb{Z}_q$. We'll
+collect the powers of $p$ into a column vector $\mathbf{v}_p$:
+
+<div style="font-size: 1.4em;">
+$$    
+\mathbf{v}_p =
+\left(\begin{matrix}
+    1 \\
+    p \\
+    \vdots \\
+    p^m \\
+\end{matrix}\right)
+$$
+</div>
+
+A nice property of $\mathbf{v}_p$ is that if $f(x)$ is a polynomial and
+$\mathrm{Base}_p(f(x)) = (f_0(x),\dots,f_m(x))$ is its base-$p$ representation
+then
+
+\\[ \mathrm{Base}_p(f(x)) \cdot \mathbf{v}_p = \sum\_{i=0}^m f_i(x)p^i = f(x)
 \\]
 
-So $p_0(x) = 1-x$, $p_1(x) = 1$, $p_2(x) = 1 - x$ and $p_3(x)=0$.
-In general, the base-$p$ radix decomposition of a polynomial is obtained from the base-$p$ radix decomposition of each coefficient.
+Let $\mathbf{0}_m$ denote a length $m$ column vector of zeros.
+
+We will define the GSW encryption of a polynomial $g(x)\in\mathbb{Z}_q/(x^N+1)$
+to be:
+
+<div style="font-size: 1.4em;">
+$$  
+\mathrm{Enc}^{\mathrm{GSW}}(g(x)) = 
+    g(x)\left(\begin{matrix}
+        \mathbf{v}_p & \mathbf{0}_p \\ \mathbf{0}_p & \mathbf{v}_p
+    \end{matrix}\right) + Z
+$$
+</div>
+
+where $Z$ is a $2m \times 2$ matrix and each row of $Z$ is an RLWE encryption of
+$0$.
+
+We'll conclude this section by defining a homomorphic multiplication operation
+$\mathrm{CMul}$ whose inputs are an RLWE encryption of $f(x)$ and a GSW
+encryption of $g(x)$ and whose output is an RLWE encryption of $f(x)g(x)$:
+
+\\[ \mathrm{CMul}: \mathrm{RLWE}(f(x))\times \mathrm{GSW}(g(x)) \rightarrow
+\mathrm{RLWE}(f(x)g(x)) \\]
+
+Let $(a(x), b(x)) \in \mathrm{RLWE}(f(x))$ be an RLWE encryption of $f(x)$ with
+noise $e(x)$ and let $M \in \mathrm{GSW}(g(x))$ be a GSW encryption of $g(x)$
+where the $i$-th row of $M$ has noise $e_i(x)$. $\mathrm{CMul}$ is defined as:
+
+\\[ \mathrm{CMul}((a(x), b(x)), M) := (\mathrm{Base}\_p(a(x)),
+\mathrm{Base}\_p(b(x))) \cdot M \\]
+
+We claim that this gives us an RLWE encryption of $f(x)g(x)$ with small noise.
+
+First let's do a sanity check on the dimensions. Since $\mathrm{Base}\_p(a(x))$
+and $\mathrm{Base}\_p(b(x))$ are length $m$ row vectors,
+$(\mathrm{Base}\_p(a(x)),
+\mathrm{Base}\_p(b(x)))$ is a length $2m$ row vector.
+When we multiply with the $2m\times 2$ matrix $M$ we get a length $2$ row vector
+which is the correct shape for an RLWE ciphertext.
+
+Now let's verify that $(\mathrm{Base}\_p(a(x)),
+\mathrm{Base}\_p(b(x))) \cdot M$
+is an RLWE encryption of $f(x)g(x)$ with small noise.
+
+Let $(a_0(x),\dots,a_m(x))$ and $(b_0(x),\dots,b_m(x))$ be the base-$p$
+representations of $a(x)$ and $b(x)$.
+
+By the definition of GSW encryption,
+
+<div style="font-size: 1.4em;">
+$$  
+M = 
+    g(x)\left(\begin{matrix}
+        \mathbf{v}_p & \mathbf{0}_p \\ \mathbf{0}_p & \mathbf{v}_p
+    \end{matrix}\right) + Z
+$$
+</div>
+
+where the $i$-th row of $Z$, $\mathbf{z}_i$, is an RLWE encryption of zero with
+noise $e_i(x)$. Therefore, by linearity of $\mathrm{Dec}^{\mathrm{RLWE}}$:
 
 <div style="font-size: 1.4em;">
 \begin{align*}
-\mathrm{Radix}_p&: \mathbb{Z}_q[x]/(x^n+1) \rightarrow \left(\mathbb{Z}_p[x]/(x^n+1)\right)^{\log_2(q/p)+1}
-\\
-    p(x) &\mapsto (p_0(x),\dots,p_{\log_2(q/p)}(x))
+\mathrm{Dec}^{\mathrm{RLWE}}(\mathrm{CMul}((a(x),b(x)), M)) &= 
+\mathrm{Dec}^{\mathrm{RLWE}}((\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x))) \cdot M) \\ 
+&= g(x)\mathrm{Dec}^{\mathrm{RLWE}}((\mathrm{Base}_p(a(x))\cdot \mathbf{v}_p, \mathrm{Base}_p(b(x))\cdot \mathbf{v}_p)) \\
+&\ \ + \sum_{i=0}^m a_i(x) \mathrm{Dec}^{\mathrm{RLWE}}(\mathbf{z}_i)
++ \sum_{i=0}^m b_i(x) \mathrm{Dec}^{\mathrm{RLWE}}(\mathbf{z}_{i+m}) \\
+&= g(x)\mathrm{Dec}^{\mathrm{RLWE}}((a(x), b(x))) +
+\sum_{i=0}^m a_i(x) e_i(x) + 
+\sum_{i=0}^m b_i(x) e_{i+m}(x) \\
+&= g(x)(f(x) + e(x)) + \sum_{i=0}^m a_i(x) e_i(x) + \sum_{i=0}^m b_i(x) e_{i+m}(x) \\
+&= f(x)g(x) + g(x)e(x) + \sum_{i=0}^m a_i(x) e_i(x) + \sum_{i=0}^m b_i(x) e_{i+m}(x)
 \end{align*}
 </div>
 
-It will also be convenient to define the base-$p$ *radix decomposition matrix* to be
-the $2(\log_2(q/p)+1) \times 2$ matrix:
+As expected, the decryption of $\mathrm{CMul}((a(x),b(x)), M)$ is equal to
+$f(x)g(x)$ with noise:
 
-<div style="font-size: 1.4em;">
-\begin{align*}
-    H_p = 
-        \left(\begin{matrix}
-            1 & 0 \\
-            2 & 0 \\
-            \vdots & \vdots \\
-            2^{\log_2(q/p)} & 0 \\
-            0 & 1 \\
-            0 & 2 \\
-            \vdots & \vdots \\
-            0 & 2^{\log_2(q/p)}
-        \end{matrix}\right)
-\end{align*}
-</div>
-
-Note that if $(a(x), b(x))$ is an RLWE ciphertext,
-$\mathrm{Radix}\_p(a(x)) = (a_0(x),\dots,a_{\log_2(q/p)}(x))$ is the base-$p$ decomposition
-of $a(x)$ and 
-$\mathrm{Radix}\_p(b(x)) = (b_0(x),\dots,b_{\log_2(q/p)}(x))$ the base-$p$ decomposition of $b(x)$ then:
-
-\\[
-    (a_0(x),\dots,a_{\log_2(q/p)}(x), b_0(x),\dots,b_{\log_2(q/p)}(x)) \cdot H_p = (a(x), b(x))
+\\[ g(x)\cdot e(x) + \sum_{i=0}^m a_i(x)e_i(x) + \sum_{i=0}^m b_i(x)e_{i+m}(x)
 \\]
 
-In other words, multiplying by $H_p$ "cancels out" a base-$p$ radix decomposition.
+Suppose that the coefficients of $e_i(x)$ are less than a constant $\epsilon$.
+Since $|a_i|\leq p$ and $|b_i| < p$, the noise in each of the last two terms in
+REF is bounded by:
 
-We'll now use the radix decomposition to improve our homomorphic multiplication $\mathrm{CMul}$.
-The idea is that instead of dividing $(a(x), b(x))$ by $p$ and multiplying $g(x)$ by $p$, we can instead
-replace $a(x)$ and $b(x)$ with their base-$p$ radix decompositions and multiply $g(x)$ by $H_p$.
+\\[ (m+1) \cdot n \cdot p \cdot \epsilon \\]
 
-More precisely, we will define the GSW encryption of $g(x)$ to be
-$g(x)H_p + Z$ where $Z$ is a $2(\log_2(q/p)+1) \times 2$ matrix and each row of $Z$ is an RLWE
-encryption of $0$.
+In practice we will use $q=2^{32}$, $p=2^8$. Therefore
+$m = \lfloor \log_p(q/2) \rfloor = 4$ and so the noise is bounded by
+$5 \cdot 2^8 \cdot n \cdot \epsilon$. In contrast, the coefficients of the error
+terms in the naive multiplication REF, $a(x)e(x)$ and $b(x)e(x)$, can be as big
+as $q\cdot n \cdot \epsilon = 2^{32} \cdot n \cdot \epsilon$ which is
+significantly larger.
 
-Finally, we can provide our final construction of homomorphic multiplication between an RLWE ciphertext and a GSW ciphertext. As before, let $(a(x), b(x)) \in \mathrm{RLWE}(f(x))$ be an RLWE encryption of
-$f(x)$ with noise $e(x)$ and let 
-$g(x)H_p + Z \in GSW(g(x))$ be a GSW encryption of $g(x)$ where the $2(\log_2(q/p)+1)$ rows of
-$Z$ are RLWE encryptions of zero with noise $e_0(x),\dots,e_{2\log_2(q/p)+1}(x)$
+## Implementing The Homomorphic Multiplexer
 
-\\[
-\mathrm{CMul}((a(x), b(x)), g(x)H_p + Z) := 
-(\mathrm{Radix}\_p(a(x)), \mathrm{Radix}\_p(b(x))) \cdot (g(x)H_p + Z)
+NOTE: PUT THIS BEFORE THE PREVIOUS SECTIONS AS MOTIVATION
+
+Following REF - Mux with multiplications, we can use homomorphic addition
+$\mathrm{CAdd}$, homomorphic subtraction $\mathrm{CSub}$ and homomorphic
+multiplication
+$\mathrm{CMul} to implement a _homomorphic multiplexer_ $\mathrm{CMux}$ where
+the lines are RLWE ciphertexts and the selector bit is a GSW ciphertext:
+
+IMAGE
+
+\\[ \mathrm{CMux}: \mathrm{GSW}(b) \times \mathrm{RLWE}(f_0(x)) \times
+\mathrm{RLWE}(f_1(x)) \rightarrow \mathrm{RLWE}(\mathrm{Mux}(b, f_0(x), f_1(x)))
 \\]
 
-We claim that this gives us an RLWE encryption of $f(x)g(x)$ with noise
+To do this, we simply replace the operations in REF with their homomorphic
+counterparts:
 
-\\[
-    g(x)\cdot e(x) + \sum_{i=0}^{\log_2(q/p)}a_i(x)e_i(x) + 
-    \sum_{i=0}^{\log_2(q/p)}b_i(x)e_{\log_2(q/p) + 1 + i}(x)
-\\]
+\\[ \mathrm{CMux}(M, \mathbf{c}_0, \mathbf{c}_1) =
+\mathrm{CAdd}(\mathrm{CMul}(M, \mathrm{CSub}(\mathbf{c}_1, \mathbf{c}_0)),
+\mathbf{c}_1) \\]
 
-if the coefficients of $e_i(x)$ are less than $\epsilon$, then the noise in each of the
-terms on the right is bounded by: (\log_2(q/p) + 1) \cdot n \cdot \epsilon
+Here is an implementation of GSW encryption, $\mathrm{CMul}$ and
+$\mathrm{CMux}$.
 
-in contrast, $a(x)e(x)$ can be as big as $q\cdot n \cdot \epsilon$ which is significantly greater.
+```python
+from collections.abc import Sequence
 
-CLEAN UP THIS NOISE EXPLANATION
+@dataclasses.dataclass
+class GswConfig:
+    rlwe_config: RlweConfig
+    decomp_num_levels: int
+    decomp_exponent: int
 
-The proof is by direct calculation:
+@dataclasses.dataclass
+class GswPlaintext:
+    config: GswConfig
+    message: Polynomial
 
-Now let's use the radix decomposition to solve our original problem with the error
-in RLWE multiplication. Recall that the error had the form:
+@dataclasses.dataclass
+class GswCiphertext:
+    config: GswConfig
+    rlwe_ciphertexts: list[RlweCiphertext]
 
-\\[
-    g(x)\cdot e(x) + a(x)e_0(x) + b(x)e_1(x)
-\\]
+@dataclasses.dataclass
+class GswEncryptionKey:
+    config: GswConfig
+    key: Polynomial
 
-Let's focus on the term $a(x)e_0(x)$. The problem is that the absolute values of the coefficients of $a(x)$ can be arbitrarily large, which in terms mean that the error could be arbitrarily large. In our current example
-with $q=16$, "large" means that the absolute value of the coefficients could be as high as $8$. For example
-$a(x)$ could be
+def convert_rlwe_key_to_gsw(rlwe_key: RlweEncryptionKey, gsw_config) -> GswEncryptionKey:
+    return GswEncryptionKey(
+        config=gsw_config,
+        key=rlwe_key.key)
 
-\\[
-    a(x) = 7 - 5x
-\\]
+def gsw_encrypt(plaintext: GswPlaintext, key: GswEncryptionKey) -> GswCiphertext:
+    gsw_config = key.config
 
-We just saw that the base-2 radix decomposition of $\mathrm{Radix}_2(a(x)) = (1-x, 1, 1-x)$.
-Our solution will be somehow redefine the RLWE product so that the error term $a(x)e(x)$ is replaced with with $(a_1(x) + a_2(x))e(x)$. In our example we get:
+    # Create 2 RLWE encryptions of 0 for each decomposition level
+    rlwe_key = convert_gws_key_to_rlwe(key)
+    rlwe_plaintext_zero = build_zero_rlwe_plaintext(gsw_config.rlwe_config)
+    rlwe_ciphertexts = [
+        rlwe_encrypt(rlwe_plaintext_zero, rlwe_key)
+        for _ in range(2 * gsw_config.decomp_num_levels)
+    ]
 
-\\[
-    (a_1(x) + a_2(x))e(x) = (2 - x)e(x)
-\\]
+    # Add multiples of the message to the rlwe ciphertexts
+    for i in range(gsw_config.decomp_num_levels):
+        decomp_factor = 2**(31 - (i+1)*(gsw_config.decomp_exponent-1))
+        scaled_message = polynomial_constant_multiply(decomp_factor, plaintext.message)
 
-In general, since the coefficients of the radix decomposition polynomials $a_i(x)$ are all between $-1$ and $1$, the coefficients of $a_1(x) + a_2(x)$ will be between $-2$ and $2$. This is more than
-four times as small as the coefficients of $a(x)$. In general the sum of the coefficients of a $k$-th order
-base-$p$ radix decomposition will be between $-kp/2$ $kp/2$. In practice we will use $k=3$, $p=2^3$ and $q^32$ and so $kp=24$ will be orders of magnitudes smaller than $q=2^32$ which will lead to a significant
-noise reduction.
+        rlwe_ciphertexts[i].a = polynomial_add(rlwe_ciphertexts[i].a, scaled_message)
+        b_idx = i + gsw_config.decomp_num_levels
+        rlwe_ciphertexts[b_idx].b = polynomial_add(rlwe_ciphertexts[b_idx].b, scaled_message)
 
-We will now continue with our toy parameters of and see how to incorporate the radix decomposition into RLWE multiplication. For simplicity, we will use the full 3-degree radix decomposition instead of degree two.
-Recall that our current version of RLWE multiplication takes as input a RLWE encryption of $f(x)$:
-$(a(x), b(x)) \in \mathrm{RLWE}(f(x))$ and a GSW encryption of $g(x)$: 
-$g(x)\cdot I_{2\times 2} + Z \in \mathrm{GSW}(g(x))$ and is defined
-by:
+    return GswCiphertext(gsw_config, rlwe_ciphertexts)
 
-<div style="font-size: 1.4em;">
-$$
-    \mathrm{CMul}\left((a(x), b(x)), \left(\begin{matrix}g(x) & 0 \\ 0 & g(x)\end{matrix}\right) + Z\right) = (a(x), b(x)) \cdot \left(\left(\begin{matrix}g(x) & 0 \\ 0 & g(x)\end{matrix}\right) + Z\right)
-$$
-</div>
+def _decompose_array(x: np.ndarray, decomp_num_levels: int, decomp_exp: int) -> Sequence[np.ndarray]:
+    levels = []
+    remainder = np.copy(x)
+    exponent = 31 - (decomp_exp - 1)
 
-We'll modify the expression on the right by replacing $a(x)$ with it's full base-2 radix decomposition $\mathrm{Radix}\_{3,2}(a(x)) = (a_0(x), a_1(x), a_2(x))$ and similarly $b(x)$ with $\mathrm{Radix}\_{3,2}(b(x)) = (b_0(x), b_1(x), b_2(x))$. 
-Note that by the definition of the radix decomposition:
+    for i in range(decomp_num_levels):
+        levels.append(np.int32(np.rint(remainder / 2**exponent)))
+        remainder -= 2**exponent * levels[-1]
+        exponent -= decomp_exp - 1
 
-<div style="font-size: 1.4em;">
-\begin{align*}
-    (a_0(x), a_1(x), a_2(x), b_0(x), b_1(x), b_2(x)) \cdot 
-        \left(\begin{matrix}
-            1 & 0 \\
-            2 & 0 \\
-            2^2 & 0 \\
-            0 & 1 \\
-            0 & 2 \\
-            0 & 2^2
-        \end{matrix}\right) = \\
-    (a_0(x) + 2\cdot a_1(x) + 2^2\cdot a_2(x), b_0(x) + 2\cdot b_1(x) + 2^2\cdot b_2(x)) = \\
-    (a(x), b(x))
-\end{align*}
-</div>
+    return levels
 
-Let's define the degree 3 base-2 *decomposition matrix* to be
+def _decompose_polynomial(p: Polynomial, config: GswConfig) -> Sequence[Polynomial]:
+    return [Polynomial(coeff=v) for v in _decompose_array(p.coeff, config.decomp_num_levels, config.decomp_exponent)]
 
-Putting everything together:
+def gsw_multiply(gsw_ciphertext: GswCiphertext, rlwe_ciphertext: RlweCiphertext) -> RlweCiphertext:
+    gsw_config = gsw_ciphertext.config
 
-<div style="font-size: 1.4em;">
-$$
-    (a_1(x), a_2(x), b_1(x), b_2(x)) \cdot 
-    \left(
-        \left(\begin{matrix}
-            2\cdot g(x) & 0 \\
-            2^2 \cdot g(x) & 0 \\
-            0 & 2 \cdot g(x) \\
-            0 & 2^2 \cdot g(x)
-        \end{matrix}\right) 
-        + Z
-    \right)
-$$
-</div>
-We'll start by choosing a secret key $s(x)$:
+    # Concatenate the decompositions of rlwe_ciphertext.a and rlwe_ciphertext.b
+    poly_decomp = _decompose_polynomial(rlwe_ciphertext.a, gsw_config) + _decompose_polynomial(rlwe_ciphertext.b, gsw_config)
 
-\\[
-    s(x) = 0 + 1\cdot x = x
-\\]
+    rlwe_ciphertext = RlweCiphertext(
+        config=rlwe_config,
+        a=zero_polynomial(gsw_config.rlwe_config.degree),
+        b=zero_polynomial(gsw_config.rlwe_config.degree))
 
-Now let's select the plaintext polynomials we'd like to multiply:
+    for i, p in enumerate(poly_decomp):
+        rlwe_ciphertext.a = polynomial_add(rlwe_ciphertext.a, polynomial_multiply(p, gsw_ciphertext.rlwe_ciphertexts[i].a))
+        rlwe_ciphertext.b = polynomial_add(rlwe_ciphertext.b, polynomial_multiply(p, gsw_ciphertext.rlwe_ciphertexts[i].b))
 
-<div style="font-size: 1.4em;">
-\begin{align*}
-    f(x) &= 3 + 5x \\
-    g(x) &= 0 + x
-\end{align*}
-</div>
-
-Note that the result of the plaintext multiplication in the negacyclic polynomial ring
- $\mathbb{Z}_{16}[x] / (x^2 + 1)$  is
-
-\\[
-    f(x)g(x) = (3 + 5x) \cdot x = 3x + 5x^2 = -5 + 3x
-\\]
-
-where in the last step we used the negacyclic relation $x^2 + 1 = 0 \Rightarrow x^2 = -1$. LINK TO NEGACYCLIC
-
-We'll start by encrypting $f(x)$ with the RLWE scheme. To encrypt a polynomial in RLWE we first
-must choose a uniformly random polynomial $a(x)$ and a small error polynomial $e(x)$. Let's choose:
-
-<div style="font-size: 1.4em;">
-\begin{align*}
-a(x) &= 5 - 6x \\
-e(x) &= -1 + x
-\end{align*}
-</div>
-
-The corresponding RLWE encryption of $f(x)$ is $(a(x), b(x))$ where
-
-<div style="font-size: 1.4em;">
-\begin{align*}
-b(x) &= s(x)a(x) + f(x) + e(x) \\
-     &= x(5 - 6x) + (3 + 5x) + (-1 + x) \\
-     &= (6 + 5x) + (3 + 5x) + (-1 + x) \\
-     &= 8 + 11x \\
-     &= -8 - 5x
-\end{align*}
-</div>
-
-where in the last step we replaced $8$ and $11$ with their representatives in $[-8,8)$ modulo $q=16$.
-
-Now let's encrypt $g(x)=x$ in the GSW scheme. Following the previous section, a GSW encryption
-of $g(x)=x$ is of the form
-
-<div style="font-size: 1.4em;">
-$$
-    \mathrm{Enc}_{s(x)}(g(x) = \left(\begin{matrix}x & 0 \\ 0 & x\end{matrix}\right) + Z
-$$
-</div>
-
-where each row of $Z$ is an RLWE encryption of zero.
-
-Now that we've setup our example we can return to our original goal of reducing the
-error in the product
-
-<div style="font-size: 1.4em;">
-$$
-    (a(x), b(x))_{1\times 2} \cdot \left(\left(\begin{matrix}g(x) & 0 \\ 0 & g(x)\end{matrix}\right) + Z\right)_{2 \times 2}
-$$
-</div>
-
-
-
-
-
-
-
+    return rlwe_ciphertext
+```
