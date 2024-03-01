@@ -1646,40 +1646,13 @@ terms in the naive multiplication REF, $a(x)e(x)$ and $b(x)e(x)$, can be as big
 as $q\cdot n \cdot \epsilon = 2^{32} \cdot n \cdot \epsilon$ which is
 significantly larger.
 
-## Implementing The Homomorphic Multiplexer
-
-NOTE: PUT THIS BEFORE THE PREVIOUS SECTIONS AS MOTIVATION
-
-Following REF - Mux with multiplications, we can use homomorphic addition
-$\mathrm{CAdd}$, homomorphic subtraction $\mathrm{CSub}$ and homomorphic
-multiplication
-$\mathrm{CMul} to implement a _homomorphic multiplexer_ $\mathrm{CMux}$ where
-the lines are RLWE ciphertexts and the selector bit is a GSW ciphertext:
-
-IMAGE
-
-\\[ \mathrm{CMux}: \mathrm{GSW}(b) \times \mathrm{RLWE}(f_0(x)) \times
-\mathrm{RLWE}(f_1(x)) \rightarrow \mathrm{RLWE}(\mathrm{Mux}(b, f_0(x), f_1(x)))
-\\]
-
-To do this, we simply replace the operations in REF with their homomorphic
-counterparts:
-
-\\[ \mathrm{CMux}(M, \mathbf{c}_0, \mathbf{c}_1) =
-\mathrm{CAdd}(\mathrm{CMul}(M, \mathrm{CSub}(\mathbf{c}_1, \mathbf{c}_0)),
-\mathbf{c}_1) \\]
-
-Here is an implementation of GSW encryption, $\mathrm{CMul}$ and
-$\mathrm{CMux}$.
+Here is an implementation of GSW encryption and $\mathrm{CMul}$.
 
 ```python
-from collections.abc import Sequence
-
 @dataclasses.dataclass
 class GswConfig:
     rlwe_config: RlweConfig
-    decomp_num_levels: int
-    decomp_exponent: int
+    log_p: int  # Homomorphic multiplication will use the base-2^log_p representation.
 
 @dataclasses.dataclass
 class GswPlaintext:
@@ -1703,55 +1676,220 @@ def convert_rlwe_key_to_gsw(rlwe_key: RlweEncryptionKey, gsw_config) -> GswEncry
 
 def gsw_encrypt(plaintext: GswPlaintext, key: GswEncryptionKey) -> GswCiphertext:
     gsw_config = key.config
+    num_powers_of_p = get_base_p_rep_length(log_q=32, log_p=gsw_config.log_p)
 
-    # Create 2 RLWE encryptions of 0 for each decomposition level
+    # Create 2 RLWE encryptions of 0 for each element of a base-p representation.
     rlwe_key = convert_gws_key_to_rlwe(key)
     rlwe_plaintext_zero = build_zero_rlwe_plaintext(gsw_config.rlwe_config)
     rlwe_ciphertexts = [
         rlwe_encrypt(rlwe_plaintext_zero, rlwe_key)
-        for _ in range(2 * gsw_config.decomp_num_levels)
+        for _ in range(2 * num_powers_of_p)
     ]
 
-    # Add multiples of the message to the rlwe ciphertexts
-    for i in range(gsw_config.decomp_num_levels):
-        decomp_factor = 2**(31 - (i+1)*(gsw_config.decomp_exponent-1))
-        scaled_message = polynomial_constant_multiply(decomp_factor, plaintext.message)
+    # Add multiples p^i * message to the rlwe ciphertexts
+    for i in range(num_powers_of_p):
+        p_i = 2**(i * gsw_config.log_p)
+        scaled_message = polynomial_constant_multiply(p_i, plaintext.message)
 
         rlwe_ciphertexts[i].a = polynomial_add(rlwe_ciphertexts[i].a, scaled_message)
-        b_idx = i + gsw_config.decomp_num_levels
+        b_idx = i + num_powers_of_p
         rlwe_ciphertexts[b_idx].b = polynomial_add(rlwe_ciphertexts[b_idx].b, scaled_message)
 
     return GswCiphertext(gsw_config, rlwe_ciphertexts)
 
-def _decompose_array(x: np.ndarray, decomp_num_levels: int, decomp_exp: int) -> Sequence[np.ndarray]:
-    levels = []
-    remainder = np.copy(x)
-    exponent = 31 - (decomp_exp - 1)
-
-    for i in range(decomp_num_levels):
-        levels.append(np.int32(np.rint(remainder / 2**exponent)))
-        remainder -= 2**exponent * levels[-1]
-        exponent -= decomp_exp - 1
-
-    return levels
-
-def _decompose_polynomial(p: Polynomial, config: GswConfig) -> Sequence[Polynomial]:
-    return [Polynomial(coeff=v) for v in _decompose_array(p.coeff, config.decomp_num_levels, config.decomp_exponent)]
-
 def gsw_multiply(gsw_ciphertext: GswCiphertext, rlwe_ciphertext: RlweCiphertext) -> RlweCiphertext:
     gsw_config = gsw_ciphertext.config
+    rlwe_config = rlwe_ciphertext.config
 
-    # Concatenate the decompositions of rlwe_ciphertext.a and rlwe_ciphertext.b
-    poly_decomp = _decompose_polynomial(rlwe_ciphertext.a, gsw_config) + _decompose_polynomial(rlwe_ciphertext.b, gsw_config)
+    # Concatenate the base-p representations of rlwe_ciphertext.a and rlwe_ciphertext.b
+    rlwe_base_p = (polynomial_to_base_p(rlwe_ciphertext.a, log_q=32, log_p=gsw_config.log_p) +
+                   polynomial_to_base_p(rlwe_ciphertext.b, log_q=32, log_p=gsw_config.log_p))
 
+    # Multiply the row vector rlwe_base_p with the len(rlwe_base_p)x2 matrix gsw_ciphertext.rlwe_ciphertexts.
     rlwe_ciphertext = RlweCiphertext(
         config=rlwe_config,
-        a=zero_polynomial(gsw_config.rlwe_config.degree),
-        b=zero_polynomial(gsw_config.rlwe_config.degree))
+        a=zero_polynomial(rlwe_config.degree),
+        b=zero_polynomial(rlwe_config.degree))
 
-    for i, p in enumerate(poly_decomp):
+    for i, p in enumerate(rlwe_base_p):
         rlwe_ciphertext.a = polynomial_add(rlwe_ciphertext.a, polynomial_multiply(p, gsw_ciphertext.rlwe_ciphertexts[i].a))
         rlwe_ciphertext.b = polynomial_add(rlwe_ciphertext.b, polynomial_multiply(p, gsw_ciphertext.rlwe_ciphertexts[i].b))
 
     return rlwe_ciphertext
 ```
+
+And here's an example of multiplying a GSW ciphertext with an RLWE ciphertext.
+
+```python
+>>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-24))
+>>> gsw_config = GswConfig(rlwe_config=rlwe_config, log_p=8)
+
+>>> rlwe_key = generate_rlwe_key(rlwe_config)
+>>> gsw_key = convert_rlwe_key_to_gsw(rlwe_key, gsw_config)
+
+>>> # The GSW plaintext is the constant 2.
+>>> gsw_plaintext = GswPlaintext(
+>>>    config=gsw_config,
+>>>    message=build_monomial(2, 0, gsw_config.rlwe_config.degree))
+GswPlaintext(config=GswConfig(rlwe_config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08), log_p=8), message=Polynomial(N=1024, coeff=array([2, 0, 0, ..., 0, 0, 0], dtype=int32)))
+
+>>> # The RLWE plaintext is an encoding of the polynomial f=x
+>>> f = build_monomial(c=1, i=1, N=rlwe_config.degree)
+Polynomial(N=1024, coeff=array([0, 1, 0, ..., 0, 0, 0], dtype=int32))
+>>> rlwe_plaintext = encode_rlwe(f, rlwe_config)
+RlwePlaintext(
+    config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+    message=Polynomial(
+        N=1024,
+        coeff=array([0, 536870912, 0, ..., 0, 0, 0], dtype=int32)))
+
+>>> # Encrypt the GSW plaintext with GSW encryption.
+>>> gsw_ciphertext = gsw_encrypt(gsw_plaintext, gsw_key)
+GswCiphertext(
+  config=GswConfig(
+    rlwe_config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08), log_p=8),
+  rlwe_ciphertexts=[
+    RlweCiphertext(
+        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+        a=Polynomial(N=1024, coeff=array([271813620, ..., -223040861], dtype=np.int32)),
+        b=Polynomial(N=1024, coeff=array([-876436729, ..., -350975826], dtype=np.int32)))
+    RlweCiphertext(
+        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+        a=Polynomial(N=1024, coeff=array([446327432, ..., 1046228314], dtype=np.int32)),
+        b=Polynomial(N=1024, coeff=array([-1936882923, ..., -935751225], dtype=np.int32)))
+    RlweCiphertext(
+        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+        a=Polynomial(N=1024, coeff=array([534040503, ..., -880877497], dtype=np.int32)),
+        b=Polynomial(N=1024, coeff=array([-1997778813, ..., 1054914820], dtype=np.int32)))
+    RlweCiphertext(
+        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+        a=Polynomial(N=1024, coeff=array([300855065, ..., -459135528], dtype=np.int32)),
+        b=Polynomial(N=1024, coeff=array([47657021, ..., 623109607], dtype=np.int32)))
+    RlweCiphertext(
+        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+        a=Polynomial(N=1024, coeff=array([2116664227, ..., -288715527], dtype=np.int32)),
+        b=Polynomial(N=1024, coeff=array([-758472722, ..., 208553013], dtype=np.int32)))
+    RlweCiphertext(
+        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+        a=Polynomial(N=1024, coeff=array([-460910052, ..., 2137117421], dtype=np.int32)),
+        b=Polynomial(N=1024, coeff=array([12211265, ..., -1055758062], dtype=np.int32)))
+    RlweCiphertext(
+        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+        a=Polynomial(N=1024, coeff=array([-333035085, ..., -1092598547], dtype=np.int32)),
+        b=Polynomial(N=1024, coeff=array([1248437283, ..., -1155447294], dtype=np.int32)))
+    RlweCiphertext(
+        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+        a=Polynomial(N=1024, coeff=array([1059875087, ..., -814647771], dtype=np.int32)),
+        b=Polynomial(N=1024, coeff=array([472063671, ..., 408893825], dtype=np.int32)))
+  ])
+
+>>> # Encrypt the RLWE plaintext with RLWE encryption
+>>> rlwe_ciphertext = rlwe_encrypt(rlwe_plaintext, rlwe_key)
+RlweCiphertext(
+  config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+  a=Polynomial(N=1024, coeff=array([-858994552, ..., -116332580], dtype=np.int32)),
+  b=Polynomial(N=1024, coeff=array([-82429073, ..., -96458989], dtype=np.int32)))
+
+>>> # Homomorphically multiply the ciphertexts.
+>>> rlwe_ciphertext_prod = gsw_multiply(gsw_ciphertext, rlwe_ciphertext)
+RlweCiphertext(
+  config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
+  a=Polynomial(N=1024, coeff=array([1060371389, ..., 17893357], dtype=np.int32)),
+  b=Polynomial(N=1024, coeff=array([560671334, ..., 1806593470], dtype=np.int32)))
+
+>>> # Check that when we decrypt and then decode the product ciphertext we get
+>>> # 2 * x = 2x
+>>> rlwe_plaintext_prod_decoded = decode_rlwe(rlwe_decrypt(rlwe_ciphertext_prod, rlwe_key))
+Polynomial(N=1024, coeff=array([0, 2, 0, ..., 0, 0, 0]))
+```
+
+## Implementing The Homomorphic Multiplexer
+
+NOTE: PUT THIS BEFORE THE PREVIOUS SECTIONS AS MOTIVATION
+
+Following REF - "Mux with multiplications", we can use homomorphic addition
+$\mathrm{CAdd}$, homomorphic subtraction $\mathrm{CSub}$ and homomorphic
+multiplication
+$\mathrm{CMul} to implement a _homomorphic multiplexer_ $\mathrm{CMux}$ where
+the lines are RLWE ciphertexts and the selector bit is a GSW ciphertext:
+
+IMAGE
+
+\\[ \mathrm{CMux}: \mathrm{GSW}(b) \times \mathrm{RLWE}(f_0(x)) \times
+\mathrm{RLWE}(f_1(x)) \rightarrow \mathrm{RLWE}(\mathrm{Mux}(b, f_0(x), f_1(x)))
+\\]
+
+To do this, we simply replace the operations in REF with their homomorphic
+counterparts:
+
+\\[ \mathrm{CMux}(M, \mathbf{c}_0, \mathbf{c}_1) =
+\mathrm{CAdd}(\mathrm{CMul}(M, \mathrm{CSub}(\mathbf{c}_1, \mathbf{c}_0)),
+\mathbf{c}_1) \\]
+
+Here is an implementation of $\mathrm{CMux}$:
+
+```python
+def cmux(gsw_ciphertext: GswCiphertext, rlwe_ciphertext_0: RlweCiphertext, rlwe_ciphertext_1: RlweCiphertext) -> RlweCiphertext:
+    return rlwe_add(
+        gsw_multiply(gsw_ciphertext, rlwe_subtract(rlwe_ciphertext_1, rlwe_ciphertext_0)),
+        rlwe_ciphertext_0)
+```
+
+And here is an example:
+
+```python
+>>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-24))
+>>> gsw_config = GswConfig(rlwe_config=rlwe_config, log_p=8)
+
+>>> rlwe_key = generate_rlwe_key(rlwe_config)
+>>> gsw_key = convert_rlwe_key_to_gsw(rlwe_key, gsw_config)
+
+>>> # Create a GSW plaintext with a selector bit 0
+>>> gsw_plaintext = GswPlaintext(config=gsw_config, message=build_monomial(0, 0, gsw_config.rlwe_config.degree))
+
+>>> # The first CMUX line is an RLWE plaintext encoding the polynomial 1.
+>>> rlwe_plaintext_0 = encode_rlwe(build_monomial(1, 0, rlwe_config.degree), rlwe_config)
+>>> # Create an RLWE plaintext encoding the polynomial 1.
+
+>>> # The second CMUX line is an RLWE plaintext encoding the polynomial x.
+>>> rlwe_plaintext_1 = encode_rlwe(build_monomial(1, 1, rlwe_config.degree), rlwe_config)
+
+>>> # Encrypt the GSW selector bit and the RLWE lines.
+>>> gsw_ciphertext = gsw_encrypt(gsw_plaintext, gsw_key)
+>>> rlwe_ciphertext_0 = rlwe_encrypt(rlwe_plaintext_0, rlwe_key)
+>>> rlwe_ciphertext_1 = rlwe_encrypt(rlwe_plaintext_1, rlwe_key)
+
+>>> # Apply CMUX to the ciphertexts.
+>>> rlwe_ciphertext_cmux = cmux(
+>>>    gsw_ciphertext, rlwe_ciphertext_0, rlwe_ciphertext_1)
+
+>>> # Verify that decrypting rlwe_ciphertext_cmux yields MUX(0, 1, x) = 1.
+>>> rlwe_plaintext_cmux_decoded = decode_rlwe(
+>>>    rlwe_decrypt(rlwe_ciphertext_cmux, rlwe_key))
+Polynomial(N=1024, coeff=array([1, 0, 0, ..., 0, 0, 0]))
+```
+
+# Bootstrapping
+
+In the previous sections we defined the LWE and RLWE encryption schemes and saw
+how to homomorphically add their ciphertexts. We also defined the GSW encryption
+scheme and implemented homomorphic multiplication between GSW and RLWE
+ciphertexts.
+
+As we mentioned in the introduction, homomorphic addition and multiplication is
+in principle sufficient for implementing a homomorphic NAND function.
+
+All three encryption schemes introduce noise during the encryption operation.
+Similarly, the output of our homomorphic operations is greater than the input
+noise. As we've seen, with carefully chosen parameters this noise is small
+enough to successfully encrypt messages and apply a small number of homomorphic
+operations. However, since each homomorphic operation introduces additional
+noise, eventually the noise will become so large that it is no longer possible
+to reliably decrypt. EXPLAIN BETTER
+
+Therefore, if we implement a homomorphic NAND gate with our existing homomorphic
+algebraic operations then the number of NAND gates we can evaluate will be
+bounded as well.
+
+In this section we will solve our noise problem with a process called
+_Bootstrapping_.
