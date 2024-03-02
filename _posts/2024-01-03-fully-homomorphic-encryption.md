@@ -1871,15 +1871,77 @@ Polynomial(N=1024, coeff=array([1, 0, 0, ..., 0, 0, 0]))
 
 # Bootstrapping
 
-In the previous sections we defined the LWE and RLWE encryption schemes and saw
-how to homomorphically add their ciphertexts. We also defined the GSW encryption
-scheme and implemented homomorphic multiplication between GSW and RLWE
-ciphertexts.
+In the previous sections we defined the LWE, RLWE and GSW encryption schemes
+together with homomorphic addition and multiplication operations.
 
-As we mentioned in the introduction, homomorphic addition and multiplication is
-in principle sufficient for implementing a homomorphic NAND function.
+All three encryption schemes introduce noise during encryption. In this section
+we'll analyze this noise more carefully. As motivation, we'll revisit the
+example from section REF.
 
-All three encryption schemes introduce noise during the encryption operation.
+In this example we'll use a fixed LWE encryption key $\mathbf{s}$. Let
+$(\mathbf{a}_0, b_0) \in \mathrm{LWE}_{\mathbf{s}}(0)$ be an LWE encryption of
+$0$. Let $m = \mathrm{Encode}(1) = 2^{29}$ be the encoding of $1$ and let
+$(\mathbf{a}_1, b_1) \in \mathrm{LWE}_{\mathbf{s}}(m)$ be an encryption of $m$.
+Here are the distributions of the decryptions
+$\mathrm{Dec}_{\mathbf{s}}((\mathbf{a}_0, b_0))$ and
+$\mathrm{Dec}_{\mathbf{s}}((\mathbf{a}_1, b_1))$:
+
+IMAGE
+
+Since the noise is so small, we can remove the noise from a decryption by
+checking if it is closer to $0$ or to $m$. Let's see what happens if we
+homomorphically add the encryption of $0$ to the encryption of $m$ by computing
+
+\\[ \mathrm{CAdd}((\mathbf{a}_0, b_0), (\mathbf{a}_1, b_1)) \\]
+
+by the homomorphic property, the result should be an LWE encryption of
+$m + 0 = m$. Let's see what happens when we decrypt
+$\mathrm{CAdd}((\mathbf{a}_0, b_0), (\mathbf{a}_0, b_0))$:
+
+IMAGE
+
+As expected, the standard deviation of the noise has now roughly doubled. Now
+let's see what happens if we homomorphically add 1000 encryptions of zero to an
+encryption of 1:
+
+IMAGE
+
+Now the noise is so large that we can no longer distinguish between $0$ and $m$
+which means that our ciphertext is useless. The situation with homomorphic
+multiplication is even worse since the noise gets _squared_ during each
+operation rather than merely _doubled_.
+
+To realize our goal of performing arbitrary homomorphic computations, we're
+going to find away around this limit.
+
+In this section we'll solve this problem by a process called _Bootstrapping_. In
+a nutshell, bootstrapping makes it possible to "refresh" a ciphertext by
+replacing with a new ciphertext that encrypts the same value and has a bounded
+amount of noise. In the context of our example, bootstrapping would allow us to
+replace a ciphertext whose decryptions look like this:
+
+IMAGE
+
+With one whose decryptions look like this:
+
+IMAGE
+
+Importantly, the bound on the noise in the refreshed ciphertext does not depend
+on the noise in the original ciphertext.
+
+Furthermore, this noise is compounded during each homomorphic operation. Our
+main tool for dealing with this error has been to restrict our plaintext
+messages to encodings of $\mathbb{Z}_8$ using the encoding function
+$\mathrm{Encode}(i) = i \cdot 2^{29}$. In other words, we restrict our plaintext
+to multiples of $2^{29}$. By REF, if $m = \mathrm{Encode}(i) \in \mathbb{Z}_q$
+is a plaintext message and $e\in\mathbb{Z}\_q$ is an error satisfying
+$\vert e \vert < 2^{28}$, we can _decode_ the noisy plaintext $m+e$ and recover
+$i$:
+
+\\[ \mathrm{Decode}(m + e) = i \\]
+
+To be concrete, let's revisit
+
 Similarly, the output of our homomorphic operations is greater than the input
 noise. As we've seen, with carefully chosen parameters this noise is small
 enough to successfully encrypt messages and apply a small number of homomorphic
