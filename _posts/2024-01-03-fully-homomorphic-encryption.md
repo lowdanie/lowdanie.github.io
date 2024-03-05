@@ -1927,31 +1927,160 @@ With one whose decryptions look like this:
 IMAGE
 
 Importantly, the bound on the noise in the refreshed ciphertext does not depend
-on the noise in the original ciphertext.
+on the noise in the original ciphertext. By periodically refreshing our
+ciphertexts, we can keep the noise under control and perform an arbitrary number
+of homomorphic operations.
 
-Furthermore, this noise is compounded during each homomorphic operation. Our
-main tool for dealing with this error has been to restrict our plaintext
-messages to encodings of $\mathbb{Z}_8$ using the encoding function
-$\mathrm{Encode}(i) = i \cdot 2^{29}$. In other words, we restrict our plaintext
-to multiples of $2^{29}$. By REF, if $m = \mathrm{Encode}(i) \in \mathbb{Z}_q$
-is a plaintext message and $e\in\mathbb{Z}\_q$ is an error satisfying
-$\vert e \vert < 2^{28}$, we can _decode_ the noisy plaintext $m+e$ and recover
-$i$:
+In the TFHE framework, bootstrapping is implemented with lower level homomorphic
+operations that are interesting on their own right called _The Homomorphic_
+_Multiplexer_ (CMux), _Blind Rotation_ and _Sample Extraction_. In the following
+sections we'll introduce each of these primitives and conclude by implementing
+the bootstrapping function.
 
-\\[ \mathrm{Decode}(m + e) = i \\]
+## The Homomorphic Multiplexer
 
-To be concrete, let's revisit
+MOVE THIS FROM above
 
-Similarly, the output of our homomorphic operations is greater than the input
-noise. As we've seen, with carefully chosen parameters this noise is small
-enough to successfully encrypt messages and apply a small number of homomorphic
-operations. However, since each homomorphic operation introduces additional
-noise, eventually the noise will become so large that it is no longer possible
-to reliably decrypt. EXPLAIN BETTER
+## Blind Rotation
 
-Therefore, if we implement a homomorphic NAND gate with our existing homomorphic
-algebraic operations then the number of NAND gates we can evaluate will be
-bounded as well.
+### Definition
 
-In this section we will solve our noise problem with a process called
-_Bootstrapping_.
+Consider the negacyclic [REF] polynomial
+
+\\[ f(x) = 1 + 2x + 3x^2 + 4x^3 \in \mathbb{Z}_q / (x^N+1) \\]
+
+If we multiply $f(x)$ by $x^1$ then, due to the negacyclic property we get
+
+\\[ x^1 \cdot f(x) = -4 + x + 2x^2 + 3x^3 \\]
+
+In other words, multiplying by $x$ rotates the coefficients of $f(x)$ one step
+to the right:
+
+\\[ (1, 2, 3, 4) \rightarrow (-4, 1, 2, 3) \\]
+
+The negacyclic property that when a coefficient wraps around it gets multiplied
+by $-1$. In general, multiplying by $x^i$ will rotate the coefficients of $f(x)$
+by $i$ steps. For example:
+
+\\[ x^3 \cdot f(x) = -2 - 3x - 4x^2 + x^3 \\]
+
+We'll formalize this by defining the $\mathrm{Rotate}(i, f(x))$ that rotated the
+coefficients of $f(x)$ $i$ steps to the right:
+
+<div style="font-size: 1.4em;">
+\begin{align*}
+    \mathrm{Rotate}: \mathbb{Z}_q \times \mathbb{Z}_q / (x^N+1)  &\rightarrow \mathbb{Z}_q / (x^N+1) \\
+    (i, f(x)) &\mapsto x^{\frac{2N}{q}i} \cdot f(x)
+\end{align*}
+</div>
+
+_Blind Rotation_ is the homomorphic version of $\mathrm{Rotate}$. Its inputs are
+an LWE _encryption_ of the index $i$ together with the plaintext polynomial
+$f(x)$. The output is an RLWE _encryption_ of the polynomial $x^i f(x)$:
+
+\\[ \mathrm{BlindRotate}: \mathrm{LWE}(i) \times \mathbb{Z}_q / (x^N+1)
+\rightarrow \mathrm{RLWE}(x^i \cdot f(x)) \\]
+
+The goal of this section will be to implement blind rotation.
+
+### Implementation
+
+Let $\mathbf{s}$ be an encryption key, let
+$(\mathbf{a}, b) \in \mathrm{LWE}_{\mathbf{s}}(i)$ be an LWE encryption of $i$
+and let $f(x)$ be a polynomial. Our goal is to evaluate
+$\mathrm{BlindRotate}((\mathbf{a}, b), f(x))$. By definition, this means that we
+must use the inputs $(\mathbf{a}, b)$ and $f(x)$ to produce an RLWE encryption
+of $x^i f(x)$.
+
+Recall that the LWE decryption operation is defined by:
+
+\\[ \mathrm{Decrypt}^{\mathrm{LWE}}_{\mathbf{s}}((\mathbf{a}, b)) = b -
+\mathbf{s} \cdot \mathbf{a} \\]
+
+Since $(\mathbf{a}, b)$ is an encryption of $i$, the decryption
+$b -
+\mathbf{s} \cdot \mathbf{a}$ is equal to $i + e$ where $e$ is a small error.
+Therefore:
+
+\\[ x^{i + e}f(x) = x^{b - \mathbf{s} \cdot \mathbf{a}} = x^b \cdot
+\prod_{i=1}^N x^{s_i a_i} \cdot f(x) \\]
+
+Since each $s_i$ is either $0$ or $1$, $x^{s_i a_i}$ is equal to $1$ or
+$x^{a_i}$. Therefore, we can evaluate $x^{i+e}$ by iteratively applying a
+multiplexer where $s_i$ is the selector bit. More concretely, we'll start with
+$g_0(x) := x^b \cdot f(x)$ and inductively define:
+
+\\[ g_i(x) := \mathrm{Mux}(s_i, g_{i-1}(x), x^{a_i}\cdot g_{i-1}(x)) \\]
+
+for $i = 1,\dots,N$. From the definition of $\mathrm{Mux}$ it follows that:
+
+<div style="font-size: 1.4em;">
+$$
+g_i(x) =
+\begin{cases} g_{i-1}(x) & \mathrm{if}\ s_i = 0 \\
+              x^{a_i} \cdot g_{i-1}(x) & \mathrm{if}\ s_i = 1
+\end{cases}
+$$
+</div>
+
+Therefore, it is easy to prove by induction that:
+
+\\[ g_N(x) = \prod_{i=1}^N x^{s_i a_i} \cdot x^b \cdot f(x) \\]
+
+By equation EQ it follows that:
+
+\\[ g_N(x) = x^{i + e}\cdot f(x) \\]
+
+Our strategy for producing an RLWE encryption of $x^i \cdot f(x)$ will be to
+iteratively produce RLWE encryptions of $g_i(x)$ for $i=1,\dots,N$ by modifying
+our inductive equation EQ.
+
+The first modification will be to replace $s_i$ with a GSW encryption of $s_i$
+that we will denote by $t_i$:
+
+\\[ t_i := \mathrm{Enc}_{\mathbf{s}}^{\mathrm{GSW}}(s_i) \\]
+
+The second modification is to replace the multiplexer $\mathrm{Mux}$ with the
+homomorphic multiplexer $\mathrm{CMux}$ from section REF. Finally, we'll replace
+the product $x^{a_i} \cdot g_{i-1}(x)$ with the homomorphic product
+$\mathrm{CMul}$. Putting these together, our new inductive equation is:
+
+\\[ R_i := \mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1}(x)))
+\\]
+
+for $i=1,\dots,N$ where the initial value $R_0$ is defined to be an RLWE
+encryption of $g_0(x)$:
+
+\\[ R_0 := \mathrm{Enc}^{\mathrm{RLWE}}_{\mathbf{s}}(g_0) \\]
+
+We'll now prove by induction that $R_i$ is an RLWE encryption of of $g_i(x)$.
+The $i=0$ is simply the definition of $R_0$.
+
+Suppose that $R_{i-1}$ is an RLWE encryption of $g_{i-1}(x)$. By REF, the
+homomorphic product $\mathrm{CMul}(x^{a_i}, R_{i-1}(x))$ is an RLWE encryption
+of $x^{a_i}g_{i-1}(x)$. Therefore, since $t_i$ is a GSW encryption of $s_i$, by
+REF it follows that:
+$\mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1}(x)))$ is an RLWE
+encryption of $\mathrm{Mux}(s_i, g_{i-1}(x), x^{a_i}g_{i-1}(x))$. But this by
+definition (EQ) is equal to $g_i(x)$ which is what we had to prove.
+
+In particular, from the $i=N$ case it follows that $R_N$ is an RLWE encryption
+of $g_N(x) = x^{i+e} \cdot f(x)$. We can therefore implement
+$\mathrm{BlindRotate}$ by using equations EQ and EQ to iteratively compute $R_N$
+and setting:
+
+\\[ \mathrm{BlindRotate}(i, f(x)) = R_N \\]
+
+Note that our implementation of $\mathrm{BlindRotate}$ relies on the GSW
+encryptions $t_i := \mathrm{Enc}_{\mathbf{s}}^{\mathrm{GSW}}(s_i)$. For reasons
+that will become apparent later on, we'll call the list $t_1,\dots,t_N$ the
+_Bootstrapping Key_.
+
+Here is a concrete implementation of our $\mathrm{BlindRotate}$ algorithm:
+
+CODE
+
+EXAMPLE
+
+## Sample Extraction
+
