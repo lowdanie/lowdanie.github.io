@@ -2084,3 +2084,74 @@ EXAMPLE
 
 ## Sample Extraction
 
+### Definition
+
+Consider the polynomial
+
+\\[ f(x) = f_0 + f_1x + \dots + f_{N-1}x^{N-1} \in \mathbb{Z}_q/(x^N+1) \\]
+
+_Sample Extraction_ is the process of homomorphically extracting an LWE
+encryption of one of the _coefficients_ of $f(x)$ from an RLWE encryption of
+$f(x)$.
+
+More precisely, for a given index $i$, the function $\mathrm{SampleExtract}$
+takes as input an RLWE encryption of $f(x)$ and outputs an LWE encryption of
+$f_i$:
+
+\\[ \mathrm{SampleExtract}(i, \cdot): \mathrm{RLWE}_{s(x)}(f(x)) \rightarrow
+\mathrm{LWE}_{\mathbf{s}}(f_i) \\]
+
+As in REF, $\mathbf{s}$ is an LWE encryption key and $s(x)$ is the corresponding
+RLWE key.
+
+### Implementation
+
+Let $\mathbf{s} = (s_0,\dots,s_{N-1})$ be an LWE encryption key and let
+$s(x)=\sum_{i=0}^{N-1}s_ix^i$ be the corresponding RLWE key. Let $(a(x), b(x))$
+be an RLWE encryption of $f(x) = \sum_{i=0}^{N-1}f_ix^i$ with the key $s(x)$.
+
+Let $0 \leq i < N$ be an index. How can we convert the RLWE ciphertext
+$(a(x), b(x))$ into an LWE encryption of $f_i$ with the key $\mathbf{s}$?
+
+By the definition of RLWE encryption:
+
+\\[ f(x) = b(x) - a(x)s(x) + e(x) \\]
+
+for some small error $e(x)$.
+
+Let $(a(x)s(x))_i$ denote the $i$-th coefficient of $a(x)s(s)$. Since we are
+working with negacyclic polynomials LINK TO SECTION, the $i$-th coefficient
+satisfies a variation on the typical polynomial
+[convolution](https://en.wikipedia.org/wiki/Convolution):
+
+\\[ (a(x)s(x))\_i = \sum_{j=0}^i a_{i-j}s_j - \sum_{i+1}^{N-1}a_{i-j}s_j \\]
+
+Note that if we define the vector $\mathrm{Conv}(a(x), i)$ by:
+
+\\[ \mathrm{Conv}(a(x), i) := (a_i, a_{i-1}, \dots, a_1, a_0, -a_{N-1},
+-a_{N-1}, \dots, -a_{i+1}) \\]
+
+Then we can rewrite equation EQ as a dot product:
+
+\\[ (a(x)s(x))\_i = \mathrm{Conv}(a(x), i) \cdot \mathbf{s} \\]
+
+Plugging this into equation EQ gives us:
+
+\\[ f_i = b_i - \mathrm{Conv}(a(x), i) \cdot \mathbf{s} + e_i \\]
+
+But note that the right hand side of the last equation is exactly the LWE
+decryption of $(\mathrm{Conv}(a(x), i)}, b_i)$ with the encryption key
+$\mathbf{s}$! This implies that $(\mathrm{Conv}(a(x), i), b_i)$ is an LWE
+encryption of $f_i$ with the key $\mathbf{s}$.
+
+In summary, we can implement $\mathrm{SampleExtract}$ by:
+
+\\[ \mathrm{SampleExtract}(i, (a(x), b(x)) = (\mathrm{Conv}(a(x), i), b_i) \\]
+
+Here is a concrete implementation in python:
+
+CODE + EXAMPLE
+
+## Implementing Bootstrapping
+
+We now have all the pieces required to implement the bootstrapping process.
