@@ -2,3 +2,6 @@ name: Daniel Lowengrub
 markdown: kramdown
 highlighter: rouge
 permalink: /blog/:year/:month/:day/:title
+remote_theme: pages-themes/cayman@v0.2.0
+plugins:
+- jekyll-remote-theme
