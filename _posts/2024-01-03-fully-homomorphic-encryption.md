@@ -2098,7 +2098,7 @@ More precisely, for a given index $i$, the function $\mathrm{SampleExtract}$
 takes as input an RLWE encryption of $f(x)$ and outputs an LWE encryption of
 $f_i$:
 
-\\[ \mathrm{SampleExtract}(i, \cdot): \mathrm{RLWE}_{s(x)}(f(x)) \rightarrow
+\\[ \mathrm{SampleExtract}(i, \cdot): \mathrm{RLWE}\_{s(x)}(f(x)) \rightarrow
 \mathrm{LWE}_{\mathbf{s}}(f_i) \\]
 
 As in REF, $\mathbf{s}$ is an LWE encryption key and $s(x)$ is the corresponding
@@ -2129,7 +2129,7 @@ satisfies a variation on the typical polynomial
 Note that if we define the vector $\mathrm{Conv}(a(x), i)$ by:
 
 \\[ \mathrm{Conv}(a(x), i) := (a_i, a_{i-1}, \dots, a_1, a_0, -a_{N-1},
--a_{N-1}, \dots, -a_{i+1}) \\]
+-a_{N-2}, \dots, -a_{i+1}) \\]
 
 Then we can rewrite equation EQ as a dot product:
 
@@ -2140,7 +2140,7 @@ Plugging this into equation EQ gives us:
 \\[ f_i = b_i - \mathrm{Conv}(a(x), i) \cdot \mathbf{s} + e_i \\]
 
 But note that the right hand side of the last equation is exactly the LWE
-decryption of $(\mathrm{Conv}(a(x), i)}, b_i)$ with the encryption key
+decryption of $(\mathrm{Conv}(a(x), i), b_i)$ with the encryption key
 $\mathbf{s}$! This implies that $(\mathrm{Conv}(a(x), i), b_i)$ is an LWE
 encryption of $f_i$ with the key $\mathbf{s}$.
 
