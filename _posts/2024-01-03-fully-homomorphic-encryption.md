@@ -78,7 +78,7 @@ $\mathbf{a}_1, \ldots , \mathbf{a}_m \in \mathbb{Z}^n_q$ be random vectors and
 let $b_i = (\mathbf{a}_i, \mathbf{s})$ be the dot product of $\mathbf{a}_i$ with
 $\mathbf{s}$. As a warmup to the LWE problem we can ask:
 
-> Given $m \geq n$ random vectors $\mathbf{a}_1, \ldots , \mathbf{a}_m$ and the
+> Given $m \geq n$ random vectors $\mathbf{a}\_1,\dots,\mathbf{a}\_m$ and the
 > dot products $b_i, \ldots , b_m$, is it possible to efficiently _learn_ the
 > secret vector $\mathbf{s}$?
 
@@ -173,7 +173,7 @@ integer $i \in [-4, 4)$. We will call the interval $[-4, 4)$ the _restricted
 message space_. We will use the following _encoding_ function to encode an
 integer $i \in [-4, 4)$ as an element of $\mathbb{Z}_q$ before encrypting $i$:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
     \mathrm{Encode}: [-4, 4) &\rightarrow \mathbb{Z}_q \\
     i &\mapsto i \cdot 2^{29}
@@ -183,7 +183,7 @@ integer $i \in [-4, 4)$ as an element of $\mathbb{Z}_q$ before encrypting $i$:
 and the following _decoding_ function to convert a 32-bit message back to an
 integer in $[-4, 4)$ after decryption:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
     \mathrm{Decode}: \mathbb{Z}_q & \rightarrow [-4, 4) \\
     m &\mapsto \lfloor m \cdot 2^{-29} \rceil
@@ -349,7 +349,7 @@ $\mathrm{Enc}\_\mathbf{s}(m_2)$.
 
 As a first step, recall that by the definition of LWE encryption:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
     \mathrm{Enc}_\mathbf{s}(m_1) &= (\mathbf{a_1}, \mathbf{a_1} \cdot \mathbf{s} + m_1 + e_1) \in \mathbb{Z}_q^n \times \mathbb{Z}_q \\
     \mathrm{Enc}_\mathbf{s}(m_2) &= (\mathbf{a_2}, \mathbf{a_2} \cdot \mathbf{s} + m_2 + e_2) \in \mathbb{Z}_q^n \times \mathbb{Z}_q
@@ -362,7 +362,7 @@ get an encryption of $m_1 + m_2$? Let's try the simplest approach of just adding
 the terms in $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$
 element wise:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
     \mathrm{Enc}_\mathbf{s}(m_1) + \mathrm{Enc}_\mathbf{s}(m_1) &= (\mathbf{a_1} + \mathbf{a_2}, (\mathbf{a_1} \cdot \mathbf{s} + m_1 + e_1) + (\mathbf{a_2} \cdot \mathbf{s} + m_2 + e_2)) \\
     &= (\mathbf{a_1} + \mathbf{a_2}, (\mathbf{a_1} + \mathbf{a_2}) \cdot \mathbf{s} + (m_1 + m_2) + (e_1 + e_2))
@@ -564,7 +564,7 @@ a degree larger than $n$, we can find it's representative modulo $x^n + 1$ by
 replacing $x^n$ with $-1$ as many times as necessary. For example, if $n=4$ then
 we have the following equivalences modulo $x^4 + 1$:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
 1 &= 1\ (\mathrm{mod}\ x^n + 1) \\
 x &= x\ (\mathrm{mod}\ x^n + 1) \\
@@ -590,7 +590,7 @@ $\mathbb{Z}_q[x] / (x^4 + 1)$. If we multiply them we get
 As another example that will be relevant later on, if $f(x) = 1 + x + x^2 + x^3$
 and $g(x) = x^2$ then
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
   f(x) \cdot g(x) &= x^2 + x^3 + x^4 + x^5 \\
   &= x^2 + x^3 - 1 -x \\
@@ -713,7 +713,7 @@ $\mathbb{Z}_8$ and extend our encoding and decoding functions to polynomials by
 applying our original $\mathrm{Encode}$ and $\mathrm{Decode}$ methods to each
 coefficient:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
     \mathrm{EncodePolynomial}: \mathbb{Z}_8[x] &\rightarrow \mathbb{Z}_q[x] \\
     a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto
@@ -723,7 +723,7 @@ coefficient:
 
 and
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
     \mathrm{DecodePolynomial}: \mathbb{Z}_q[x] &\rightarrow \mathbb{Z}_8[x]\\
     a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto
@@ -1079,7 +1079,7 @@ A standard (plaintext) 2-1 multiplexer $\mathrm{Mux}(b, l_0, l_1)$ has three
 inputs: a _selector_ bit $b$ and two _lines_ $l_0$ and $l_1$. The output is
 defined by:
 
-<div style="font-size: 1.4em;">
+<div>
 $$
 \mathrm{Mux}(b, l_0, l_1) =
 \begin{cases} l_0 & \mathrm{if}\ b = 0 \\
@@ -1157,7 +1157,7 @@ row vector and that such a vector "wants" to be multiplied with a $2 \times 2$
 matrix. If we knew the plaintext $m_1(x)$ then we could form the $2\times 2$
 diagonal matrix:
 
-<div style="font-size: 1.4em;">
+<div>
 $$
 M_1 = \left(\begin{matrix}m_1(x) & 0 \\ 0 & m_1(x)\end{matrix}\right)
 $$
@@ -1165,7 +1165,7 @@ $$
 
 and multiply it with $(a_0(x), b_0(x))$:
 
-<div style="font-size: 1.4em;">
+<div>
 $$
 (a_0(x), b_0(x)) \cdot M_1 =
 (a_0(x), b_0(x)) \cdot \left(\begin{matrix}m_1(x) & 0 \\ 0 & m_1(x)\end{matrix}\right) =
@@ -1178,7 +1178,7 @@ $m_0(x)\cdot m_1(x)$ if $m_1(x)$ is small. As usual, to prove this we need to
 show that $\mathrm{Dec}_{s(x)}((a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x)))$ is
 equal to $m_0(x) \cdot m_1(x)$ plus a small error. Indeed:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
 \mathrm{Dec}_{s(x)}((a_0(x)\cdot m_1(x), b_0(x)\cdot m_1(x)))
 &= b_0(x)\cdot m_1(x) - (a_0(x)\cdot m_1(x))\cdot s(x) \\
@@ -1226,7 +1226,7 @@ BELOW
 
 In the previous section we defined
 
-<div style="font-size: 1.4em;">
+<div>
 $$
 M_1 = \left(\begin{matrix}m_1(x) & 0 \\ 0 & m_1(x)\end{matrix}\right)
 $$
@@ -1234,7 +1234,7 @@ $$
 
 and showed that
 
-<div style="font-size: 1.4em;">
+<div>
 $$
 (a_0(x), b_0(x)) \cdot M_1
 $$
@@ -1272,7 +1272,7 @@ _multiply_ an RLWE encryption of $m_0(x)$ and a GSW encryption of $m_1(x)$ by
 computing $(a_0(x), b_0(x)) \cdot (M_1 + Z)$ which is a valid ciphertext of
 $m_0(x)\cdot m_1(x)$. MAKE THIS MORE CLEAR!!!
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
 \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot (M_1 + Z))
 &= \mathrm{Dec}_{s(x)}((a_0(x), b_0(x)) \cdot M_1 + (a_0(x), b_0(x)) \cdot Z) \\
@@ -1325,7 +1325,7 @@ constant $p > 1$ inside of $\mathrm{CMul}$. In order for the output to still be
 a ciphertext of $f(x)g(x)$, we can balance this out by redefining the GSW
 encryption of $g(x)$ to be $p \cdot g(x)I_{2\times 2} + Z$. Together we get:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}\label{cmul-divide-by-p}
 \mathrm{CMul}((a(x), b(x)), p \cdot g(x)I_{2\times 2} + Z) &:=
 \frac{1}{p}(a(x), b(x)) \cdot (p \cdot g(x)I_{2\times 2} + Z) \\
@@ -1356,7 +1356,7 @@ More precisely, note that we can express a coefficient $c \in [-8, 8)$ as a sum:
 
 where $\vert c_i \vert < 2$. Here are two examples:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
   -8 &= 0 + 0\cdot 2 + 0 \cdot 2^2 -1 \cdot 2^3 \\
    6 &= 0 + 1\cdot 2 + 1 \cdot 2^2 + 0 \cdot 2^3
@@ -1378,7 +1378,7 @@ a sequence $c_0,\dots,c_m$ satisfying $\vert c_i \vert < p$ and:
 We'll denote the base-$p$ representation of an element $c\in\mathbb{Z}_q$ by
 $\mathrm{Base}_p(c)$:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
 \mathrm{Base}_p: \mathbb{Z}_q &\rightarrow \mathbb{Z}^{\lfloor \log_p(q) \rfloor} \\
                   c &\mapsto (c_0,\dots,c_{\lfloor \log_p(q/2) \rfloor})
@@ -1391,7 +1391,7 @@ inverse of $\mathrm{Base}_p$ which takes a sequence
 $(c_0,\dots,c_{\lfloor \log_p(q/2) \rfloor})$ and combines them with powers of
 $p$ to produce the original constant $c$:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
 \mathrm{Base}^{-1}_p: \mathbb{Z}^{\lfloor \log_p(q/2) \rfloor} &\rightarrow \mathbb{Z}_q   \\
                   (c_0,\dots,c_{\lfloor \log_p(q/2) \rfloor}) &\mapsto \sum_{i=0}^{i=\lfloor \log_p(q/2) \rfloor} c_ip^i
@@ -1494,7 +1494,7 @@ satisfying:
 such that the absolute values of the coefficients of $f_i(x)$ are all less than
 $p$.
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
 \mathrm{Base}_p&: \mathbb{Z}_q[x]/(x^n+1) \rightarrow \left(\mathbb{Z}[x]/(x^n+1)\right)^{\log_p(q/2)+1}
 \\
@@ -1532,7 +1532,7 @@ and GSW encryption. As above, let $m=\lfloor \log_p(q/2) \rfloor$ be the largest
 power of $p$ appearing in a base-$p$ representation of $\mathbb{Z}_q$. We'll
 collect the powers of $p$ into a column vector $\mathbf{v}_p$:
 
-<div style="font-size: 1.4em;">
+<div>
 $$    
 \mathbf{v}_p =
 \left(\begin{matrix}
@@ -1556,7 +1556,7 @@ Let $\mathbf{0}_m$ denote a length $m$ column vector of zeros.
 We will define the GSW encryption of a polynomial $g(x)\in\mathbb{Z}_q/(x^N+1)$
 to be:
 
-<div style="font-size: 1.4em;">
+<div>
 $$  
 \mathrm{Enc}^{\mathrm{GSW}}(g(x)) = 
     g(x)\left(\begin{matrix}
@@ -1600,7 +1600,7 @@ representations of $a(x)$ and $b(x)$.
 
 By the definition of GSW encryption,
 
-<div style="font-size: 1.4em;">
+<div>
 $$  
 M = 
     g(x)\left(\begin{matrix}
@@ -1612,7 +1612,7 @@ $$
 where the $i$-th row of $Z$, $\mathbf{z}_i$, is an RLWE encryption of zero with
 noise $e_i(x)$. Therefore, by linearity of $\mathrm{Dec}^{\mathrm{RLWE}}$:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
 \mathrm{Dec}^{\mathrm{RLWE}}(\mathrm{CMul}((a(x),b(x)), M)) &= 
 \mathrm{Dec}^{\mathrm{RLWE}}((\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x))) \cdot M) \\ 
@@ -1916,9 +1916,9 @@ going to find away around this limit.
 
 In this section we'll solve this problem by a process called _Bootstrapping_. In
 a nutshell, bootstrapping makes it possible to "refresh" a ciphertext by
-replacing with a new ciphertext that encrypts the same value and has a bounded
-amount of noise. In the context of our example, bootstrapping would allow us to
-replace a ciphertext whose decryptions look like this:
+replacing it with a new ciphertext that has a bounded amount of noise. In the
+context of our example, bootstrapping would allow us to replace a ciphertext
+whose decryptions look like this:
 
 IMAGE
 
@@ -1967,7 +1967,7 @@ by $i$ steps. For example:
 We'll formalize this by defining the $\mathrm{Rotate}(i, f(x))$ that rotated the
 coefficients of $f(x)$ $i$ steps to the right:
 
-<div style="font-size: 1.4em;">
+<div>
 \begin{align*}
     \mathrm{Rotate}: \mathbb{Z}_q \times \mathbb{Z}_q / (x^N+1)  &\rightarrow \mathbb{Z}_q / (x^N+1) \\
     (i, f(x)) &\mapsto x^{\frac{2N}{q}i} \cdot f(x)
@@ -2014,7 +2014,7 @@ $g_0(x) := x^b \cdot f(x)$ and inductively define:
 
 for $i = 1,\dots,N$. From the definition of $\mathrm{Mux}$ it follows that:
 
-<div style="font-size: 1.4em;">
+<div>
 $$
 g_i(x) =
 \begin{cases} g_{i-1}(x) & \mathrm{if}\ s_i = 0 \\
@@ -2152,6 +2152,135 @@ Here is a concrete implementation in python:
 
 CODE + EXAMPLE
 
-## Implementing Bootstrapping
+## Bootstrapping Definition
+
+PUT THIS TOWARDS THE BEGINNING OF THIS SECTION
+
+As explained in the introduction LINK, the goal of bootstrapping is to convert a
+possibly noisy ciphertext into a ciphertext with a bounded amount of noise.
+Maintaining an upper bound on the ciphertext noise will allow us to chain
+together an arbitrary number of homomorphic operations.
+
+In this section we'll define the bootstrapping function more precisely.
+
+Consider the following step function defined on $\mathbb{Z}_q = [-q/2, q/2)$:
+
+<div>
+$$
+\mathrm{Step}(x) =
+\begin{cases} 0 & \mathrm{if}\ \vert x \vert < q/4 \\
+              q/4 & \mathrm{else}
+\end{cases}
+$$
+</div>
+
+IMAGE
+
+The $\mathrm{Bootstrap}$ is a homomorphic version of $\mathrm{Step}$:
+
+\\[ \mathrm{Bootstrap}: \mathrm{LWE}(m) \rightarrow
+\mathrm{LWE}(\mathrm{Step}(x)) \\]
+
+In other words, it takes as input an LWE encryption of a message
+$m\in\mathbb{Z}_q$. If $\vert m \vert < q/4$ then the output will be an
+encryption of $q/4$. Otherwise, the output is an encryption of $q/4$. In
+addition to homomorphically evaluating $\mathrm{Step}$, a key property of
+$\mathrm{Bootstrap}$ is that the noise of its output will have a bound that is
+independent on the noise of the input.
+
+For example, suppose that $q=2^{32}$ and that
+$m=\mathrm{Encode}(3) = 3\cdot 2^{29}$. Let $L \in \mathrm{LWE}(m)$ be an LWE
+encryption of $m$ with a large amount of noise so that its decryption has the
+following distribution:
+
+IMAGE
+
+NOTE SAY SOMETHING ABOVE ABOUT THE MEANING OF THESE PICTURES / L IS A RANDOM
+VARIABLE
+
+After bootstrapping $L$, we get a new ciphertext $\mathrm{Bootstrap}(L)$ whose
+decryptions have the distribution:
+
+IMAGE
+
+As expected, the mean of the distribution is clustered around $q/4 = 2^{30}$ and
+the noise has been reduced.
+
+## Bootstrapping Implementation
 
 We now have all the pieces required to implement the bootstrapping process.
+Recall from section LINK that $\mathrm{Bootstrap}$ is a homomorphic version of
+the step function $\mathrm{Step}$. Our strategy for implementing
+$\mathrm{Bootstrap}$ will be to first implement $\mathrm{Step}$ using the
+$\mathrm{Rotate}$ function from section LINK. Then we will leverage
+$\mathrm{BlindRotate}$, the homomorphic $\mathrm{Rotate}$ function, to implement
+$\mathrm{Bootstrap}.
+
+### Rotating The Test Polynomial
+
+Consider the polynomial $f(x) \in \mathbb{Z}_q / (x^N+1)$ whose first $N/2$
+coefficients are $-1$ and the last $N/2$ coefficients are $1$:
+
+\\[ f(x) = -1 - x - \dots - x^{N/2 - 1} + x^{N/2} + \dots + x^{N-1} \\]
+
+We will later refer to $f(x)$ as the _Test Polynomial_. What happens if we
+rotate $f(x)$ by an integer $-N \leq i < N$? Let's start with $i=1$:
+
+\\[\mathrm{Rotate}(f(x), 1) = x \cdot f(x) = -1 - x - \dots - x^{N/2} +
+x^{N/2+1} + \dots + x^{N-1} \\]
+
+All of the coefficients get shifted one place to the right, and the last
+coefficient $f_{N-1} = 1$ circles back to the beginning and, due to the
+negacyclic property, picks up a minus sign to become $-1$. In summary, the
+number of negative coefficients has grown by one from $N/2$ to $N/2+1$ and the
+number of positive coefficients has decreased by one.
+
+By iterating this process, we can see that if we rotate $f(x)$ by $i=N/2$ then
+_all_ of the coefficients will become $-1$:
+
+\\[\mathrm{Rotate}(f(x), N/2) = -1 - x - \dots - x^{N-1} \\]
+
+What happens if we rotate one more time? Since the last coefficient of
+$\mathrm{Rotate}(f(x), N/2)$ is $-1$, when we rotate one more time it circles
+back to the beginning and picks up a negative sign, turning it into a 1:
+
+\\[\mathrm{Rotate}(f(x), N/2 + 1) = 1 - x - \dots - x^{N-1} \\]
+
+Now the ordering between the positive and negative coefficient has flipped.
+$\mathrm{Rotate}(f(x), N/2 + 1)$ starts with a $1$ and ends with $N-1$ $-1$s. If
+we rotate $N/2$ more times for a total of $N$ times, then a similar analysis as
+before shows that all of the coefficients the resulting polynomial will be $1$:
+
+\\[\mathrm{Rotate}(f(x), N) = 1 + x + \dots + x^{N-1} \\]
+
+For a polynomial $g(x)$, let $\mathrm{Coeff}(g, i)$ denote the $i$-th
+coefficient of $g(x)$. INTRODUCE THIS WITH SAMPLE EXTRACT
+
+The above analysis shows that the zeroth coefficient of
+$\mathrm{Rotate}(f(x), i)$ is equal to $-1$ when $0 \leq i \leq N/2$ and equal
+to $1$ when $N/2 < i \leq N$. In other words:
+
+<div>
+$$
+\mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0) =
+\begin{cases} -1 & \mathrm{if}\ 0 \leq i \leq N/2 \\
+              1 & \mathrm{if}\ N/2 < i \leq N
+\end{cases}
+$$
+</div>
+
+In fact, it is not hard to generalize this to the case where $i$ can be
+negative:
+
+<div>
+$$
+\mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0) =
+\begin{cases} 1 & \mathrm{if}\ -N \leq i \leq -N/2 \\
+              -1 & \mathrm{if}\ -N/2 < i \leq N/2 \\
+              1 & \mathrm{if}\ N/2 < i \leq N
+\end{cases}
+$$
+</div>
+
+Note that this looks very similar to the definition of the step function
+$\mathrm{Step}$! UPDATE THE DEF OF STEP

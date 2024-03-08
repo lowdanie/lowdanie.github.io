@@ -1,7 +1,7 @@
 ---
 ---
 
-$section-headings-color: #ab47bc !default;
+$section-headings-color: #0b3541 !default;
 $body-text-color: #606c71 !default;
 $body-link-color: #1e6bb8 !default;
 $blockquote-text-color: #819198 !default;
@@ -10,10 +10,11 @@ $blockquote-text-color: #819198 !default;
 
 .page-header {
     color: white;
-    background-color: #ce93d8;
+    background-color: #0b3541;
     padding: 0em;
     background-image: none;
 }
+
 .navigation {
     display: flex;
     flex-flow: row wrap;
@@ -28,4 +29,4 @@ $blockquote-text-color: #819198 !default;
     padding: 1em;
     color: white;
     font-weight: bold;
-  }
+}
