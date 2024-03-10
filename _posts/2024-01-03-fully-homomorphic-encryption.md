@@ -2216,7 +2216,7 @@ $\mathrm{Rotate}$ function from section LINK. Then we will leverage
 $\mathrm{BlindRotate}$, the homomorphic $\mathrm{Rotate}$ function, to implement
 $\mathrm{Bootstrap}.
 
-### Rotating The Test Polynomial
+### Building The Step Function From Polynomial Rotations
 
 Consider the polynomial $f(x) \in \mathbb{Z}_q / (x^N+1)$ whose first $N/2$
 coefficients are $-1$ and the last $N/2$ coefficients are $1$:
@@ -2277,10 +2277,19 @@ $$
 \mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0) =
 \begin{cases} 1 & \mathrm{if}\ -N \leq i \leq -N/2 \\
               -1 & \mathrm{if}\ -N/2 < i \leq N/2 \\
-              1 & \mathrm{if}\ N/2 < i \leq N
+              1 & \mathrm{if}\ N/2 < i < N
 \end{cases}
 $$
 </div>
 
 Note that this looks very similar to the definition of the step function
 $\mathrm{Step}$! UPDATE THE DEF OF STEP
+
+The differences are that the domain of $\mathrm{Step}$ is
+$\mathbb{Z}_q = [-q/2, q/2)$ rather that $[-N, N)$ and the outputs of
+$\mathrm{Step}$ are $$\{0, q/4\}$$ rather than $$\{-1, 1\}$$. We can fix both
+problems by rescaling the inputs and translating the output of
+$\mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0)$. For $i \in \mathbb{Z}_q$ we have:
+
+\\[ \mathrm{Step}(i) = \mathrm{Coeff}(\mathrm{Rotate}(q/8 \cdot f(x), i \cdot
+\frac{2N}{q}) + q/8 \\]
