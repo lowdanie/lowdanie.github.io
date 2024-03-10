@@ -1986,8 +1986,8 @@ The goal of this section will be to implement blind rotation.
 ### Implementation
 
 Let $\mathbf{s}$ be an encryption key, let
-$(\mathbf{a}, b) \in \mathrm{LWE}_{\mathbf{s}}(i)$ be an LWE encryption of $i$
-and let $f(x)$ be a polynomial. Our goal is to evaluate
+$L = (\mathbf{a}, b) \in \mathrm{LWE}_{\mathbf{s}}(i)$ be an LWE encryption of
+$i$ and let $f(x)$ be a polynomial. Our goal is to evaluate
 $\mathrm{BlindRotate}((\mathbf{a}, b), f(x))$. By definition, this means that we
 must use the inputs $(\mathbf{a}, b)$ and $f(x)$ to produce an RLWE encryption
 of $x^i f(x)$.
@@ -2045,8 +2045,7 @@ homomorphic multiplexer $\mathrm{CMux}$ from section REF. Finally, we'll replace
 the product $x^{a_i} \cdot g_{i-1}(x)$ with the homomorphic product
 $\mathrm{CMul}$. Putting these together, our new inductive equation is:
 
-\\[ R_i := \mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1}(x)))
-\\]
+\\[ R_i := \mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1})) \\]
 
 for $i=1,\dots,N$ where the initial value $R_0$ is defined to be an RLWE
 encryption of $g_0(x)$:
@@ -2057,10 +2056,10 @@ We'll now prove by induction that $R_i$ is an RLWE encryption of of $g_i(x)$.
 The $i=0$ is simply the definition of $R_0$.
 
 Suppose that $R_{i-1}$ is an RLWE encryption of $g_{i-1}(x)$. By REF, the
-homomorphic product $\mathrm{CMul}(x^{a_i}, R_{i-1}(x))$ is an RLWE encryption
-of $x^{a_i}g_{i-1}(x)$. Therefore, since $t_i$ is a GSW encryption of $s_i$, by
-REF it follows that:
-$\mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1}(x)))$ is an RLWE
+homomorphic product $\mathrm{CMul}(x^{a_i}, R_{i-1})$ is an RLWE encryption of
+$x^{a_i}g_{i-1}(x)$. Therefore, since $t_i$ is a GSW encryption of $s_i$, by REF
+it follows that:
+$\mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1}))$ is an RLWE
 encryption of $\mathrm{Mux}(s_i, g_{i-1}(x), x^{a_i}g_{i-1}(x))$. But this by
 definition (EQ) is equal to $g_i(x)$ which is what we had to prove.
 
@@ -2069,7 +2068,7 @@ of $g_N(x) = x^{i+e} \cdot f(x)$. We can therefore implement
 $\mathrm{BlindRotate}$ by using equations EQ and EQ to iteratively compute $R_N$
 and setting:
 
-\\[ \mathrm{BlindRotate}(i, f(x)) = R_N \\]
+\\[ \mathrm{BlindRotate}(L, f(x)) = R_N \\]
 
 Note that our implementation of $\mathrm{BlindRotate}$ relies on the GSW
 encryptions $t_i := \mathrm{Enc}_{\mathbf{s}}^{\mathrm{GSW}}(s_i)$. For reasons
@@ -2081,6 +2080,25 @@ Here is a concrete implementation of our $\mathrm{BlindRotate}$ algorithm:
 CODE
 
 EXAMPLE
+
+### Noise Analysis
+
+Let $L=(\mathbf{a}, b)$ be an LWE ciphertext and $f(x)$ a polynomial. An
+interesting property of $\mathrm{BlindRotate}$ is that the noise in the output
+ciphertext $\mathrm{BlindRotate}(L, f(x))$ is fixed and does not depend on the
+noise of the input ciphertext $L$. In particular,
+$\mathrm{BlindRotate}(L, f(x))$ could have _less_ noise than $L$.
+
+To see why this is try we'll again turn to our inductive equation EQ. The key
+observation is that the coefficients of $\mathbf{a}$ only appear in the
+homomorphic multiplication
+
+\\[ \mathrm{CMul}(x^{a_i}, R_{i-1}) \\]
+
+but multiplying the ciphertext $R_{i-1}$ by $x^{a_i}$ changes the _order_ of the
+coefficients in underlying plaintext but not their absolute values. Therefore
+the noise of $R_i$ does not depend on $a_i$. By induction, the noise of
+$\mathrm{BlindRotate}(L, f(x)) = R_N$ does not depend on $L=(\mathbf{a}, b)$.
 
 ## Sample Extraction
 
@@ -2151,6 +2169,33 @@ In summary, we can implement $\mathrm{SampleExtract}$ by:
 Here is a concrete implementation in python:
 
 CODE + EXAMPLE
+
+### Noise Analysis
+
+As before, let $\mathbf{s} = (s_0,\dots,s_{N-1})$ be an LWE encryption key and
+let $s(x)=\sum_{i=0}^{N-1}s_ix^i$ be the corresponding RLWE key. Let
+$R = (a(x), b(x))$ be an RLWE encryption of $f(x) = \sum_{i=0}^{N-1}f_ix^i$ with
+the key $s(x)$ and noise $e(x)$.
+
+We've seen that for an integer $0 \leq i < N$, $\mathrm{SampleExtract}(i, R)$ is
+an LWE encryption of $f_i$. In this section we will show that the LWE ciphertext
+$\mathrm{SampleExtract}(i, R)$ has the same amount of noise as the RLWE
+ciphertext $R$. In other words, sample extraction does not affect the ciphertext
+noise.
+
+The claim follows immediately from equation EQ. Indeed, by the definition of
+$\mathrm{SampleExtract}$ and equation EQ we have:
+
+<div>
+\begin{align*}
+\mathrm{Dec}^{\mathrm{LWE}}_{\mathbf{s}}(\mathrm{SampleExtract}(i, R)) &=
+b_i - \mathrm{Conv}(a(x), i) \cdot \mathbf{s} \\
+&= f_i - e_i
+\end{align*}
+</div>
+
+Therefore, the ciphertext $\mathrm{SampleExtract}(i, R)$ has noise $e_i$ which
+is one of the coefficients of $e(x)$, the noise of $R$.
 
 ## Bootstrapping Definition
 
@@ -2291,5 +2336,163 @@ $\mathrm{Step}$ are $$\{0, q/4\}$$ rather than $$\{-1, 1\}$$. We can fix both
 problems by rescaling the inputs and translating the output of
 $\mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0)$. For $i \in \mathbb{Z}_q$ we have:
 
-\\[ \mathrm{Step}(i) = \mathrm{Coeff}(\mathrm{Rotate}(q/8 \cdot f(x), i \cdot
-\frac{2N}{q}) + q/8 \\]
+\\[ \mathrm{Step}(i) = \mathrm{Coeff}(\mathrm{Rotate}(\frac{q}{8} \cdot f(x),
+\frac{2N}{q} \cdot i), 0) + \frac{q}{8} \\]
+
+### A Homomorphic Step Function
+
+In section LINK we introduced the bootstrapping function $\mathrm{Bootstrap}$ as
+a homomorphic version of the step function $\mathrm{Step}$.
+
+In the previous section we expressed $\mathrm{Step}$ in terms of the polynomial
+rotation function $\mathrm{Rotate}$ and the coefficient function
+$\mathrm{Coeff}$. In sections LINK and LINK we implemented a homomorphic version
+of $\mathrm{Rotate}$ called $\mathrm{BlindRotate}$ and a homomorphic version of
+$\mathrm{Coeff} called  $\mathrm{SampleExtract}$. We can plug these homomorphic
+functions into equation EQ to define a homomorphic version of $\mathrm{Step}$.
+
+Let $\mathrm{L}$ be an LWE ciphertext. We'll define $\mathrm{Bootstrap}(L)$ to
+be:
+
+\\[ \mathrm{Bootstrap}(L) =
+\mathrm{SampleExtract}(\mathrm{BlindRotate}(\frac{q}{8} \cdot f(x), \frac{2N}{q}
+\cdot L), 0) + \frac{q}{8} \\]
+
+Here is a concrete implementation:
+
+CODE
+
+EXAMPLE
+
+### Bootstrapping Noise
+
+Recall that a key property of $\mathrm{Bootstrap}$ is that if $L$ is an LWE
+ciphertext then the noise of $\mathrm{Bootstrap}(L)$ should be bounded
+independently of the noise in $L$.
+
+This bound follows immediately from our previous noise analyses of the two
+bootstrapping building blocks: $\mathrm{BlindRotate}$ and
+$\mathrm{SampleExtract}$. In LINK we saw that the noise of
+$\mathrm{BlindRotate}(f(x), L)$ is bounded and independent of the input
+ciphertext $L$. And in section LINK we saw that $\mathrm{SampleExtract}(R, 0)$
+preserves the noise in the input ciphertext $R$. The bound on the noise of
+$\mathrm{Bootstrap}(L)$ now follows from these two results together with
+equation EQ.
+
+Let's see how this works in practice using our `bootstrap` implementation in the
+previous section.
+
+EXAMPLE
+
+# A Fully Homomorphic NAND Gate
+
+We will now use the bootstrapping function to implement the fully homomorphic
+NAND gate promised in the introduction.
+
+## Definition
+
+In this section we'll introduce an encoding of boolean values and precisely
+define the homomorphic NAND function.
+
+We'll use the $\mathrm{Encode}$ function from section LINK to represent boolean
+values as LWE plaintexts. Specifically, we'll represent $\mathrm{True}$ by
+$\mathrm{Encode}(2)$ and represent $\mathrm{False}$ by $\mathrm{Encode}(0)$.
+
+Let $b_0$ and $b_1$ denote two booleans with the above representation. The
+homomorphic NAND gate $CNAND$ will be defined as:
+
+\\[ \mathrm{CNAND}: \mathrm{LWE}(b_0) \times \mathrm{LWE}(b_1) \rightarrow
+\mathrm{LWE}(\mathrm{NAND}(b_0, b_1)) \\]
+
+In other words, if $L_0$ is an LWE encryption of $b_0$ and $L_1$ is an LWE
+encryption of $b_1$ then $\mathrm{CNAND}(L_0, L_1)$ is an LWE encryption of
+$\mathrm{NAND}(b_0, b_1)$.
+
+Here is the definition of $\mathrm{CNAND}$ in code:
+
+CODE
+
+Here is an example:
+
+## Implementation
+
+We'll now implement the homomorphic NAND function defined in the previous
+section. Our strategy will be to express the standard NAND function in terms of
+subtraction and the step function from section LINK. We'll then use the
+homomorphic versions of these, $\mathrm{CSub}$ and $\mathrm{Bootstrap}$, to
+implement a homomorphic NAND function. Finally, an analysis of the noise will
+show that this implementation is in fact _fully_ homomorphic.
+
+Recall that our encoding function $\mathrm{Encode}$ maps values from
+$\mathbb{Z}_8$ to $\mathbb{Z}_q$. We'll start by expressing NAND in terms of
+operations of $\mathbb{Z}_8$:
+
+IMAGE (circle)
+
+As before, we will identify $\mathrm{True}$ with $2$ and $\mathrm{False}$ with
+$0$. Let $b_0, b_1 \in \\{0, 2\\}$ be two boolean values and consider the
+expression:
+
+\\[F(b_0, b_1) = -3 - b_0 - b_1 \\]
+
+In terms of the diagram above, we start at $-3$ and take two steps counter
+clockwise for each $b_i$ that is "true". Here are the four possible values
+(modulo $8$) that this expression can take:
+
+| $b_0$ | $b_1$ | $F(b_0, b_1)$ |
+| ----- | ----- | ------------- |
+| $0$   | $0$   | $-3$          |
+| $0$   | $2$   | $3$           |
+| $2$   | $0$   | $3$           |
+| $2$   | $2$   | $1$           |
+
+Note that $\vert F(b_0, b_1) \vert < 2$ if and only if $b_0 = b_1 = 2$. We can
+therefore upgrade $F(b_0, b_1)$ to a NAND function by composing it with a step
+function $S(x)$ defined by:
+
+<div>
+$$
+S(x) =
+\begin{cases} 0 & \vert x \vert < 2 \\
+              2 & \mathrm{else}
+\end{cases}
+$$
+</div>
+
+Here's what happens when we apply $S(x)$ to $F(b_0, b_1)$:
+
+| $b_0$ | $b_1$ | $F(b_0, b_1)$ | $S(F(b_0, b_1))$ |
+| ----- | ----- | ------------- | ---------------- |
+| $0$   | $0$   | $-3$          | $2$              |
+| $0$   | $2$   | $3$           | $2$              |
+| $2$   | $0$   | $3$           | $2$              |
+| $2$   | $2$   | $1$           | $0$              |
+
+As expected, it is evident from the table that
+
+\\[ NAND(b_0, b_1) = S(F(b_0, b_1)) = S(3 - b_0 - b_1) \\]
+
+Returning to the LWE plaintext space $\mathrm{Z}_q$, let $b_0$ and $b_1$ be two
+boolean values using the original representation where $\mathrm{True}$ is
+represented by $\mathrm{Encode}(2)$ and $\mathrm{False}$ by
+$\mathrm{Encode}(0)$. We can similarly express $\mathrm{NAND}(b_0, b_1)$ in
+terms of the step function $\mathrm{Step}$ from section LINK:
+
+\\[ \mathrm{NAND}(b_0, b_1) = \mathrm{Step}(\mathrm{Encode}(-3) - b_0 - b_1) \\]
+
+Finally, we can use our homomorphic step function, $\mathrm{Bootstrap}$, to
+upgrade this to a _homomorphic_ NAND function. Let $L_0$ and $L_1$ be LWE
+encryptions of $\mathrm{Encode}(0)$ or $\mathrm{Encode}(2)$. Our homomorphic
+NAND function is defined by:
+
+\\[ \mathrm{CNAND}(L_0, L_1) = \mathrm{Bootstrap}(
+\mathrm{CSub}(\mathrm{CSub}(\mathrm{Encode}(-3), L_0), L_1) ) \\]
+
+Here is a concrete implementation:
+
+CODE
+
+In section LINK we saw that the ... bounded noise ... arbitrary ops ... _fully
+homomorphic_
+
+OR example
