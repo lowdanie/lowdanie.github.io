@@ -16,8 +16,9 @@ addition function and produce the ciphertext $Enc_K(x+y)$.
 
 As a more practical example, in principal FHE makes it possible to upload an
 encrypted image to a cloud service, ask it to run the _encrypted_ image through
-a neural network classifier and get back an encrypted response. This would
-happen without the cloud service ever having access to the unencrypted image.
+a neural network classifier and get back an encrypted response which could be
+decrypted by the client. This would happen without the cloud service ever having
+access to the unencrypted image.
 
 At first glance it seems like FHE should be impossible. Going back to our first
 example, since $Enc_K(x)$ and $Enc_K(y)$ should be indistinguishable from random
@@ -26,24 +27,113 @@ calculation on them to obtain $Enc_K(x+y)$?
 
 In this post we will explore a popular FHE encryption scheme called
 [TFHE](https://eprint.iacr.org/2018/421.pdf) and implement it from scratch in
-Python. Everything in this post (and much more) can be found in that paper.
+Python. The git repo accompanying this post can be found here:
+[https://github.com/lowdanie/tfhe](https://github.com/lowdanie/tfhe)
 
-The standard cryptography exposition disclaimer applies here. Namely, that it
+The standard cryptography exposition disclaimer applies. Namely, that it
 probably is not a good idea to copy paste code from this post to secure your
-sensitive data. You can use the official
-[TFHE library](https://github.com/tfhe/tfhe) instead.
+sensitive data. You can use the
+[official TFHE library](https://github.com/tfhe/tfhe) instead.
 
 # Outline
 
-Encryption schemes are typically based on a fundamental mathematical problem
-that is assumed to be "hard". For example, the hardness of RSA is based on the
+## A Fully Homomorphic NAND Gate
+
+Any boolean function can be implemented with a combination of
+[NAND](https://en.wikipedia.org/wiki/NAND_gate) gates. Therefore, in this post
+we'll focus on implementing a homomorphic version of the NAND gate which can be
+evaluated on encrypted inputs.
+
+Specifically, we'll implement `generate_key`, `encrypt` and `decrypt` functions:
+
+```python
+def generate_key() -> EncryptionKey:
+    pass
+
+def encrypt(plaintext: Plaintext, key: EncryptionKey) -> Ciphertext:
+    pass
+
+def decrypt(ciphertext: Ciphertext, key: EncryptionKey) -> Plaintext:
+    pass
+```
+
+and a homomorphic NAND gate:
+
+```python
+def homomorphic_nand(
+    ciphertext_left: Ciphertext,
+    ciphertext_right: Ciphertext,
+) -> Ciphertext:
+    """Homomorphically evaluate the NAND function."""
+    pass
+```
+
+The homomorphic property will allow us to perform the following type of
+computation:
+
+```python
+# Client side: Create an encryption key and encrypt two bits.
+client_key = generate_key()
+
+b_0 = True
+b_1 = False
+
+ciphertext_0 = encrypt(b_0, client_key)
+ciphertext_1 = encrypt(b_1, client_key)
+
+# The client sends the ciphertexts to the server.
+# Server side: Compute an encryption of NAND(b_0, b_1) from
+# the two ciphertexts:
+ciphertext_nand = homomorphic_nand(ciphertext_0, ciphertext_1)
+
+# The server sends ciphertext_nand back to the client.
+# Client side: Decrypt ciphertext_nand.
+# The result should be equal to NAND(True, False) = True
+result = decrypt(ciphertext_nand, client_key)
+assert result
+```
+
+Importantly, the server never receives the `client_key` and so it is not able to
+read the contents of `ciphertext_left` or `ciphertext_right`. Nevertheless, it
+can run the `homomorphic_nand` function on the ciphertexts to produce
+`ciphertext_nand` which encrypts `NAND(b_0, b_1)`. Without `client_key`, the
+server also cannot read the contents of `ciphertext_nand`. All if can do is send
+`ciphertext_nand` back to the client whose can use `client_key` to decrypt it
+and reveal the result.
+
+Of course, all of this complexity is unnecessary if the client is only
+interested in evaluating a single NAND gate. The client would be better off just
+evaluating the NAND function locally not involving a server at all.
+
+Homomorphic encryption becomes more useful when the client wants to evaluate a
+complex circuit such as a neural network which is composed of many billions of
+NAND gates. In that case the client may not have the compute or the permission
+to run the program locally. The can offload the computation to an untrusted
+using the approach in the code snippet above, where the `homomorphic_nand`
+server side evaluation is used to evaluate all of the NAND gates in the complex
+circuit.
+
+The goal of this post is to implement `generate_key`, `encrypt`, `decrypt` and
+`homomorphic_nand`.
+
+## The Encryption Scheme
+
+We'll start with the implementation of `generate_key`, `encrypt`, `decrypt`.
+This combination of functions is typically called an _Encryption Scheme_.
+
+Encryption schemes are usually based on a fundamental mathematical problem that
+is assumed to be "hard". For example,
+[RSA](<https://en.wikipedia.org/wiki/RSA_(cryptosystem)>) is based on the
 assumption that is is hard to find the prime factors of large integers.
-Similarly, the hardness of TFHE is based on a problem called
+Similarly, TFHE is based on a problem called
 [Learning With Errors](https://en.wikipedia.org/wiki/Learning_with_errors)
 (LWE). In the next section we will define the LWE problem and use it to
-construct an encryption scheme in which it is possible to homomorphically _add_
-ciphertexts but not to _multiply_ them. This type of encryption scheme is called
-_Partially Homomorphic_ because not all operations are supported.
+construct an encryption scheme.
+
+As we will see, in the LWE encryption scheme it is possible to homomorphically
+_add_ ciphertexts but not to _multiply_ them. This type of encryption scheme is
+called _Partially Homomorphic_ because not all operations are supported. Despite
+this limitation, the partially homomorphic operations in the LWE scheme will be 
 
 Next we will consider an extension of LWE called _Ring Learning With Errors_.
 This is essentially a version of LWE with extra structure. We will later use
