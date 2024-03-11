@@ -9,21 +9,21 @@ mathjax: true
 
 _Fully Homomorphic Encryption_ (FHE) is a form of encryption that makes it
 possible to evaluate functions on encrypted inputs without needing to decrypt
-them. For example, let $K$ be an encryption key and let $Enc_K(x)$ denote the
-encryption of the integer $x$ with key $K$. With FHE it is possible for someone
-who only has access to the ciphertexts $Enc_K(x)$ and $Enc_K(y)$ to evaluate the
-addition function and produce the ciphertext $Enc_K(x+y)$.
+them. For example, suppose you want to use a neural network running on an
+untrusted server to determine whether your image contains a cat. Since the
+server is untrusted, you do not want it to see your image. With FHE you could
+encrypt the image with your secret key and upload the encrypted image to the
+server. The server could then apply its neural network to the encrypted image
+and produce an encrypted bit. You could then download the encrypted bit and
+decrypt it with your secret key to obtain the result.
 
-As a more practical example, in principal FHE makes it possible to upload an
-encrypted image to a cloud service, ask it to run the _encrypted_ image through
-a neural network classifier and get back an encrypted response which could be
-decrypted by the client. This would happen without the cloud service ever having
-access to the unencrypted image.
+In other words, FHE makes it possible to leverage the computational resources of
+an untrusted server without having to send it any unencrypted data.
 
-At first glance it seems like FHE should be impossible. Going back to our first
-example, since $Enc_K(x)$ and $Enc_K(y)$ should be indistinguishable from random
-bytes to someone without the key $K$, how can they perform a meaningful
-calculation on them to obtain $Enc_K(x+y)$?
+At first glance it seems like FHE should be impossible. Encrypted data should be
+indistinguishable from random bytes to a person without access to the encryption
+key. So how could such a person perform a meaningful calculation on the
+encrypted data?
 
 In this post we will explore a popular FHE encryption scheme called
 [TFHE](https://eprint.iacr.org/2018/421.pdf) and implement it from scratch in
@@ -35,9 +35,7 @@ probably is not a good idea to copy paste code from this post to secure your
 sensitive data. You can use the
 [official TFHE library](https://github.com/tfhe/tfhe) instead.
 
-# Outline
-
-## A Fully Homomorphic NAND Gate
+# A Fully Homomorphic NAND Gate
 
 Any boolean function can be implemented with a combination of
 [NAND](https://en.wikipedia.org/wiki/NAND_gate) gates. Therefore, in this post
@@ -116,10 +114,10 @@ circuit.
 The goal of this post is to implement `generate_key`, `encrypt`, `decrypt` and
 `homomorphic_nand`.
 
-## The Encryption Scheme
+# Learning With Errors
 
-We'll start with the implementation of `generate_key`, `encrypt`, `decrypt`.
-This combination of functions is typically called an _Encryption Scheme_.
+In this section we wil implement `generate_key`, `encrypt` and `decrypt`. This
+combination of functions is typically called an _Encryption Scheme_.
 
 Encryption schemes are usually based on a fundamental mathematical problem that
 is assumed to be "hard". For example,
@@ -133,40 +131,28 @@ construct an encryption scheme.
 As we will see, in the LWE encryption scheme it is possible to homomorphically
 _add_ ciphertexts but not to _multiply_ them. This type of encryption scheme is
 called _Partially Homomorphic_ because not all operations are supported. Despite
-this limitation, the partially homomorphic operations in the LWE scheme will be 
-
-Next we will consider an extension of LWE called _Ring Learning With Errors_.
-This is essentially a version of LWE with extra structure. We will later use
-this extra structure to upgrade our partially homomorphic scheme to a scheme
-that supports homomorphic multiplication as well as addition.
-
-Finally, we will complete our construction of TFHE by showing how homomorphic
-additions and multiplications can be used to implement a homomorphic
-[NAND](https://en.wikipedia.org/wiki/NAND_gate) gate. I.e, that from encryptions
-$Enc_K(x)$ and $Enc_K(y)$ of bits $x$ and $y$ it is possible to compute
-$Enc_K(NAND(x, y))$ without knowing the key $K$. From there it follows that TFHE
-is fully homomorphic as
-[any boolean expression can be constructed out of NAND gates](https://en.wikipedia.org/wiki/NAND_logic).
-
-# Learning With Errors
+this limitation, the partially homomorphic operations in the LWE scheme will be
+useful stepping stones on the path towards fully homomorphic encryption.
 
 In this section we will define the _Learning With Errors_ (LWE) problem and use
-it to construct a partially homomorphic encryption scheme.
+it to implement our encryption scheme as well as some partially homomorphic
+operations.
 
 ## Notation
 
 Let $q$ be a positive integer. We will denote the integers modulo $q$ by
 $\mathbb{Z}_q := \mathbb{Z} / q\mathbb{Z}$. In this post, it will be convenient
-to set $q=2^{32}$ so that elements of $\mathbb{Z}_q$ can be represented by
-32-bit integers.
+to set $q=2^{32}$ so that elements of $\mathbb{Z}_q$ can be represented by the
+32-bit integers $[-2^{31}, 2^{31})$. One advantage of using 32-bit integers is
+that all operations are natively done modulo $2^{32}$.
 
 ## The Learning With Errors Problem
 
 Let $\mathbf{s} \in \mathbb{Z}^n_q$ be a length $n$ vector with elements in
-$\mathbb{Z}_q$ (i.e int32) which is assumed to be secret. Let
+$\mathbb{Z}_q$ which is assumed to be secret. Let
 $\mathbf{a}_1, \ldots , \mathbf{a}_m \in \mathbb{Z}^n_q$ be random vectors and
-let $b_i = (\mathbf{a}_i, \mathbf{s})$ be the dot product of $\mathbf{a}_i$ with
-$\mathbf{s}$. As a warmup to the LWE problem we can ask:
+let $b_i = \mathbf{a}_i \cdot \mathbf{s}$ be the dot product of $\mathbf{a}_i$
+with $\mathbf{s}$. As a warmup to the LWE problem we can ask:
 
 > Given $m \geq n$ random vectors $\mathbf{a}\_1,\dots,\mathbf{a}\_m$ and the
 > dot products $b_i, \ldots , b_m$, is it possible to efficiently _learn_ the
@@ -180,7 +166,7 @@ $m$ vector $\mathbf{b}$ whose elements are $b_i$:
 \end{bmatrix}_{m \times n} \mathbf{b} = \begin{bmatrix} b_1 \\\\ \vdots \\\\ b_m
 \end{bmatrix} \\]
 
-We can then express $\mathbf{s}$ as the solution to a linear equation:
+We can then express $\mathbf{s}$ as the solution to the linear equation:
 
 \\[ A \mathbf{s} = \mathbf{b} \\]
 
@@ -189,27 +175,29 @@ Finally, we can use
 solve for $\mathbf{s}$ in polynomial time. Note that the standard Gaussian
 elimination algorithm has to be
 [tweaked a bit](https://math.stackexchange.com/questions/12563/solving-systems-of-linear-equations-over-a-finite-ring)
-to account for the fact that $\mathbb{Z}_q$ is not a field but the general idea
-is the same.
+to account for the fact that $\mathbb{Z}_q$ is not a field - but the general
+idea is the same.
 
 We can think of the above problem as _Learning Without Errors_ since we are
-given the exact dot products $b_i = (\mathbf{a}_i, \mathbf{s})$. It turns out
-that if we introduce errors by adding a bit of noise $e_i$ to each $b_i$ then
-learning $\mathbf{s}$ from the random vectors $A$ and the _noisy_ dot products
-$b_i = (\mathbf{a}_i, \mathbf{s}) + e_i$ is very hard. We can now state the
-_Learning With Errors_ problem:
+given the exact dot products $b_i = \mathbf{a}\_i \cdot \mathbf{s}$. It turns
+out that if we introduce errors by adding a bit of noise $e_i$ to each $b_i$,
+then learning $\mathbf{s}$ from the random vectors $A$ and the _noisy_ dot
+products $b_i = \mathbf{a}\_i \cdot \mathbf{s} + e_i$ is very hard. We can now
+state the
+[Learning With Errors](https://en.wikipedia.org/wiki/Learning_with_errors)
+problem:
 
 > Given $m$ random vectors $\mathbf{a}_1, \ldots , \mathbf{a}_m$ and noisy dot
-> products $b_i = (\mathbf{a}_i, \mathbf{s}) + e_i$, is it possible to
+> products $b_i = \mathbf{a}_i \cdot \mathbf{s} + e_i$, is it possible to
 > efficiently learn the secret vector $\mathbf{s}$?
 
 Note that we have not yet specified which distribution the errors
-$e_i \in \mathbb{Z}_q$ drawn from. In TFHE, they are sampled by first sampling a
-real number $-\frac{1}{2} \geq x_i < \frac{1}{2}$ from a Gaussian distribution
-$\mathcal{N}(0, \sigma)$, and then converting $x$ to an integer in the interval
-$[-\frac{q}{2}, \frac{q}{2})$ by:
+$e_i \in \mathbb{Z}_q$ are drawn from. In TFHE, they are sampled by first
+sampling a real number $-\frac{1}{2} \leq x_i < \frac{1}{2}$ from a Gaussian
+distribution $\mathcal{N}(0, \sigma)$, and then scaling $x$ to obtain an integer
+in the interval $[-\frac{q}{2}, \frac{q}{2})$:
 
-\\[ e_i = \lfloor x \cdot \frac{q}{2} \rfloor \\]
+\\[ e = \lfloor x \cdot \frac{q}{2} \rfloor \\]
 
 We will denote the distribution on $\mathbb{Z}_q$ obtained in this way by
 $\mathcal{N}_q(0, \sigma)$.
@@ -217,20 +205,18 @@ $\mathcal{N}_q(0, \sigma)$.
 In the next section we will see how to build a partially homomorphic encryption
 scheme based on the hardness of LWE.
 
-## A LWE Based Encryption Scheme
-
-In this section we will build a simple encryption scheme based on the LWE
-problem.
+## An LWE Based Encryption Scheme
 
 ### Encryption and Decryption
 
-Following the notation in the previous section, our encryption scheme will be
+Following the notation of the previous section, our encryption scheme will be
 parameterized by a modulus $q$, a dimension $n$ and a noise level $\sigma$.
-Typical values would be $q=2^32$, $n=500$ and $\sigma=2^{-20}$.
+Typical values would be $q=2^{32}$, $n=500$ and $\sigma=2^{-20}$.
 
-The _message space_ of our scheme (i.e, data type that will be encrypted) will
-be elements $m \in \mathbb{Z}_q$. The encryption keys will be random length $n$
-binary vectors $\mathbf{s} \in \\{0, 1\\}^n \subset \mathbb{Z}^n_q$.
+The valid inputs to an encryption function are known as the _message space_. The
+message space of the LWE scheme is $\mathbb{Z}_q$. The encryption keys are
+random length $n$ binary vectors
+$\mathbf{s} \in \\{0, 1\\}^n \subset \mathbb{Z}^n_q$.
 
 To encrypt a message $m \in \mathbb{Z}_q$ with a key
 $\mathbf{s} \in \mathbb{Z}^n_q$ we first uniformly sample a vector
@@ -238,14 +224,15 @@ $\mathbf{a} \in \mathbb{Z}^n_q$ and sample a noise element $e$ from the Gaussian
 distribution $\mathcal{N}_q(0, \sigma)$. The encrypted message is defined to be
 the pair
 
-\\[ \mathrm{Enc}_{\mathbf{s}}(m) := (\mathbf{a}, (\mathbf{a}, \mathbf{s}) + m +
-e) \\]
+\\[ \mathrm{Enc}\_{\mathbf{s}}(m) := (\mathbf{a}, \mathbf{a} \cdot \mathbf{s} +
+m + e) \in \mathbb{Z}\_q^n \times \mathbb{Z}\_q \\]
 
 If we know the secret key $\mathbf{s}$, we can decrypt a ciphertext
 $(\mathbf{a}, b)$ by computing:
 
-\\[ \mathrm{Dec}_{\mathbf{s}}((\mathbf{a}, b)) = (b - (\mathbf{a}, \mathbf{s}) =
-((\mathbf{a}, \mathbf{s}) + m + e) - (\mathbf{a}, \mathbf{s}) = m + e \\]
+\\[ \mathrm{Dec}_{\mathbf{s}}((\mathbf{a}, b)) = b - \mathbf{a} \cdot \mathbf{s}
+= (\mathbf{a} \cdot \mathbf{s} + m + e) - \mathbf{a} \cdot \mathbf{s} = m + e
+\\]
 
 Note that this does not quite recover $m$ but rather $m+e$. For some
 applications such as neural networks a small amount of error may be tolerable.
@@ -253,25 +240,31 @@ An alternative approach is to restrict the set of possible values of $m$ so that
 $m$ can be recovered from $m+e$ by rounding to the nearest allowed value.
 
 For the purposes of this post we will only need to distinguish between 8
-different messages and so we will always choose $m$ as one of the 8 multiples of
-$2^{29}$ modulo $2^{32}$:
+different messages and so all of our messages will be of the form
+$m = i \cdot 2^{29}$ where $i \in [-4, 4)$.
 
-IMAGE
+Here is a depiction of $\mathbb{Z}_q$ as a circle starting from $2^{31}$ in the
+"3 o'clock" position and going counter clockwise all the way around to
+$-2^{31}$. The eight messages $-4\cdot 2^{29}, \dots, 3\cdot 2^{29}$ are drawn
+as blue dots:
 
-Since the message can only have one of 8 values, we can represent it as a
-integer $i \in [-4, 4)$. We will call the interval $[-4, 4)$ the _restricted
-message space_. We will use the following _encoding_ function to encode an
-integer $i \in [-4, 4)$ as an element of $\mathbb{Z}_q$ before encrypting $i$:
+![Embedding of Z_8 in Z_32](/assets/tfhe/z8.png){: .center-image}
+
+Note that every integer is equal to an element of $[-4, 4)$ modulo $8$.
+Therefore, we'll identify $[-4, 4)$ with $\mathbb{Z}_8$ - the set of integers
+modulo $8$. We will use the following encoding function to encode an integer
+$i \in \mathbb{Z}_8$ as an element of $\mathbb{Z}_q$ before encrypting $i$:
 
 <div>
 \begin{align*}
-    \mathrm{Encode}: [-4, 4) &\rightarrow \mathbb{Z}_q \\
+    \mathrm{Encode}: \mathbb{Z}_8 &\rightarrow \mathbb{Z}_q \\
     i &\mapsto i \cdot 2^{29}
 \end{align*}
 </div>
 
-and the following _decoding_ function to convert a 32-bit message back to an
-integer in $[-4, 4)$ after decryption:
+Similarly, after decryption we will use the following _decoding_ function to
+convert a 32-bit message in $\mathbb{Z}_q$ back to an integer in
+$\mathbb{Z}_8 = [-4, 4)$:
 
 <div>
 \begin{align*}
@@ -280,8 +273,11 @@ integer in $[-4, 4)$ after decryption:
 \end{align*}
 </div>
 
-where $\lfloor \cdot \rceil$ denotes rounding to the nearest integer. EXPLAIN IN
-TERMS OF PICTURE Note that if $\vert e \vert < 2^{28}$ and $0 \leq i < 8$ then
+where $\lfloor \cdot \rceil$ denotes rounding to the nearest integer. In terms
+of the image above, the decoding function maps a point on the circle to the
+nearest blue dot.
+
+Note that if $\vert e \vert < 2^{28}$ and $-4 \leq i < 4$ then
 $\mathrm{Decode}(\mathrm{Encode}(i) + e) = i$. Therefore, if we encode $i$
 before encrypting it and decode after decrypting we can precisely recover $i$
 with no error:
