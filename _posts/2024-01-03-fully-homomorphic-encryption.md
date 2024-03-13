@@ -146,6 +146,9 @@ to set $q=2^{32}$ so that elements of $\mathbb{Z}_q$ can be represented by the
 32-bit integers $[-2^{31}, 2^{31})$. One advantage of using 32-bit integers is
 that all operations are natively done modulo $2^{32}$.
 
+Similarly, $\mathbb{Z}_8$ will denote the integers modulo $8$. We will identify
+$\mathbb{Z}_8$ with the set of integers $[-4, 4)$.
+
 ## The Learning With Errors Problem
 
 Let $\mathbf{s} \in \mathbb{Z}^n_q$ be a length $n$ vector with elements in
@@ -207,22 +210,20 @@ scheme based on the hardness of LWE.
 
 ## An LWE Based Encryption Scheme
 
-### Encryption and Decryption
-
 Following the notation of the previous section, our encryption scheme will be
 parameterized by a modulus $q$, a dimension $n$ and a noise level $\sigma$.
 Typical values would be $q=2^{32}$, $n=500$ and $\sigma=2^{-20}$.
 
 The valid inputs to an encryption function are known as the _message space_. The
-message space of the LWE scheme is $\mathbb{Z}_q$. The encryption keys are
-random length $n$ binary vectors
+message space of the LWE scheme is $\mathbb{Z}\_q$. We will also call valid
+messages _plaintexts_. The encryption keys are random length $n$ binary vectors
 $\mathbf{s} \in \\{0, 1\\}^n \subset \mathbb{Z}^n_q$.
 
-To encrypt a message $m \in \mathbb{Z}_q$ with a key
+To encrypt a message $m \in \mathbb{Z}\_q$ with a key
 $\mathbf{s} \in \mathbb{Z}^n_q$ we first uniformly sample a vector
 $\mathbf{a} \in \mathbb{Z}^n_q$ and sample a noise element $e$ from the Gaussian
-distribution $\mathcal{N}_q(0, \sigma)$. The encrypted message is defined to be
-the pair
+distribution $\mathcal{N}\_q(0, \sigma)$. The encrypted message, also known as
+the _ciphertext_, is defined to be the pair
 
 \\[ \mathrm{Enc}\_{\mathbf{s}}(m) := (\mathbf{a}, \mathbf{a} \cdot \mathbf{s} +
 m + e) \in \mathbb{Z}\_q^n \times \mathbb{Z}\_q \\]
@@ -234,26 +235,199 @@ $(\mathbf{a}, b)$ by computing:
 = (\mathbf{a} \cdot \mathbf{s} + m + e) - \mathbf{a} \cdot \mathbf{s} = m + e
 \\]
 
-Note that this does not quite recover $m$ but rather $m+e$. For some
-applications such as neural networks a small amount of error may be tolerable.
-An alternative approach is to restrict the set of possible values of $m$ so that
-$m$ can be recovered from $m+e$ by rounding to the nearest allowed value.
+Note that the encryption function is not deterministic. It turns out that this
+is a feature and not a bug. Indeed, any
+[semantically secure](https://en.wikipedia.org/wiki/Semantic_security)
+encryption scheme _must_ have a non-deterministic encryption function. To see
+why, suppose we use the scheme to encrypt yes/no responses to a poll. If the
+encryption function was deterministic, we could tell if two people voted the
+same way by comparing their encrypted responses. In a non-deterministic scheme,
+this attack no longer works since even two people that voted the same way will
+have different encrypted responses.
+
+Let $m$ be an LWE plaintext. Since the encryption function is non-deterministic,
+rather than saying that a ciphertext $L = (\mathbf{a}, b)$ is _the_ encryption
+of $m$ we will say that it is _an_ encryption of $m$. The set of valid
+encryptions of $m$ with key $\mathbf{s}$ will be denoted
+$\mathrm{LWE}_{\mathbf{s}}(m)$. If $L = \mathrm{Enc}\_{\mathbf{s}}(m)$ then $L$
+is an encryption of $m$ and so we can write:
+
+\\[ L \in \mathrm{LWE}_{\mathbf{s}}(m) \\]
+
+Here is an implementation of the LWE encryption scheme:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
+</div>
+
+```python
+import dataclasses
+
+import numpy as np
+
+from tfhe import utils
+@dataclasses.dataclass
+class LweConfig:
+    # Size of the LWE encryption key.
+    dimension: int
+
+    # Standard deviation of the encryption noise.
+    noise_std: float
+
+
+@dataclasses.dataclass
+class LwePlaintext:
+    message: np.int32
+
+
+@dataclasses.dataclass
+class LweCiphertext:
+    config: LweConfig
+    a: np.ndarray  # An int32 array of size config.dimension
+    b: np.int32
+
+
+@dataclasses.dataclass
+class LweEncryptionKey:
+    config: LweConfig
+    key: np.ndarray  # An int32 array of size config.dimension
+
+
+def generate_lwe_key(config: LweConfig) -> LweEncryptionKey:
+    return LweEncryptionKey(
+        config=config,
+        key=np.random.randint(
+            low=0, high=2, size=(config.dimension,), dtype=np.int32
+        ),
+    )
+
+
+def lwe_encrypt(
+    plaintext: LwePlaintext, key: LweEncryptionKey
+) -> LweCiphertext:
+    a = utils.uniform_sample_int32(size=key.config.dimension)
+    noise = utils.gaussian_sample_int32(std=key.config.noise_std, size=None)
+
+    # b = (a, key) + message + noise
+    b = np.add(np.dot(a, key.key), plaintext.message, dtype=np.int32)
+    b = np.add(b, noise, dtype=np.int32)
+
+    return LweCiphertext(config=key.config, a=a, b=b)
+
+
+def lwe_decrypt(
+    ciphertext: LweCiphertext, key: LweEncryptionKey
+) -> LwePlaintext:
+    return LwePlaintext(
+        np.subtract(ciphertext.b, np.dot(ciphertext.a, key.key), dtype=np.int32)
+    )
+```
+
+where the `utils` module contains:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/utils.py">tfhe/utils.py</a>
+</div>
+
+```python
+from typing import Optional
+
+import numpy as np
+
+INT32_MIN = np.iinfo(np.int32).min
+INT32_MAX = np.iinfo(np.int32).max
+
+
+def uniform_sample_int32(size: int) -> np.ndarray:
+    return np.random.randint(
+        low=INT32_MIN,
+        high=INT32_MAX + 1,
+        size=size,
+        dtype=np.int32,
+    )
+
+
+def gaussian_sample_int32(std: float, size: Optional[float]) -> np.ndarray:
+    return np.int32(INT32_MAX * np.random.normal(loc=0.0, scale=std, size=size))
+```
+
+Throughout this post, we will used the following `LweConfig` whose parameters
+are taken from the popular
+[Lattice Estimator](https://github.com/malb/lattice-estimator).
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/config.py">tfhe/config.py</a>
+</div>
+
+```python
+from tfhe import lwe
+
+LWE_CONFIG = lwe.LweConfig(dimension=1024, noise_std=2 ** (-24))
+```
+
+## Ciphertext Noise
+
+Let $m \in \mathbb{Z}\_q$ be an LWE plaintext and let $\mathbf{s}$ be an LWE
+encryption key. Let $L \in \mathrm{LWE}_{\mathbf{s}}(m)$ be an LWE encryption of
+$m$. In the previous section we saw that:
+
+\\[ \mathrm{Dec}_{\mathbf{s}}(L) = m + e \\]
+
+where $e$ is some small noise whose magnitude depends on the LWE parameters. In
+other words, when we decrypt $L$ we get the original message $m$ together with a
+small error term. We will call $e$ the _noise_ in the ciphertext $L$.
+
+As an example, we'll use the code above to encrypt the message $m = 2^{29}$ 1000
+times and plot a histogram of the ciphertext noise. We'll be using the LWE
+config above where the encryption noise has a standard deviation of $2^{-24}$.
+Since we multiply this by $q/2 = 2^{31}$ during encryption, we expect the
+ciphertext noise to have a standard deviation of roughly
+$\sigma=2^{31-24} = 2^7 = 128$.
+
+```python
+# Generate an LWE key.
+key = lwe.generate_lwe_key(config.LWE_CONFIG)
+
+# This is the plaintext that we will encrypt.
+plaintext = lwe.LwePlaintext(2**29)
+
+# Encrypt the plaintext 1000 times and store the error of each ciphertext.
+errors = []
+for _ in range(1000):
+    ciphertext = lwe.lwe_encrypt(plaintext, key)
+    errors.append(lwe.lwe_decrypt(ciphertext, key).message - plaintext.message)
+```
+
+Here is a histogram of `errors`:
+
+![LWE Ciphertext Noise](/assets/tfhe/lwe_noise_hist.png){: .center-image}
+
+This matches our estimated standard deviation of $\sigma=128$ pretty well.
+
+## Message Encoding
+
+In the previous section we saw that when we decrypt a ciphertext with LWE we get
+the original message plus a small error. For some applications such as neural
+networks a small amount of error may be tolerable. An alternative approach is to
+restrict the set of possible messages so that a message $m$ can be recovered
+from $m+e$ by rounding to the nearest message in the restricted set.
 
 For the purposes of this post we will only need to distinguish between 8
 different messages and so all of our messages will be of the form
-$m = i \cdot 2^{29}$ where $i \in [-4, 4)$.
+$m = i \cdot 2^{29}$ where $i \in \mathbb{Z}_8 = [-4, 4)$.
 
 Here is a depiction of $\mathbb{Z}_q$ as a circle starting from $2^{31}$ in the
 "3 o'clock" position and going counter clockwise all the way around to
-$-2^{31}$. The eight messages $-4\cdot 2^{29}, \dots, 3\cdot 2^{29}$ are drawn
-as blue dots:
+$-2^{31}$. Note that $2^{31} = -2^{31}$ modulo $q=32$
+[which is why](https://en.wikipedia.org/wiki/Modular_arithmetic) we are
+depicting $\mathbb{Z}_q$ as a closed circle. The eight messages
+$-4\cdot 2^{29}, \dots, 3\cdot 2^{29}$ are drawn as blue dots:
 
 ![Embedding of Z_8 in Z_32](/assets/tfhe/z8.png){: .center-image}
 
-Note that every integer is equal to an element of $[-4, 4)$ modulo $8$.
-Therefore, we'll identify $[-4, 4)$ with $\mathbb{Z}_8$ - the set of integers
-modulo $8$. We will use the following encoding function to encode an integer
-$i \in \mathbb{Z}_8$ as an element of $\mathbb{Z}_q$ before encrypting $i$:
+We will use the following encoding function to encode an integer
+$i \in \mathbb{Z}_8$ as an LWE plaintext in $\mathbb{Z}_q$ (i.e as a 32-bit
+integer):
 
 <div>
 \begin{align*}
@@ -262,9 +436,8 @@ $i \in \mathbb{Z}_8$ as an element of $\mathbb{Z}_q$ before encrypting $i$:
 \end{align*}
 </div>
 
-Similarly, after decryption we will use the following _decoding_ function to
-convert a 32-bit message in $\mathbb{Z}_q$ back to an integer in
-$\mathbb{Z}_8 = [-4, 4)$:
+Similarly, we will use the following decoding function to convert a 32-bit LWE
+plaintext in $\mathbb{Z}_q$ back to an integer in $\mathbb{Z}_8$:
 
 <div>
 \begin{align*}
@@ -277,110 +450,61 @@ where $\lfloor \cdot \rceil$ denotes rounding to the nearest integer. In terms
 of the image above, the decoding function maps a point on the circle to the
 nearest blue dot.
 
-Note that if $\vert e \vert < 2^{28}$ and $-4 \leq i < 4$ then
-$\mathrm{Decode}(\mathrm{Encode}(i) + e) = i$. Therefore, if we encode $i$
-before encrypting it and decode after decrypting we can precisely recover $i$
-with no error:
+The green segment of the circle depicts points whose distance from the message
+$m = 3 \cdot 2^{29}$ is less than $2^{28}$. Note that for the points on the
+green segment, the closest blue dot is still $m = 3\cdot 2^{29}$. In general, if
+$i \in \mathbb{Z}_8$ and $\vert e \vert < 2^{28}$ then
+
+\\[ \mathrm{Decode}(\mathrm{Encode}(i) + e) = i \\]
+
+In the previous section we saw that, using our standard LWE parameters, the
+distribution of LWE ciphertext errors has a standard deviation of around $2^7$
+which is significantly less than $2^{28}$. This means that if
+$m = \mathrm{Encode}(i)$ and $L \in \mathrm{LWE}(m)$ is an encryption of $m$
+then we can decrypt $L$ and remove the noise by decoding:
 
 \\[
-\mathrm{Decode}(\mathrm{Dec}\_{\mathbf{s}}(\mathrm{Enc}\_\mathbf{s}(\mathrm{Encode}(i))))
+\mathrm{Decode}(\mathrm{Dec}\_{\mathbf{s}}(\mathrm{Enc}\_{\mathbf{s}}(\mathrm{Encode}(i))))
 = i \\]
 
-Here is an implementation of the LWE scheme we've described so far.
+In summary, if we only encrypt messages that are encodings of $\mathrm{Z}_8$
+then we can use the decoding function to remove the noise from our decryption
+results.
+
+Here is an implementation of the encoding and decoding functions:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/utils.py">tfhe/utils.py</a>
+</div>
 
 ```python
-import numpy as np
-import dataclasses
+def encode(i: int) -> np.int32:
+    """Encode an integer in [-4, 4) as an int32"""
+    return np.multiply(i, 1 << 29, dtype=np.int32)
 
-# Our implementation assumes q=2^32 and so all scalars
-# will be between the minimum and maximum values of an int32.
-INT32_MIN = np.iinfo(np.int32).min
-INT32_MAX = np.iinfo(np.int32).max
 
-@dataclasses.dataclass
-class LweConfig:
-    dimension: int  # The size of the secret key and ciphertext vectors.
-    noise_std: float  # Standard deviation of the Gaussian noise used for encryption.
-
-@dataclasses.dataclass
-class LwePlaintext:
-    """Plaintext that can be encrypted in the LWE scheme."""
-    message: np.int32
-
-@dataclasses.dataclass
-class LweCiphertext:
-    """The output of LWE encryption."""
-    config: LweConfig
-    a: np.ndarray  # shape = (config.dimension,)
-    b: np.int32
-
-@dataclasses.dataclass
-class LweEncryptionKey:
-    config: LweConfig
-    key: np.ndarray  # shape = (config.dimension,)
-
-def encode(i: int) -> LwePlaintext:
-    """Encode an integer in [-4,4) as a plaintext."""
-    return LwePlaintext(np.multiply(i, 1 << 29, dtype=np.int32))
-
-def decode(plaintext: LwePlaintext) -> int:
-    """Decode a plaintext to an integer in [-4,4)."""
-    return int(np.rint(plaintext.message / (1 << 29)))
-
-def generate_lwe_key(config: LweConfig) -> LweEncryptionKey:
-    """Generate a LWE encryption key."""
-    return LweEncryptionKey(
-        config=config,
-        key=np.random.randint(low=0, high=2,
-                              size=config.dimension,
-                              dtype=np.int32))
-
-def lwe_encrypt(plaintext: LwePlaintext, key: LweEncryptionKey) -> LweCiphertext:
-    """Encrypt the plaintext with the specified LWE key."""
-    a = np.random.randint(
-        low=INT32_MIN, high=INT32_MAX+1,
-        size=key.config.dimension, dtype=np.int32)
-    noise = np.int32(
-        INT32_MAX  * np.random.normal(loc=0.0, scale=key.config.noise_std))
-
-    # b = (a, key) + message + noise. All addition is done mod q=2^32.
-    b = np.add(np.dot(a, key.key), plaintext.message, dtype=np.int32)
-    b = np.add(b, noise, dtype=np.int32)
-
-    return LweCiphertext(config=key.config, a=a, b=b)
-
-def lwe_decrypt(ciphertext: LweCiphertext, key: LweEncryptionKey) -> LwePlaintext:
-    """Decrypt an LWE ciphertext with the specified key."""
-    # m+e = b - (a, key)
-    return LwePlaintext(
-        np.subtract(ciphertext.b, np.dot(ciphertext.a, key.key),
-                    dtype=np.int32))
+def decode(i: np.int32) -> int:
+    """Decode an int32 to an integer in the range [-4, 4) mod 8"""
+    d = int(np.rint(i / (1 << 29)))
+    return ((d + 4) % 8) - 4
 ```
 
-Here is an example:
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
+</div>
 
 ```python
->>> lwe_config = LweConfig(dimension=1024, noise_std=2**(-20))
->>> lwe_key = generate_lwe_key(lwe_config)
+def lwe_encode(i: int) -> LwePlaintext:
+    """Encode an integer in [-4,4) as an LWE plaintext."""
+    return LwePlaintext(utils.encode(i))
 
->>> # Encode the integer i=3 as a plaintext.
->>> lwe_plaintext = encode(3)
-LwePlaintext(message=1610612736)
->>> # Encrypt the plaintext with the key.
->>> lwe_ciphertext = lwe_encrypt(lwe_plaintext, lwe_key)
-LweCiphertext(
-    config=LweConfig(dimension=1024, noise_std=9.5367431640625e-07),
-    a=array([-1902953972, ..., 711394225], dtype=int32),
-    b=-109982053)
->>> # Decrypt the ciphertext. Note that the result is not exactly equal to
->>> # the plaintext as it contains some noise.
->>> lwe_decrypted = lwe_decrypt(lwe_ciphertext, lwe_key)
->>> LwePlaintext(message=1610613919)
->>> # Decode the decrypted ciphertext to an integer in the range [-4, 4).
->>> # This should give us the original integer i=3 without noise.
->>> decode(lwe_decrypted)
->>> 3
+
+def lwe_decode(plaintext: LwePlaintext) -> int:
+    """Decode an LWE plaintext to an integer in [-4,4) mod 8."""
+    return utils.decode(plaintext.message)
 ```
+
+In the next example we'll use the encoding and decoding functions to encrypt a message
 
 ## Homomorphic Operations
 
