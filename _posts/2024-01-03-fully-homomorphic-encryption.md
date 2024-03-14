@@ -418,7 +418,7 @@ $m = i \cdot 2^{29}$ where $i \in \mathbb{Z}_8 = [-4, 4)$.
 
 Here is a depiction of $\mathbb{Z}_q$ as a circle starting from $2^{31}$ in the
 "3 o'clock" position and going counter clockwise all the way around to
-$-2^{31}$. Note that $2^{31} = -2^{31}$ modulo $q=32$
+$-2^{31}$. Note that $2^{31} = -2^{31}$ modulo $q=2^{32}$
 [which is why](https://en.wikipedia.org/wiki/Modular_arithmetic) we are
 depicting $\mathbb{Z}_q$ as a closed circle. The eight messages
 $-4\cdot 2^{29}, \dots, 3\cdot 2^{29}$ are drawn as blue dots:
@@ -504,44 +504,110 @@ def lwe_decode(plaintext: LwePlaintext) -> int:
     return utils.decode(plaintext.message)
 ```
 
-In the next example we'll use the encoding and decoding functions to encrypt a message
+In the following example we'll use the encoding and decoding functions to
+encrypt a message and recover the exact message without noise after decryption.
+
+```python
+key = lwe.generate_lwe_key(config.LWE_CONFIG)
+
+# Encode the number 2 as an LWE plaintext
+plaintext = lwe.lwe_encode(2)
+
+# Encrypt the plaintext
+ciphertext = lwe.lwe_encrypt(plaintext, key)
+
+# Decrypt the ciphertext. The result will contain noise.
+decrypted = lwe.lwe_decrypt(ciphertext, key)
+
+# Decode the result of the decryption. The decoded decryption
+# should be exactly equal to the initial message of 2.
+decoded = lwe.lwe_decode(decrypted)
+
+assert decoded == 2
+```
 
 ## Homomorphic Operations
 
-### Motivation
-
 In this section we will show that the LWE scheme above is homomorphic under
-addition and multiplication by plaintext.
+addition and multiplication by a plaintext.
 
-Before showing how this works let's take a minute to explain why this is
+More precisely, we will define a homomorphic addition function, $\mathrm{CAdd}$
+with the following signature:
+
+\\[ \mathrm{CAdd}: \mathrm{LWE}\_{\mathbf{s}}(m_1) \times
+\mathrm{LWE}\_{\mathbf{s}}(m_2) \rightarrow \mathrm{LWE}\_{\mathbf{s}}(m_1 +
+m_2) \\]
+
+In other words, $\mathrm{CAdd}$ takes as input encryptions of $m_1$ and $m_2$
+and outputs an encryption of $m_1 + m_2$.
+
+Similarly, let $c \in \mathbb{Z}_q$ be an LWE plaintext. We will define a
+homomorphic multiplication by $c$ function $\mathrm{CMul}$ function with the
+signature:
+
+\\[ \mathrm{CMul}(c, \cdot): \mathrm{LWE}\_{\mathbf{s}}(m) \rightarrow
+\mathrm{LWE}\_{\mathbf{s}}(c \cdot m) \\]
+
+In other words, the $\mathrm{CMul}$ function takes as input a plaintext $c$ and
+an encryption of $m$ and outputs an encryption of $c\cdot m$.
+
+We will add these operations to our library by implementing the following
+methods:
+
+```python
+def lwe_add(
+    ciphertext_left: LweCiphertext, ciphertext_right: LweCiphertext
+) -> LweCiphertext:
+    """Homomorphically add two LWE ciphertexts.
+
+    If ciphertext_left is an encryption of m_left and ciphertext_right is
+    an encryption of m_right then the output will be an encryption of
+    m_left + m_right.
+    """
+    pass
+
+
+def lwe_plaintext_multiply(c: int, ciphertext: LweCiphertext) -> LweCiphertext:
+    """Homomorphically multiply an LWE ciphertext with a plaintext integer.
+
+    If the ciphertext is an encryption of m then the output will be an
+    encryption of c * m.
+    """
+    pass
+
+```
+
+Before showing how this works let's take a minute to explain why this is both
 interesting and useful. Suppose a server hosts a simple linear regression model
-whose linear part is defined by:
+with weights whose $w_0$ and $w_1$ linear part is defined by:
 
 \\[ f(x_0, x_1) = w_0\cdot x_0 + w_1 \cdot x_1 \\]
 
-for weights $w_0$ and $w_1$. In addition, suppose you have two secret numbers
-$m_0$ and $m_1$ and you want to use the server to compute $f(m_0, m_1)$. Since
-the server is untrusted, you do not want to send $m_0$ or $m_1$. Instead you can
-leverage the homomorphic properties of LWE by following these steps:
+In addition, suppose you have two secret numbers $m_0$ and $m_1$ and you want to
+use an untrusted server to compute $f(m_0, m_1)$. Since the server is untrusted,
+you do not want to send $m_0$ or $m_1$. Instead you can leverage the homomorphic
+addition and multiplication methods above to run the following computation:
 
-SEQUENCE DIAGRAM?
+```python
+# Client side: Generate and encryption key and encrypt m_0 and m_1
+key = lwe.generate_lwe_key(config.LWE_CONFIG)
+ciphertext_0 = lwe.lwe_encrypt(m_0, key)
+ciphertext_1 = lwe.lwe_encrypt(m_1, key)
 
-1. Generate an LWE key $\mathbf{s}$ locally.
-1. Encrypt $m_0$ and $m_1$ locally to obtain $\mathrm{Enc}\_\mathbf{s}(m_0)$ and
-   $\mathrm{Enc}\_\mathbf{s}(m_1)$.
-1. Send $\mathrm{Enc}\_\mathbf{s}(m_0)$ and $\mathrm{Enc}\_\mathbf{s}(m_1)$ to
-   the server.
-1. The server uses homomorphic multiplication of $\mathrm{Enc}\_\mathbf{s}(m_i)$
-   by the plaintext $c_i$ to compute a ciphertext
-   $\mathrm{Enc}\_\mathbf{s}(c_i \cdot m_i)$
-1. The server uses homomorphic addition of
-   $\mathrm{Enc}\_\mathbf{s}(c_0\cdot m_0)$ and
-   $\mathrm{Enc}\_\mathbf{s}(c_1\cdot m_1)$ to compute a ciphertext
-   $\mathrm{Enc}\_\mathbf{s}(f(m_0, m_1)) = \mathrm{Enc}\_\mathbf{s}(c_0\cdot m_0 + c_1 \cdot m_1)$.
-1. The server sends $\mathrm{Enc}\_\mathbf{s}(f(m_0, m_1))$ back to the client.
-1. The client uses $\mathbf{s}$ to decrypt
-   $\mathrm{Enc}\_\mathbf{s}(f(m\_0, m\_1))$ and obtain the result
-   $f(m\_0, m\_1)$.
+# Send the ciphertexts to the untrusted server.
+
+# Server side: Generate an encryption of
+# f(m_0, m_1) w_0*m_0 + w_1*m_1
+ciphertext_result = lwe.lwe_add(
+    lwe.lwe_plaintext_multiply(w_0, ciphertext_0),
+    lwe.lwe_plaintext_multiply(w_1, ciphertext_1),
+)
+
+# The server sends ciphertext_f back to the client
+
+# Client side: Decrypt ciphertext_result to obtain f(m_0, m_1)
+result = lwe.lwe_decrypt(ciphertext_result, key)
+```
 
 Note that this example can easily be extended to general dot product between a
 vector a weights $\mathbf{w}$ and a vector of features $\mathbf{x}$ which is a
@@ -549,53 +615,63 @@ core component of neural networks.
 
 ### Homomorphic Addition
 
+In this section we'll implement the homomorphic addition function:
+
+\\[ \mathrm{CAdd}: \mathrm{LWE}\_{\mathbf{s}}(m_1) \times
+\mathrm{LWE}\_{\mathbf{s}}(m_2) \rightarrow \mathrm{LWE}\_{\mathbf{s}}(m_1 +
+m_2) \\]
+
 Let $\mathbf{s}$ be a LWE key, let $m_1, m_2 \in \mathbb{Z}\_q$ be two messages
-and let $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$ be
-the corresponding ciphertexts. In order to show that LWE is additively
-homomorphic we must find a way to produce a ciphertext
-$\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ of the sum of the messages $m_1 + m_2$
-from only the ciphertexts $\mathrm{Enc}\_\mathbf{s}(m_1)$ and
-$\mathrm{Enc}\_\mathbf{s}(m_2)$.
+and let $L_1 = (\mathbf{a}_1, b_1)$ and $L_2 = (\mathbf{a}_2, b_2)$ be
+encryptions of $m_1$ and $m_2$ respectively.
 
-As a first step, recall that by the definition of LWE encryption:
+By definition, $\mathrm{CAdd}(L_1, L_2)$ should be equal to a ciphertext
+$L_{\mathrm{sum}}$ that is an encryption of $m_1 + m_2$.
 
-<div>
+How can we obtain $L_{\mathrm{sum}}$ from the inputs $L_1$ and $L_2$?
+
+It turns out that all we have to do is add the coefficients of $L_1$ and $L_2$:
+
+\\[ \mathrm{CAdd}(L_1, L_2) := (\mathbf{a}_1 + \mathbf{a}_2, b_1 + b_2) \\]
+
+To prove that $L\_{\mathrm{sum}} = \mathrm{CAdd}(L_1, L_2)$ is indeed an
+encryption of $m\_1 + m\_2$, all we have to do is decrypt it:
+
+$$
 \begin{align*}
-    \mathrm{Enc}_\mathbf{s}(m_1) &= (\mathbf{a_1}, \mathbf{a_1} \cdot \mathbf{s} + m_1 + e_1) \in \mathbb{Z}_q^n \times \mathbb{Z}_q \\
-    \mathrm{Enc}_\mathbf{s}(m_2) &= (\mathbf{a_2}, \mathbf{a_2} \cdot \mathbf{s} + m_2 + e_2) \in \mathbb{Z}_q^n \times \mathbb{Z}_q
+\mathrm{Dec}\_{\mathbf{s}}(L_{\mathrm{sum}}) &= \mathrm{Dec}\_{\mathbf{s}}((\mathbf{a}_1 + \mathbf{a}_2,
+b_1 + b_2)) \\
+&= (b_1 + b_2) - (\mathbf{a}_1 + \mathbf{a}_2) \cdot \mathbf{s} \\
+&= (b_1 - \mathbf{a}_1 \cdot \mathbf{s}) + (b_2 - \mathbf{a}_2 \cdot \mathbf{s}) \\
+&= \mathrm{Dec}\_{\mathbf{s}}(L_1) + \mathrm{Dec}\_{\mathbf{s}}(L_2) \\
+&= (m_1 + e_1) + (m_2 + e_2)\\
+&= (m_1 + m_2) + (e_1 + e_2)
 \end{align*}
-</div>
+$$
 
-Where $\mathrm{a_i} \in \mathbb{Z}_q^n$ are uniformly random vectors and
-$e_i \in \mathbb{Z}_q$ are small errors. How can we combine these in order to
-get an encryption of $m_1 + m_2$? Let's try the simplest approach of just adding
-the terms in $\mathrm{Enc}\_\mathbf{s}(m_1)$ and $\mathrm{Enc}\_\mathbf{s}(m_2)$
-element wise:
+In summary:
 
-<div>
-\begin{align*}
-    \mathrm{Enc}_\mathbf{s}(m_1) + \mathrm{Enc}_\mathbf{s}(m_1) &= (\mathbf{a_1} + \mathbf{a_2}, (\mathbf{a_1} \cdot \mathbf{s} + m_1 + e_1) + (\mathbf{a_2} \cdot \mathbf{s} + m_2 + e_2)) \\
-    &= (\mathbf{a_1} + \mathbf{a_2}, (\mathbf{a_1} + \mathbf{a_2}) \cdot \mathbf{s} + (m_1 + m_2) + (e_1 + e_2))
-\end{align*}
-</div>
-
-Let's define $\mathbf{a}\_\mathrm{sum} = \mathbf{a_1} + \mathbf{a_2}$ and
-$e\_\mathrm{sum} = e_1 + e_2$. We then have:
-
-\begin{equation}\label{eq:lwe-sum} \mathrm{Enc}\_\mathbf{s}(m_1) +
-\mathrm{Enc}\_\mathbf{s}(m_1) = (\mathbf{a}\_\mathrm{sum},
-\mathbf{a}\_\mathrm{sum} \cdot \mathbf{s} + (m_1 + m_2) + e\_\mathrm{sum})
+$$
+\begin{equation}\label{eq:cadd-correctness}
+\mathrm{Dec}\_{\mathbf{s}}(L_{\mathrm{sum}}) = (m_1 + m_2) + (e_1 + e_2)
 \end{equation}
+$$
 
-Note that right side of the above equation looks like an encryption of
-$m_1 + m_2$. Indeed, since $\mathbf{a_1}$ and $\mathbf{a_2}$ are uniformly
-random in $\mathbb{Z}_q^n$, $\mathbf{a}\_\mathrm{sum}$ is uniformly random as
-well. And since $e_1$ and $e_2$ are small errors, $e\_\mathrm{sum}$ is small as
-well. In summary,
-$\mathrm{Enc}\_\mathbf{s}(m_1) + \mathrm{Enc}\_\mathbf{s}(m_1) $ is a valid encryption of $m_1 + m_2$.
-DECRYPT TO CONFIRM
+This proves that $L_{\mathrm{sum}}$ is an encryption of $m_1 + m_2$ with noise
+$e_1 + e_2$.
 
-Here is an implementation:
+Later in this post we will also use the homomorphic subtraction function
+$\mathrm{CSub}$:
+
+\\[ \mathrm{CSub}: \mathrm{LWE}\_{\mathbf{s}}(m_1) \times
+\mathrm{LWE}\_{\mathbf{s}}(m_2) \rightarrow \mathrm{LWE}\_{\mathbf{s}}(m_1 -
+m_2) \\]
+
+Here are concrete implementations of $\mathrm{CAdd}$ and $\mathrm{CSub}$:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
+</div>
 
 ```python
 def lwe_add(
@@ -627,93 +703,96 @@ def lwe_subtract(
         np.subtract(ciphertext_left.b, ciphertext_right.b, dtype=np.int32))
 ```
 
-Here is an example:
+Here is an example of homomorphic addition:
 
 ```python
->>> lwe_config = LweConfig(dimension=1024, noise_std=2**(-20))
->>> lwe_key = generate_lwe_key(lwe_config)
->>> # Create plaintexts encoding 1 and 2.
->>> lwe_plaintext_a = encode(1)
-LwePlaintext(message=536870912)
->>> lwe_plaintext_b = encode(2)
-LwePlaintext(message=1073741824)
->>> # Encrypt both plaintext with the key.
->>> lwe_ciphertext_a = lwe_encrypt(lwe_plaintext_a, lwe_key)
-LweCiphertext(
-    config=LweConfig(dimension=1024, noise_std=9.5367431640625e-07),
-    a=array([  973628608,  1574988217,  1320543876, ..., -2110200810,
-       -1946314110,   176432236], dtype=int32), b=-934443317)
->>> lwe_ciphertext_b = lwe_encrypt(lwe_plaintext_b, lwe_key)
-LweCiphertext(
-    config=LweConfig(dimension=1024, noise_std=9.5367431640625e-07),
-    a=array([1676269894,  436391436, 1556429812, ..., -943570369,  -54776011,
-       1460449428], dtype=int32), b=-925793264)
->>> # Create a ciphertext of the sum.
->>> lwe_ciphertext_add = lwe_add(lwe_ciphertext_a, lwe_ciphertext_b)
-LweCiphertext(
-    config=LweConfig(dimension=1024, noise_std=9.5367431640625e-07),
-    a=array([-1645068794,  2011379653, -1417993608, ...,  1241196117,
-       -2001090121,  1636881664], dtype=int32), b=-1860236581)
->>> # Confirm that decrypting and then decoding results in the sum 1 + 2 = 3
->>> lwe_decrypted = lwe_decrypt(lwe_ciphertext_add, lwe_key)
-LwePlaintext(message=1610616071)
->>> decode(lwe_decrypted)
-3
+key = lwe.generate_lwe_key(config.LWE_CONFIG)
+
+# Encode the values 3 and -1 as LWE plaintexts
+plaintext_a = lwe.lwe_encode(3)
+plaintext_b = lwe.lwe_encode(-1)
+
+# Encrypt both plaintexts
+ciphertext_a = lwe.lwe_encrypt(plaintext_a, key)
+ciphertext_b = lwe.lwe_encrypt(plaintext_b, key)
+
+# Homomorphically add the ciphertexts.
+ciphertext_sum = lwe.lwe_add(ciphertext_a, ciphertext_b)
+
+# Decrypt the ciphertext_sum and then decode it. The result should
+# be equal to 3 + (-1) = 2
+decrypted = lwe.lwe_decrypt(ciphertext_sum, key)
+decoded = lwe.lwe_decode(decrypted)
+assert decoded == 2
 ```
 
 ### Homomorphic Multiplication By Plaintext
 
-The idea of homomorphic multiplication by a plaintext is similar to the
-homomorphic addition in the previous section.
+In this section we'll implement the homomorphic multiplication by plaintext
+function:
 
-Let $\mathbf{s}$ be a LWE key, $m \in \mathbb{Z}\_q$ a message and
-$\mathrm{Enc}\_\mathbf{s}(m)$ a LWE ciphertext of $m$ with the $\mathbf{s}$. Let
-$c \in \mathbb{Z}_q$ be a plaintext constant.
+\\[ \mathrm{CMul}(c, \cdot): \mathrm{LWE}\_{\mathbf{s}}(m) \rightarrow
+\mathrm{LWE}\_{\mathbf{s}}(c \cdot m) \\]
 
-Our goal in this section is to homomorphically multiply the ciphertext
-$\mathrm{Enc}\_\mathbf{s}(m)$ with the plaintext $c$ in order to obtain a
-ciphertext $\mathrm{Enc}_\mathbf{s}(c \cdot m)$ encrypting $c \cdot m$.
+Let $\mathbf{s}$ be a LWE key, let $c, m \in \mathbb{Z}\_q$ be two messages and
+let $L = (\mathbf{a}, b)$ be an encryption of $m$.
 
-Similarly to the previous section, we start by explicitly writing
-$\mathrm{Enc}\_\mathbf{s}(m)$ as
+By definition, $\mathrm{CMul}(c, L)$ should be equal to a ciphertext
+$L_{\mathrm{prod}}$ that is an encryption of $c \cdot m$.
 
-\\[ \mathrm{Enc}_\mathbf{s}(m) = (\mathbf{a}, \mathbf{a} \cdot \mathbf{s} + m +
-e) \in \mathbb{Z}_q^n \times \mathbb{Z}_q \\]
+Inspired by the previous section, you might guess that we could implement
+$\mathrm{CMul}$ by element wise multiplication of $c$ with
+$L = (\mathbf{a}, b)$:
 
-where $\mathbf{a} \in \mathbb{Z}\_q^n$ is a uniformly random vector and
-$e \in \mathbb{Z}\_q$ is a small error. How can we produce a ciphertext of
-$\mathrm{Enc}\_\mathbf{s}(c \cdot m)$? Drawing inspiration from the previous
-section, let's see what happens if we simply multiply each element of
-$\mathrm{Enc}\_\mathbf{s}(m)$ with $c$:
+\\[ \mathrm{CMul}(c, L) := (c \cdot \mathbf{a}, c \cdot b) \\]
 
-\\[ (c \cdot \mathbf{a}, c \cdot (\mathbf{a} \cdot \mathbf{s} + m + e)) = (c
-\cdot \mathbf{a}, (c \cdot \mathbf{a}) \cdot \mathbf{s} + (c \cdot m) + (c\cdot
-e)) \\]
+As before, we can verify that this is correct by decrypting
+$L_{\mathrm{prod}} = \mathrm{CMul}(c, L)$:
 
-The expression on the right hand side is indeed an encryption of $c \cdot m$
-with the key $\mathbf{s}$ using the random vector $c \cdot \mathbf{a}$ and noise
-$c \cdot e$. DECRYPT
+<div>
+\begin{align*}
+\mathrm{Dec}_{\mathbf{s}}(L_{\mathrm{prod}}) &= \mathrm{Dec}_{\mathbf{s}}((c \cdot \mathbf{a}, c \cdot b)) \\
+&= (c \cdot b) - (c \cdot \mathbf{a}) \cdot \mathbf{s} \\ 
+&= c \cdot (b - \mathbf{a} \cdot \mathbf{s}) \\
+&= c \cdot (m + e) \\
+&= (c \cdot m) + (c \cdot e)
+\end{align*}
+</div>
 
-### A Word About Noise
+This shows that the result of decrypting $L_{\mathrm{prod}}$ is the product
+$c \cdot m$ together with some noise. We'll analyze the noise more closely in
+the next section.
 
-In the previous sections we glossed over a key point related to the _noise_ in
-the ciphertexts $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ and
-$\mathrm{Enc}\_\mathbf{s}(c \cdot m))$. Recall that by \ref{eq:lwe-sum}, if the
-noise in $\mathrm{Enc}\_\mathbf{s}(m_1)$ is $e_1$ and the noise in
-$\mathrm{Enc}\_\mathbf{s}(m_2)$ is $e_2$ then after adding those two ciphertexts
-together the resulting ciphertext $\mathrm{Enc}\_\mathbf{s}(m_1 + m_2)$ has
-noise $e_1 + e_2$. Similarly, $\mathrm{Enc}\_\mathbf{s}(c \cdot m))$ will have
-noise $c \cdot e$. Even though $e_1 + e_2$ and $c \cdot e$ are still "small",
-they are still larger than the noise in the original ciphertexts. Eventually,
-after a large number of additions and plaintext multiplications the noise could
-grow to the same order of magnitude as the message itself, in which case the
-decryption would result in meaningless noise. To be concrete, recall that the
-encoding/decoding scheme from the previous section can only reliably remove
-noise that is less than $2^{28}$.
+Here is an implementation of $\mathrm{CMul}$:
 
-For this reason, there is a limit to the number of homomorphic additions we can
-evaluate with LWE. In the following sections we will introduce the process of
-_bootstrapping_ which will remove this limitation.
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
+</div>
+
+```python
+def lwe_plaintext_multiply(c: int, ciphertext: LweCiphertext) -> LweCiphertext:
+    """Homomorphically multiply an LWE ciphertext with a plaintext integer."""
+    return LweCiphertext(
+        ciphertext.config,
+        np.multiply(c, ciphertext.a, dtype=np.int32),
+        np.multiply(c, ciphertext.b, dtype=np.int32),
+    )
+```
+
+### Noise Analysis
+
+In this section we'll analyze the effects of homomorphic operations on
+ciphertext noise.
+
+Let $m_1$ and $m_2$ be LWE plaintexts. Let $L_i$ be an LWE encryption of $m_i$
+with noise $e_i$. By equation \ref{eq:cadd-correctness},
+$\mathrm{CAdd}(L_1, L_2)$ is an encryption of $m_1 + m_2$ with noise
+$e_1 + e_2$. This means that when we homomorphically add two ciphertexts, the
+noise in each of the inputs gets added to the result.
+
+For example, let's see what happens when we take an encryption of $0$ and add it
+to itself 10 times. We'll repeat the entire process 1000 times and plot the
+ciphertext error distribution:
 
 # Ring LWE
 
