@@ -473,7 +473,7 @@ results.
 
 Here is an implementation of the encoding and decoding functions:
 
-<div>
+<div id="code:encode-decode">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/utils.py">tfhe/utils.py</a>
 </div>
 
@@ -793,6 +793,291 @@ noise in each of the inputs gets added to the result.
 For example, let's see what happens when we take an encryption of $0$ and add it
 to itself 10 times. We'll repeat the entire process 1000 times and plot the
 ciphertext error distribution:
+
+```python
+key = lwe.generate_lwe_key(config.LWE_CONFIG)
+plaintext_zero = lwe.LwePlaintext(0)
+
+initial_errors = []
+addition_errors = []
+
+for _ in range(1000):
+    # Encrypt the plaintext and record the ciphertext error.
+    ciphertext_zero = lwe.lwe_encrypt(plaintext_zero, key)
+    initial_errors.append(lwe.lwe_decrypt(ciphertext_zero, key).message)
+
+    # Homomorphically add the ciphertext to itself 10 times.
+    ciphertext_sum = ciphertext_zero
+    for _ in range(10):
+        ciphertext_sum = lwe.lwe_add(ciphertext_sum, ciphertext_zero)
+
+    # Record the error of the ciphertext sum.
+    addition_errors.append(lwe.lwe_decrypt(ciphertext_sum, key).message)
+```
+
+![LWE Ciphertext Noise](/assets/tfhe/lwe_homomorphic_add_noise_hist.png){:
+.center-image}
+
+The graph on the left shows the error distribution of the initial encryption of
+$0$. The graph on the right shows the error distribution after 10 homomorphic
+additions which, as expected, is about 10 times larger. The maximum error in the
+graph on the right is around 5000 which is still significantly smaller than the
+maximal acceptable error of $2^{28}$. However, after $2^{20}$ homomorphic
+additions we'd eventually surpass that limit and no longer be able to accurately
+decode messages. $2^{20}$ additions may seem like a lot, but a standard CPU can
+process that many additions in around a millisecond.
+
+A major goal for the rest of this post will be to develop a homomorphic
+operation whose output noise is independent of the input. This will make it
+possible to compose an _arbitrary_ number of homomorphic operations, without
+running into the noise issue above.
+
+# Homomorphic NAND Revisited
+
+In the previous section we introduced the LWE encryption scheme together with
+some basic homomorphic operations. This will allow us to refine our definition
+of the homomorphic NAND gate from section
+[A Fully Homomorphic Nand Gate](#a-fully-homomorphic-nand-gate) and give an
+overview of our implementation strategy.
+
+## Definition
+
+In this section we'll introduce an encoding of boolean values as LWE messages
+and precisely define the homomorphic NAND function.
+
+We'll use the $\mathrm{Encode}$ function from section
+[Message Encoding](#message-encoding) to represent boolean values as LWE
+plaintexts. Specifically, we'll represent $\mathrm{True}$ by
+$\mathrm{Encode}(2)$ and represent $\mathrm{False}$ by $\mathrm{Encode}(0)$.
+
+Let $b_0$ and $b_1$ denote two booleans with the above representation. The
+homomorphic NAND gate $\mathrm{CNAND}$ will be defined as:
+
+\\[ \mathrm{CNAND}: \mathrm{LWE}(b_0) \times \mathrm{LWE}(b_1) \rightarrow
+\mathrm{LWE}(\mathrm{NAND}(b_0, b_1)) \\]
+
+In other words, if $L_0$ is an LWE encryption of $b_0$ and $L_1$ is an LWE
+encryption of $b_1$ then $\mathrm{CNAND}(L_0, L_1)$ is an LWE encryption of
+$\mathrm{NAND}(b_0, b_1)$.
+
+Another important requirement for $\mathrm{CNAND}$ is that the noise of the
+output ciphertext $\mathrm{CNAND}(L_0, L_1)$ should be bounded and independent
+of the noise of $L_0$ and $L_1$. This property will make it possible to compose
+an arbitrary number of homomorphic NAND gates without suffering from the noise
+explosion issue that we saw in section [Noise Analysis](#noise-analysis).
+
+Here are the functions we'll use to encode booleans as LWE plaintexts and to
+decode plaintexts back to booleans. Note that we're using the `encode` and
+`decode` functions defined [here](#code:encode-decode).
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/utils.py">tfhe/utils.py</a>
+</div>
+
+```python
+def encode_bool(b: bool) -> np.int32:
+    """Encode a bit as an int32."""
+    return encode(2 * int(b))
+
+
+def decode_bool(i: np.int32) -> bool:
+    """Decode an int32 to a bool."""
+    return bool(decode(i) / 2)
+```
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
+</div>
+
+```python
+def lwe_encode_bool(b: bool) -> LwePlaintext:
+    """Encode a boolean as an LWE plaintext."""
+    return LwePlaintext(utils.encode_bool(b))
+
+
+def lwe_decode_bool(plaintext: LwePlaintext) -> bool:
+    """Decode an LWE plaintext to a boolean."""
+    return utils.decode_bool(plaintext.message)
+```
+
+The signature of our homomorphic NAND function is:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/nand.py">tfhe/nand.py</a>
+</div>
+
+```python
+def lwe_nand(
+    lwe_ciphertext_left: lwe.LweCiphertext,
+    lwe_ciphertext_right: lwe.LweCiphertext,
+    bootstrap_key: bootstrap.BootstrapKey,
+) -> lwe.LweCiphertext:
+    """Homomorphically evaluate the NAND function.
+
+    Suppose that lwe_ciphertext_left is an LWE encryption of
+    lwe_encode_bool(b_left) and lwe_ciphertext_right is an LWE encryption
+    lwe_encode_bool(b_right). Then the the output is an LWE encryption
+    lwe_encode_bool(NAND(b_left, b_right)).
+    """
+    pass
+```
+
+As we'll see later, the `bootstrap_key` is a public key that untrusted parties
+can use to homomorphically evaluate functions.
+
+Here is an example:
+
+```python
+# Generate a private LWE encryption key.
+lwe_key = lwe.generate_lwe_key(config.LWE_CONFIG)
+
+# Generate a public bootstrapping key.
+gsw_key = gsw.convert_lwe_key_to_gsw(lwe_key, config.GSW_CONFIG)
+bootstrap_key = bootstrap.generate_bootstrap_key(lwe_key, gsw_key)
+
+# Encode two boolean values as LWE plaintexts.
+plaintext_0 = lwe.lwe_encode_bool(False)
+plaintext_1 = lwe.lwe_encode_bool(True)
+
+# Encrypt the plaintexts.
+ciphertext_0 = lwe.lwe_encrypt(plaintext_0, lwe_key)
+ciphertext_1 = lwe.lwe_encrypt(plaintext_1, lwe_key)
+
+# Homomorphically compute the NAND function on the inputs.
+ciphertext_nand = nand.lwe_nand(
+    ciphertext_0, ciphertext_1, bootstrap_key
+)
+
+# Decrypt the homomorphic NAND result with the LWE key.
+plaintext_nand = lwe.lwe_decrypt(ciphertext_nand, lwe_key)
+
+# Decode the LWE plaintext back to a bool.
+boolean_nand = lwe.lwe_decode_bool(plaintext_nand)
+
+# The result should be equal to NAND(False, True) = True
+assert boolean_nand == True
+```
+
+## Implementation Sketch
+
+The remainder of this post will be dedicated to implementing `lwe_nand`. In this
+section we'll discuss our high level strategy.
+
+Recall that our encoding function $\mathrm{Encode}$ maps values from
+$\mathbb{Z}_8 = [-4, 4)$ to $\mathbb{Z}_q = [-2^{31}, 2^{31})$ and is defined by
+$\mathrm{Encode}(i) := i \cdot 2^{29}$:
+
+![Z8](/assets/tfhe/z8_plain.png){: .center-image}
+
+We'll start by expressing NAND in terms of elementary operations of
+$\mathbb{Z}_q$.
+
+As before, we will identify $\mathrm{True}$ with $\mathrm{Encode}(2)$ and
+$\mathrm{False}$ with $\mathrm{Encode}(0)$. Let
+$b_0, b_1 \in \\{\mathrm{Encode}(0), \mathrm{Encode}(2)\\}$ be two boolean
+values and consider the expression:
+
+\\[F(b_0, b_1) = \mathrm{Encode}(-3) - b_0 - b_1 \\]
+
+In terms of the diagram above, we start at
+$\mathrm{Encode}(-3) = -3 \cdot 2^{29}$ and move two dots counter clockwise for
+each $b_i$ that is "true". Here are the four possible values (modulo
+$q = 2^{32}$) that this expression can take:
+
+| $b_0$                | $b_1$                | $F(b_0, b_1)$         |
+| -------------------- | -------------------- | --------------------- |
+| $\mathrm{Encode}(0)$ | $\mathrm{Encode}(0)$ | $\mathrm{Encode}(-3)$ |
+| $\mathrm{Encode}(0)$ | $\mathrm{Encode}(2)$ | $\mathrm{Encode}(3)$  |
+| $\mathrm{Encode}(2)$ | $\mathrm{Encode}(0)$ | $\mathrm{Encode}(3)$  |
+| $\mathrm{Encode}(2)$ | $\mathrm{Encode}(2)$ | $\mathrm{Encode}(1)$  |
+
+Note that $-2 \cdot 2^{29} < F(b_0, b_1) \leq 2 \cdot 2^{29}$ if and only if
+$b_0 = b_1 = \mathrm{Encode}(2)$. We can therefore upgrade $F(b_0, b_1)$ to a
+NAND function by composing it with a step function $\mathrm{Step}(x)$ on
+$\mathbb{Z}_q$ defined by:
+
+$$
+\mathrm{Step}(x) =
+\begin{cases} 0 & -q/4 < x \leq q/4 \\
+              \mathrm{Encode}(2) & \mathrm{else}
+\end{cases}
+$$
+
+Note that we've used the fact that $q/4 = 2^{29}$. Here's what happens when we
+apply $\mathrm{Step}(x)$ to $F(b_0, b_1)$:
+
+| $b_0$                | $b_1$                | $F(b_0, b_1)$         | $\mathrm{Step}(F(b_0, b_1))$ |
+| -------------------- | -------------------- | --------------------- | ---------------------------- |
+| $\mathrm{Encode}(0)$ | $\mathrm{Encode}(0)$ | $\mathrm{Encode}(-3)$ | $\mathrm{Encode}(2)$         |
+| $\mathrm{Encode}(0)$ | $\mathrm{Encode}(2)$ | $\mathrm{Encode}(3)$  | $\mathrm{Encode}(2)$         |
+| $\mathrm{Encode}(2)$ | $\mathrm{Encode}(0)$ | $\mathrm{Encode}(3)$  | $\mathrm{Encode}(2)$         |
+| $\mathrm{Encode}(2)$ | $\mathrm{Encode}(2)$ | $\mathrm{Encode}(1)$  | $\mathrm{Encode}(0)$         |
+
+It is evident from the table that
+
+\\[ \mathrm{NAND}(b_0, b_1) = \mathrm{Step}(\mathrm{Encode}(-3) - b_0 - b_1) \\]
+
+In summary, we've expressed the NAND function in terms of two operations on
+$\mathbb{Z}\_q$: subtraction and the step function.
+
+In section [Homomorphic Operations](#homomorphic-operations) we already
+implemented a homomorphic subtraction function $\mathrm{CSub}$. Therefore, all
+that remains is to implement a homomorphic step function. In the remainder of
+this post we will develop the _bootstrapping_ function $\mathrm{Bootstrap}$
+which is essentially a homomorphic step function that _also_ has bounded output
+noise.
+
+We can then use $\mathrm{CSub}$ and $\mathrm{Boostrap}$ to implement
+$\mathrm{CNAND}$:
+
+\\[ \mathrm{CNAND}(L_0, L_1) = \mathrm{Bootstrap}(
+\mathrm{CSub}(\mathrm{CSub}(\mathrm{Encode}(-3), L_0), L_1) ) \\]
+
+Here is the python implementation:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/nand.py">tfhe/nand.py</a>
+</div>
+
+```python
+import numpy as np
+
+from tfhe import bootstrap, lwe
+
+
+def lwe_nand(
+    lwe_ciphertext_left: lwe.LweCiphertext,
+    lwe_ciphertext_right: lwe.LweCiphertext,
+    bootstrap_key: bootstrap.BootstrapKey,
+) -> lwe.LweCiphertext:
+    """Homomorphically evaluate the NAND function.
+
+    Suppose that lwe_ciphertext_left is an LWE encryption of an encoding of the
+    boolean b_left and lwe_ciphertext_right is an LWE encryption of an encoding
+    of the boolean b_right. Then the the output is an LWE encryption of an encoding
+    of NAND(b_left, b_right).
+    """
+    # Compute an LWE encryption of: encode(-3) - b_left - b_right
+    # First create a trivial encryption of encode(-3)
+    initial_lwe_ciphertext = lwe.lwe_trivial_ciphertext(
+        plaintext=lwe.lwe_encode(-3),
+        config=lwe_ciphertext_left.config,
+    )
+
+    # Homomorphically subtract lwe_ciphertext_left and lwe_ciphertext_right
+    lwe_ciphertext = lwe.lwe_subtract(
+        initial_lwe_ciphertext, lwe_ciphertext_left
+    )
+    lwe_ciphertext = lwe.lwe_subtract(
+        test_lwe_ciphertext, lwe_ciphertext_right
+    )
+
+    # Bootstrap lwe_ciphertext to output encode_bool(False) or
+    # encode_bool(True).
+    return bootstrap.bootstrap(
+        lwe_ciphertext, bootstrap_key, scale=utils.encode_bool(True)
+    )
+```
 
 # Ring LWE
 
