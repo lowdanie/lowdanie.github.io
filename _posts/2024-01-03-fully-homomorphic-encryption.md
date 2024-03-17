@@ -88,7 +88,6 @@ ciphertext_nand = homomorphic_nand(ciphertext_0, ciphertext_1)
 # Client side: Decrypt ciphertext_nand.
 # The result should be equal to NAND(True, False) = True
 result = decrypt(ciphertext_nand, client_key)
-assert result
 ```
 
 Importantly, the server never receives the `client_key` and so it is not able to
@@ -639,11 +638,11 @@ encryption of $m\_1 + m\_2$, all we have to do is decrypt it:
 
 $$
 \begin{align*}
-\mathrm{Dec}\_{\mathbf{s}}(L_{\mathrm{sum}}) &= \mathrm{Dec}\_{\mathbf{s}}((\mathbf{a}_1 + \mathbf{a}_2,
+\mathrm{Dec}_{\mathbf{s}}(L_{\mathrm{sum}}) &= \mathrm{Dec}_{\mathbf{s}}((\mathbf{a}_1 + \mathbf{a}_2,
 b_1 + b_2)) \\
 &= (b_1 + b_2) - (\mathbf{a}_1 + \mathbf{a}_2) \cdot \mathbf{s} \\
 &= (b_1 - \mathbf{a}_1 \cdot \mathbf{s}) + (b_2 - \mathbf{a}_2 \cdot \mathbf{s}) \\
-&= \mathrm{Dec}\_{\mathbf{s}}(L_1) + \mathrm{Dec}\_{\mathbf{s}}(L_2) \\
+&= \mathrm{Dec}_{\mathbf{s}}(L_1) + \mathrm{Dec}_{\mathbf{s}}(L_2) \\
 &= (m_1 + e_1) + (m_2 + e_2)\\
 &= (m_1 + m_2) + (e_1 + e_2)
 \end{align*}
@@ -653,7 +652,7 @@ In summary:
 
 $$
 \begin{equation}\label{eq:cadd-correctness}
-\mathrm{Dec}\_{\mathbf{s}}(L_{\mathrm{sum}}) = (m_1 + m_2) + (e_1 + e_2)
+\mathrm{Dec}_{\mathbf{s}}(L_{\mathrm{sum}}) = (m_1 + m_2) + (e_1 + e_2)
 \end{equation}
 $$
 
@@ -661,7 +660,7 @@ This proves that $L_{\mathrm{sum}}$ is an encryption of $m_1 + m_2$ with noise
 $e_1 + e_2$.
 
 Later in this post we will also use the homomorphic subtraction function
-$\mathrm{CSub}$:
+$\mathrm{CSub}$ which is implemented similarly:
 
 \\[ \mathrm{CSub}: \mathrm{LWE}\_{\mathbf{s}}(m_1) \times
 \mathrm{LWE}\_{\mathbf{s}}(m_2) \rightarrow \mathrm{LWE}\_{\mathbf{s}}(m_1 -
@@ -727,6 +726,8 @@ assert decoded == 2
 ```
 
 ### Homomorphic Multiplication By Plaintext
+
+DO WE REALLY NEED THIS??
 
 In this section we'll implement the homomorphic multiplication by plaintext
 function:
@@ -958,7 +959,7 @@ boolean_nand = lwe.lwe_decode_bool(plaintext_nand)
 assert boolean_nand == True
 ```
 
-## Implementation Sketch
+## Implementation Strategy
 
 The remainder of this post will be dedicated to implementing `lwe_nand`. In this
 section we'll discuss our high level strategy.
@@ -997,10 +998,12 @@ NAND function by composing it with a step function $\mathrm{Step}(x)$ on
 $\mathbb{Z}_q$ defined by:
 
 $$
+\begin{equation}\label{def:step}
 \mathrm{Step}(x) =
 \begin{cases} 0 & -q/4 < x \leq q/4 \\
               \mathrm{Encode}(2) & \mathrm{else}
 \end{cases}
+\end{equation}
 $$
 
 Note that we've used the fact that $q/4 = 2^{29}$. Here's what happens when we
@@ -1079,55 +1082,173 @@ def lwe_nand(
     )
 ```
 
+# Bootstrapping
+
+In the context of TFHE, the $\mathrm{Bootstrap}$ function is a homomorphic
+version of the $\mathrm{Step}$ function defined in equation \ref{def:step}.
+
+More precisely, let $m \in \mathbb{Z}_q$ be an LWE message. The signature of
+$\mathrm{Bootstrap}$ is:
+
+\\[ \mathrm{Bootstrap}: \mathrm{LWE}(m) \rightarrow
+\mathrm{LWE}(\mathrm{Step}(m)) \\]
+
+In other words, $\mathrm{Bootstrap}$ takes as input an LWE encryption of a
+message $m$ and outputs an LWE encryption of $\mathrm{Step}(m)$.
+
+The other key property of $\mathrm{Bootstrap}$ is that noise distribution of its
+output ciphertext is independent on the noise of the input. In particular, if
+bootstrapping is applied to a very noisy ciphertext then the output noise could
+be lower than the input noise.
+
+Here is the declaration of our library function:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/bootstrap.py">tfhe/bootstrap.py</a>
+</div>
+
+```python
+def bootstrap(
+    lwe_ciphertext: lwe.LweCiphertext,
+    bootstrap_key: BootstrapKey,
+    scale: np.int32,
+) -> lwe.LweCiphertext:
+    """Bootstrap the LWE ciphertext.
+
+    Suppose that lwe_ciphertext is an encryption of the int32 i.
+    If -2^30 < i <= 2^30 then return an LWE encryption of the scale argument.
+    Otherwise return an LWE encryption of 0. In both cases the ciphertext noise
+    will be bounded and independent of the lwe_ciphertext noise.
+    """
+    pass
+```
+
+The `bootstrap_key` will be explained later in this post. The `scale` parameter
+is the non zero output value of the step function. Our definition of
+$\mathrm{Step}$ above corresponds to `scale = utils.encode(2)`.
+
+For example, let $m_0=\mathrm{Encode}(0)$ and $m_1 = \mathrm{Encode}(3)$ be two
+LWE messages. Let $L_0 = \mathrm{Encrypt}\_{\mathbf{s}}(m_0)$ be an encryption
+of $m_0$ and $L_1 = \mathrm{Encrypt}\_{\mathbf{s}}(m_1)$ and encryption of
+$m_1$.
+
+Suppose we homomorphically multiply $L_0$ by $2^{20}$ and add the result to
+$L_1$:
+
+\\[ L = \mathrm{CAdd}(L_1, \mathrm{CMul}(2^{20}, L_0)) \\]
+
+As we saw in section
+[Homomorphic Multiplication By Plaintext](#homomorphic-multiplication-by-plaintext),
+$\mathrm{CMul}(2^{20}, L_0)$ is an encryption of $2^{20} \cdot 0 = 0$.
+Therefore, $L$ is an encryption of
+$\mathrm{Encode}(3) + 0 = \mathrm{Encode}(3)$. Furthermore, as we saw in section
+[Noise Analysis](#noise-analysis), we the expect noise distribution of $L$ to
+roughly have a standard deviation of $2^{20} \cdot 2^7 = 2^{27}$.
+
+The following program computes the ciphertexts $L$ and $\mathrm{Bootstrap}(L)$
+1000 times so that we can compare the distributions of the decryptions
+$\mathrm{Dec}\_{\mathbf{s}}(L)$ and
+$\mathrm{Dec}\_{\mathbf{s}}(\mathrm{Bootstrap}(L))$:
+
+```python
+from tfhe import bootstrap, gsw, lwe, utils
+
+lwe_key = lwe.generate_lwe_key(config.LWE_CONFIG)
+gsw_key = gsw.convert_lwe_key_to_gsw(lwe_key, config.GSW_CONFIG)
+bootstrap_key = bootstrap.generate_bootstrap_key(lwe_key, gsw_key)
+
+plaintext_zero = lwe.LwePlaintext(0)
+plaintext_3 = lwe.lwe_encode(3)
+
+decryptions = []
+bootstrap_decryptions = []
+
+for _ in range(1000):
+    ciphertext_zero = lwe.lwe_encrypt(plaintext_zero, lwe_key)
+    ciphertext_3 = lwe.lwe_encrypt(plaintext_3, lwe_key)
+
+    ciphertext = lwe.lwe_add(
+        ciphertext_3, lwe.lwe_plaintext_multiply(2**20, ciphertext_zero))
+
+    bootstrap_ciphertext = bootstrap.bootstrap(
+        ciphertext, bootstrap_key, scale=utils.encode(2)
+    )
+
+    decryptions.append(lwe.lwe_decrypt(ciphertext, lwe_key).message)
+    bootstrap_decryptions.append(
+        lwe.lwe_decrypt(bootstrap_ciphertext, lwe_key).message)
+```
+
+Here is a comparison of the array `decryptions` which holds decryptions of $L$
+and the array `bootstrap_decryptions` which holds decryptions of
+$\mathrm{Bootstrap}(L)$:
+
+![Bootstrapping Noise](/assets/tfhe/bootstrap_noise_comparison.png){:
+.center-image}
+
+As expected, the distribution of decryptions of $L$ is centered at
+$\mathrm{Encode}(3) = 3 \cdot 2^{29}$ with a standard deviation of $2^{27}$.
+
+After bootstrapping, the distribution of decryptions is centered at
+
+\\[ \mathrm{Step}(\mathrm{Encode}(3)) = \mathrm{Encode}(2) = 2 \cdot 2^{29} \\]
+
+Furthermore, the distribution clearly is less noisy after bootstrapping. Indeed,
+the standard deviation of $\mathrm{Bootstrap}(L)$ is $2^{25}$ which is _less_
+than the standard deviation of $L$!
+
+The rest of this post will build towards an implementation of
+$\mathrm{Bootstrap}$. The implementation will rely on an extension of LWE called
+Ring LWE where messages can be polynomials rather than scalars. The general idea
+is that we will express $\mathrm{Step}$ in terms of polynomial multiplication,
+and then use a homomorphic polynomial multiplication function to derive a
+homomorphic version of $\mathrm{Step}$.
+
+In the next section we'll introduce the Ring LWE encryption scheme. Then we will
+develop a homomorphic polynomial multiplication algorithm and use it to
+implement bootstrapping.
+
 # Ring LWE
 
 ## Introduction
 
-The LWE scheme from the previous section was a good start, but it has a few
-major issues:
+_Ring LWE_ (RLWE) is a variation of LWE in which messages are polynomials rather
+than scalars. As mentioned in the previous section, the RLWE encryption scheme
+will be an important ingredient in our bootstrapping implementation.
 
-1. It only supports homomorphic addition.
-1. It only supports a limited number of homomorphic operations (due to noise).
-1. The result of encrypting a message $m \in \mathbb{Z}_q$ is a ciphertext in
-   $\mathbb{Z}_q^n \times \mathbb{Z}_q$. For production level security $n$ is
-   usually chosen to be around $1000$. This means that the ciphertext is around
-   $1000$ times larger than the plaintext which can be a huge issue if the
-   plaintext is large. For example if the plaintext is a 1MB image then after
-   encrypting each pixel the result would be 1GB.
-
-As we will see, _Ring LWE_ (RLWE) is a variation of LWE with an additional
-multiplication operation. This added structure can be used to solve the
-ciphertext size issue, and is also an important ingredient towards the solution
-of the first to problems.
+In the next section we'll define the message space of RLWE more precisely. Then
+we'll define the RLWE encryption scheme.
 
 ## Negacyclic Polynomials
 
-The message space of the RLWE scheme will be the ring of polynomials
-$\mathbb{Z}_q[x] / (x^n + 1)$. In this section we will describe the ring
-$\mathbb{Z}_q[x] / (x^n + 1)$ and in the next section we'll define the RLWE
-scheme.
+The message space of the RLWE scheme is the ring of polynomials
 
-For starters, $\mathbb{Z}_q[x]$ denotes the ring of polynomials with
-coefficients in $\mathbb{Z}_q$. As before, we will assume that $q=2^{32}$ and
-identify $\mathbb{Z}_q$ with signed integers. In this case $\mathbb{Z}_q[x]$
+\\[ \mathbb{Z}\_q[x] / (x^n + 1) \\]
+
+In this section we will describe the ring $\mathbb{Z}_q[x] / (x^n + 1)$ and in
+the next section we'll define the RLWE encryption scheme.
+
+First, $\mathbb{Z}_q[x]$ denotes the ring of polynomials with coefficients in
+$\mathbb{Z}_q$. As before, we will assume that $q=2^{32}$ and identify
+$\mathbb{Z}_q$ with signed 32 bit integers. In this context $\mathbb{Z}_q[x]$
 denotes the ring of polynomials integer coefficients.
 
-An example of an element in $\mathbb{Z}_q[x]$ would be:
+Here is an example of an element in $\mathbb{Z}_q[x]$:
 
-\\[ f(x) = 1 + 2x + 5x^3 \\]
+\\[ f(x) = 1 + 2x - 5x^3 \\]
 
 We call $\mathbb{Z}_q[x]$ a
 [Ring](<https://en.wikipedia.org/wiki/Ring_(mathematics)>) because we can add
-and multiply elements of $\mathbb{Z}_q[x]$. For example, if
-$f(x) = 1 + 2x + 5x^3$ and $g(x) = 1 + x$ then $f(x) + g(x) = 2 + 3x + 5x^3$ and
-$f(x)\cdot g(x) = 1 + 3x + 2x^2 + 5x^3 + 5x^4$.
+and multiply elements. For example, if $f(x) = 1 + 2x - 5x^3$ and $g(x) = 1 + x$
+then $f(x) + g(x) = 2 + 3x - 5x^3$ and
+$f(x)\cdot g(x) = 1 + 3x + 2x^2 - 5x^3 - 5x^4$.
 
 The highest power of $x$ in a polynomial is called the _degree_. For example,
 the degree of $f(x)$ is $3$ and the degree of $g(x)$ is $1$. Polynomials in
-$\mathbb{Z}_q[x]$ can have an arbitrarily high degree.
+$\mathbb{Z}_q[x]$ can have arbitrarily high degrees.
 
 We now turn to the ring $\mathbb{Z}_q[x] / (x^n + 1)$. The denominator $x^n+1$
-plays a similar role to the denominator in the definition
+plays a similar role to the denominator in
 $\mathbb{Z}_q = \mathbb{Z} / q\mathbb{Z}$. Just as $\mathbb{Z}_q$ is defined to
 be the integers modulo $q$, $\mathbb{Z}_q[x] / (x^n + 1)$ is the set of
 polynomials "modulo" the polynomial $x^n + 1$.
@@ -1140,88 +1261,78 @@ we have the following equivalences modulo $x^4 + 1$:
 
 <div>
 \begin{align*}
-1 &= 1\ (\mathrm{mod}\ x^n + 1) \\
-x &= x\ (\mathrm{mod}\ x^n + 1) \\
-x^2 &= x^2\ (\mathrm{mod}\ x^n + 1) \\
-x^3 &= x^3\ (\mathrm{mod}\ x^n + 1) \\
-x^4 &= -1\ (\mathrm{mod}\ x^n + 1) \\
-x^5 &= x \cdot x^4 = -x\ (\mathrm{mod}\ x^n + 1) \\
-x^6 &= x^2 \cdot x^4 = -x^2\ (\mathrm{mod}\ x^n + 1) \\
-x^7 &= x^3 \cdot x^4 = -x^3\ (\mathrm{mod}\ x^n + 1) \\
-x^8 &= x^4 \cdot x^4 = -1 \cdot -1 = 1\ (\mathrm{mod}\ x^n + 1)
+x^4 &= -1\ (\mathrm{mod}\ x^4 + 1) \\
+1 + x^5 &= 1 + x \cdot x^4 = 1 - x \ (\mathrm{mod}\ x^4 + 1) \\
+x^2 + x^8 &= x^2 + x^4 \cdot x^4 = x^2 + (- 1 \cdot -1) = x^2 + 1\ (\mathrm{mod}\ x^4 + 1)
 \end{align*}
 </div>
 
-Note that as the monomial pass $x^4$ they loop back to $1$ but with a negative
+Note that as monomials reach $x^4$ they loop back to $1$ but with a negative
 sign. For this reason polynomials of this form are sometimes called
-_negacyclic_. This process is particularly useful when multiplying polynomials
-in $\mathbb{Z}_q[x] / (x^n + 1)$ so as to ensure that the final degree remains
-less than $n$. For example, let $f(x) = 1 + x^3$ and $g(x) = x$ be elements of
-$\mathbb{Z}_q[x] / (x^4 + 1)$. If we multiply them we get
+_negacyclic_.
+
+Now let's see an example of multiplication in $\mathbb{Z}_q[x] / (x^4 + 1)$. Let
+$f(x) = 1 + x^3$ and $g(x) = x$ be elements of $\mathbb{Z}_q[x] / (x^4 + 1)$.
+Their product is:
 
 \\[ f(x) \cdot g(x) = x + x^4 = x - 1 = -1 + x\ (\mathrm{mod}\ x^4 + 1) \\]
 
-As another example that will be relevant later on, if $f(x) = 1 + x + x^2 + x^3$
-and $g(x) = x^2$ then
-
-<div>
-\begin{align*}
-  f(x) \cdot g(x) &= x^2 + x^3 + x^4 + x^5 \\
-  &= x^2 + x^3 - 1 -x \\
-  &= -1 - x  + x^2 + x^3\,  (\mathrm{mod}\,  x^4 + 1)
-\end{align*}
-</div>
-
 Here is some negacyclic polynomial code that will be used later:
 
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/polynomial.py">tfhe/polynomial.py</a>
+</div>
+
 ```python
+import numpy as np
+import dataclasses
+
+
 @dataclasses.dataclass
 class Polynomial:
-    """A polynomial in the ring Z[x]/(x^N + 1) with int32 coefficients."""
+    """A polynomial in the ring Z_q[x] / (x^N + 1)"""
     N: int
-    # A length N array of polynomial coefficients from lowest degree to highest.
-    # For example, if N=4 and f(x) = 1 + 2x + x^2 then coeff = [1, 2, 1, 0]
     coeff: np.ndarray
 
+
 def polynomial_constant_multiply(c: int, p: Polynomial) -> Polynomial:
-    """Multiply the polynomial by the constant c"""
-    return Polynomial(coeff=np.multiply(c, p.coeff, dtype=np.int32))
+    return Polynomial(N=p.N, coeff=np.multiply(c, p.coeff, dtype=np.int32))
+
 
 def polynomial_multiply(p1: Polynomial, p2: Polynomial) -> Polynomial:
-    """Multiply two polynomials in the ring Z[x]/(x^N + 1).
+    """Multiply two negacyclic polynomials.
 
-       We assume p1.N = p2.N.
-
-       Note that this method is a SUBOPTIMAL way to multiply two negacyclic
-       polynomials. It would be more efficient to use a negacyclic version
-       of the FFT polynomial multiplication algorithm as explained in the
-       end of the post.
+    Note that this is not an optimal implementation.
+    See
+    https://www.jeremykun.com/2022/12/09/negacyclic-polynomial-multiplication/
+    for a more efficient version which uses FFTs.
     """
     N = p1.N
 
     # Multiply and pad the result to have length 2N-1
-    # Note that np.polymul expect the coefficients from highest to lowest
-    # so we have to reverse coefficients before and after applying it.
     prod = np.polymul(p1.coeff[::-1], p2.coeff[::-1])[::-1]
-    prod_padded = np.zeros(2*N - 1, dtype=np.int32)
-    prod_padded[:len(prod)] = prod
+    prod_padded = np.zeros(2 * N - 1, dtype=np.int32)
+    prod_padded[: len(prod)] = prod
 
     # Use the relation x^N = -1 to obtain a polynomial of degree N-1
     result = prod_padded[:N]
     result[:-1] -= prod_padded[N:]
     return Polynomial(N=N, coeff=result)
 
+
 def polynomial_add(p1: Polynomial, p2: Polynomial) -> Polynomial:
-    return Polynomial(
-        N=p1.N, coeff=np.add(p1.coeff, p2.coeff, dtype=np.int32))
+    return Polynomial(N=p1.N, coeff=np.add(p1.coeff, p2.coeff, dtype=np.int32))
+
 
 def polynomial_subtract(p1: Polynomial, p2: Polynomial) -> Polynomial:
     return Polynomial(
-        N=p1.N, coeff=np.subtract(p1.coeff, p2.coeff, dtype=np.int32))
+        N=p1.N, coeff=np.subtract(p1.coeff, p2.coeff, dtype=np.int32)
+    )
+
 
 def zero_polynomial(N: int) -> Polynomial:
-    """Build the zero polynomial in the ring Z[x]/(x^N + 1)"""
     return Polynomial(N=N, coeff=np.zeros(N, dtype=np.int32))
+
 
 def build_monomial(c: int, i: int, N: int) -> Polynomial:
     """Build a monomial c*x^i in the ring Z[x]/(x^N + 1)"""
@@ -1231,28 +1342,12 @@ def build_monomial(c: int, i: int, N: int) -> Polynomial:
     i_mod_N = i % N
     k = (i_mod_N - i) // N
 
-    # If k is odd then the monomial x^(i % N) picks up a negative sign since:
-    # x^i = x^(i + kN - kN) = x^(-kN) * x^(i + k*N) = (x^N)^(-k) * x^(i % N) =
-    #       (-1)^(-k) * x^(i % N) = (-1)^k * x^(i % N)
+    # If k is odd then the monomial picks up a negative sign since:
+    # x^i = (-1)^k * x^(i + k*N) = (-1)^k * x^(i % N)
     sign = 1 if k % 2 == 0 else -1
 
     coeff[i_mod_N] = sign * c
     return Polynomial(N=N, coeff=coeff)
-```
-
-Here is an example:
-
-```python
->>> N = 8
->>> # Build p1(x) = x + 2x + ... + 7x^7
->>> p1 = Polynomial(N=N, coeff=np.arange(N, dtype=np.int32))
-Polynomial(N=8, coeff=array([0, 1, 2, 3, 4, 5, 6, 7], dtype=int32))
->>> # Build p2(x) = c*x^i = x^2
->>> p2 = build_monomial(c=1, i=2, N=N)
-Polynomial(N=8, coeff=array([0, 0, 1, 0, 0, 0, 0, 0], dtype=int32))
->>> # Multiply p1 and p2
->>> q = polynomial_multiply(p1, p2)
-Polynomial(N=8, coeff=array([-6, -7,  0,  1,  2,  3,  4,  5], dtype=int32))
 ```
 
 ## The RLWE Encryption Scheme
@@ -1261,13 +1356,13 @@ In this section we will define the _RLWE Encryption Scheme_ which is very
 similar to the LWE encryption scheme but with messages in
 $\mathbb{Z}_q[x] / (x^n + 1)$ rather than $\mathbb{Z}_q$.
 
-A secret key in RLWE is a polynomial in $\mathbb{Z}_q[x] / (x^n + 1)$ with
+A secret key in RLWE is a polynomial in $\mathbb{Z}\_q[x] / (x^n + 1)$ with
 random _binary_ coefficients. For example, if $n=4$ then a secret key may look
 like:
 
 \\[ s(x) = 1 + 0\cdot x + 1\cdot x^2 + 1\cdot x^3 = 1 + x^2 + x^3 \\]
 
-To encrypt a message $m(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ with a secret key
+To encrypt a message $m(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ with the secret key
 $s(x)$ we first sample a polynomial $a(x)\in \mathbb{Z}_q[x]$ with uniformly
 random coefficients in $\mathbb{Z}_q$ and an error polynomial
 $e(x)\in \mathbb{Z}_q[x]$ with small error coefficients sampled from
@@ -1279,58 +1374,42 @@ To decrypt a ciphertext $(a(x), b(x))$ we compute:
 
 \\[ \mathrm{Dec}_{s(x)}((a(x), b(x))) = b(x) - a(x)\cdot s(x) = m(x) + e(x) \\]
 
-Similarly to LWE, after decrypting a ciphertext $\mathrm{Enc}_{s(x)}(m(x))$ we
-get the original message $m(x)$ together with a small amount of noise. As in the
-LWE case, if we are interested in noiseless decryptions we can use a
-_restricted_ message space of polynomials whose coefficients are in
-$\mathbb{Z}_8$ and extend our encoding and decoding functions to polynomials by
-applying our original $\mathrm{Encode}$ and $\mathrm{Decode}$ methods to each
-coefficient:
+Similarly to LWE, the encryption function is not deterministic and so each
+message has many valid encryptions. The set of valid encryptions of a message
+$m(x)$ with the key $s(x)$ will be denoted $\mathrm{RLWE}_{s(x)}(m(x))$.
+
+Here is our implementation of the RLWE scheme:
 
 <div>
-\begin{align*}
-    \mathrm{EncodePolynomial}: \mathbb{Z}_8[x] &\rightarrow \mathbb{Z}_q[x] \\
-    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto
-    \mathrm{Encode}(a_0) + \mathrm{Encode}(a_1)x + \dots \mathrm{Encode}(a_{n-1})x^{n-1}
-\end{align*}
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/rlwe.py">tfhe/rlwe.py</a>
 </div>
-
-and
-
-<div>
-\begin{align*}
-    \mathrm{DecodePolynomial}: \mathbb{Z}_q[x] &\rightarrow \mathbb{Z}_8[x]\\
-    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto
-    \mathrm{Decode}(a_0) + \mathrm{Decode}(a_1)x + \dots \mathrm{Decode}(a_{n-1})x^{n-1}
-\end{align*}
-</div>
-
-Just like with LWE, if we work with elements in the restricted message space
-$r(x) \in \mathbb{Z}_8[x]$ and encode them before encryption and decode after
-decryption then we end up with the initial $r(x)$ without noise:
-
-\\[
-\mathrm{DecodePolynomial}(\mathrm{Dec}\_{s(x)}(\mathrm{Enc}\_{s(x)}(\mathrm{EncodePolynomial}(r(x)))))
-= r(x) \\]
-
-Here is an implementation of the RLWE encryption scheme together with the
-encoding and decoding functions:
 
 ```python
+import dataclasses
+
+import numpy as np
+
+from tfhe import lwe, polynomial, utils
+from tfhe.polynomial import Polynomial
+
+
 @dataclasses.dataclass
 class RlweConfig:
-    degree: int  # The messages are in Z_q[x] / (x^degree + 1)
-    noise_std: float  # The noise added during encryption.
+    degree: int  # Messages will be in the space Z[X]/(x^degree + 1)
+    noise_std: float  # The std of the noise added during encryption.
+
 
 @dataclasses.dataclass
 class RlweEncryptionKey:
     config: RlweConfig
     key: Polynomial
 
+
 @dataclasses.dataclass
 class RlwePlaintext:
     config: RlweConfig
     message: Polynomial
+
 
 @dataclasses.dataclass
 class RlweCiphertext:
@@ -1338,88 +1417,140 @@ class RlweCiphertext:
     a: Polynomial
     b: Polynomial
 
-def encode_rlwe(p: Polynomial, config: RlweConfig) -> RlwePlaintext:
-    """Encode a polynomial with coefficients in [-4,4) as an RLWE plaintext."""
-    encode_coeff = np.array([encode_lwe(i).message for i in p.coeff])
-    return RlwePlaintext(
-        config=config, message=Polynomial(N=p.N, coeff=encode_coeff))
 
-def decode_rlwe(plaintext: RlwePlaintext) -> Polynomial:
-    """Decode an RLWE plaintext to a polynomial with coefficients in [-4,4)."""
-    decode_coeff = np.array(
-        [decode_lwe(LwePlaintext(i)) for i in plaintext.message.coeff])
-    return Polynomial(N=plaintext.message.N, coeff=decode_coeff)
-
-def generate_rlwe_key(config: LweConfig) -> np.ndarray:
+def generate_rlwe_key(config: RlweConfig) -> np.ndarray:
     return RlweEncryptionKey(
         config=config,
         key=Polynomial(
             N=config.degree,
             coeff=np.random.randint(
-                low=0, high=2, size=config.degree, dtype=np.int32)))
+                low=0, high=2, size=config.degree, dtype=np.int32
+            ),
+        ),
+    )
 
 def rlwe_encrypt(
-    plaintext: RlwePlaintext, key: RlweEncryptionKey) -> RlweCiphertext:
+    plaintext: RlwePlaintext, key: RlweEncryptionKey
+) -> RlweCiphertext:
     a = Polynomial(
         N=key.config.degree,
-        coeff=np.random.randint(
-            low=INT32_MIN, high=INT32_MAX+1, size=key.config.degree, dtype=np.int32))
+        coeff=utils.uniform_sample_int32(size=key.config.degree),
+    )
     noise = Polynomial(
         N=key.config.degree,
-        coeff=np.int32(
-            INT32_MAX * np.random.normal(loc=0.0, scale=key.config.noise_std, size=key.config.degree)))
+        coeff=utils.gaussian_sample_int32(
+            std=key.config.noise_std, size=key.config.degree
+        ),
+    )
 
-    b = polynomial_add(polynomial_multiply(a, key.key), plaintext.message)
-    b = polynomial_add(b, noise)
+    b = polynomial.polynomial_add(
+        polynomial.polynomial_multiply(a, key.key), plaintext.message
+    )
+    b = polynomial.polynomial_add(b, noise)
 
     return RlweCiphertext(config=key.config, a=a, b=b)
 
-def rlwe_decrypt(ciphertext: RlweCiphertext, key: RlweEncryptionKey) -> RlwePlaintext:
-    message = polynomial_subtract(
-        ciphertext.b, polynomial_multiply(ciphertext.a, key.key))
+
+def rlwe_decrypt(
+    ciphertext: RlweCiphertext, key: RlweEncryptionKey
+) -> RlwePlaintext:
+    message = polynomial.polynomial_subtract(
+        ciphertext.b, polynomial.polynomial_multiply(ciphertext.a, key.key)
+    )
     return RlwePlaintext(config=key.config, message=message)
 ```
 
-Here is an example:
+We'll use the following RLWE parameters in this post:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/config.py">tfhe/config.py</a>
+</div>
+
+```
+RLWE_CONFIG = rlwe.RlweConfig(degree=1024, noise_std=2 ** (-24))
+```
+
+## RLWE Message Encoding
+
+As with LWE, after decrypting a ciphertext $\mathrm{Enc}\_{s(x)}(m(x))$ we get
+the original message $m(x)$ together with a small amount of noise $e(x)$. To
+achieve noiseless decryptions we'll extend the $\mathrm{Encode}$ and
+$\mathrm{Decode}$ functions from [Message Encoding](#message-encoding) to
+polynomials by encoding and decoding each individual coefficient.
+
+The extended $\mathrm{Encode}$ function will encode a polynomial with
+coefficients in $\mathbb{Z}_8$ as a polynomial with coefficients in
+$\mathbb{Z}_q$:
+
+<div>
+\begin{align*}
+    \mathrm{Encode}: \mathbb{Z}_8[x]/(x^N+1) &\rightarrow \mathbb{Z}_q[x]/(x^N+1) \\
+    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto
+    \mathrm{Encode}(a_0) + \mathrm{Encode}(a_1)x + \dots \mathrm{Encode}(a_{n-1})x^{n-1}
+\end{align*}
+</div>
+
+Similarly, the extended $\mathrm{Decode}$ function will decode a polynomial with
+coefficients in $\mathrm{Z}_q$ to a polynomial with coefficients in
+$\mathrm{Z}_8$:
+
+<div>
+\begin{align*}
+    \mathrm{Decode}: \mathbb{Z}_q[x]/(x^N+1) &\rightarrow \mathbb{Z}_8[x]/(x^N+1) \\
+    a_0 + a_1x + \dots a_{n-1}x^{n-1} &\mapsto
+    \mathrm{Decode}(a_0) + \mathrm{Decode}(a_1)x + \dots \mathrm{Decode}(a_{n-1})x^{n-1}
+\end{align*}
+</div>
+
+Just like with LWE, we'll restrict our message space to encodings of
+$\mathbb{Z}_8/(x^N+1)$. We can then apply $\mathrm{Decode}$ to remove the
+decryption error $e(x)$ as long as the absolute values of the coefficients of
+$e(x)$ are all less than $2^{28}$
+
+Here is an implementation of the encoding and decoding functions for RLWE
+messages:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/rlwe.py">tfhe/rlwe.py</a>
+</div>
 
 ```python
->>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-20))
->>> rlwe_key = generate_rlwe_key(rlwe_config)
-RlweEncryptionKey(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
-    key=Polynomial(N=1024, coeff=array([1, 0, 1, ..., 1, 1, 0], dtype=int32)))
->>> # Build a polynomial r(x) = x^2 in the restricted message space.
->>> r = build_monomial(c=1, i=2, N=rlwe_config.degree)
-Polynomial(N=1024, coeff=array([0, 0, 1, ..., 0, 0, 0], dtype=int32))
->>> # Encode r(x) as an RLWE plaintext.
->>> rlwe_plaintext = encode_rlwe(r, rlwe_config)
-RlwePlaintext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
-    message=Polynomial(
-        N=1024,
-        coeff=array([0, 0, 536870912, ..., 0, 0, 0], dtype=int32)))
->>> # Encrypt the plaintext with the key.
->>> rlwe_ciphertext = rlwe_encrypt(rlwe_plaintext, rlwe_key)
-RlweCiphertext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
-    a=Polynomial(
-        N=1024,
-        coeff=array([265525746, 339619264, 25096818, ...,  -336116691, 1946582588, -1796375564], dtype=int32)),
-    b=Polynomial(
-        N=1024,
-        coeff=array([2133834000, 1387586285, 1458261587, ..., 405447664, -1104510688, -434404325], dtype=int32)))
->>> # Decrypt the ciphertext. Note that the result is close to the rlwe_plaintext
->>> # with a small amount of noise. I.e, all of the coefficients are small except
->>> # for the third one.
->>> rlwe_decrypted = rlwe_decrypt(rlwe_ciphertext, rlwe_key)
-RlwePlaintext(
-    config=RlweConfig(degree=1024, noise_std=9.5367431640625e-07),
-    message=Polynomial(
-        N=1024,
-        coeff=array([-3068, -1970, 536872441, ..., 1159, -13, -2289], dtype=int32)))
->>> # Decode rlwe_decrypted to obtain the original r(x) without noise.
->>> decode_rlwe(rlwe_decrypted)
-Polynomial(N=1024, coeff=array([0, 0, 1, ..., 0, 0, 0]))
+def rlwe_encode(p: Polynomial, config: RlweConfig) -> RlwePlaintext:
+    """Encode a polynomial with coefficients in [-4, 4) as an RLWE plaintext."""
+    encode_coeff = np.array([utils.encode(i) for i in p.coeff])
+    return RlwePlaintext(
+        config=config, message=polynomial.Polynomial(N=p.N, coeff=encode_coeff)
+    )
+
+
+def rlwe_decode(plaintext: RlwePlaintext) -> Polynomial:
+    """Decode an RLWE plaintext to a polynomial with coefficients in [-4, 4) mod 8."""
+    decode_coeff = np.array([utils.decode(i) for i in plaintext.message.coeff])
+    return Polynomial(N=plaintext.message.N, coeff=decode_coeff)
+```
+
+Here is an example of using the RLWE encryption scheme with the above encoding:
+
+```python
+key = rlwe.generate_rlwe_key(config.RLWE_CONFIG)
+
+# p = 2x^3
+p = polynomial.build_monomial(c=2, i=3, N=config.RLWE_CONFIG.degree)
+
+# Encode the polynomial p as an RLWE plaintext.
+plaintext = rlwe.rlwe_encode(p, config)
+
+# Encrypt the plaintext with the key.
+ciphertext = rlwe.rlwe_encrypt(plaintext, key)
+
+# Decrypt the ciphertext.
+decrypted = rlwe.rlwe_decrypt(ciphertext, key)
+
+# Decode the decrypted message to remove the noise.
+decoded = rlwe.rlwe_decode(decrypted)
+
+# The final decoded result should be equal to the original polynomial p.
+assert np.all(decoded.coeff == p.coeff)
 ```
 
 ## Homomorphic Operations
@@ -1429,8 +1560,13 @@ multiply them by plaintext constants.
 
 ### Homomorphic Addition
 
-Let $s(x)$ be an RLWE encryption key,
-$m_1(x), m_2(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ be RLWE plaintexts and
+Let $s(x)$ be an RLWE encryption key and let
+$m_1(x), m_2(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ be RLWE plaintexts. The
+signature of the homomorphic addition function $\mathrm{CAdd}$ is:
+
+\\[
+\mathrm{CAdd}: \mathrm{RLWE}_{s(x)}(m_1(x)) \times 
+\\]
 
 \\[ \mathrm{Enc}\_{s(x)}(m_i(x)) = (a_i(x), b_i(x)) \in \left( \mathbb{Z}\_q[x]
 / (x^n + 1) \right)^2 \\]
