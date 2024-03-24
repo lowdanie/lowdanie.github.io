@@ -20,8 +20,13 @@ $blockquote-text-color: #819198 !default;
     flex-flow: row wrap;
     justify-content: flex-start;
     list-style: none;
-    margin: 0;
+    margin: 0 auto;
 }
+
+@media screen and (min-width: 64em) { .navigation { max-width: 64rem; padding: 2rem 6rem; font-size: 1.1rem; } }
+@media screen and (min-width: 42em) and (max-width: 64em) { .navigation { padding: 2rem 4rem; font-size: 1.1rem; } }
+@media screen and (max-width: 42em) { .navigation { padding: 2rem 1rem; font-size: 1rem; } }
+
 
 .navigation a {
     text-decoration: none;
@@ -31,8 +36,74 @@ $blockquote-text-color: #819198 !default;
     font-weight: bold;
 }
 
+@media screen and (min-width: 64em) { .navigation a { padding: 0rem 1rem 0rem 0rem; } }
+@media screen and (min-width: 42em) and (max-width: 64em) { .navigation a { padding: 0rem 1rem 0rem 0rem; } }
+@media screen and (max-width: 42em) { .navigation a { padding: 0rem 1rem 0rem 0rem; } }
+
+@media screen and (min-width: 64em) { .main-content { font-size: 1.1rem; } }
+@media screen and (min-width: 42em) and (max-width: 64em) { .main-content { font-size: 1.1rem; } }
+@media screen and (max-width: 42em) { .main-content { font-size: 1rem; } }
+
+@media screen and (min-width: 64em) {
+
+    .main-content .highlight pre,
+    .main-content pre {
+        font-size: 1rem;
+        line-height: 1.1;
+    }
+
+    .main-content pre,
+    .main-content code,
+    .main-content pre>code {
+        font-size: 1rem;
+    }
+}
+
+@media screen and (min-width: 42em) and (max-width: 64em) {
+
+    .main-content .highlight pre,
+    .main-content pre {
+        font-size: 1rem;
+        line-height: 1.1;
+    }
+
+    .main-content pre,
+    .main-content code,
+    .main-content pre>code {
+        font-size: 1rem;
+    }
+}
+
+@media screen and (max-width: 42em) {
+    .main-content .highlight pre,
+    .main-content pre code {
+        font-size: 0.9rem;
+        line-height: 1;
+    }
+
+    .main-content pre,
+    .main-content code,
+    .main-content pre>code {
+        font-size: 0.9rem;
+    }
+}
+
 .center-image {
     display: block;
     margin-left: auto;
     margin-right: auto;
 }
+
+.MJXc-display {
+    overflow: auto;
+}
+
+.details-content {
+    padding: 0 1rem;
+    color: #819198; 
+    border-left: 0.3rem solid #dce6f0;
+}
+
+summary {
+    display: list-item;
+  }
