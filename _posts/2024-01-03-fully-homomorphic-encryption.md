@@ -748,7 +748,7 @@ $L = (\mathbf{a}, b)$:
 As before, we can verify that this is correct by decrypting
 $L_{\mathrm{prod}} = \mathrm{PMul}(c, L)$:
 
-<div>
+$$
 \begin{align*}
 \mathrm{Dec}_{\mathbf{s}}(L_{\mathrm{prod}}) &= \mathrm{Dec}_{\mathbf{s}}((c \cdot \mathbf{a}, c \cdot b)) \\
 &= (c \cdot b) - (c \cdot \mathbf{a}) \cdot \mathbf{s} \\ 
@@ -756,7 +756,7 @@ $L_{\mathrm{prod}} = \mathrm{PMul}(c, L)$:
 &= c \cdot (m + e) \\
 &= (c \cdot m) + (c \cdot e)
 \end{align*}
-</div>
+$$
 
 This shows that the result of decrypting $L_{\mathrm{prod}}$ is the product
 $c \cdot m$ together with some noise that is equal to $c \cdot e$. If $c$ is
@@ -1680,6 +1680,8 @@ assert np.all(cm_decoded.coeff == polynomial.polynomial_multiply(c, m))
 
 # A Homomorphic Multiplexer
 
+## Introduction
+
 The [Multiplexer](https://en.wikipedia.org/wiki/Multiplexer) gate has three
 inputs: a _selector_ bit $b$ and two _lines_ $l_0$ and $l_1$. The output is
 defined by:
@@ -1932,18 +1934,18 @@ We claim that
 is also a valid RLWE encryption of $f_1(x)\cdot f_2(x)$ under the assumption
 that the coefficients of $f_1(x)$ and $R_2=(a_2(x), b_2(x))$ are small.
 
-<details>
+<details id="proof:cmul-preliminary">
 <summary>Proof</summary>
 <div class="details-content">
 
 As usual, we'll prove this by analyzing the decryption of $R_{\mathrm{prod}}$.
 First of all:
 
-<div>
+$$
 \begin{equation}\label{eq:decrypt-prod}
 \mathrm{Dec}_{s(x)}(R_2 \cdot (f_1(x)\cdot I_{2\times 2} + Z)) = \mathrm{Dec}_{s(x)}(f_1(x) \cdot R_2) + \mathrm{Dec}_{s(x)}(R_2 \cdot Z)
 \end{equation}
-</div>
+$$
 
 By linearity of the decryption function LINK:
 
@@ -2046,640 +2048,363 @@ We'll decompose it using multiple powers of $p$:
 \\[ x = x_0 + x_1 \cdot p + \cdots + x_n\cdot p^n \\]
 
 In the next section we'll describe the details of the base-$p$ representation.
-Then we'll see how to incorporate it into homomorphic multiplication and obtain
-a better bound on the noise.
+Then we'll see how to incorporate it into homomorphic multiplication so as to
+obtain a better bound on the noise.
 
 ### The Base $p$ Representation
 
-Let $s(x)$ be an RLWE encryption key and let $f_1(x)$ and $f_2(x)$ be RLWE
-plaintexts. Let $R = (a(x), b(x)) \in \mathrm{RLWE}_{s(x)}(f_2(x))$ be an RLWE
-encryption of $f_2(x)$. In the previous section we defined the GSW encryption of
-$f_1(x)$ to be:
+Recall that in this post, $q=2^{32}$ and $\mathbb{Z}_q$ is represented by the
+signed 32-bit integers $[-2^{31}, 2^{31})$. In this section we'll similarly set
+$p=2^8$ and $\mathbb{Z}_p$ will denote the signed 8-bit integers $[-2^7, 2^7)$.
+We'll also set $k = \frac{\log(q)}{\log(p)} = 4$
 
-\\[ G = f_1(x)I_{2\times 2} + Z \\]
+Let $x \in \mathbb{Z}\_q$ be a signed 32-bit integer. The _base-$p$
+representation_ of $x$ is defined to be a length $k$ sequence of elements of
+$\mathbb{Z}\_q$, $(x_0,\dots,x_{k-1})$, satisfying:
 
-and we defined the homomorphic product of $R$ and $G$ to be:
+\\[ x = x_0 + x_1 \cdot p + \dots + x_{k-1}p^{k-1} \text{(mod q)} \\]
 
-\\[ \mathrm{CMul}(G, R) := R \cdot G = R \cdot (f_1(x)I_{2\times 2} + Z) \\]
+For example,
 
-We saw that $R \cdot G$ is an encryption of the product $f_1(x)\cdot f_2(x)$,
-but that the noise is proportional to the coefficients of the ciphertext $R$
-which can be arbitrarily large.
+\\[ 1000 = -24 + 4 \cdot 2^8 + 0 \cdot 2^{2\cdot 8} + 0 \cdot 2^{3\cdot 8}
+\text{(mod q)} \\]
 
-By setting $p=2^k$ for a large enough $k$, we can keep the noise under control.
+which means that the base-$p$ representation of $x=1000$ is $(-24, 4, 0, 0)$.
 
-The only problem is that division by $p$ is not well defined on $\mathbb{Z}\_q$,
-The best we can do is divide modulo $p=2^k$ but then we'd be throwing out the
-remainder and loosing a lot of precision. We can fix this by iteratively
-dividing the remainder modulo $$, and then the remainder of that modulo
-$2^{k-2}$
-and so on all the way until $2^0=1$. In other words, we can replace the
-coefficients of $R$ with their _binary representation_, and collect the
-corresponding powers of $2$ into the definition of $G$.
+Another interesting example is $x=2^{31}-1$:
 
-Let's see how this works in more detail.
+\\[ 2^{31}-1 = -1 + 0 \cdot 2^8 + 0 \cdot 2^{2\cdot 8} - 128 \cdot 2^{3\cdot 8}
+\text{(mod q)} \\]
 
-First, we'll denote by $\mathrm{Base}_2(x)$ the function that converts a 32-bit
-integer $x\in\mathbb{Z}_q$ into its little endian binary representation:
+Here we are relying on the fact that
+$2^{31} - 1 = -2^{31} - 1 \text{(mod 2^{32})}$
 
-\\[ \mathrm{Base}\_2(x): \mathbb{Z}_q \rightarrow \underbrace{\mathbb{Z}_2
-\times \dots \times \mathbb{Z}_2}\_{\text{32 times}} \\]
+We'll define $\mathrm{Base}_p$ to be the function that converts an element of
+$\mathbb{Z}_q$ to its base-$p$ representation:
 
-More precisely, note that we can express a 32-bit integer $c \in \mathbb{Z}_q$
-as a sum:
+\\[ \mathrm{Base}_p: \mathbb{Z}_q \rightarrow \mathbb{Z}_p^k \\]
 
-\\[ c = c_0 + c_1 \cdot 2 + c_2 \cdot 2^2 + c_3 \cdot 2^3\\]
+For example, $\mathrm{Base}_p(1000) = (-24, 4, 0, 0)$.
 
-where $\vert c_i \vert < 2$. Here are two examples:
+The remainder of this section will be concerned with implementing the function
+$\mathrm{Base}_p$.
+
+First, note that the analog of the base-$p$ representation for an _unsigned_
+integer $x$ can easily be deduced from the binary representation of $x$. For
+example, the binary representation of $x=1000$ is:
+
+```
+00000000000000000000001111101000
+```
+
+To get an unsigned base-$p$ representation, we can simply split this into chunks
+of size $\log(p)=8$:
+
+```
+x_0 = 0b11101000 = 232
+x_1 = 0b00000011 = 3
+x_2 = 0b00000000 = 0
+x_3 = 0b00000000 = 0
+```
+
+Indeed:
+
+\\[ 1000 = 232 + 3\cdot 2^8 + 0 \cdot 2^{2\cdot 8} + 0 \cdot 2^{3\cdot 8} \\]
+
+To implement $\mathrm{Base}\_p$ for _signed_ integers, we'll first add an offset
+$B$ (whose value will be specified later) to $x$ and compute the unsigned
+base-$p$ representation of $x + B$: $(x'\_0,\dots,x'_{k-1})$ where
+$x'_i\in[0, 256)$. We'll then subtract $\frac{p}{2}=128$ from the elements of
+the unsigned representation to get the signed representation:
+
+\\[ \mathrm{Base}\_p(x) = (x'\_0 - \frac{p}{2},\dots,x'\_{k-1} - \frac{p}{2} )
+\\]
+
+What should we use for the offset $B$? Note that by the definition of the
+(signed) base-$p$ representation:
+
+\\[ x = \sum_{i=0}^{k-1} (x'\_0 - \frac{p}{2}) \cdot p^i = \sum_{i=0}^{k-1}
+x'\_0 p^i - \frac{p}{2}\sum_{i=0}^{k-1} p^i\\]
+
+Rearranging this give us:
+
+\\[ x + \frac{p}{2}\sum_{i=0}^{k-1} p^i = \sum_{i=0}^{k-1} x'\_0 p^i \\]
+
+This means that we can set the offset to $B = \frac{p}{2}\sum_{i=0}^{k-1} p^i$.
+
+Here is an implementation of the signed base-$p$ representation. Our
+implementation uses a "shift and mask" method to comptue the unsigned
+representation.
 
 <div>
-\begin{align*}
-  -8 &= 0 + 0\cdot 2 + 0 \cdot 2^2 -1 \cdot 2^3 \\
-   6 &= 0 + 1\cdot 2 + 1 \cdot 2^2 + 0 \cdot 2^3
-\end{align*}
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py">tfhe/gsw.py</a>
 </div>
-
-We call this representation of $c$ by the coefficients $c_0,\ c_1,\ c_2,\ c_3$
-the base-$2$ representation. This is similar to the usual binary representation
-except that it is extended to include negative numbers.
-
-More generally, the base-$p$ representation of $\mathbb{Z}_q$ represents
-elements of $\mathbb{Z}_q$ as a sum of multiples of powers of $p$. Note that
-$m = \lfloor \log_p(q) \rfloor$ is the largest integer satisfying
-$p^m \leq q/2$. The base-$p$ representation of an element $c\in\mathbb{Z}_q$ is
-a sequence $c_0,\dots,c_m$ satisfying $\vert c_i \vert < p$ and:
-
-\\[ c = c_0 + c_1\cdot p + \dots + c_m \cdot p^m \\]
-
-We'll denote the base-$p$ representation of an element $c\in\mathbb{Z}_q$ by
-$\mathrm{Base}_p(c)$:
-
-<div>
-\begin{align*}
-\mathrm{Base}_p: \mathbb{Z}_q &\rightarrow \mathbb{Z}^{\lfloor \log_p(q) \rfloor} \\
-                  c &\mapsto (c_0,\dots,c_{\lfloor \log_p(q/2) \rfloor})
-\end{align*}
-</div>
-
-Later it will be important to recover an element $c\in\mathbb{Z}_q$ from it's
-base-$p$ representation $\mathrm{Base}_p$. For this purpose we define the
-inverse of $\mathrm{Base}_p$ which takes a sequence
-$(c_0,\dots,c_{\lfloor \log_p(q/2) \rfloor})$ and combines them with powers of
-$p$ to produce the original constant $c$:
-
-<div>
-\begin{align*}
-\mathrm{Base}^{-1}_p: \mathbb{Z}^{\lfloor \log_p(q/2) \rfloor} &\rightarrow \mathbb{Z}_q   \\
-                  (c_0,\dots,c_{\lfloor \log_p(q/2) \rfloor}) &\mapsto \sum_{i=0}^{i=\lfloor \log_p(q/2) \rfloor} c_ip^i
-\end{align*}
-</div>
-
-It is easy to check that for all $c\in\mathbb{Z}_q$:
-
-\\[ \mathrm{Base}^{-1}_p(\mathrm{Base}_p(c)) = c \\]
-
-The key idea is that $\mathrm{Base}_p$ is analogous to division by $p$ and its
-inverse $\mathrm{Base}^{-1}_p$ is analogous to multiplication by $p$. Unlike
-simple division, $\mathrm{Base}_p$ is well defined in $\mathbb{Z}_q$.
-
-Soon we will upgrade our previous attempt at defining $\mathrm{CMul}$ by using
-$\mathrm{Base}_p$ and $\mathrm{Base}^{-1}_p$ in place of the division by $p$ and
-the multiplication by $p$ operations in \ref{cmul-divide-by-p}.
-
-Here are implementations of $\mathrm{Base}_p$ (`int_to_base_p`) and
-$\mathrm{Base}^{-1}_p$ (`base_p_to_int`). To simplify calculations, in this
-implementation $q=2^k$ and $p=2^l$ are given in terms of their base-$2$
-logarithms $k$ and $l$.
 
 ```python
-def get_base_p_rep_length(log_q, log_p):
-    """Get number of powers of p in the base-p radix decomposition of
-       Z_q = [-q/2, q/2).
+def base_p_num_powers(log_p: int):
+    """Return the size of a base 2^log_p representation of an int32."""
+    return 32 // log_p
 
-       log_q: The logarithm of q base 2.
-       log_p: The logarithm of p base 2.
+
+def array_to_base_p(a: np.ndarray, log_p: int) -> Sequence[np.ndarray]:
+    """Compute the base 2^log_p representation of each element in a.
+
+    a: An array of type int32
+    log_p: Compute the representation in base 2^log_p
     """
-    # Get the highest multiple of log_p that is less than or equal to log_q - 1.
-    # Note that this is also the highest power of p that is less than or equal to q/2.
-    m = (log_q - 1) // log_p
+    num_powers = base_p_num_powers(log_p)
+    half_p = np.int32(2 ** (log_p - 1))
+    offset = half_p * sum(2 ** (i * log_p) for i in range(num_powers))
+    mask = 2 ** (log_p) - 1
 
-    # Add one to account for the 0-th power p^0=1.
-    return m + 1
+    a_offset = (a + offset).astype(np.uint32)
 
+    output = []
+    for i in range(num_powers):
+        output.append(
+            (np.right_shift(a_offset, i * log_p) & mask).astype(np.int32)
+            - half_p
+        )
 
-def int_to_base_p(x: int, log_q: int, log_p: int) -> list[int]:
-    """Get the base-p representation of an integer in Z_q.
-
-       log_q: The base 2 logarithm of q.
-       log_p: The base 2 logarithm of p.
-    """
-    num_powers = get_base_p_rep_length(log_q, log_p)
-
-    remainder = x
-    rep = []
-
-    for i in reversed(range(num_powers)):
-        p_i = 2**(i * log_p) # p^i
-        rep.append(remainder // p_i)
-        remainder -= rep[-1] * p_i
-
-    return list(reversed(rep))
+    return output
 
 
-def base_p_to_int(base_p_rep: list[int], log_q: int, log_p: int):
-    """Convert a base-p representation to an integer in Z_q.
-
-       log_q: The base 2 logarithm of q.
-       log_p: The base 2 logarithm of p.
-    """
-
-    # c_0 + c_1 * p  + ... + c_m * p^m
-    return sum(c * 2**(i * log_p) for i, c in enumerate(base_p_rep))
+def base_p_to_array(a_base_p: Sequence[np.ndarray], log_p) -> np.ndarray:
+    """Reconstruct an array of int32s from its base 2^log_p representation."""
+    return sum(2 ** (i * log_p) * x for i, x in enumerate(a_base_p)).astype(
+        np.int32
+    )
 ```
 
-Here are some concrete examples where $q=2^8$ and $p=2^2$:
+We'll similarly define the base-$p$ representation of a polynomial
+$f(x) \in \mathbb{Z}\_q / (x^N+1)$ to be a sequence of polynomials
+$f_0,\dots,f_{k-1}\in\mathbb{Z}\_p/(x^N+1)$ such that:
 
-```
->>> base_p_representation(103, log_q=8, log_p=2)
-[3, 1, 2, 1]
->>> base_p_to_int([3, 1, 2, 1], log_q=8, log_p=2)
-103
->>> base_p_representation(-60, log_q=8, log_p=2)
-[0, 1, 0, -1]
->>> base_p_representation(5, log_q=8, log_p=2)
-[1, 1, 0, 0]
-```
+<div>
+\begin{equation}\label{eq:polynomial-base-p}
+f(x) = f_0(x) + p\cdot f_1(x) + \dots + p^{k-1} \cdot f_{k-1}(x)
+\end{equation}
+</div>
 
-Note that `int_to_base_p` also accepts arrays of integers. Here is the base-2
-representation of all elements of $\mathbb{Z}_8$. The `i-th` column is the
-base-2 representation of the `i-th` element:
-
-```python
->>> int_to_base_p(np.arange(-4, 4, dtype=np.int32), log_q=3, log_p=1)
-[array([ 0,  1,  0,  1, 0, 1, 0, 1], dtype=int32),
- array([ 0,  0,  1,  1, 0, 0, 1, 1], dtype=int32),
- array([-1, -1, -1, -1, 0, 0, 0, 0], dtype=int32)]
-```
-
-We can similarly define the base-$p$ representation of a polynomial $f(x)$ to be
-a sequence of $m=\lfloor \log_p(q/2) \rfloor$ polynomials $f_0(x),\dots,f_m(x)$
-satisfying:
-
-\\[ f(x) = f_0(x) + f_1(x)\cdot p + \dots + f_m(x) \cdot p^m \\]
-
-such that the absolute values of the coefficients of $f_i(x)$ are all less than
-$p$.
+and we'll extend the function $\mathrm{Base}_p$ defined above from scalars to
+include polynomials:
 
 <div>
 \begin{align*}
-\mathrm{Base}_p&: \mathbb{Z}_q[x]/(x^n+1) \rightarrow \left(\mathbb{Z}[x]/(x^n+1)\right)^{\log_p(q/2)+1}
-\\
-    f(x) &\mapsto (f_0(x),\dots,f_{\log_2(q/p)}(x))
+\mathrm{Base}_p: \mathbb{Z}_q/(x^N+1) &\rightarrow \left(\mathbb{Z}_p/(x^N+1)\right)^k \\
+f(x) &\mapsto (f_0(x),\dots,f_{k-1}(x))
 \end{align*}
 </div>
-
-For example, when $q=16$ and $p=2$:
-
-\\[ \mathrm{Base}_p(7 + 5x) = ((1 + x), 1, (1 + x), 0) \\]
 
 The base-$p$ representation of a polynomial can be computed from the base-$p$
-representation of each coefficient:
+representations of the coefficients:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py">tfhe/gsw.py</a>
+</div>
 
 ```python
-def polynomial_to_base_p(f: Polynomial, log_q: int, log_p: int) -> Sequence[Polynomial]:
-    return [Polynomial(coeff=v, N=f.N) for v in int_to_base_p(f.coeff, log_q=log_q, log_p=log_p)]
+def polynomial_to_base_p(
+    f: polynomial.Polynomial, log_p: int
+) -> Sequence[polynomial.Polynomial]:
+    """Compute the base 2^log_p of the polynomial f."""
+    return [
+        polynomial.Polynomial(coeff=v, N=f.N)
+        for v in array_to_base_p(f.coeff, log_p=log_p)
+    ]
+
+
+def base_p_to_polynomial(
+    f_base_p: Sequence[polynomial.Polynomial], log_p: int
+) -> polynomial.Polynomial:
+    """Recover the polynomial f from its base 2^log_p representation."""
+    f = polynomial.zero_polynomial(f_base_p[0].N)
+
+    for i, level in enumerate(f_base_p):
+        p_i = 2 ** (i * log_p)
+        f = polynomial.polynomial_add(
+            f, polynomial.polynomial_constant_multiply(p_i, level)
+        )
+
+    return f
 ```
 
-For example:
+Note that equation \ref{eq:polynomial-base-p} can also be written as a dot
+product:
+
+\\[ f(x) = (f_0(x),\dots,f_{k-1}) \cdot (1, p, \dots, p^{k-1}) \\]
+
+We'll define the row vector $\mathbf{v}_p$ to be:
+
+\\[ \mathbf{v}_p := (1, p, \dots, p^{k-1}) \\]
+
+Equation \ref{eq:polynomial-base-p} can now be written more succinctly as:
+
+\\[ f(x) = \mathrm{Base}_p(f(x)) \cdot \mathbf{v}_p \\]
+
+Finally, in the next section we will apply the base-$p$ representation to RLWE
+ciphertext $R=(a(x), b(x))$. For that purpose we'll define the $2k\times 2$
+matrix $B_p$:
+
+<div>
+\begin{equation}\label{eq:define-bp}
+B_p := \left(\begin{matrix}\mathbf{v}^T_p & \mathbf{0}_k \\ \mathbf{0}_k & \mathbf{v}^T_p \end{matrix}\right)
+\end{equation}
+</div>
+
+where $\mathbf{0}_p$ denotes a column vector of $k$ zeros. It's easy to see
+that:
+
+<div>
+\begin{equation}\label{eq:base-p-factor}
+R = (\mathrm{Base}\_p(a(x)), \mathrm{Base}\_p(b(x))) \cdot B\_p 
+\end{equation}
+</div>
+
+Note that similarly to the trivial factorization $R = \frac{1}{p}R \cdot p$, the
+coefficients on the left hand side of the base-$p$ factorization are small.
+Indeed, the output of $\mathrm{Base}_p(f(x))$ is, by definition, a polynomial
+with coefficients in the range $[-128,128)$, which is small compared to
+$q=2^{32}$.
+
+The advantage of the base-$p$ representation is that, unlike the trivial
+factorization, it is well defined.
+
+## GSW Encryption and Homomorphic Multiplication
+
+We'll now use the base-$p$ representation to upgrade our implementations of GSW
+encryption and homomorphic multiplication from section
+[Encryptions Of Zero](#encryptions-of-zero) to one that is both well defined and
+has a tighter error bound.
+
+Let $s(x)$ be an RLWE encryption key and let $f(x)$ be an RLWE plaintext. The
+GSW encryption of $f(x)$ is a $2k\times 2$ matrix defined by:
+
+\\[ \mathrm{Enc}^{\mathrm{GSW}}_{s(x)} := f(x)\cdot B_p + Z \\]
+
+where $B_p$ is the $2k\times 2$ matrix defined in equation \ref{eq:define-bp}
+and $Z$ is a $2k\times 2$ matrix whose $i$-th row is an RLWE encryption of zero.
+
+We'll now implement homomorphic multiplication. Let
+$G \in \mathrm{GSW}_{s(x)}(f_1(x))$ be a GSW encryption of $f_1(x)$ and let
+$\mathrm{RLWE}\_{s(x)}(f_2(x))$ be an RLWE encryption of $f_2(x)$. Homomorphic
+multiplication between $G$ and $R$ is defined by:
+
+\\[ \mathrm{CMul}(G, R) := (\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x))) \cdot
+G \\]
+
+where $(\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x)))$ denotes the concatenation
+of $\mathrm{Base}_p(a(x))$ and $\mathrm{Base}_p(a(x))$.
+
+We claim that $\mathrm{CMul}(G, R)$ is a valid RLWE encryption of
+$f_1(x)\cdot f_2(x)$ and that the ciphertext noise is small assuming only that
+$f_1(x)$ is small. The proof uses equation \ref{eq:base-p-factor} and follows
+the same format as our [proof](#proof:cmul-preliminary) of the preliminary
+version.
+
+Let's do a quick sanity check on the dimensions. Since $\mathrm{Base}_p(a(x))$
+and $\mathrm{Base}_p(b(x))$ are length $k$ row vectors,
+$(\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x)))$ is a length $2k$ row vector.
+Furthermore, $G$ is a $2k \times 2$ matrix. Therefore, the product is a length
+$2$ row vector which is indeed the correct shape for an RLWE ciphertext.
+
+Here are the implementations of GSW encryption and homomorphic multiplication:
+
+<div>
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py">tfhe/gsw.py</a>
+</div>
 
 ```python
->>> # f(x) = x + 2x + 3x^3
->>> f = Polynomial(N=4, coeff=np.arange(4, dtype=np.int32))
->>> f
-Polynomial(N=4, coeff=array([0, 1, 2, 3], dtype=int32))
->>> polynomial_to_base_p(f, log_q=3, log_p=1)
-[Polynomial(N=4, coeff=array([0, 1, 0, 1], dtype=int32)),
- Polynomial(N=4, coeff=array([0, 0, 1, 1], dtype=int32)),
- Polynomial(N=4, coeff=array([0, 0, 0, 0], dtype=int32))]
-```
+def convert_rlwe_key_to_gsw(
+    rlwe_key: rlwe.RlweEncryptionKey, gsw_config: GswConfig
+) -> GswEncryptionKey:
+    return GswEncryptionKey(config=gsw_config, key=rlwe_key.key)
 
-Now we have everything we need to define our final versions of $\mathrm{CMul}$
-and GSW encryption. As above, let $m=\lfloor \log_p(q/2) \rfloor$ be the largest
-power of $p$ appearing in a base-$p$ representation of $\mathbb{Z}_q$. We'll
-collect the powers of $p$ into a column vector $\mathbf{v}_p$:
 
-<div>
-$$    
-\mathbf{v}_p =
-\left(\begin{matrix}
-    1 \\
-    p \\
-    \vdots \\
-    p^m \\
-\end{matrix}\right)
-$$
-</div>
+def convert_gws_key_to_rlwe(
+    gsw_key: GswEncryptionKey,
+) -> rlwe.RlweEncryptionKey:
+    return rlwe.RlweEncryptionKey(
+        config=gsw_key.config.rlwe_config, key=gsw_key.key
+    )
 
-A nice property of $\mathbf{v}_p$ is that if $f(x)$ is a polynomial and
-$\mathrm{Base}_p(f(x)) = (f_0(x),\dots,f_m(x))$ is its base-$p$ representation
-then
 
-\\[ \mathrm{Base}_p(f(x)) \cdot \mathbf{v}_p = \sum\_{i=0}^m f_i(x)p^i = f(x)
-\\]
-
-Let $\mathbf{0}_m$ denote a length $m$ column vector of zeros.
-
-We will define the GSW encryption of a polynomial $g(x)\in\mathbb{Z}_q/(x^N+1)$
-to be:
-
-<div>
-$$  
-\mathrm{Enc}^{\mathrm{GSW}}(g(x)) = 
-    g(x)\left(\begin{matrix}
-        \mathbf{v}_p & \mathbf{0}_p \\ \mathbf{0}_p & \mathbf{v}_p
-    \end{matrix}\right) + Z
-$$
-</div>
-
-where $Z$ is a $2m \times 2$ matrix and each row of $Z$ is an RLWE encryption of
-$0$.
-
-We'll conclude this section by defining a homomorphic multiplication operation
-$\mathrm{CMul}$ whose inputs are an RLWE encryption of $f(x)$ and a GSW
-encryption of $g(x)$ and whose output is an RLWE encryption of $f(x)g(x)$:
-
-\\[ \mathrm{CMul}: \mathrm{RLWE}(f(x))\times \mathrm{GSW}(g(x)) \rightarrow
-\mathrm{RLWE}(f(x)g(x)) \\]
-
-Let $(a(x), b(x)) \in \mathrm{RLWE}(f(x))$ be an RLWE encryption of $f(x)$ with
-noise $e(x)$ and let $M \in \mathrm{GSW}(g(x))$ be a GSW encryption of $g(x)$
-where the $i$-th row of $M$ has noise $e_i(x)$. $\mathrm{CMul}$ is defined as:
-
-\\[ \mathrm{CMul}((a(x), b(x)), M) := (\mathrm{Base}\_p(a(x)),
-\mathrm{Base}\_p(b(x))) \cdot M \\]
-
-We claim that this gives us an RLWE encryption of $f(x)g(x)$ with small noise.
-
-First let's do a sanity check on the dimensions. Since $\mathrm{Base}\_p(a(x))$
-and $\mathrm{Base}\_p(b(x))$ are length $m$ row vectors,
-$(\mathrm{Base}\_p(a(x)),
-\mathrm{Base}\_p(b(x)))$ is a length $2m$ row vector.
-When we multiply with the $2m\times 2$ matrix $M$ we get a length $2$ row vector
-which is the correct shape for an RLWE ciphertext.
-
-Now let's verify that $(\mathrm{Base}\_p(a(x)),
-\mathrm{Base}\_p(b(x))) \cdot M$
-is an RLWE encryption of $f(x)g(x)$ with small noise.
-
-Let $(a_0(x),\dots,a_m(x))$ and $(b_0(x),\dots,b_m(x))$ be the base-$p$
-representations of $a(x)$ and $b(x)$.
-
-By the definition of GSW encryption,
-
-<div>
-$$  
-M = 
-    g(x)\left(\begin{matrix}
-        \mathbf{v}_p & \mathbf{0}_p \\ \mathbf{0}_p & \mathbf{v}_p
-    \end{matrix}\right) + Z
-$$
-</div>
-
-where the $i$-th row of $Z$, $\mathbf{z}_i$, is an RLWE encryption of zero with
-noise $e_i(x)$. Therefore, by linearity of $\mathrm{Dec}^{\mathrm{RLWE}}$:
-
-<div>
-\begin{align*}
-\mathrm{Dec}^{\mathrm{RLWE}}(\mathrm{CMul}((a(x),b(x)), M)) &= 
-\mathrm{Dec}^{\mathrm{RLWE}}((\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x))) \cdot M) \\ 
-&= g(x)\mathrm{Dec}^{\mathrm{RLWE}}((\mathrm{Base}_p(a(x))\cdot \mathbf{v}_p, \mathrm{Base}_p(b(x))\cdot \mathbf{v}_p)) \\
-&\ \ + \sum_{i=0}^m a_i(x) \mathrm{Dec}^{\mathrm{RLWE}}(\mathbf{z}_i)
-+ \sum_{i=0}^m b_i(x) \mathrm{Dec}^{\mathrm{RLWE}}(\mathbf{z}_{i+m}) \\
-&= g(x)\mathrm{Dec}^{\mathrm{RLWE}}((a(x), b(x))) +
-\sum_{i=0}^m a_i(x) e_i(x) + 
-\sum_{i=0}^m b_i(x) e_{i+m}(x) \\
-&= g(x)(f(x) + e(x)) + \sum_{i=0}^m a_i(x) e_i(x) + \sum_{i=0}^m b_i(x) e_{i+m}(x) \\
-&= f(x)g(x) + g(x)e(x) + \sum_{i=0}^m a_i(x) e_i(x) + \sum_{i=0}^m b_i(x) e_{i+m}(x)
-\end{align*}
-</div>
-
-As expected, the decryption of $\mathrm{CMul}((a(x),b(x)), M)$ is equal to
-$f(x)g(x)$ with noise:
-
-\\[ g(x)\cdot e(x) + \sum_{i=0}^m a_i(x)e_i(x) + \sum_{i=0}^m b_i(x)e_{i+m}(x)
-\\]
-
-Suppose that the coefficients of $e_i(x)$ are less than a constant $\epsilon$.
-Since $|a_i|\leq p$ and $|b_i| < p$, the noise in each of the last two terms in
-REF is bounded by:
-
-\\[ (m+1) \cdot n \cdot p \cdot \epsilon \\]
-
-In practice we will use $q=2^{32}$, $p=2^8$. Therefore
-$m = \lfloor \log_p(q/2) \rfloor = 4$ and so the noise is bounded by
-$5 \cdot 2^8 \cdot n \cdot \epsilon$. In contrast, the coefficients of the error
-terms in the naive multiplication REF, $a(x)e(x)$ and $b(x)e(x)$, can be as big
-as $q\cdot n \cdot \epsilon = 2^{32} \cdot n \cdot \epsilon$ which is
-significantly larger.
-
-Here is an implementation of GSW encryption and $\mathrm{CMul}$.
-
-```python
-@dataclasses.dataclass
-class GswConfig:
-    rlwe_config: RlweConfig
-    log_p: int  # Homomorphic multiplication will use the base-2^log_p representation.
-
-@dataclasses.dataclass
-class GswPlaintext:
-    config: GswConfig
-    message: Polynomial
-
-@dataclasses.dataclass
-class GswCiphertext:
-    config: GswConfig
-    rlwe_ciphertexts: list[RlweCiphertext]
-
-@dataclasses.dataclass
-class GswEncryptionKey:
-    config: GswConfig
-    key: Polynomial
-
-def convert_rlwe_key_to_gsw(rlwe_key: RlweEncryptionKey, gsw_config) -> GswEncryptionKey:
-    return GswEncryptionKey(
-        config=gsw_config,
-        key=rlwe_key.key)
-
-def gsw_encrypt(plaintext: GswPlaintext, key: GswEncryptionKey) -> GswCiphertext:
+def gsw_encrypt(
+    plaintext: GswPlaintext, key: GswEncryptionKey
+) -> GswCiphertext:
     gsw_config = key.config
-    num_powers_of_p = get_base_p_rep_length(log_q=32, log_p=gsw_config.log_p)
+    num_powers = base_p_num_powers(log_p=gsw_config.log_p)
 
     # Create 2 RLWE encryptions of 0 for each element of a base-p representation.
     rlwe_key = convert_gws_key_to_rlwe(key)
-    rlwe_plaintext_zero = build_zero_rlwe_plaintext(gsw_config.rlwe_config)
+    rlwe_plaintext_zero = rlwe.build_zero_rlwe_plaintext(gsw_config.rlwe_config)
     rlwe_ciphertexts = [
-        rlwe_encrypt(rlwe_plaintext_zero, rlwe_key)
-        for _ in range(2 * num_powers_of_p)
+        rlwe.rlwe_encrypt(rlwe_plaintext_zero, rlwe_key)
+        for _ in range(2 * num_powers)
     ]
 
     # Add multiples p^i * message to the rlwe ciphertexts
-    for i in range(num_powers_of_p):
-        p_i = 2**(i * gsw_config.log_p)
-        scaled_message = polynomial_constant_multiply(p_i, plaintext.message)
+    for i in range(num_powers):
+        p_i = 2 ** (i * gsw_config.log_p)
+        scaled_message = polynomial.polynomial_constant_multiply(
+            p_i, plaintext.message
+        )
 
-        rlwe_ciphertexts[i].a = polynomial_add(rlwe_ciphertexts[i].a, scaled_message)
-        b_idx = i + num_powers_of_p
-        rlwe_ciphertexts[b_idx].b = polynomial_add(rlwe_ciphertexts[b_idx].b, scaled_message)
+        rlwe_ciphertexts[i].a = polynomial.polynomial_add(
+            rlwe_ciphertexts[i].a, scaled_message
+        )
+
+        b_idx = i + num_powers  # num_levels
+        rlwe_ciphertexts[b_idx].b = polynomial.polynomial_add(
+            rlwe_ciphertexts[b_idx].b, scaled_message
+        )
 
     return GswCiphertext(gsw_config, rlwe_ciphertexts)
 
-def gsw_multiply(gsw_ciphertext: GswCiphertext, rlwe_ciphertext: RlweCiphertext) -> RlweCiphertext:
+
+def gsw_multiply(
+    gsw_ciphertext: GswCiphertext, rlwe_ciphertext: rlwe.RlweCiphertext
+) -> rlwe.RlweCiphertext:
     gsw_config = gsw_ciphertext.config
     rlwe_config = rlwe_ciphertext.config
 
     # Concatenate the base-p representations of rlwe_ciphertext.a and rlwe_ciphertext.b
-    rlwe_base_p = (polynomial_to_base_p(rlwe_ciphertext.a, log_q=32, log_p=gsw_config.log_p) +
-                   polynomial_to_base_p(rlwe_ciphertext.b, log_q=32, log_p=gsw_config.log_p))
+    rlwe_base_p = polynomial_to_base_p(
+        rlwe_ciphertext.a, log_p=gsw_config.log_p
+    ) + polynomial_to_base_p(rlwe_ciphertext.b, log_p=gsw_config.log_p)
 
-    # Multiply the row vector rlwe_base_p with the len(rlwe_base_p)x2 matrix gsw_ciphertext.rlwe_ciphertexts.
-    rlwe_ciphertext = RlweCiphertext(
+    # Multiply the row vector rlwe_base_p with the
+    # len(rlwe_base_p)x2 matrix gsw_ciphertext.rlwe_ciphertexts.
+    rlwe_ciphertext = rlwe.RlweCiphertext(
         config=rlwe_config,
-        a=zero_polynomial(rlwe_config.degree),
-        b=zero_polynomial(rlwe_config.degree))
+        a=polynomial.zero_polynomial(rlwe_config.degree),
+        b=polynomial.zero_polynomial(rlwe_config.degree),
+    )
 
     for i, p in enumerate(rlwe_base_p):
-        rlwe_ciphertext.a = polynomial_add(rlwe_ciphertext.a, polynomial_multiply(p, gsw_ciphertext.rlwe_ciphertexts[i].a))
-        rlwe_ciphertext.b = polynomial_add(rlwe_ciphertext.b, polynomial_multiply(p, gsw_ciphertext.rlwe_ciphertexts[i].b))
+        rlwe_ciphertext.a = polynomial.polynomial_add(
+            rlwe_ciphertext.a,
+            polynomial.polynomial_multiply(
+                p, gsw_ciphertext.rlwe_ciphertexts[i].a
+            ),
+        )
+        rlwe_ciphertext.b = polynomial.polynomial_add(
+            rlwe_ciphertext.b,
+            polynomial.polynomial_multiply(
+                p, gsw_ciphertext.rlwe_ciphertexts[i].b
+            ),
+        )
 
     return rlwe_ciphertext
 ```
 
-And here's an example of multiplying a GSW ciphertext with an RLWE ciphertext.
+This completes our implementation of the homomorphic multiplexer $\mathrm{CMux}$
+that was started in the [Introduction](#introduction-2).
 
-```python
->>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-24))
->>> gsw_config = GswConfig(rlwe_config=rlwe_config, log_p=8)
 
->>> rlwe_key = generate_rlwe_key(rlwe_config)
->>> gsw_key = convert_rlwe_key_to_gsw(rlwe_key, gsw_config)
+# Blind Rotation
 
->>> # The GSW plaintext is the constant 2.
->>> gsw_plaintext = GswPlaintext(
->>>    config=gsw_config,
->>>    message=build_monomial(2, 0, gsw_config.rlwe_config.degree))
-GswPlaintext(config=GswConfig(rlwe_config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08), log_p=8), message=Polynomial(N=1024, coeff=array([2, 0, 0, ..., 0, 0, 0], dtype=int32)))
-
->>> # The RLWE plaintext is an encoding of the polynomial f=x
->>> f = build_monomial(c=1, i=1, N=rlwe_config.degree)
-Polynomial(N=1024, coeff=array([0, 1, 0, ..., 0, 0, 0], dtype=int32))
->>> rlwe_plaintext = encode_rlwe(f, rlwe_config)
-RlwePlaintext(
-    config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-    message=Polynomial(
-        N=1024,
-        coeff=array([0, 536870912, 0, ..., 0, 0, 0], dtype=int32)))
-
->>> # Encrypt the GSW plaintext with GSW encryption.
->>> gsw_ciphertext = gsw_encrypt(gsw_plaintext, gsw_key)
-GswCiphertext(
-  config=GswConfig(
-    rlwe_config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08), log_p=8),
-  rlwe_ciphertexts=[
-    RlweCiphertext(
-        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-        a=Polynomial(N=1024, coeff=array([271813620, ..., -223040861], dtype=np.int32)),
-        b=Polynomial(N=1024, coeff=array([-876436729, ..., -350975826], dtype=np.int32)))
-    RlweCiphertext(
-        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-        a=Polynomial(N=1024, coeff=array([446327432, ..., 1046228314], dtype=np.int32)),
-        b=Polynomial(N=1024, coeff=array([-1936882923, ..., -935751225], dtype=np.int32)))
-    RlweCiphertext(
-        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-        a=Polynomial(N=1024, coeff=array([534040503, ..., -880877497], dtype=np.int32)),
-        b=Polynomial(N=1024, coeff=array([-1997778813, ..., 1054914820], dtype=np.int32)))
-    RlweCiphertext(
-        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-        a=Polynomial(N=1024, coeff=array([300855065, ..., -459135528], dtype=np.int32)),
-        b=Polynomial(N=1024, coeff=array([47657021, ..., 623109607], dtype=np.int32)))
-    RlweCiphertext(
-        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-        a=Polynomial(N=1024, coeff=array([2116664227, ..., -288715527], dtype=np.int32)),
-        b=Polynomial(N=1024, coeff=array([-758472722, ..., 208553013], dtype=np.int32)))
-    RlweCiphertext(
-        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-        a=Polynomial(N=1024, coeff=array([-460910052, ..., 2137117421], dtype=np.int32)),
-        b=Polynomial(N=1024, coeff=array([12211265, ..., -1055758062], dtype=np.int32)))
-    RlweCiphertext(
-        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-        a=Polynomial(N=1024, coeff=array([-333035085, ..., -1092598547], dtype=np.int32)),
-        b=Polynomial(N=1024, coeff=array([1248437283, ..., -1155447294], dtype=np.int32)))
-    RlweCiphertext(
-        config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-        a=Polynomial(N=1024, coeff=array([1059875087, ..., -814647771], dtype=np.int32)),
-        b=Polynomial(N=1024, coeff=array([472063671, ..., 408893825], dtype=np.int32)))
-  ])
-
->>> # Encrypt the RLWE plaintext with RLWE encryption
->>> rlwe_ciphertext = rlwe_encrypt(rlwe_plaintext, rlwe_key)
-RlweCiphertext(
-  config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-  a=Polynomial(N=1024, coeff=array([-858994552, ..., -116332580], dtype=np.int32)),
-  b=Polynomial(N=1024, coeff=array([-82429073, ..., -96458989], dtype=np.int32)))
-
->>> # Homomorphically multiply the ciphertexts.
->>> rlwe_ciphertext_prod = gsw_multiply(gsw_ciphertext, rlwe_ciphertext)
-RlweCiphertext(
-  config=RlweConfig(degree=1024, noise_std=5.960464477539063e-08),
-  a=Polynomial(N=1024, coeff=array([1060371389, ..., 17893357], dtype=np.int32)),
-  b=Polynomial(N=1024, coeff=array([560671334, ..., 1806593470], dtype=np.int32)))
-
->>> # Check that when we decrypt and then decode the product ciphertext we get
->>> # 2 * x = 2x
->>> rlwe_plaintext_prod_decoded = decode_rlwe(rlwe_decrypt(rlwe_ciphertext_prod, rlwe_key))
-Polynomial(N=1024, coeff=array([0, 2, 0, ..., 0, 0, 0]))
-```
-
-## Implementing The Homomorphic Multiplexer
-
-NOTE: PUT THIS BEFORE THE PREVIOUS SECTIONS AS MOTIVATION
-
-Following REF - "Mux with multiplications", we can use homomorphic addition
-$\mathrm{CAdd}$, homomorphic subtraction $\mathrm{CSub}$ and homomorphic
-multiplication
-$\mathrm{CMul} to implement a _homomorphic multiplexer_ $\mathrm{CMux}$ where
-the lines are RLWE ciphertexts and the selector bit is a GSW ciphertext:
-
-IMAGE
-
-\\[ \mathrm{CMux}: \mathrm{GSW}(b) \times \mathrm{RLWE}(f_0(x)) \times
-\mathrm{RLWE}(f_1(x)) \rightarrow \mathrm{RLWE}(\mathrm{Mux}(b, f_0(x), f_1(x)))
-\\]
-
-To do this, we simply replace the operations in REF with their homomorphic
-counterparts:
-
-\\[ \mathrm{CMux}(M, \mathbf{c}_0, \mathbf{c}_1) =
-\mathrm{CAdd}(\mathrm{CMul}(M, \mathrm{CSub}(\mathbf{c}_1, \mathbf{c}_0)),
-\mathbf{c}_1) \\]
-
-Here is an implementation of $\mathrm{CMux}$:
-
-```python
-def cmux(gsw_ciphertext: GswCiphertext, rlwe_ciphertext_0: RlweCiphertext, rlwe_ciphertext_1: RlweCiphertext) -> RlweCiphertext:
-    return rlwe_add(
-        gsw_multiply(gsw_ciphertext, rlwe_subtract(rlwe_ciphertext_1, rlwe_ciphertext_0)),
-        rlwe_ciphertext_0)
-```
-
-And here is an example:
-
-```python
->>> rlwe_config = RlweConfig(degree=1024, noise_std=2**(-24))
->>> gsw_config = GswConfig(rlwe_config=rlwe_config, log_p=8)
-
->>> rlwe_key = generate_rlwe_key(rlwe_config)
->>> gsw_key = convert_rlwe_key_to_gsw(rlwe_key, gsw_config)
-
->>> # Create a GSW plaintext with a selector bit 0
->>> gsw_plaintext = GswPlaintext(config=gsw_config, message=build_monomial(0, 0, gsw_config.rlwe_config.degree))
-
->>> # The first CMUX line is an RLWE plaintext encoding the polynomial 1.
->>> rlwe_plaintext_0 = encode_rlwe(build_monomial(1, 0, rlwe_config.degree), rlwe_config)
->>> # Create an RLWE plaintext encoding the polynomial 1.
-
->>> # The second CMUX line is an RLWE plaintext encoding the polynomial x.
->>> rlwe_plaintext_1 = encode_rlwe(build_monomial(1, 1, rlwe_config.degree), rlwe_config)
-
->>> # Encrypt the GSW selector bit and the RLWE lines.
->>> gsw_ciphertext = gsw_encrypt(gsw_plaintext, gsw_key)
->>> rlwe_ciphertext_0 = rlwe_encrypt(rlwe_plaintext_0, rlwe_key)
->>> rlwe_ciphertext_1 = rlwe_encrypt(rlwe_plaintext_1, rlwe_key)
-
->>> # Apply CMUX to the ciphertexts.
->>> rlwe_ciphertext_cmux = cmux(
->>>    gsw_ciphertext, rlwe_ciphertext_0, rlwe_ciphertext_1)
-
->>> # Verify that decrypting rlwe_ciphertext_cmux yields MUX(0, 1, x) = 1.
->>> rlwe_plaintext_cmux_decoded = decode_rlwe(
->>>    rlwe_decrypt(rlwe_ciphertext_cmux, rlwe_key))
-Polynomial(N=1024, coeff=array([1, 0, 0, ..., 0, 0, 0]))
-```
-
-# Bootstrapping
-
-In the previous sections we defined the LWE, RLWE and GSW encryption schemes
-together with homomorphic addition and multiplication operations.
-
-All three encryption schemes introduce noise during encryption. In this section
-we'll analyze this noise more carefully. As motivation, we'll revisit the
-example from section REF.
-
-In this example we'll use a fixed LWE encryption key $\mathbf{s}$. Let
-$(\mathbf{a}_0, b_0) \in \mathrm{LWE}\_{\mathbf{s}}(0)$ be an LWE encryption of
-$0$. Let $m = \mathrm{Encode}(1) = 2^{29}$ be the encoding of $1$ and let
-$(\mathbf{a}_1, b_1) \in \mathrm{LWE}\_{\mathbf{s}}(m)$ be an encryption of $m$.
-Here are the distributions of the decryptions
-$\mathrm{Dec}\_{\mathbf{s}}((\mathbf{a}_0, b_0))$ and
-$\mathrm{Dec}\_{\mathbf{s}}((\mathbf{a}_1, b_1))$:
-
-IMAGE
-
-Since the noise is so small, we can remove the noise from a decryption by
-checking if it is closer to $0$ or to $m$. Let's see what happens if we
-homomorphically add the encryption of $0$ to the encryption of $m$ by computing
-
-\\[ \mathrm{CAdd}((\mathbf{a}_0, b_0), (\mathbf{a}_1, b_1)) \\]
-
-by the homomorphic property, the result should be an LWE encryption of
-$m + 0 = m$. Let's see what happens when we decrypt
-$\mathrm{CAdd}((\mathbf{a}_0, b_0), (\mathbf{a}_0, b_0))$:
-
-IMAGE
-
-As expected, the standard deviation of the noise has now roughly doubled. Now
-let's see what happens if we homomorphically add 1000 encryptions of zero to an
-encryption of 1:
-
-IMAGE
-
-Now the noise is so large that we can no longer distinguish between $0$ and $m$
-which means that our ciphertext is useless. The situation with homomorphic
-multiplication is even worse since the noise gets _squared_ during each
-operation rather than merely _doubled_.
-
-To realize our goal of performing arbitrary homomorphic computations, we're
-going to find away around this limit.
-
-In this section we'll solve this problem by a process called _Bootstrapping_. In
-a nutshell, bootstrapping makes it possible to "refresh" a ciphertext by
-replacing it with a new ciphertext that has a bounded amount of noise. In the
-context of our example, bootstrapping would allow us to replace a ciphertext
-whose decryptions look like this:
-
-IMAGE
-
-With one whose decryptions look like this:
-
-IMAGE
-
-Importantly, the bound on the noise in the refreshed ciphertext does not depend
-on the noise in the original ciphertext. By periodically refreshing our
-ciphertexts, we can keep the noise under control and perform an arbitrary number
-of homomorphic operations.
-
-In the TFHE framework, bootstrapping is implemented with lower level homomorphic
-operations that are interesting on their own right called _The Homomorphic_
-_Multiplexer_ (CMux), _Blind Rotation_ and _Sample Extraction_. In the following
-sections we'll introduce each of these primitives and conclude by implementing
-the bootstrapping function.
-
-## The Homomorphic Multiplexer
-
-MOVE THIS FROM above
-
-## Blind Rotation
-
-### Definition
+## Definition
 
 Consider the negacyclic [REF] polynomial
 
@@ -2719,7 +2444,7 @@ $f(x)$. The output is an RLWE _encryption_ of the polynomial $x^i f(x)$:
 
 The goal of this section will be to implement blind rotation.
 
-### Implementation
+## Implementation
 
 Let $\mathbf{s}$ be an encryption key, let
 $L = (\mathbf{a}, b) \in \mathrm{LWE}_{\mathbf{s}}(i)$ be an LWE encryption of
@@ -2817,7 +2542,7 @@ CODE
 
 EXAMPLE
 
-### Noise Analysis
+## Noise Analysis
 
 Let $L=(\mathbf{a}, b)$ be an LWE ciphertext and $f(x)$ a polynomial. An
 interesting property of $\mathrm{BlindRotate}$ is that the noise in the output
@@ -2836,7 +2561,7 @@ coefficients in underlying plaintext but not their absolute values. Therefore
 the noise of $R_i$ does not depend on $a_i$. By induction, the noise of
 $\mathrm{BlindRotate}(L, f(x)) = R_N$ does not depend on $L=(\mathbf{a}, b)$.
 
-## Sample Extraction
+# Sample Extraction
 
 ### Definition
 
