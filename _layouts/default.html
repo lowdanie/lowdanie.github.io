@@ -4,39 +4,38 @@
 <head>
 	<meta charset="UTF-8">
 
-	{% seo %}
 	<link rel="preconnect" href="https://fonts.gstatic.com">
 	<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style"
 		type="text/css" crossorigin>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="theme-color" content="#157878">
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+	<link rel="stylesheet" href="/css/rouge.css">
+	<link rel="stylesheet" href="/css/style.css">
 	{% include analytics.html %}
 </head>
 
 <body>
-	<a id="skip-to-content" href="#content">Skip to the content.</a>
+	<div class="wrapper">
+		<header class="page-header">
+			<ul class="navigation">
+				<li><a href="/">Blog</a></li>
+				<li><a href="/about">About</a></li>
+				<li><a href="/contact">Contact</a></li>
+			</ul>
+		</header>
 
-	<header class="page-header" role="banner">
-		<ul class="navigation">
-			<li><a href="/">Blog</a></li>
-			<li><a href="/about">About</a></li>
-			<li><a href="/contact">Contact</a></li>
-		</ul>
-	</header>
+		<div class="toc"> Contents </div>
 
-	<main id="content" class="main-content" role="main">
-		{{ content }}
+		<div class="main-content">
+			{{ content }}
+		</div>
 
-		<footer class="site-footer">
-			{% if site.github.is_project_page %}
-			<span class="site-footer-owner"><a href="{{ site.github.repository_url }}">{{ site.github.repository_name
-					}}</a> is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name
-					}}</a>.</span>
-			{% endif %}
+		<footer class="main-footer">
+			<span class="site-footer-owner">
+				<a href="mailto:lowdanie@gmail.com">email</a>
+				<a href="github.com/lowdanie">github.com/lowdanie</a>
+			</span>
 		</footer>
-	</main>
+	</div>
 </body>
 
 </html>

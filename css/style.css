@@ -1,0 +1,120 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap");
+
+html {
+    font-family: sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+:root {
+    --large-breakpoint: 64em;
+    --medium-breakpoint: 42em;
+
+    --header-heading-color: #fff;
+    --header-bg-color: #159957;
+    --header-bg-color-secondary: #155799;
+
+    --section-headings-color: #159957;
+    --body-text-color: #606c71;
+    --body-link-color: #1e6bb8;
+    --blockquote-text-color: #819198;
+
+    --code-bg-color: #f3f6fa;
+    --code-text-color: #567482;
+
+    --border-color: #dce6f0;
+    --table-border-color: #e9ebec;
+    --hr-border-color: #eff0f1;
+}
+
+/* Layout */
+.page-header {
+    grid-area: header;
+}
+
+.main-content {
+    grid-area: content;
+}
+
+.sidebar {
+    grid-area: sidebar;
+}
+
+.main-footer {
+    grid-area: footer;
+}
+
+/* Default Layout */
+.wrapper {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "header"
+        "toc"
+        "content"
+        "footer";
+}
+
+/* Large Screen */
+
+@media (min-width: 700px) {
+    .wrapper {
+        grid-template-columns: 150px minmax(0, 1fr);
+        grid-template-areas:
+            "header header"
+            "toc content"
+            ".   footer";
+    }
+
+    .navigation {
+        display: flex;
+        justify-content: right;
+    }
+}
+
+@media (min-width: 1100px) {
+    .wrapper {
+        grid-template-columns: 150px minmax(0, 800px) 150px;
+        justify-content: center;
+        grid-template-areas:
+            "header header header"
+            "toc content ."
+            ".   footer .";
+    }
+
+    .navigation {
+        display: flex;
+        justify-content: right;
+    }
+}
+
+code,
+pre {
+    font-family: monospace, monospace;
+}
+
+code {
+    color: var(--code-text-color);
+    background-color: var(--code-bg-color);
+    border-radius: 0.3rem;
+}
+
+pre {
+    background-color: var(--code-bg-color);
+    border: solid 1px var(--border-color);
+    border-radius: 0.3rem;
+    overflow: auto;
+}
+
+.table-wrapper {
+    overflow: auto;
+}
+
+.MJXc-display {
+    overflow: auto;
+}
+
+.main-content img {
+    width: 100%;
+}

@@ -1008,12 +1008,16 @@ $$
 Note that we've used the fact that $q/4 = 2^{29}$. Here's what happens when we
 apply $\mathrm{Step}(x)$ to $F(b_0, b_1)$:
 
+<div class="table-wrapper">
+
 | $b_0$                | $b_1$                | $F(b_0, b_1)$         | $\mathrm{Step}(F(b_0, b_1))$ |
 | -------------------- | -------------------- | --------------------- | ---------------------------- |
 | $\mathrm{Encode}(0)$ | $\mathrm{Encode}(0)$ | $\mathrm{Encode}(-3)$ | $\mathrm{Encode}(2)$         |
 | $\mathrm{Encode}(0)$ | $\mathrm{Encode}(2)$ | $\mathrm{Encode}(3)$  | $\mathrm{Encode}(2)$         |
 | $\mathrm{Encode}(2)$ | $\mathrm{Encode}(0)$ | $\mathrm{Encode}(3)$  | $\mathrm{Encode}(2)$         |
 | $\mathrm{Encode}(2)$ | $\mathrm{Encode}(2)$ | $\mathrm{Encode}(1)$  | $\mathrm{Encode}(0)$         |
+
+</div>
 
 It is evident from the table that
 
@@ -1966,12 +1970,10 @@ Similarly:
 By plugging in equations \ref{eq:decrypt-prod-1} and \ref{eq:decrypt-prod-2}
 into equation \ref{eq:decrypt-prod} we get:
 
-<div>
 $$ 
-\mathrm{Dec}\_{s(x)}(R_{\mathrm{prod}}) = f_1(x)\cdot f_2(x) + (f_1(x)\cdot
+\mathrm{Dec}_{s(x)}(R_{\mathrm{prod}}) = f_1(x)\cdot f_2(x) + (f_1(x)\cdot
 e_2(x) + a_2(x)\cdot z_1(x) + b_2(x)\cdot z_2(x))
 $$
-</div>
 
 This shows that the decryption of $R_{\mathrm{prod}}$ is equal to
 $f_1(x)\cdot f_2(x)$ with the error:
@@ -2766,19 +2768,16 @@ The above analysis shows that the zeroth coefficient of
 $\mathrm{Rotate}(f(x), i)$ is equal to $-1$ when $0 \leq i \leq N/2$ and equal
 to $1$ when $N/2 < i \leq N$. In other words:
 
-<div>
 $$
 \mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0) =
 \begin{cases} -1 & \mathrm{if}\ 0 \leq i \leq N/2 \\
               1 & \mathrm{if}\ N/2 < i \leq N
 \end{cases}
 $$
-</div>
 
 In fact, it is not hard to generalize this to the case where $i$ can be
 negative:
 
-<div>
 $$
 \mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0) =
 \begin{cases} 1 & \mathrm{if}\ -N \leq i \leq -N/2 \\
@@ -2786,7 +2785,6 @@ $$
               1 & \mathrm{if}\ N/2 < i < N
 \end{cases}
 $$
-</div>
 
 Note that this looks very similar to the definition of the step function
 $\mathrm{Step}$! UPDATE THE DEF OF STEP
@@ -2922,12 +2920,16 @@ $$
 
 Here's what happens when we apply $S(x)$ to $F(b_0, b_1)$:
 
+<div class="table-wrapper" markdown="block">
+
 | $b_0$ | $b_1$ | $F(b_0, b_1)$ | $S(F(b_0, b_1))$ |
 | ----- | ----- | ------------- | ---------------- |
 | $0$   | $0$   | $-3$          | $2$              |
 | $0$   | $2$   | $3$           | $2$              |
 | $2$   | $0$   | $3$           | $2$              |
 | $2$   | $2$   | $1$           | $0$              |
+
+</div>
 
 As expected, it is evident from the table that
 
