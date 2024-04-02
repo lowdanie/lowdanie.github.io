@@ -840,7 +840,7 @@ of the homomorphic NAND gate from section
 [A Fully Homomorphic Nand Gate](#a-fully-homomorphic-nand-gate) and give an
 overview of our implementation strategy.
 
-## Definition
+## Definition {#definition-cnand-revisited}
 
 In this section we'll introduce an encoding of boolean values as LWE messages
 and precisely define the homomorphic NAND function.
@@ -2406,7 +2406,7 @@ that was started in the [Introduction](#introduction-2).
 
 # Blind Rotation
 
-## Definition
+## Definition {#definition-blind-rotation}
 
 Consider the negacyclic [REF] polynomial
 
@@ -2565,7 +2565,7 @@ $\mathrm{BlindRotate}(L, f(x)) = R_N$ does not depend on $L=(\mathbf{a}, b)$.
 
 # Sample Extraction
 
-### Definition
+### Definition {#definition-sample-extraction}
 
 Consider the polynomial
 
@@ -2848,7 +2848,7 @@ EXAMPLE
 We will now use the bootstrapping function to implement the fully homomorphic
 NAND gate promised in the introduction.
 
-## Definition
+## Definition {#definition-cnand}
 
 In this section we'll introduce an encoding of boolean values and precisely
 define the homomorphic NAND function.

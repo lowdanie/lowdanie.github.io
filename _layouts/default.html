@@ -7,15 +7,22 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com">
 	<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style"
 		type="text/css" crossorigin>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+
 	<link rel="stylesheet" href="/css/rouge.css">
+	<link rel="stylesheet" href="/css/hamburgurs.css">
 	<link rel="stylesheet" href="/css/style.css">
 	{% include analytics.html %}
 </head>
 
 <body>
-	<div class="wrapper">
+	<div class="page-wrapper">
 		<header class="page-header">
+			<button class="hamburger hamburger--slider" type="button">
+				<span class="hamburger-box">
+					<span class="hamburger-inner"></span>
+				</span>
+			</button>
 			<ul class="navigation">
 				<li><a href="/">Blog</a></li>
 				<li><a href="/about">About</a></li>
@@ -23,12 +30,17 @@
 			</ul>
 		</header>
 
-		<div class="toc"> Contents </div>
+		<div class="content-wrapper">
+			<div class="sidebar hidden">
+				<h2>Contents</h2>
+				<ul class="primary-contents-list">
+				</ul>
+			</div>
 
-		<div class="main-content">
-			{{ content }}
+			<div class="main-content">
+				{{ content }}
+			</div>
 		</div>
-
 		<footer class="main-footer">
 			<span class="site-footer-owner">
 				<a href="mailto:lowdanie@gmail.com">email</a>
@@ -36,6 +48,9 @@
 			</span>
 		</footer>
 	</div>
+	<script src="/js/script.js" async></script>
+	<script src="/js/toc.js" defer></script>
+
 </body>
 
 </html>

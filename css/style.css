@@ -2,8 +2,11 @@
 
 html {
     font-family: sans-serif;
-    -ms-text-size-adjust: 100%;
-    -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+    height: 100%;
 }
 
 :root {
@@ -27,66 +30,140 @@ html {
     --hr-border-color: #eff0f1;
 }
 
-/* Layout */
-.page-header {
-    grid-area: header;
+/* Small Screen */
+@media (max-width: 1000px) {
+    body.noscroll {
+        overflow: hidden;
+    }
+
+    .page-header {
+        position: sticky;
+        height: 60px;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: white;
+        z-index: 1;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: white;
+        padding-left: 25px;
+        z-index: 1;
+        overflow-y: auto;
+    }
+
+    .sidebar.hidden {
+        display: none;
+    }
+
+    .main-content {
+        margin-top: 60px;
+    }
+
+    .main-content h1,
+    .main-content h2 {
+        scroll-margin-top: 60px;
+    }
 }
 
-.main-content {
-    grid-area: content;
-}
-
-.sidebar {
-    grid-area: sidebar;
-}
-
-.main-footer {
-    grid-area: footer;
-}
-
-/* Default Layout */
-.wrapper {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-        "header"
-        "toc"
-        "content"
-        "footer";
-}
-
-/* Large Screen */
-
+/* Medium Screen
 @media (min-width: 700px) {
+    .page-header {
+        grid-area: header;
+    }
+
+    .main-content {
+        grid-area: content;
+    }
+
+    .sidebar {
+        grid-area: sidebar;
+    }
+
+    .main-footer {
+        grid-area: footer;
+    }
+
     .wrapper {
-        grid-template-columns: 150px minmax(0, 1fr);
+        display: grid;
+        gap: 20px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 4fr);
         grid-template-areas:
             "header header"
-            "toc content"
+            "sidebar content"
             ".   footer";
     }
 
-    .navigation {
-        display: flex;
-        justify-content: right;
+    .sidebar {
+        display: block;
+        position: sticky;
+        top: 0;
+        align-self: start;
     }
-}
 
-@media (min-width: 1100px) {
-    .wrapper {
-        grid-template-columns: 150px minmax(0, 800px) 150px;
+    .hamburger {
+        display: none;
+    }
+} */
+
+/* Large Screen */
+@media (min-width: 1000px) {
+    /* .wrapper {
+        display: grid;
+        gap: 20px;
+        max-width: 1400px;
+        margin: auto;
+        grid-template-columns: 2fr 6fr 1fr;
         justify-content: center;
         grid-template-areas:
             "header header header"
-            "toc content ."
-            ".   footer .";
+            "sidebar content ."
+            "footer   footer footer";
+    } */
+    
+    .page-wrapper {
+        max-width: 1300px;
+        margin: auto;
+    }
+    .content-wrapper {
+        display: flex;
     }
 
-    .navigation {
-        display: flex;
-        justify-content: right;
+    .sidebar {
+        display: block;
+        flex: 1 1 0;
+        position: sticky;
+        top: 0;
+        align-self: start;
+        max-height: 100vh;
+        overflow-y: auto;
     }
+
+    .main-content {
+        flex: 3 3 0;
+    }
+
+    .hamburger {
+        display: none;
+    }
+}
+
+.page-header {
+    display: flex;
+    justify-content: left;
+}
+
+.navigation {
+    display: flex;
+    gap: 10px;
+    justify-content: right;
+    list-style-type: none;
 }
 
 code,
@@ -117,4 +194,43 @@ pre {
 
 .main-content img {
     width: 100%;
+}
+
+.primary-contents-list,
+.secondary-contents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style-type: none;
+}
+
+.primary-contents-list {
+    padding-left: 0;
+}
+
+.secondary-contents-list {
+    padding-top: 10px;
+    padding-left: 15px;
+}
+
+.primary-contents-list,
+.secondary-contents-list {
+    a {
+        color: #36c;
+        text-decoration: none;
+        margin-bottom: 10px;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+}
+
+li.toc-primary-active>a {
+    color: black;
+}
+
+li.toc-active>a {
+    font-weight: bold;
+    color: black;
 }
