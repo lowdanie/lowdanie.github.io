@@ -1,10 +1,15 @@
 ---
 layout: default
-title: Learning by Example
+hamburger: false
 ---
-<h1>{{ page.title }}</h1>
-<ul class="posts">
-  {% for post in site.posts %}
-  <li><span>{{ post.date | date_to_string }}</span> » <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></li>
-  {% endfor %}
-</ul>
+<div class="posts-container">
+  <h1 class="posts-heading">Blog</h1>
+  <table class="posts-table">
+    {% for post in site.posts %}
+    <tr>
+      <td class="post-date">{{ post.date | date_to_string }}</td>
+      <td class="post-title"><a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></td>
+    <tr>
+      {% endfor %}
+  </table>
+</div>

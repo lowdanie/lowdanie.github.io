@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Fully Homomorphic Encryption from Scratch - DRAFT"
+title: "Fully Homomorphic Encryption from Scratch"
 date: 2024-01-03
 mathjax: true
 ---
@@ -255,9 +255,8 @@ is an encryption of $m$ and so we can write:
 
 Here is an implementation of the LWE encryption scheme:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
-</div>
 
 ```python
 import dataclasses
@@ -322,11 +321,12 @@ def lwe_decrypt(
     )
 ```
 
+</div>
+
 where the `utils` module contains:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/utils.py">tfhe/utils.py</a>
-</div>
 
 ```python
 from typing import Optional
@@ -350,19 +350,22 @@ def gaussian_sample_int32(std: float, size: Optional[float]) -> np.ndarray:
     return np.int32(INT32_MAX * np.random.normal(loc=0.0, scale=std, size=size))
 ```
 
+</div>
+
 Throughout this post, we will used the following `LweConfig` whose parameters
 are taken from the popular
 [Lattice Estimator](https://github.com/malb/lattice-estimator).
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/config.py">tfhe/config.py</a>
-</div>
 
 ```python
 from tfhe import lwe
 
 LWE_CONFIG = lwe.LweConfig(dimension=1024, noise_std=2 ** (-24))
 ```
+
+</div>
 
 ## Ciphertext Noise
 
@@ -472,9 +475,8 @@ results.
 
 Here is an implementation of the encoding and decoding functions:
 
-<div id="code:encode-decode">
+<div id="code:encode-decode" class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/utils.py">tfhe/utils.py</a>
-</div>
 
 ```python
 def encode(i: int) -> np.int32:
@@ -488,9 +490,10 @@ def decode(i: np.int32) -> int:
     return ((d + 4) % 8) - 4
 ```
 
-<div>
-<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
 </div>
+
+<div class="codeblock-with-filename">
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
 
 ```python
 def lwe_encode(i: int) -> LwePlaintext:
@@ -502,6 +505,8 @@ def lwe_decode(plaintext: LwePlaintext) -> int:
     """Decode an LWE plaintext to an integer in [-4,4) mod 8."""
     return utils.decode(plaintext.message)
 ```
+
+</div>
 
 In the following example we'll use the encoding and decoding functions to
 encrypt a message and recover the exact message without noise after decryption.
@@ -668,9 +673,8 @@ m_2) \\]
 
 Here are concrete implementations of $\mathrm{CAdd}$ and $\mathrm{CSub}$:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
-</div>
 
 ```python
 def lwe_add(
@@ -701,6 +705,8 @@ def lwe_subtract(
         np.subtract(ciphertext_left.a, ciphertext_right.a, dtype=np.int32),
         np.subtract(ciphertext_left.b, ciphertext_right.b, dtype=np.int32))
 ```
+
+</div>
 
 Here is an example of homomorphic addition:
 
@@ -751,7 +757,7 @@ $L_{\mathrm{prod}} = \mathrm{PMul}(c, L)$:
 $$
 \begin{align*}
 \mathrm{Dec}_{\mathbf{s}}(L_{\mathrm{prod}}) &= \mathrm{Dec}_{\mathbf{s}}((c \cdot \mathbf{a}, c \cdot b)) \\
-&= (c \cdot b) - (c \cdot \mathbf{a}) \cdot \mathbf{s} \\ 
+&= (c \cdot b) - (c \cdot \mathbf{a}) \cdot \mathbf{s} \\
 &= c \cdot (b - \mathbf{a} \cdot \mathbf{s}) \\
 &= c \cdot (m + e) \\
 &= (c \cdot m) + (c \cdot e)
@@ -765,9 +771,8 @@ of $c \cdot m$. We'll analyze the noise more closely in the next section.
 
 Here is an implementation of $\mathrm{PMul}$:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
-</div>
 
 ```python
 def lwe_plaintext_multiply(c: int, ciphertext: LweCiphertext) -> LweCiphertext:
@@ -778,6 +783,8 @@ def lwe_plaintext_multiply(c: int, ciphertext: LweCiphertext) -> LweCiphertext:
         np.multiply(c, ciphertext.b, dtype=np.int32),
     )
 ```
+
+</div>
 
 ### Noise Analysis
 
@@ -870,9 +877,8 @@ Here are the functions we'll use to encode booleans as LWE plaintexts and to
 decode plaintexts back to booleans. Note that we're using the `encode` and
 `decode` functions defined [here](#code:encode-decode).
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/utils.py">tfhe/utils.py</a>
-</div>
 
 ```python
 def encode_bool(b: bool) -> np.int32:
@@ -885,9 +891,10 @@ def decode_bool(i: np.int32) -> bool:
     return bool(decode(i) / 2)
 ```
 
-<div>
-<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
 </div>
+
+<div class="codeblock-with-filename">
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py">tfhe/lwe.py</a>
 
 ```python
 def lwe_encode_bool(b: bool) -> LwePlaintext:
@@ -900,11 +907,12 @@ def lwe_decode_bool(plaintext: LwePlaintext) -> bool:
     return utils.decode_bool(plaintext.message)
 ```
 
+</div>
+
 The signature of our homomorphic NAND function is:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/nand.py">tfhe/nand.py</a>
-</div>
 
 ```python
 def lwe_nand(
@@ -921,6 +929,8 @@ def lwe_nand(
     """
     pass
 ```
+
+</div>
 
 As we'll see later, the `bootstrap_key` is a public key that untrusted parties
 can use to homomorphically evaluate functions.
@@ -1041,9 +1051,8 @@ $\mathrm{CNAND}$:
 
 Here is the python implementation:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/nand.py">tfhe/nand.py</a>
-</div>
 
 ```python
 import numpy as np
@@ -1085,6 +1094,8 @@ def lwe_nand(
     )
 ```
 
+</div>
+
 # Bootstrapping
 
 In the context of TFHE, the $\mathrm{Bootstrap}$ function is a homomorphic
@@ -1106,9 +1117,8 @@ be lower than the input noise.
 
 Here is the declaration of our library function:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/bootstrap.py">tfhe/bootstrap.py</a>
-</div>
 
 ```python
 def bootstrap(
@@ -1125,6 +1135,8 @@ def bootstrap(
     """
     pass
 ```
+
+</div>
 
 The `bootstrap_key` will be explained later in this post. The `scale` parameter
 is the non zero output value of the step function. Our definition of
@@ -1282,9 +1294,8 @@ Their product is:
 
 Here is some negacyclic polynomial code that will be used later:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/polynomial.py">tfhe/polynomial.py</a>
-</div>
 
 ```python
 import numpy as np
@@ -1353,6 +1364,8 @@ def build_monomial(c: int, i: int, N: int) -> Polynomial:
     return Polynomial(N=N, coeff=coeff)
 ```
 
+</div>
+
 ## The RLWE Encryption Scheme
 
 In this section we will define the _RLWE Encryption Scheme_ which is very
@@ -1383,9 +1396,8 @@ $m(x)$ with the key $s(x)$ will be denoted $\mathrm{RLWE}_{s(x)}(m(x))$.
 
 Here is our implementation of the RLWE scheme:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/rlwe.py">tfhe/rlwe.py</a>
-</div>
 
 ```python
 import dataclasses
@@ -1463,15 +1475,18 @@ def rlwe_decrypt(
     return RlwePlaintext(config=key.config, message=message)
 ```
 
+</div>
+
 We'll use the following RLWE parameters in this post:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/config.py">tfhe/config.py</a>
-</div>
 
 ```
 RLWE_CONFIG = rlwe.RlweConfig(degree=1024, noise_std=2 ** (-24))
 ```
+
+</div>
 
 ## RLWE Message Encoding
 
@@ -1513,9 +1528,8 @@ $e(x)$ are all less than $2^{28}$
 Here is an implementation of the encoding and decoding functions for RLWE
 messages:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/rlwe.py">tfhe/rlwe.py</a>
-</div>
 
 ```python
 def rlwe_encode(p: Polynomial, config: RlweConfig) -> RlwePlaintext:
@@ -1531,6 +1545,8 @@ def rlwe_decode(plaintext: RlwePlaintext) -> Polynomial:
     decode_coeff = np.array([utils.decode(i) for i in plaintext.message.coeff])
     return Polynomial(N=plaintext.message.N, coeff=decode_coeff)
 ```
+
+</div>
 
 Here is an example of using the RLWE encryption scheme with the above encoding:
 
@@ -1581,9 +1597,8 @@ b_1(x) + b_2(x)) \\]
 
 Here is the corresponding code:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/rlwe.py">tfhe/rlwe.py</a>
-</div>
 
 ```python
 def rlwe_add(
@@ -1607,6 +1622,8 @@ def rlwe_subtract(
         polynomial.polynomial_subtract(ciphertext_left.b, ciphertext_right.b),
     )
 ```
+
+</div>
 
 ### Homomorphic Multiplication By Plaintext
 
@@ -1632,9 +1649,8 @@ small.
 
 Here is an implementation:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/rlwe.py">tfhe/rlwe.py</a>
-</div>
 
 ```python
 def rlwe_plaintext_multiply(
@@ -1647,6 +1663,8 @@ def rlwe_plaintext_multiply(
         polynomial.polynomial_multiply(c.message, ciphertext.b),
     )
 ```
+
+</div>
 
 And here is an example:
 
@@ -1759,9 +1777,8 @@ Here is an implementation of $\mathrm{CMux}$ which builds on the GSW encryption
 scheme and the $\mathrm{CMul}$ function that we'll implement in the next
 section.
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py">tfhe/gsw.py</a>
-</div>
 
 ```python
 def cmux(
@@ -1784,6 +1801,8 @@ def cmux(
         rlwe_ciphertext_0,
     )
 ```
+
+</div>
 
 Here is an example:
 
@@ -1846,9 +1865,8 @@ between a GSW ciphertext and an RLWE ciphertext:
 In terms of our python implementation, our goal is to implement the following
 methods:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py">tfhe/gsw.py</a>
-</div>
 
 ```python
 @dataclasses.dataclass
@@ -1890,6 +1908,8 @@ def gsw_multiply(
     """
     pass
 ```
+
+</div>
 
 ### Encryptions Of Zero
 
@@ -1970,7 +1990,7 @@ Similarly:
 By plugging in equations \ref{eq:decrypt-prod-1} and \ref{eq:decrypt-prod-2}
 into equation \ref{eq:decrypt-prod} we get:
 
-$$ 
+$$
 \mathrm{Dec}_{s(x)}(R_{\mathrm{prod}}) = f_1(x)\cdot f_2(x) + (f_1(x)\cdot
 e_2(x) + a_2(x)\cdot z_1(x) + b_2(x)\cdot z_2(x))
 $$
@@ -2138,9 +2158,8 @@ Here is an implementation of the signed base-$p$ representation. Our
 implementation uses a "shift and mask" method to comptue the unsigned
 representation.
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py">tfhe/gsw.py</a>
-</div>
 
 ```python
 def base_p_num_powers(log_p: int):
@@ -2178,6 +2197,8 @@ def base_p_to_array(a_base_p: Sequence[np.ndarray], log_p) -> np.ndarray:
     )
 ```
 
+</div>
+
 We'll similarly define the base-$p$ representation of a polynomial
 $f(x) \in \mathbb{Z}\_q / (x^N+1)$ to be a sequence of polynomials
 $f_0,\dots,f_{k-1}\in\mathbb{Z}\_p/(x^N+1)$ such that:
@@ -2201,9 +2222,8 @@ f(x) &\mapsto (f_0(x),\dots,f_{k-1}(x))
 The base-$p$ representation of a polynomial can be computed from the base-$p$
 representations of the coefficients:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py">tfhe/gsw.py</a>
-</div>
 
 ```python
 def polynomial_to_base_p(
@@ -2230,6 +2250,8 @@ def base_p_to_polynomial(
 
     return f
 ```
+
+</div>
 
 Note that equation \ref{eq:polynomial-base-p} can also be written as a dot
 product:
@@ -2312,9 +2334,8 @@ $2$ row vector which is indeed the correct shape for an RLWE ciphertext.
 
 Here are the implementations of GSW encryption and homomorphic multiplication:
 
-<div>
+<div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py">tfhe/gsw.py</a>
-</div>
 
 ```python
 def convert_rlwe_key_to_gsw(
@@ -2400,9 +2421,10 @@ def gsw_multiply(
     return rlwe_ciphertext
 ```
 
+</div>
+
 This completes our implementation of the homomorphic multiplexer $\mathrm{CMux}$
 that was started in the [Introduction](#introduction-2).
-
 
 # Blind Rotation
 

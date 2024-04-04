@@ -13,7 +13,7 @@
       "AssistiveMML.js",
       "a11y/accessibility-menu.js"
     ],
-    jax: ["input/TeX", "output/CommonHTML"],
+    jax: ["input/TeX", "output/HTML-CSS"],
     TeX: {
       extensions: [
         "AMSmath.js",
@@ -26,13 +26,14 @@
       }
     },
     tex2jax: {
-	inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-	displayMath: [ ["$$", "$$"], ["\\[", "\\]"] ],
-	processEscapes: true
+	    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+	    displayMath: [ ["$$", "$$"], ["\\[", "\\]"] ],
+	    processEscapes: true
     },
     CommonHTML: {
       scale: 100
-    }
+    },
+    positionToHash: false
   });
 </script>
 <!-- <script -->

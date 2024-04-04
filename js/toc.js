@@ -1,16 +1,3 @@
-// TODO
-// * move navigation in header to right? what should be in the header?
-// * what to do about white space on the right of the text on larger screens?
-// * fix fonts / sizes / colors / line height
-// * lines under header over footer. In small view, header line should disappear when opening sidepanel.
-// * consistent link style
-// * fix default.html vs post.html. also, fix mathjax <script> location
-// * make css common constants --vars
-// * contents should collapse in small view after clicking link
-// * image sizes.
-// * nicer blockquote css
-// * fix index page
-
 let STATE = {
     headers: {
         primary: [],
@@ -26,7 +13,22 @@ let STATE = {
     }
 };
 
+let hamburger = document.querySelector(".hamburger");
+let sidebar = document.querySelector(".sidebar");
+
 let currentActiveIndex = -1;
+
+function toggleSidebar() {
+    hamburger.classList.toggle("is-active");
+
+    if (hamburger.classList.contains("is-active")) {
+        sidebar.classList.remove("hidden");
+        document.body.classList.add("noscroll");
+    } else {
+        sidebar.classList.add("hidden");
+        document.body.classList.remove("noscroll");
+    }
+}
 
 function findHeaders(state) {
     let allHeaders = Array.from(document.querySelectorAll(".main-content h1, .main-content h2"));
@@ -55,6 +57,7 @@ function buildTableOfContentsListElement(headerElem) {
     a_elem = document.createElement("a");
     a_elem.appendChild(document.createTextNode(headerElem.innerHTML));
     a_elem.setAttribute("href", "#" + headerElem.id);
+    a_elem.addEventListener("click", toggleSidebar);
 
     li_elem = document.createElement("li");
     li_elem.append(a_elem);
@@ -175,12 +178,15 @@ function update(state) {
 }
 
 function throttle(func, wait) {
-    let prev_timestamp = 0;
+    let waiting = false;
+
     return function () {
-        current_timestamp = Date.now();
-        if (current_timestamp > prev_timestamp + wait) {
-            func();
-            prev_timestamp = current_timestamp;
+        if (!waiting) {
+            waiting = true;
+            setTimeout(() => {
+                func();
+                waiting = false;
+            }, wait);
         }
     }
 }
@@ -193,3 +199,5 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('scroll', throttle(() => {
     update(STATE);
 }, 100));
+
+hamburger.addEventListener("click", toggleSidebar);

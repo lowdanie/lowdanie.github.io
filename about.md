@@ -1,11 +1,18 @@
 ---
-layout: default
-title: About
+layout: about
+hamburger: false
 ---
 
-My name is Daniel Lowengrub. Currently I work as a software engineer.
+My name is Daniel Lowengrub.
 
-Prior to working in the software industry I was a mathematics graduate student at UC Berkeley.
-You can see some of my academic work [here](https://math.berkeley.edu/~lowdanie/).
+In this blog I try to summarize what I'm currently learning - both to
+crystallize my understanding and as a resource to other people that may be
+interested. If you have comments or questions about anything on this site I'd
+love to hear from you! Free to send me an email at
+[lowdanie@gmail.com](mailto:lowdanie@gmail.com).
 
-In this blog I try to summarize interesting pieces of mathematics which have applications to computer science and physics. The presented material is for recreational purposes and has no affiliation with my employer.
+I currently work as a software engineer. My
+[LinkedIn](https://www.linkedin.com/in/daniel-lowengrub-bb43a296/) contains more
+information. Prior to that I was a mathematics graduate student at UC Berkeley.
+You can see some of my academic work
+[here](https://math.berkeley.edu/~lowdanie/).
