@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap");
-
 html {
     font-family: sans-serif;
 }
@@ -34,7 +32,7 @@ body {
 
     .page-header {
         position: sticky;
-        height: 60px;
+        /* height: 60px; */
         top: 0;
         left: 0;
         right: 0;
@@ -44,7 +42,6 @@ body {
 
     .sidebar {
         position: fixed;
-        top: 60px;
         left: 0;
         right: 0;
         bottom: 0;
@@ -58,13 +55,9 @@ body {
         display: none;
     }
 
-    .main-content {
-        margin-top: 60px;
-    }
-
     .main-content h1,
     .main-content h2 {
-        scroll-margin-top: 60px;
+        scroll-margin-top: 5rem;
     }
 }
 
@@ -102,6 +95,7 @@ body {
 .page-header {
     display: flex;
     justify-content: left;
+    align-items: center;
     border-bottom: solid 1px var(--border-color);
 }
 
@@ -249,7 +243,8 @@ td.post-date {
 
 
 .MathJax_Display {
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .main-content img {

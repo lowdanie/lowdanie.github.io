@@ -13,6 +13,7 @@ let STATE = {
     }
 };
 
+let pageHeader = document.querySelector(".page-header");
 let hamburger = document.querySelector(".hamburger");
 let sidebar = document.querySelector(".sidebar");
 
@@ -22,6 +23,7 @@ function toggleSidebar() {
     hamburger.classList.toggle("is-active");
 
     if (hamburger.classList.contains("is-active")) {
+        sidebar.style.top = `${pageHeader.clientHeight}px`;
         sidebar.classList.remove("hidden");
         document.body.classList.add("noscroll");
     } else {
