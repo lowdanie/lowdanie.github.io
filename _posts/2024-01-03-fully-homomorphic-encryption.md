@@ -1572,7 +1572,7 @@ decoded = rlwe.rlwe_decode(decrypted)
 assert np.all(decoded.coeff == p.coeff)
 ```
 
-## Homomorphic Operations
+## Homomorphic Operations {#rlwe-homomorphic-operations}
 
 In this section we'll develop the RLWE analogs of the
 [LWE Homomorphic Operations](#homomorphic-operations).
@@ -1911,7 +1911,7 @@ def gsw_multiply(
 
 </div>
 
-### Encryptions Of Zero
+## Encryptions Of Zero
 
 An _encryption of zero_ is an RLWE encryption of the zero polynomial. The
 
@@ -1937,19 +1937,12 @@ mask $f_1(x)$ before multiplying it with $R_2$.
 Let $Z_1,\ Z_2 \in \mathrm{RLWE}(0)$ be encryptions of zero let $Z$ to be the
 $2\times 2$ matrix whose $i$-th row is $Z_i$:
 
-<div>
-$$
-Z = \left( \begin{matrix} Z_1 \\ \hline Z_2 \end{matrix} \right)
-$$
-</div>
+\\[ Z = \left( \begin{matrix} Z_1 \\\\ \hline Z_2 \end{matrix} \right) \\]
 
 Also, let $I_{2\times 2}$ denote the $2 \times 2$ identity matrix:
 
-<div>
-$$
-I_{2 \times 2} = \left( \begin{matrix} 1 & 0 \\ 0 & 1 \end{matrix} \right)
-$$
-</div>
+\\[ I_{2 \times 2} = \left( \begin{matrix} 1 & 0 \\\\ 0 & 1 \end{matrix} \right)
+\\]
 
 We claim that
 
@@ -1959,7 +1952,6 @@ is also a valid RLWE encryption of $f_1(x)\cdot f_2(x)$ under the assumption
 that the coefficients of $f_1(x)$ and $R_2=(a_2(x), b_2(x))$ are small.
 
 <details id="proof:cmul-preliminary">
-<summary>Proof</summary>
 <div class="details-content">
 
 As usual, we'll prove this by analyzing the decryption of $R_{\mathrm{prod}}$.
@@ -2051,11 +2043,11 @@ $\mathrm{CMul}(R, G)$ is now only
 \\[ f_1(x)\cdot e_2(x) + \frac{1}{p}a_2(x)\cdot z_1(x) + \frac{1}{p}b_2(x)\cdot
 z_2(x) \\]
 
-We can therefore obtain an acceptable bound on the noise by choosing $1 < p < q$
-to be sufficiently large.
+We can therefore obtain an acceptable bound on the noise by choosing $p$ to be
+sufficiently large.
 
 Unfortunately this simple approach does not quite work since division by $p$ is
-not well defined on the 32-bit integers $\mathbb{Z}_q$. At most we can divide
+not well defined on the 32-bit integers $\mathbb{Z}\_q$. At most we can divide
 _modulo_ $p$ but then we'll loose a lot of precision which would counter our
 goal of reducing noise.
 
@@ -2073,7 +2065,7 @@ In the next section we'll describe the details of the base-$p$ representation.
 Then we'll see how to incorporate it into homomorphic multiplication so as to
 obtain a better bound on the noise.
 
-### The Base $p$ Representation
+## The Base-p Representation
 
 Recall that in this post, $q=2^{32}$ and $\mathbb{Z}_q$ is represented by the
 signed 32-bit integers $[-2^{31}, 2^{31})$. In this section we'll similarly set
@@ -2203,21 +2195,21 @@ We'll similarly define the base-$p$ representation of a polynomial
 $f(x) \in \mathbb{Z}\_q / (x^N+1)$ to be a sequence of polynomials
 $f_0,\dots,f_{k-1}\in\mathbb{Z}\_p/(x^N+1)$ such that:
 
-<div>
-\begin{equation}\label{eq:polynomial-base-p}
-f(x) = f_0(x) + p\cdot f_1(x) + \dots + p^{k-1} \cdot f_{k-1}(x)
+$$
+\begin{equation}\label{eq:polynomial-base-p} f(x) = f_0(x) + p\cdot f_1(x) +
+\dots + p^{k-1} \cdot f_{k-1}(x)
 \end{equation}
-</div>
+$$
 
 and we'll extend the function $\mathrm{Base}_p$ defined above from scalars to
 include polynomials:
 
-<div>
-\begin{align*}
-\mathrm{Base}_p: \mathbb{Z}_q/(x^N+1) &\rightarrow \left(\mathbb{Z}_p/(x^N+1)\right)^k \\
-f(x) &\mapsto (f_0(x),\dots,f_{k-1}(x))
+$$
+\begin{align*} \mathrm{Base}_p: \mathbb{Z}\_q/(x^N+1) &\rightarrow
+\left(\mathbb{Z}\_p/(x^N+1)\right)^k \\ f(x) &\mapsto
+(f_0(x),\dots,f_{k-1}(x))
 \end{align*}
-</div>
+$$
 
 The base-$p$ representation of a polynomial can be computed from the base-$p$
 representations of the coefficients:
@@ -2270,20 +2262,21 @@ Finally, in the next section we will apply the base-$p$ representation to RLWE
 ciphertext $R=(a(x), b(x))$. For that purpose we'll define the $2k\times 2$
 matrix $B_p$:
 
-<div>
+$$
 \begin{equation}\label{eq:define-bp}
-B_p := \left(\begin{matrix}\mathbf{v}^T_p & \mathbf{0}_k \\ \mathbf{0}_k & \mathbf{v}^T_p \end{matrix}\right)
+B_p := \left(\begin{matrix}\mathbf{v}^T_p &
+\mathbf{0}_k \\ \mathbf{0}_k & \mathbf{v}^T_p \end{matrix}\right)
 \end{equation}
-</div>
+$$
 
 where $\mathbf{0}_p$ denotes a column vector of $k$ zeros. It's easy to see
 that:
 
-<div>
+$$
 \begin{equation}\label{eq:base-p-factor}
-R = (\mathrm{Base}\_p(a(x)), \mathrm{Base}\_p(b(x))) \cdot B\_p 
+R = (\mathrm{Base}\_p(a(x)), \mathrm{Base}\_p(b(x))) \cdot B_p
 \end{equation}
-</div>
+$$
 
 Note that similarly to the trivial factorization $R = \frac{1}{p}R \cdot p$, the
 coefficients on the left hand side of the base-$p$ factorization are small.
@@ -2430,52 +2423,117 @@ that was started in the [Introduction](#introduction-2).
 
 ## Definition {#definition-blind-rotation}
 
-Consider the negacyclic [REF] polynomial
+Consider the polynomial
 
-\\[ f(x) = 1 + 2x + 3x^2 + 4x^3 \in \mathbb{Z}_q / (x^N+1) \\]
+\\[ f(x) = 1 + 2x + 3x^2 + 4x^3 \in \mathbb{Z}_q / (x^3+1) \\]
 
-If we multiply $f(x)$ by $x^1$ then, due to the negacyclic property we get
+in the [negacyclic](#negacyclic-polynomials) polynomial ring of degree $N=3$. If
+we multiply $f(x)$ by $x^1$ then, due to the negacyclic property we get
 
-\\[ x^1 \cdot f(x) = -4 + x + 2x^2 + 3x^3 \\]
+$$
+x^1 \cdot f(x) = -4 + x + 2x^2 + 3x^3
+$$
 
-In other words, multiplying by $x$ rotates the coefficients of $f(x)$ one step
-to the right:
+In other words, multiplying by $x^1$ rotates the coefficients of $f(x)$ one step
+to the right and the coefficient that wraps around (in this case $4$) picks up a
+minus sign:
 
 \\[ (1, 2, 3, 4) \rightarrow (-4, 1, 2, 3) \\]
 
-The negacyclic property that when a coefficient wraps around it gets multiplied
-by $-1$. In general, multiplying by $x^i$ will rotate the coefficients of $f(x)$
-by $i$ steps. For example:
+For this reason, multiplication by a monomial $x^i$ in a negacyclic polynomial
+ring is sometimes referred to as _rotation_ by $i$.
 
-\\[ x^3 \cdot f(x) = -2 - 3x - 4x^2 + x^3 \\]
+Note that in the negacyclic polynomial ring $\mathbb{Z}_q / (x^N+1)$, the
+monomial $x^i$ is well defined even if $i$ is negative. For instance, we can use
+the relation $-x^N = 1$ to rewrite $x^{-1}$ as
 
-We'll formalize this by defining the $\mathrm{Rotate}(i, f(x))$ that rotated the
-coefficients of $f(x)$ $i$ steps to the right:
+$$
+x^{-1} = -x^N \cdot x^{-1} = -x^{N-1}
+$$
 
-<div>
+Therefore, we can define a function $\mathrm{IntRotate}$ that rotates a
+polynomial $f(x)\in\mathbb{Z}_q / (x^N+1)$ by an integer $i\in\mathbb{Z}$:
+
+$$
+\begin{align*}
+    \mathrm{IntRotate}: \mathbb{Z} \times \mathbb{Z}_q / (x^N+1)  &\rightarrow \mathbb{Z}_q / (x^N+1) \\
+    (i, f(x)) &\mapsto x^i \cdot f(x)
+\end{align*}
+$$
+
+Note that due to the negacyclic relation $x^{2N} = (-1)^2 = 1$, the function
+$\mathrm{IntRotate}$ is periodic in the first variable with period $2N$:
+
+$$
+\mathrm{IntRotate}(i + 2N, f(x)) = \mathrm{IntRotate}(i, f(x))
+$$
+
+In this post we're working with the integers modulo $q$, $\mathbb{Z}\_q$, rather
+than the regular integers $\mathbb{Z}$. Unfortunately, $\mathrm{IntRotate}$ is
+not well defined on $\mathbb{Z}_q$. The reason for this is that operations in
+$\mathbb{Z}_q$ are defined modulo $q$ whereas, as we just saw,
+$\mathrm{IntRotate}$ has a period of $2N$.
+
+We can reconcile this difference by rescaling $i\in\mathbb{Z}_q$ by
+$\frac{2N}{q}$ before using it to rotate $f(x)$. Specifically, we'll upgrade
+$\mathrm{IntRotate}$ to the function $\mathrm{Rotate}(i, f(x))$:
+
+$$
 \begin{align*}
     \mathrm{Rotate}: \mathbb{Z}_q \times \mathbb{Z}_q / (x^N+1)  &\rightarrow \mathbb{Z}_q / (x^N+1) \\
-    (i, f(x)) &\mapsto x^{\frac{2N}{q}i} \cdot f(x)
+    (i, f(x)) &\mapsto x^{\lfloor \frac{2N}{q} \cdot i \rfloor} \cdot f(x)
 \end{align*}
-</div>
+$$
+
+In other words, $\mathrm{Rotate}$ takes as input an integer $i \in \mathbb{Z}_q$
+and a negacyclic polynomial $f(x)$ and outputs a rotation of $f(x)$ by
+$\left\lfloor \frac{2N}{q} \cdot i \right\rfloor$. For example, if
+$i=\frac{q}{4}$ then $\mathrm{Rotate}(i, f(x))$ rotates $f(x)$ by $\frac{N}{2}$.
+
+It's easy to see that $\mathrm{Rotate}$ has a period of $q$ in the first
+variable, which is why we can apply it to elements of $\mathbb{Z}_q$.
 
 _Blind Rotation_ is the homomorphic version of $\mathrm{Rotate}$. Its inputs are
 an LWE _encryption_ of the index $i$ together with the plaintext polynomial
-$f(x)$. The output is an RLWE _encryption_ of the polynomial $x^i f(x)$:
+$f(x)$. The output is an RLWE _encryption_ of the polynomial
+$x^{\lfloor \frac{2N}{q} \cdot i \rfloor} \cdot f(x)$:
 
-\\[ \mathrm{BlindRotate}: \mathrm{LWE}(i) \times \mathbb{Z}_q / (x^N+1)
-\rightarrow \mathrm{RLWE}(x^i \cdot f(x)) \\]
+$$
+\mathrm{BlindRotate}: \mathrm{LWE}(i) \times \mathbb{Z}_q / (x^N+1)
+\rightarrow \mathrm{RLWE}(x^i \cdot f(x))
+$$
 
-The goal of this section will be to implement blind rotation.
+The goal of this section will be to implement blind rotation. Here is the
+signature of the function that we will implement:
+
+<div class="codeblock-with-filename">
+[tfhe/gsw.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py)
+
+```python
+def blind_rotate(
+    lwe_ciphertext: lwe.LweCiphertext,
+    rlwe_ciphertext: rlwe.RlweCiphertext,
+    bootstrap_key: BootstrapKey,
+) -> rlwe.RlweCiphertext:
+    """Homomorphically evaluate the function: Rotate(i, f(x)) = x^((2N/q)*i)) * f(x).
+
+    Suppose lwe_ciphertext is an encryption of i and rlwe_ciphertext is an
+    encryption of f(x). Then the output will be an encryption of
+    x^((2N/q)*i) * f(x).
+    """
+    pass
+```
+
+</div>
 
 ## Implementation
 
-Let $\mathbf{s}$ be an encryption key, let
+Let $\mathbf{s}$ be an LWE encryption key, let
 $L = (\mathbf{a}, b) \in \mathrm{LWE}_{\mathbf{s}}(i)$ be an LWE encryption of
 $i$ and let $f(x)$ be a polynomial. Our goal is to evaluate
 $\mathrm{BlindRotate}((\mathbf{a}, b), f(x))$. By definition, this means that we
 must use the inputs $(\mathbf{a}, b)$ and $f(x)$ to produce an RLWE encryption
-of $x^i f(x)$.
+of $x^i \cdot f(x)$.
 
 Recall that the LWE decryption operation is defined by:
 
@@ -2487,71 +2545,96 @@ $b -
 \mathbf{s} \cdot \mathbf{a}$ is equal to $i + e$ where $e$ is a small error.
 Therefore:
 
-\\[ x^{i + e}f(x) = x^{b - \mathbf{s} \cdot \mathbf{a}} = x^b \cdot
-\prod_{i=1}^N x^{s_i a_i} \cdot f(x) \\]
+$$
+\begin{equation}\label{eq:xi-times-f}
+x^{i + e}\cdot f(x) = x^{b - \mathbf{s} \cdot \mathbf{a}} = x^b \cdot
+\prod_{i=1}^N x^{-s_i a_i} \cdot f(x)
+\end{equation}
+$$
 
 Since each $s_i$ is either $0$ or $1$, $x^{s_i a_i}$ is equal to $1$ or
 $x^{a_i}$. Therefore, we can evaluate $x^{i+e}$ by iteratively applying a
-multiplexer where $s_i$ is the selector bit. More concretely, we'll start with
+multiplexer with $s_i$ is the selector bit. More concretely, we'll start with
 $g_0(x) := x^b \cdot f(x)$ and inductively define:
 
-\\[ g_i(x) := \mathrm{Mux}(s_i, g_{i-1}(x), x^{a_i}\cdot g_{i-1}(x)) \\]
+$$
+\begin{equation}\label{eq:ind-rotation}
+g_i(x) := \mathrm{Mux}(s_i, g_{i-1}(x), x^{a_i}\cdot g_{i-1}(x))
+\end{equation}
+$$
 
 for $i = 1,\dots,N$. From the definition of $\mathrm{Mux}$ it follows that:
 
-<div>
 $$
 g_i(x) =
 \begin{cases} g_{i-1}(x) & \mathrm{if}\ s_i = 0 \\
               x^{a_i} \cdot g_{i-1}(x) & \mathrm{if}\ s_i = 1
 \end{cases}
 $$
-</div>
 
 Therefore, it is easy to prove by induction that:
 
-\\[ g_N(x) = \prod_{i=1}^N x^{s_i a_i} \cdot x^b \cdot f(x) \\]
+$$
+g_N(x) = x^b \cdot \prod_{i=1}^N x^{s_i a_i} \cdot f(x)
+$$
 
-By equation EQ it follows that:
+By equation \ref{eq:xi-times-f} it follows that:
 
-\\[ g_N(x) = x^{i + e}\cdot f(x) \\]
+$$
+g_N(x) = x^{i + e}\cdot f(x)
+$$
 
-Our strategy for producing an RLWE encryption of $x^i \cdot f(x)$ will be to
-iteratively produce RLWE encryptions of $g_i(x)$ for $i=1,\dots,N$ by modifying
-our inductive equation EQ.
+Our strategy for producing an RLWE encryption of $x^i \cdot f(x)$ is to
+iteratively produce RLWE encryptions of $g_i(x)$ for $i=1,\dots,N$ by replacing
+the operations in our inductive equation \ref{eq:ind-rotation} with their
+homomorphic counterparts.
 
-The first modification will be to replace $s_i$ with a GSW encryption of $s_i$
-that we will denote by $t_i$:
+The first modification is to replace $s_i$ with a GSW encryption of $s_i$ that
+we will denote by $t_i$:
 
-\\[ t_i := \mathrm{Enc}_{\mathbf{s}}^{\mathrm{GSW}}(s_i) \\]
+$$
+t_i := \mathrm{Enc}_{\mathbf{s}}^{\mathrm{GSW}}(s_i)
+$$
 
 The second modification is to replace the multiplexer $\mathrm{Mux}$ with the
-homomorphic multiplexer $\mathrm{CMux}$ from section REF. Finally, we'll replace
+homomorphic multiplexer $\mathrm{CMux}$ that we implemented in
+[A Homomorphic Multiplexer](#a-homomorphic-multiplexer). Finally, we'll replace
 the product $x^{a_i} \cdot g_{i-1}(x)$ with the homomorphic product
-$\mathrm{CMul}$. Putting these together, our new inductive equation is:
+$\mathrm{PMul}$ from section
+[Homomorphic Operations](#rlwe-homomorphic-operations). Putting this all
+together, our new inductive equation is:
 
-\\[ R_i := \mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1})) \\]
+$$
+\begin{equation}\label{eq:ind-blind-rotation}
+R_i := \mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1}))
+\end{equation}
+$$
 
 for $i=1,\dots,N$ where the initial value $R_0$ is defined to be an RLWE
 encryption of $g_0(x)$:
 
-\\[ R_0 := \mathrm{Enc}^{\mathrm{RLWE}}_{\mathbf{s}}(g_0) \\]
+$$
+\begin{equation}\label{eq:ind-blind-rotation-base}
+ R_0 := \mathrm{Enc}^{\mathrm{RLWE}}_{\mathbf{s}}(g_0(x))
+ \end{equation}
+$$
 
 We'll now prove by induction that $R_i$ is an RLWE encryption of of $g_i(x)$.
 The $i=0$ is simply the definition of $R_0$.
 
-Suppose that $R_{i-1}$ is an RLWE encryption of $g_{i-1}(x)$. By REF, the
-homomorphic product $\mathrm{CMul}(x^{a_i}, R_{i-1})$ is an RLWE encryption of
-$x^{a_i}g_{i-1}(x)$. Therefore, since $t_i$ is a GSW encryption of $s_i$, by REF
-it follows that:
+Suppose that $R_{i-1}$ is an RLWE encryption of $g_{i-1}(x)$. By definition, the
+homomorphic product $\mathrm{PMul}(x^{a_i}, R_{i-1})$ is an RLWE encryption of
+$x^{a_i}g_{i-1}(x)$. Therefore, since $t_i$ is a GSW encryption of $s_i$, by the
+definition of the homomorphic multiplexer it follows that
 $\mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1}))$ is an RLWE
-encryption of $\mathrm{Mux}(s_i, g_{i-1}(x), x^{a_i}g_{i-1}(x))$. But this by
-definition (EQ) is equal to $g_i(x)$ which is what we had to prove.
+encryption of $\mathrm{Mux}(s_i, g_{i-1}(x), x^{a_i}g_{i-1}(x))$. But by
+equation \ref{eq:ind-rotation} this is equal to $g_i(x)$ which is what we had to
+prove.
 
 In particular, from the $i=N$ case it follows that $R_N$ is an RLWE encryption
 of $g_N(x) = x^{i+e} \cdot f(x)$. We can therefore implement
-$\mathrm{BlindRotate}$ by using equations EQ and EQ to iteratively compute $R_N$
-and setting:
+$\mathrm{BlindRotate}$ by using equations \ref{eq:ind-blind-rotation} and
+\ref{eq:ind-blind-rotation-base} to iteratively compute $R_N$ and set:
 
 \\[ \mathrm{BlindRotate}(L, f(x)) = R_N \\]
 
@@ -2562,7 +2645,52 @@ _Bootstrapping Key_.
 
 Here is a concrete implementation of our $\mathrm{BlindRotate}$ algorithm:
 
-CODE
+<div class="codeblock-with-filename">
+[tfhe/gsw.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py)
+
+```python
+def blind_rotate(
+    lwe_ciphertext: lwe.LweCiphertext,
+    rlwe_ciphertext: rlwe.RlweCiphertext,
+    bootstrap_key: BootstrapKey,
+) -> rlwe.RlweCiphertext:
+    """Homomorphically evaluate the function: Rotate(i, f(x)) = x^i * f(x).
+
+    Suppose lwe_ciphertext is an encryption of i and rlwe_ciphertext is an
+    encryption of a polynomial f(x). Then the output will be an encryption
+    of x^i * f(x).
+    """
+    N = rlwe_ciphertext.config.degree
+
+    # Scale the lwe_ciphertext by N / 2^31 so that the message is between -N and N
+    scaled_lwe_a = np.int32(np.rint(lwe_ciphertext.a * (N * 2 ** (-31))))
+    scaled_lwe_b = np.int32(np.rint(lwe_ciphertext.b * (N * 2 ** (-31))))
+
+    # Initialize the rotation by X^b
+    rotated_rlwe_ciphertext = rlwe.rlwe_plaintext_multiply(
+        rlwe.build_monomial_rlwe_plaintext(
+            1, scaled_lwe_b, rlwe_ciphertext.config
+        ),
+        rlwe_ciphertext,
+    )
+
+    # Rotate by X^-a_i if s_i = 1
+    for i, a_i in enumerate(scaled_lwe_a):
+        rotated_rlwe_ciphertext = gsw.cmux(
+            bootstrap_key.gsw_ciphertexts[i],
+            rotated_rlwe_ciphertext,
+            rlwe.rlwe_plaintext_multiply(
+                rlwe.build_monomial_rlwe_plaintext(
+                    1, -a_i, rlwe_ciphertext.config
+                ),
+                rotated_rlwe_ciphertext,
+            ),
+        )
+
+    return rotated_rlwe_ciphertext
+```
+
+</div>
 
 EXAMPLE
 
