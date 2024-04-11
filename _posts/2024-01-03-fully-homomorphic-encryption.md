@@ -2476,7 +2476,7 @@ $\mathrm{IntRotate}$ has a period of $2N$.
 
 We can reconcile this difference by rescaling $i\in\mathbb{Z}_q$ by
 $\frac{2N}{q}$ before using it to rotate $f(x)$. Specifically, we'll upgrade
-$\mathrm{IntRotate}$ to the function $\mathrm{Rotate}(i, f(x))$:
+$\mathrm{IntRotate}$ to the function $\mathrm{Rotate}$:
 
 $$
 \begin{align*}
@@ -2494,20 +2494,20 @@ It's easy to see that $\mathrm{Rotate}$ has a period of $q$ in the first
 variable, which is why we can apply it to elements of $\mathbb{Z}_q$.
 
 _Blind Rotation_ is the homomorphic version of $\mathrm{Rotate}$. Its inputs are
-an LWE _encryption_ of the index $i$ together with the plaintext polynomial
-$f(x)$. The output is an RLWE _encryption_ of the polynomial
+an LWE _encryption_ of the index $i$ together with an RLWE _encryption_ of the
+polynomial $f(x)$. The output is an RLWE _encryption_ of the polynomial
 $x^{\lfloor \frac{2N}{q} \cdot i \rfloor} \cdot f(x)$:
 
 $$
-\mathrm{BlindRotate}: \mathrm{LWE}(i) \times \mathbb{Z}_q / (x^N+1)
-\rightarrow \mathrm{RLWE}(x^i \cdot f(x))
+\mathrm{BlindRotate}: \mathrm{LWE}(i) \times \mathrm{RLWE}(f(x))
+\rightarrow \mathrm{RLWE}(x^{\lfloor \frac{2N}{q} \cdot i \rfloor} \cdot f(x))
 $$
 
 The goal of this section will be to implement blind rotation. Here is the
 signature of the function that we will implement:
 
 <div class="codeblock-with-filename">
-[tfhe/gsw.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py)
+[tfhe/bootstrap.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/bootstrap.py)
 
 ```python
 def blind_rotate(
@@ -2530,36 +2530,72 @@ def blind_rotate(
 
 Let $\mathbf{s}$ be an LWE encryption key, let
 $L = (\mathbf{a}, b) \in \mathrm{LWE}_{\mathbf{s}}(i)$ be an LWE encryption of
-$i$ and let $f(x)$ be a polynomial. Our goal is to evaluate
-$\mathrm{BlindRotate}((\mathbf{a}, b), f(x))$. By definition, this means that we
-must use the inputs $(\mathbf{a}, b)$ and $f(x)$ to produce an RLWE encryption
-of $x^i \cdot f(x)$.
+$i$ and let $F \in \mathrm{RLWE}(f(x))$ be an RLWE encryption of $f(x)$. Our
+goal is to evaluate $\mathrm{BlindRotate}(L, F)$. By definition, this means that
+we must use the ciphertexts $L=(\mathbf{a}, b)$ and $F$ to compute an RLWE
+encryption of $x^{\lfloor \frac{2N}{q}\cdot i\rfloor} \cdot f(x)$.
+
+To facilitate notation, in this section we'll define:
+
+$$
+\alpha := \frac{2N}{q}
+$$
+
+We'll also define:
+
+$$
+\begin{align*}
+b' &:= \lfloor \alpha \cdot b \rfloor \\\\
+\mathbf{a}' &:= \lfloor \alpha \cdot \mathbf{a} \rfloor
+
+\end{align*}
+$$
 
 Recall that the LWE decryption operation is defined by:
 
-\\[ \mathrm{Decrypt}^{\mathrm{LWE}}_{\mathbf{s}}((\mathbf{a}, b)) = b -
-\mathbf{s} \cdot \mathbf{a} \\]
+$$
+\mathrm{Decrypt}^{\mathrm{LWE}}_{\mathbf{s}}((\mathbf{a}, b)) = b -
+\mathbf{s} \cdot \mathbf{a}
+$$
 
 Since $(\mathbf{a}, b)$ is an encryption of $i$, the decryption
-$b -
-\mathbf{s} \cdot \mathbf{a}$ is equal to $i + e$ where $e$ is a small error.
+$b - \mathbf{s} \cdot \mathbf{a}$ is equal to $i + e$ where $e$ is a small
+error. Therefore:
+
+$$
+\begin{align*}
+\lfloor \alpha \cdot (i + e) \rfloor &=
+\lfloor \alpha \cdot (b - \mathbf{s} \cdot \mathbf{a}) \rfloor \\\\
+&\simeq \lfloor \alpha \cdot b \rfloor - \mathbf{s} \cdot \lfloor \alpha \cdot \mathbf{a} \rfloor \\\\
+&= b' - \mathbf{s} \cdot \mathbf{a}'
+\end{align*}
+$$
+
+This equality is not exact, but we'll absorb the difference into the error $e$
+and write:
+
+$$
+\lfloor \alpha \cdot (i + e) \rfloor = b' - \mathbf{s} \cdot \mathbf{a}'
+$$
+
 Therefore:
 
 $$
 \begin{equation}\label{eq:xi-times-f}
-x^{i + e}\cdot f(x) = x^{b - \mathbf{s} \cdot \mathbf{a}} = x^b \cdot
-\prod_{i=1}^N x^{-s_i a_i} \cdot f(x)
+x^{\lfloor \alpha \cdot (i + e) \rfloor}\cdot f(x) = x^{b' - \mathbf{s} \cdot \mathbf{a}'} = x^{b'} \cdot
+\prod_{i=1}^N x^{-s_i a'_i} \cdot f(x)
 \end{equation}
 $$
 
-Since each $s_i$ is either $0$ or $1$, $x^{s_i a_i}$ is equal to $1$ or
-$x^{a_i}$. Therefore, we can evaluate $x^{i+e}$ by iteratively applying a
+Since each $s_i$ is either $0$ or $1$, $x^{s_i a'_i}$ is equal to $1$ or
+$x^{a'_i}$. Therefore, we can evaluate
+$x^{\lfloor \alpha \cdot (i + e) \rfloor}\cdot f(x)$ by iteratively applying a
 multiplexer with $s_i$ is the selector bit. More concretely, we'll start with
-$g_0(x) := x^b \cdot f(x)$ and inductively define:
+$g_0(x) := x^{b'} \cdot f(x)$ and inductively define:
 
 $$
 \begin{equation}\label{eq:ind-rotation}
-g_i(x) := \mathrm{Mux}(s_i, g_{i-1}(x), x^{a_i}\cdot g_{i-1}(x))
+g_i(x) := \mathrm{Mux}(s_i, g_{i-1}(x), x^{a'_i}\cdot g_{i-1}(x))
 \end{equation}
 $$
 
@@ -2568,26 +2604,27 @@ for $i = 1,\dots,N$. From the definition of $\mathrm{Mux}$ it follows that:
 $$
 g_i(x) =
 \begin{cases} g_{i-1}(x) & \mathrm{if}\ s_i = 0 \\
-              x^{a_i} \cdot g_{i-1}(x) & \mathrm{if}\ s_i = 1
+              x^{a'_i} \cdot g_{i-1}(x) & \mathrm{if}\ s_i = 1
 \end{cases}
 $$
 
 Therefore, it is easy to prove by induction that:
 
 $$
-g_N(x) = x^b \cdot \prod_{i=1}^N x^{s_i a_i} \cdot f(x)
+g_N(x) = x^{b'} \cdot \prod_{i=1}^N x^{s_i a'_i} \cdot f(x)
 $$
 
 By equation \ref{eq:xi-times-f} it follows that:
 
 $$
-g_N(x) = x^{i + e}\cdot f(x)
+g_N(x) = x^{\lfloor \alpha \cdot (i + e) \rfloor}\cdot f(x)
 $$
 
-Our strategy for producing an RLWE encryption of $x^i \cdot f(x)$ is to
-iteratively produce RLWE encryptions of $g_i(x)$ for $i=1,\dots,N$ by replacing
-the operations in our inductive equation \ref{eq:ind-rotation} with their
-homomorphic counterparts.
+Our strategy for producing an RLWE encryption of
+$x^{\lfloor \alpha \cdot (i + e) \rfloor}\cdot f(x)$ is to iteratively produce
+RLWE encryptions of $g_i(x)$ for $i=1,\dots,N$ by replacing the operations in
+our inductive equation \ref{eq:ind-rotation} with their homomorphic
+counterparts.
 
 The first modification is to replace $s_i$ with a GSW encryption of $s_i$ that
 we will denote by $t_i$:
@@ -2599,28 +2636,31 @@ $$
 The second modification is to replace the multiplexer $\mathrm{Mux}$ with the
 homomorphic multiplexer $\mathrm{CMux}$ that we implemented in
 [A Homomorphic Multiplexer](#a-homomorphic-multiplexer). Finally, we'll replace
-the product $x^{a_i} \cdot g_{i-1}(x)$ with the homomorphic product
+the product $x^{a'_i} \cdot g\_{i-1}(x)$ with the homomorphic product
 $\mathrm{PMul}$ from section
 [Homomorphic Operations](#rlwe-homomorphic-operations). Putting this all
 together, our new inductive equation is:
 
 $$
 \begin{equation}\label{eq:ind-blind-rotation}
-R_i := \mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{CMul}(x^{a_i}, R_{i-1}))
+R_i := \mathrm{CMux}(t_i, R_{i-1}(x), \mathrm{PMul}(x^{a'_i}, R_{i-1}))
 \end{equation}
 $$
 
-for $i=1,\dots,N$ where the initial value $R_0$ is defined to be an RLWE
-encryption of $g_0(x)$:
+for $i=1,\dots,N$ where the initial value $R_0$ is defined to be the homomorphic
+product of $x^{b'}$ and the input ciphertext $F$:
 
 $$
 \begin{equation}\label{eq:ind-blind-rotation-base}
- R_0 := \mathrm{Enc}^{\mathrm{RLWE}}_{\mathbf{s}}(g_0(x))
+ R_0 := \mathrm{PMul}(x^{b'}, F)
  \end{equation}
 $$
 
 We'll now prove by induction that $R_i$ is an RLWE encryption of of $g_i(x)$.
-The $i=0$ is simply the definition of $R_0$.
+
+For the $i=0$ case, note that by the definition of $\mathrm{PMul}$,
+$R_0 = \mathrm{PMul}(x^{b'}, F)$ is an RLWE encryption of
+$x^{b'} \cdot f(x) = g_0(x)$.
 
 Suppose that $R_{i-1}$ is an RLWE encryption of $g_{i-1}(x)$. By definition, the
 homomorphic product $\mathrm{PMul}(x^{a_i}, R_{i-1})$ is an RLWE encryption of
@@ -2632,11 +2672,11 @@ equation \ref{eq:ind-rotation} this is equal to $g_i(x)$ which is what we had to
 prove.
 
 In particular, from the $i=N$ case it follows that $R_N$ is an RLWE encryption
-of $g_N(x) = x^{i+e} \cdot f(x)$. We can therefore implement
-$\mathrm{BlindRotate}$ by using equations \ref{eq:ind-blind-rotation} and
-\ref{eq:ind-blind-rotation-base} to iteratively compute $R_N$ and set:
+of $g_N(x) = x^{\lfloor \alpha\cdot(i+e)\rfloor} \cdot f(x)$. We can therefore
+implement $\mathrm{BlindRotate}$ by using equations \ref{eq:ind-blind-rotation}
+and \ref{eq:ind-blind-rotation-base} to iteratively compute $R_N$ and set:
 
-\\[ \mathrm{BlindRotate}(L, f(x)) = R_N \\]
+\\[ \mathrm{BlindRotate}(L, F) = R_N \\]
 
 Note that our implementation of $\mathrm{BlindRotate}$ relies on the GSW
 encryptions $t_i := \mathrm{Enc}\_{\mathbf{s}}^{\mathrm{GSW}}(s_i)$. For reasons
@@ -2646,7 +2686,7 @@ _Bootstrapping Key_.
 Here is a concrete implementation of our $\mathrm{BlindRotate}$ algorithm:
 
 <div class="codeblock-with-filename">
-[tfhe/gsw.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py)
+[tfhe/bootstrap.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/bootstrap.py)
 
 ```python
 def blind_rotate(
@@ -2692,50 +2732,154 @@ def blind_rotate(
 
 </div>
 
-EXAMPLE
+Here is an example:
+
+<div class="codeblock-with-filename">
+[tests/test_bootstrap.py](https://github.com/lowdanie/tfhe/blob/main/tests/test_bootstrap.py)
+
+```python
+# Generate random encryption keys.
+lwe_key = lwe.generate_lwe_key(config.LWE_CONFIG)
+rlwe_key = rlwe.generate_rlwe_key(config.RLWE_CONFIG)
+gsw_key = gsw.convert_rlwe_key_to_gsw(rlwe_key, config.GSW_CONFIG)
+bootstrap_key = bootstrap.generate_bootstrap_key(lwe_key, gsw_key)
+
+# f(x) = -1 -x ... -x^(N/2-1) + x^(N/2) + ... + x^(N-1)
+N = config.RLWE_CONFIG.degree
+f = polynomial.Polynomial(N=N, coeff=np.ones(N, dtype=np.int32))
+f.coeff[: N // 2] = -1
+
+# Encode f(x) as an RLWE plaintext and encrypt it with the key.
+f_plaintext = rlwe.rlwe_encode(f, config.RLWE_CONFIG)
+f_ciphertext = rlwe.rlwe_encrypt(f_plaintext, rlwe_key)
+
+# i = 3/8 * q. This means that we will rotate by 3/4 * N.
+# Encode i as an LWE plaintext and encrypt it with the key.
+index_plaintext = lwe.lwe_encode(3)
+index_ciphertext = lwe.lwe_encrypt(index_plaintext, lwe_key)
+
+# Use blind_rotate to rotate the f(x) by i, using only the ciphertexts
+# index_ciphertext and f_ciphertext. The output is an encryption of the result.
+rotated_ciphertext = bootstrap.blind_rotate(
+    index_ciphertext, f_ciphertext, bootstrap_key
+)
+
+# Use the encryption key to decrypt rotated_ciphertext, and then decode it.
+rotated_f = rlwe.rlwe_decode(
+    rlwe.rlwe_decrypt(rotated_ciphertext, rlwe_key)
+)
+
+# The rotated result should be approximately:
+# x^(3/4 * N)f(x) = 1 + x ... + x^(N/4-1) - x^(N/4) - ... - x^(N-1)
+assert rotated_f.coeff[0] == 1
+assert rotated_f.coeff[N // 2] == -1
+assert rotated_f.coeff[-1] == -1
+```
+
+</div>
 
 ## Noise Analysis
 
-Let $L=(\mathbf{a}, b)$ be an LWE ciphertext and $f(x)$ a polynomial. An
-interesting property of $\mathrm{BlindRotate}$ is that the noise in the output
-ciphertext $\mathrm{BlindRotate}(L, f(x))$ is fixed and does not depend on the
-noise of the input ciphertext $L$. In particular,
-$\mathrm{BlindRotate}(L, f(x))$ could have _less_ noise than $L$.
+Let $L=(\mathbf{a}, b)$ be an LWE ciphertext and let $R$ be an RLWE encryption
+of $f(x)$. An interesting property of $\mathrm{BlindRotate}$ is that noise in
+$L$ can affect the _order_ of the coefficients in the output ciphertext
+$\mathrm{BlindRotate}(L, R)$, but it does not affect their _magnitude_.
 
-To see why this is try we'll again turn to our inductive equation EQ. The key
-observation is that the coefficients of $\mathbf{a}$ only appear in the
-homomorphic multiplication
+For example, suppose that $f(x) = \mathrm{Encode}(1) = 2^{29}$ and
+$i = \mathrm{Encode}(2) = q/4 = 2^{30}$. A plaintext (i.e not blind) rotation of
+$f(x)$ by $i$ is equal to $2^{29} \cdot x^{\frac{N}{2}}$:
 
-\\[ \mathrm{CMul}(x^{a_i}, R_{i-1}) \\]
+$$
+\mathrm{Rotate}(i, f(x)) = x^{\lfloor \frac{2N}{q} \cdot \frac{q}{4} \rfloor} \cdot 2^{29}
+= 2^{29} \cdot x^{\frac{N}{2}}
+$$
 
-but multiplying the ciphertext $R_{i-1}$ by $x^{a_i}$ changes the _order_ of the
-coefficients in underlying plaintext but not their absolute values. Therefore
-the noise of $R_i$ does not depend on $a_i$. By induction, the noise of
-$\mathrm{BlindRotate}(L, f(x)) = R_N$ does not depend on $L=(\mathbf{a}, b)$.
+Let $L \in \mathrm{LWE}(i)$ be an LWE encryption of $i$ and let
+$R\in\mathrm{RLWE}(f(x))$ be an RLWE encryption of $f(x)$. Now we'll compute the
+_blind_ rotation using $L$ and $R$ and decrypt the result to get a rotated
+polynomial $g(x)$:
+
+$$
+g(x) = \mathrm{Dec}^{\mathrm{RLWE}}_{s(x)}(\mathrm{BlindRotate}(L, R))
+$$
+
+What does $g(x)$ look like? Since $\mathrm{BlindRotate}(L, R)$ is an RLWE
+encryption of $\mathrm{Rotate}(i, f(x))$, the decryption $g(x)$ is approximately
+equal to $\mathrm{Rotate}(i, f(x)) = 2^{29} \cdot x^{\frac{N}{2}}$. More
+concretely, it turns out that $g(x)$ will have the form:
+
+$$
+g(x) = e_0 + e_1\cdot x + \dots + (2^{29} + e_j) x^j + \dots + e_{N-1}x^{N-1}
+$$
+
+where the $e_k$ are small error terms and $j$ is close to $\frac{N}{2}$. If $L$
+is noisier, the index $j$ will move further from $\frac{N}{2}$ but the magnitude
+of the errors $e_i$ will not be affected.
+
+To see why $\mathrm{BlindRotate}$ has this property, we'll again turn to our
+inductive equation \ref{eq:ind-blind-rotation}. The key observation is that the
+coefficients of $L=(\mathbf{a},
+b)$ only appear in the homomorphic multiplication
+
+\\[ \mathrm{PMul}(x^{a'_i}, R\_{i-1}) \\]
+
+Multiplying the ciphertext $R_{i-1}$ by the plaintext $x^{a'\_i}$ changes the
+_order_ of the coefficients in underlying plaintext but not their magnitudes.
+
+This property of $\mathrm{BlindRotate}$ will play an important role in the
+analysis of bootstrapping noise REF.
 
 # Sample Extraction
 
-### Definition {#definition-sample-extraction}
+## Definition {#definition-sample-extraction}
 
-Consider the polynomial
+The _coefficient function_ $\mathrm{Coeff}$ takes as input an index $i$ and a
+polynomial
 
-\\[ f(x) = f_0 + f_1x + \dots + f_{N-1}x^{N-1} \in \mathbb{Z}_q/(x^N+1) \\]
+$$
+f(x) = f_0 + f_1x + \dots + f_{N-1}x^{N-1} \in \mathbb{Z}_q/(x^N+1)
+$$
 
-_Sample Extraction_ is the process of homomorphically extracting an LWE
-encryption of one of the _coefficients_ of $f(x)$ from an RLWE encryption of
-$f(x)$.
+and outputs $f_i$, the $i$-th coefficient of $f(x)$:
 
-More precisely, for a given index $i$, the function $\mathrm{SampleExtract}$
-takes as input an RLWE encryption of $f(x)$ and outputs an LWE encryption of
-$f_i$:
+$$
+\begin{align*}
+\mathrm{Coeff}: \mathbb{Z} \times \mathbb{Z}_q/(x^N+1) &\rightarrow \mathbb{Z}_q \\
+(i, f(x)) &\mapsto f_i
+\end{align*}
+$$
 
-\\[ \mathrm{SampleExtract}(i, \cdot): \mathrm{RLWE}\_{s(x)}(f(x)) \rightarrow
-\mathrm{LWE}_{\mathbf{s}}(f_i) \\]
+_Sample Extraction_ is homomorphic version of the coefficient function. The
+$\mathrm{SampleExtract}$ function takes as input an index $i$ and an RLWE
+_encryption_ of $f(x)$ and outputs an LWE _encryption_ of $f_i$:
 
-As in REF, $\mathbf{s}$ is an LWE encryption key and $s(x)$ is the corresponding
-RLWE key.
+$$
+\mathrm{SampleExtract}(i, \cdot): \mathrm{RLWE}\_{s(x)}(f(x)) \rightarrow
+\mathrm{LWE}_{\mathbf{s}}(f_i)
+$$
 
-### Implementation
+The goal of this section is to implement sample extraction. Here is the
+definition of the function in our library:
+
+<div class="codeblock-with-filename">
+[tfhe/bootstrap.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/bootstrap.py)
+
+```python
+def extract_sample(
+    i: int, rlwe_ciphertext: rlwe.RlweCiphertext
+) -> lwe.LweCiphertext:
+    """Homomorphically extract the i-th coefficient from the RLWE ciphertext.
+
+    If rlwe_ciphertext is an RLWE encryption of
+    f(x) = f_0 + f_1*x + ... + f_{N-1}x^{N-1}
+    then the output will be an LWE encryption of f_i.
+    """
+    pass
+```
+
+</div>
+
+## Implementation
 
 Let $\mathbf{s} = (s_0,\dots,s_{N-1})$ be an LWE encryption key and let
 $s(x)=\sum_{i=0}^{N-1}s_ix^i$ be the corresponding RLWE key. Let $(a(x), b(x))$
@@ -2746,44 +2890,115 @@ $(a(x), b(x))$ into an LWE encryption of $f_i$ with the key $\mathbf{s}$?
 
 By the definition of RLWE encryption:
 
-\\[ f(x) = b(x) - a(x)s(x) + e(x) \\]
+$$
+\begin{equation}\label{eq:sample-extract-rlwe-def}
+f(x) = b(x) - a(x)s(x) + e(x)
+\end{equation}
+$$
 
 for some small error $e(x)$.
 
-Let $(a(x)s(x))_i$ denote the $i$-th coefficient of $a(x)s(s)$. Since we are
-working with negacyclic polynomials LINK TO SECTION, the $i$-th coefficient
-satisfies a variation on the typical polynomial
+Let $(a(x)s(x))_i$ denote the $i$-th coefficient of $a(x)s(x)$. Since we are
+working with [negacyclic polynomials](#negacyclic-polynomials), the $i$-th
+coefficient satisfies a variation on the typical polynomial
 [convolution](https://en.wikipedia.org/wiki/Convolution):
 
-\\[ (a(x)s(x))\_i = \sum_{j=0}^i a_{i-j}s_j - \sum_{i+1}^{N-1}a_{i-j}s_j \\]
+$$
+\begin{equation}\label{eq:negacyclic-conv}
+(a(x)s(x))_i = \sum_{j=0}^i a_{i-j}s_j - \sum_{i+1}^{N-1}a_{i-j}s_j
+\end{equation}
+$$
 
-Note that if we define the vector $\mathrm{Conv}(a(x), i)$ by:
+Note that if we define the vector $\mathrm{Conv}(a(x), i)$ to be:
 
-\\[ \mathrm{Conv}(a(x), i) := (a_i, a_{i-1}, \dots, a_1, a_0, -a_{N-1},
--a_{N-2}, \dots, -a_{i+1}) \\]
+$$
+\mathrm{Conv}(a(x), i) := (a_i, a_{i-1}, \dots, a_1, a_0, -a_{N-1},
+-a_{N-2}, \dots, -a_{i+1})
+$$
 
-Then we can rewrite equation EQ as a dot product:
+Then we can rewrite equation \ref{eq:negacyclic-conv} as a dot product:
 
-\\[ (a(x)s(x))\_i = \mathrm{Conv}(a(x), i) \cdot \mathbf{s} \\]
+$$
+(a(x)s(x))_i = \mathrm{Conv}(a(x), i) \cdot \mathbf{s}
+$$
 
-Plugging this into equation EQ gives us:
+Plugging this into equation \ref{eq:sample-extract-rlwe-def} gives us:
 
-\\[ f_i = b_i - \mathrm{Conv}(a(x), i) \cdot \mathbf{s} + e_i \\]
+$$
+\begin{equation}\label{eq:sample-extract-derivation}
+f_i = b_i - \mathrm{Conv}(a(x), i) \cdot \mathbf{s} + e_i
+\end{equation}
+$$
 
 But note that the right hand side of the last equation is exactly the LWE
-decryption of $(\mathrm{Conv}(a(x), i), b_i)$ with the encryption key
-$\mathbf{s}$! This implies that $(\mathrm{Conv}(a(x), i), b_i)$ is an LWE
+decryption of the ciphertext $(\mathrm{Conv}(a(x), i), b_i)$ with the encryption
+key $\mathbf{s}$! This implies that $(\mathrm{Conv}(a(x), i), b_i)$ is an LWE
 encryption of $f_i$ with the key $\mathbf{s}$.
 
 In summary, we can implement $\mathrm{SampleExtract}$ by:
 
 \\[ \mathrm{SampleExtract}(i, (a(x), b(x)) = (\mathrm{Conv}(a(x), i), b_i) \\]
 
-Here is a concrete implementation in python:
+Here is a concrete implementation:
 
-CODE + EXAMPLE
+<div class="codeblock-with-filename">
+[tfhe/bootstrap.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/bootstrap.py)
 
-### Noise Analysis
+```python
+def extract_sample(
+    i: int, rlwe_ciphertext: rlwe.RlweCiphertext
+) -> lwe.LweCiphertext:
+    """Homomorphically extract the i-th coefficient from the RLWE ciphertext.
+
+    If rlwe_ciphertext is an RLWE encryption of
+    f(x) = c_0 + c_1*x + ... + c_{N-1}x^{N-1}
+    then the output will be an LWE encryption of c_i.
+    """
+    lwe_config = lwe.LweConfig(
+        dimension=rlwe_ciphertext.config.degree,
+        noise_std=rlwe_ciphertext.config.noise_std,
+    )
+    a = np.hstack(
+        [
+            rlwe_ciphertext.a.coeff[: i + 1][::-1],
+            -1 * rlwe_ciphertext.a.coeff[i + 1 :][::-1],
+        ]
+    )
+    b = rlwe_ciphertext.b.coeff[i]
+    return lwe.LweCiphertext(lwe_config, a, b)
+```
+
+</div>
+
+Here is an example:
+
+<div class="codeblock-with-filename">
+[tests/test_bootstrap.py](https://github.com/lowdanie/tfhe/blob/main/tests/test_bootstrap.py)
+
+```python
+lwe_key = lwe.generate_lwe_key(config.LWE_CONFIG)
+rlwe_key = rlwe.convert_lwe_key_to_rlwe(lwe_key)
+
+N = lwe_key.config.dimension
+
+# f(x) = 2x
+f = polynomial.build_monomial(2, 1, N)
+
+# Encode f(x) as an RLWE plaintext and encrypt it.
+f_plaintext = rlwe.rlwe_encode(f, config.RLWE_CONFIG)
+f_ciphertext = rlwe.rlwe_encrypt(f_plaintext, rlwe_key)
+
+# Homomorphically extract an LWE encryption of the coefficient f_1
+sample_ciphertext = bootstrap.extract_sample(1, f_ciphertext)
+
+# Decrypt and decode sample_ciphertext. The result should be equal to f_1=2.
+coeff_decoded = lwe.lwe_decode(lwe.lwe_decrypt(sample_ciphertext, lwe_key))
+assert coeff_decoded == 2
+```
+
+</div>
+
+## Noise Analysis
 
 As before, let $\mathbf{s} = (s_0,\dots,s_{N-1})$ be an LWE encryption key and
 let $s(x)=\sum_{i=0}^{N-1}s_ix^i$ be the corresponding RLWE key. Let
@@ -2796,85 +3011,36 @@ $\mathrm{SampleExtract}(i, R)$ has the same amount of noise as the RLWE
 ciphertext $R$. In other words, sample extraction does not affect the ciphertext
 noise.
 
-The claim follows immediately from equation EQ. Indeed, by the definition of
-$\mathrm{SampleExtract}$ and equation EQ we have:
+The claim follows immediately from equation \ref{eq:sample-extract-derivation}.
+Indeed, by the definition of $\mathrm{SampleExtract}$ and equation
+\ref{eq:sample-extract-derivation} we have:
 
-<div>
+$$
 \begin{align*}
 \mathrm{Dec}^{\mathrm{LWE}}_{\mathbf{s}}(\mathrm{SampleExtract}(i, R)) &=
 b_i - \mathrm{Conv}(a(x), i) \cdot \mathbf{s} \\
 &= f_i - e_i
 \end{align*}
-</div>
+$$
 
 Therefore, the ciphertext $\mathrm{SampleExtract}(i, R)$ has noise $e_i$ which
 is one of the coefficients of $e(x)$, the noise of $R$.
 
-## Bootstrapping Definition
+# Bootstrapping Implementation
 
-PUT THIS TOWARDS THE BEGINNING OF THIS SECTION
+We now have all the pieces required to implement the bootstrapping function.
+Recall from section [Bootstrap](#bootstrap) that $\mathrm{Bootstrap}$ is a
+homomorphic version of the step function $\mathrm{Step}$. Our strategy for
+implementing $\mathrm{Bootstrap}$ is to implement $\mathrm{Step}$ using the
+$\mathrm{Rotate}$ function from section [Blind Rotation](#blind-rotation) and
+the $\mathrm{Coeff}$ function from section
+[Sample Extraction](#sample-extraction).
 
-As explained in the introduction LINK, the goal of bootstrapping is to convert a
-possibly noisy ciphertext into a ciphertext with a bounded amount of noise.
-Maintaining an upper bound on the ciphertext noise will allow us to chain
-together an arbitrary number of homomorphic operations.
+Then we will leverage the homomorphic versions of these functions,
+$\mathrm{BlindRotate}$ and $\mathrm{SampleExtract}$, to implement
+$\mathrm{Bootstrap}$.
 
-In this section we'll define the bootstrapping function more precisely.
-
-Consider the following step function defined on $\mathbb{Z}_q = [-q/2, q/2)$:
-
-<div>
-$$
-\mathrm{Step}(x) =
-\begin{cases} 0 & \mathrm{if}\ \vert x \vert < q/4 \\
-              q/4 & \mathrm{else}
-\end{cases}
-$$
-</div>
-
-IMAGE
-
-The $\mathrm{Bootstrap}$ is a homomorphic version of $\mathrm{Step}$:
-
-\\[ \mathrm{Bootstrap}: \mathrm{LWE}(m) \rightarrow
-\mathrm{LWE}(\mathrm{Step}(x)) \\]
-
-In other words, it takes as input an LWE encryption of a message
-$m\in\mathbb{Z}_q$. If $\vert m \vert < q/4$ then the output will be an
-encryption of $q/4$. Otherwise, the output is an encryption of $q/4$. In
-addition to homomorphically evaluating $\mathrm{Step}$, a key property of
-$\mathrm{Bootstrap}$ is that the noise of its output will have a bound that is
-independent on the noise of the input.
-
-For example, suppose that $q=2^{32}$ and that
-$m=\mathrm{Encode}(3) = 3\cdot 2^{29}$. Let $L \in \mathrm{LWE}(m)$ be an LWE
-encryption of $m$ with a large amount of noise so that its decryption has the
-following distribution:
-
-IMAGE
-
-NOTE SAY SOMETHING ABOVE ABOUT THE MEANING OF THESE PICTURES / L IS A RANDOM
-VARIABLE
-
-After bootstrapping $L$, we get a new ciphertext $\mathrm{Bootstrap}(L)$ whose
-decryptions have the distribution:
-
-IMAGE
-
-As expected, the mean of the distribution is clustered around $q/4 = 2^{30}$ and
-the noise has been reduced.
-
-## Bootstrapping Implementation
-
-We now have all the pieces required to implement the bootstrapping process.
-Recall from section LINK that $\mathrm{Bootstrap}$ is a homomorphic version of
-the step function $\mathrm{Step}$. Our strategy for implementing
-$\mathrm{Bootstrap}$ will be to first implement $\mathrm{Step}$ using the
-$\mathrm{Rotate}$ function from section LINK. Then we will leverage
-$\mathrm{BlindRotate}$, the homomorphic $\mathrm{Rotate}$ function, to implement
-$\mathrm{Bootstrap}.
-
-### Building The Step Function From Polynomial Rotations
+## Building The Step Function From Polynomial Rotations
 
 Consider the polynomial $f(x) \in \mathbb{Z}_q / (x^N+1)$ whose first $N/2$
 coefficients are $-1$ and the last $N/2$ coefficients are $1$:
@@ -2884,7 +3050,7 @@ coefficients are $-1$ and the last $N/2$ coefficients are $1$:
 We will later refer to $f(x)$ as the _Test Polynomial_. What happens if we
 rotate $f(x)$ by an integer $-N \leq i < N$? Let's start with $i=1$:
 
-\\[\mathrm{Rotate}(f(x), 1) = x \cdot f(x) = -1 - x - \dots - x^{N/2} +
+\\[\mathrm{Rotate}(f(x), 1) = x^1 \cdot f(x) = -1 - x - \dots - x^{N/2} +
 x^{N/2+1} + \dots + x^{N-1} \\]
 
 All of the coefficients get shifted one place to the right, and the last
@@ -2948,7 +3114,7 @@ $\mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0)$. For $i \in \mathbb{Z}_q$ we have:
 \\[ \mathrm{Step}(i) = \mathrm{Coeff}(\mathrm{Rotate}(\frac{q}{8} \cdot f(x),
 \frac{2N}{q} \cdot i), 0) + \frac{q}{8} \\]
 
-### A Homomorphic Step Function
+## A Homomorphic Step Function
 
 In section LINK we introduced the bootstrapping function $\mathrm{Bootstrap}$ as
 a homomorphic version of the step function $\mathrm{Step}$.
@@ -2973,7 +3139,7 @@ CODE
 
 EXAMPLE
 
-### Bootstrapping Noise
+## Bootstrapping Noise
 
 Recall that a key property of $\mathrm{Bootstrap}$ is that if $L$ is an LWE
 ciphertext then the noise of $\mathrm{Bootstrap}(L)$ should be bounded
