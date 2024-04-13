@@ -2487,8 +2487,14 @@ $$
 
 In other words, $\mathrm{Rotate}$ takes as input an integer $i \in \mathbb{Z}_q$
 and a negacyclic polynomial $f(x)$ and outputs a rotation of $f(x)$ by
-$\left\lfloor \frac{2N}{q} \cdot i \right\rfloor$. For example, if
-$i=\frac{q}{4}$ then $\mathrm{Rotate}(i, f(x))$ rotates $f(x)$ by $\frac{N}{2}$.
+$\left\lfloor \frac{2N}{q} \cdot i \right\rfloor$:
+
+$$
+\mathrm{Rotate}(i, f(x)) = \mathrm{IntRotate}(\left\lfloor \frac{2N}{q} \cdot i \right\rfloor, f(x))
+$$
+
+For example, if $i=\frac{q}{4}$ then $\mathrm{Rotate}(i, f(x))$ rotates $f(x)$
+by $\frac{N}{2}$.
 
 It's easy to see that $\mathrm{Rotate}$ has a period of $q$ in the first
 variable, which is why we can apply it to elements of $\mathbb{Z}_q$.
@@ -3042,50 +3048,48 @@ $\mathrm{Bootstrap}$.
 
 ## Building The Step Function From Polynomial Rotations
 
-Consider the polynomial $f(x) \in \mathbb{Z}_q / (x^N+1)$ whose first $N/2$
+Consider the polynomial $t(x) \in \mathbb{Z}_q / (x^N+1)$ whose first $N/2$
 coefficients are $-1$ and the last $N/2$ coefficients are $1$:
 
 \\[ f(x) = -1 - x - \dots - x^{N/2 - 1} + x^{N/2} + \dots + x^{N-1} \\]
 
-We will later refer to $f(x)$ as the _Test Polynomial_. What happens if we
-rotate $f(x)$ by an integer $-N \leq i < N$? Let's start with $i=1$:
+We will later refer to $t(x)$ as the _Test Polynomial_. What happens if we
+rotate $t(x)$ by an integer $-N \leq i < N$? Let's start with $i=1$:
 
-\\[\mathrm{Rotate}(f(x), 1) = x^1 \cdot f(x) = -1 - x - \dots - x^{N/2} +
+\\[\mathrm{IntRotate}(1, t(x)) = x^1 \cdot f(x) = -1 - x - \dots - x^{N/2} +
 x^{N/2+1} + \dots + x^{N-1} \\]
 
 All of the coefficients get shifted one place to the right, and the last
-coefficient $f_{N-1} = 1$ circles back to the beginning and, due to the
+coefficient $t_{N-1} = 1$ circles back to the beginning and, due to the
 negacyclic property, picks up a minus sign to become $-1$. In summary, the
 number of negative coefficients has grown by one from $N/2$ to $N/2+1$ and the
 number of positive coefficients has decreased by one.
 
-By iterating this process, we can see that if we rotate $f(x)$ by $i=N/2$ then
+By iterating this process, we can see that if we rotate $t(x)$ by $i=N/2$ then
 _all_ of the coefficients will become $-1$:
 
-\\[\mathrm{Rotate}(f(x), N/2) = -1 - x - \dots - x^{N-1} \\]
+\\[\mathrm{IntRotate}(N/2, t(x)) = -1 - x - \dots - x^{N-1} \\]
 
 What happens if we rotate one more time? Since the last coefficient of
-$\mathrm{Rotate}(f(x), N/2)$ is $-1$, when we rotate one more time it circles
+$\mathrm{IntRotate}(N/2, t(x))$ is $-1$, when we rotate one more time it circles
 back to the beginning and picks up a negative sign, turning it into a 1:
 
-\\[\mathrm{Rotate}(f(x), N/2 + 1) = 1 - x - \dots - x^{N-1} \\]
+\\[\mathrm{IntRotate}(N/2 + 1, t(x)) = 1 - x - \dots - x^{N-1} \\]
 
 Now the ordering between the positive and negative coefficient has flipped.
-$\mathrm{Rotate}(f(x), N/2 + 1)$ starts with a $1$ and ends with $N-1$ $-1$s. If
-we rotate $N/2$ more times for a total of $N$ times, then a similar analysis as
-before shows that all of the coefficients the resulting polynomial will be $1$:
+$\mathrm{IntRotate}(N/2 + 1, t(x))$ starts with a $1$ and ends with $N-1$
+negative ones. If we rotate $N/2$ more times for a total of $N$ times, then a
+similar analysis as before shows that all of the coefficients the resulting
+polynomial will be $1$:
 
-\\[\mathrm{Rotate}(f(x), N) = 1 + x + \dots + x^{N-1} \\]
-
-For a polynomial $g(x)$, let $\mathrm{Coeff}(g, i)$ denote the $i$-th
-coefficient of $g(x)$. INTRODUCE THIS WITH SAMPLE EXTRACT
+\\[\mathrm{IntRotate}(N, t(x)) = 1 + x + \dots + x^{N-1} \\]
 
 The above analysis shows that the zeroth coefficient of
-$\mathrm{Rotate}(f(x), i)$ is equal to $-1$ when $0 \leq i \leq N/2$ and equal
-to $1$ when $N/2 < i \leq N$. In other words:
+$\mathrm{IntRotate}(i, t(x))$ is equal to $-1$ when $0 \leq i \leq N/2$ and
+equal to $1$ when $N/2 < i \leq N$. In other words:
 
 $$
-\mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0) =
+\mathrm{Coeff}(\mathrm{IntRotate}(i, t(x)), 0) =
 \begin{cases} -1 & \mathrm{if}\ 0 \leq i \leq N/2 \\
               1 & \mathrm{if}\ N/2 < i \leq N
 \end{cases}
@@ -3095,50 +3099,135 @@ In fact, it is not hard to generalize this to the case where $i$ can be
 negative:
 
 $$
-\mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0) =
-\begin{cases} 1 & \mathrm{if}\ -N \leq i \leq -N/2 \\
-              -1 & \mathrm{if}\ -N/2 < i \leq N/2 \\
-              1 & \mathrm{if}\ N/2 < i < N
+\begin{equation}\label{eq:coeff-int-rotate}
+\mathrm{Coeff}(\mathrm{IntRotate}(i, t(x)), 0) =
+\begin{cases} -1 & \text{if}\ -N/2 < i \leq N/2 \\
+              1 & \text{else}
+\end{cases}
+\end{equation}
+$$
+
+In section [Blind Rotation](#blind-rotation) we defined $\mathrm{Rotate}$, a
+scaled version of $\mathrm{IntRotate}$ that is well defined on $\mathrm{Z}_q$:
+
+$$
+\mathrm{Rotate}(i, f(x)) := \mathrm{IntRotate}(\left\lfloor \frac{2N}{q} \cdot i \right\rfloor, f(x))
+$$
+
+Plugging this into equation \ref{eq:coeff-int-rotate} gives us:
+
+$$
+\begin{equation}\label{eq:coeff-rotate}
+\mathrm{Coeff}(\mathrm{Rotate}(i, t(x)), 0) =
+\begin{cases} -1 & \text{if}\ -q/4 < i \leq q/4 \\
+              1 & \text{else}
+\end{cases}
+\end{equation}
+$$
+
+Note that this equation looks very similar to the definition of the step
+function from section [Implementation Strategy](#implementation-strategy):
+
+$$
+\mathrm{Step}(i) :=
+\begin{cases} 0 & -q/4 < i \leq q/4 \\
+              \mathrm{Encode}(2) & \mathrm{else}
 \end{cases}
 $$
 
-Note that this looks very similar to the definition of the step function
-$\mathrm{Step}$! UPDATE THE DEF OF STEP
+Indeed, we can obtain the step function by translating and scaling
+$\mathrm{Coeff}(\mathrm{Rotate}(i, f(x)), 0)$. The following equality follows
+directly from equation \ref{eq:coeff-rotate}:
 
-The differences are that the domain of $\mathrm{Step}$ is
-$\mathbb{Z}_q = [-q/2, q/2)$ rather that $[-N, N)$ and the outputs of
-$\mathrm{Step}$ are $$\{0, q/4\}$$ rather than $$\{-1, 1\}$$. We can fix both
-problems by rescaling the inputs and translating the output of
-$\mathrm{Coeff}(\mathrm{Rotate}(f(x), i), 0)$. For $i \in \mathbb{Z}_q$ we have:
+$$
+\begin{equation}\label{eq:step-from-coeff-rotate}
+\mathrm{Step}(i) = \frac{\mathrm{Encode}(2)}{2} + \mathrm{Coeff}\left(\mathrm{Rotate}\left(i, \frac{\mathrm{Encode}(2)}{2} \cdot t(x)\right), 0\right)
+\end{equation}
+$$
 
-\\[ \mathrm{Step}(i) = \mathrm{Coeff}(\mathrm{Rotate}(\frac{q}{8} \cdot f(x),
-\frac{2N}{q} \cdot i), 0) + \frac{q}{8} \\]
+This realizes our objective of expressing $\mathrm{Step}$ in terms of
+$\mathrm{Rotate}$ and $\mathrm{Coeff}$
 
 ## A Homomorphic Step Function
 
-In section LINK we introduced the bootstrapping function $\mathrm{Bootstrap}$ as
-a homomorphic version of the step function $\mathrm{Step}$.
+In section [Bootstrapping](#bootstrapping) we introduced the bootstrapping
+function $\mathrm{Bootstrap}$ as a homomorphic version of the step function
+$\mathrm{Step}$. In this section we will implement $\mathrm{Bootstrap}$ by
+building a homomorphic step function.
 
-In the previous section we expressed $\mathrm{Step}$ in terms of the polynomial
-rotation function $\mathrm{Rotate}$ and the coefficient function
-$\mathrm{Coeff}$. In sections LINK and LINK we implemented a homomorphic version
-of $\mathrm{Rotate}$ called $\mathrm{BlindRotate}$ and a homomorphic version of
+In equation \ref{eq:step-from-coeff-rotate} in the previous section we expressed
+$\mathrm{Step}$ in terms of the polynomial rotation function $\mathrm{Rotate}$
+and the coefficient function $\mathrm{Coeff}$.
+
+In section [Blind Rotation](#blind-rotation) we implemented a homomorphic
+version of $\mathrm{Rotate}$ called $\mathrm{BlindRotate}$ and in section
+[Sample Extraction](#sample-extraction) we implemented a homomorphic version of
 $\mathrm{Coeff}$ called $\mathrm{SampleExtract}$. We can plug these homomorphic
-functions into equation EQ to define a homomorphic version of $\mathrm{Step}$.
+functions into equation \ref{eq:step-from-coeff-rotate} to obtain a homomorphic
+version of $\mathrm{Step}$ that we will call $\mathrm{Bootstrap}.
 
-Let $\mathrm{L}$ be an LWE ciphertext. We'll define $\mathrm{Bootstrap}(L)$ to
-be:
+More precisely, let $\mathrm{L}\in\mathrm{LWE}(i)$ be an LWE encryption of $i$.
+Also, let $R \in \mathrm{RLWE}(\frac{\mathrm{Encode}(2)}{2} \cdot t(x))$ be a
+trivial RLWE encryption LINK of the scaled test polynomial and let
+$B \in \mathrm{LWE}(\frac{\mathrm{Encode}(2)}{2})$ be a trivial LWE encryption
+of the translation factor $\frac{\mathrm{Encode}(2)}{2}$.
 
-\\[ \mathrm{Bootstrap}(L) =
-\mathrm{SampleExtract}(\mathrm{BlindRotate}(\frac{q}{8} \cdot f(x), \frac{2N}{q}
-\cdot L), 0) + \frac{q}{8} \\]
+We can compute $\mathrm{Bootstrap}(L)$ by using the homomorphic analog of
+equation \ref{eq:step-from-coeff-rotate}:
+
+$$
+\mathrm{Bootstrap}(L) = \mathrm{CAdd}(B, \mathrm{SampleExtract}(\mathrm{BlindRotate}(L, R), 0))
+$$
 
 Here is a concrete implementation:
 
-CODE
+<div class="codeblock-with-filename">
+[tfhe/bootstrap.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/bootstrap.py)
 
-EXAMPLE
+```python
+def _build_test_polynomial(N: int) -> polynomial.Polynomial:
+    p = polynomial.Polynomial(N=N, coeff=np.ones(N, dtype=np.int32))
+    p.coeff[: N // 2] = -1
+    return p
 
+
+def bootstrap(
+    lwe_ciphertext: lwe.LweCiphertext,
+    bootstrap_key: BootstrapKey,
+    scale: np.int32,
+) -> lwe.LweCiphertext:
+    """Bootstrap the LWE ciphertext.
+
+    Suppose that lwe_ciphertext is an encryption of the int32 i.
+    If -2^30 < i <= 2^30 then return an LWE encryption of the scale argument.
+    Otherwise return an LWE encryption of 0. In both cases the ciphertext noise
+    will be bounded and independent of the lwe_ciphertext noise.
+    """
+    N = bootstrap_key.config.rlwe_config.degree
+    test_polynomial = polynomial.polynomial_constant_multiply(
+        scale // 2, _build_test_polynomial(N)
+    )
+    test_rlwe_ciphertext = rlwe.rlwe_trivial_ciphertext(
+        test_polynomial, bootstrap_key.config.rlwe_config
+    )
+
+    rotated_rlwe_ciphertext = blind_rotate(
+        lwe_ciphertext, test_rlwe_ciphertext, bootstrap_key
+    )
+
+    sample_lwe_ciphertext = extract_sample(0, rotated_rlwe_ciphertext)
+
+    offset_lwe_ciphertext = lwe.lwe_trivial_ciphertext(
+        plaintext=lwe.LwePlaintext(scale // 2),
+        config=sample_lwe_ciphertext.config,
+    )
+
+    return lwe.lwe_add(offset_lwe_ciphertext, sample_lwe_ciphertext)
+```
+
+</div>
+
+Note that in the presentation above we used `scale=utils.Encode(2)`.
 ## Bootstrapping Noise
 
 Recall that a key property of $\mathrm{Bootstrap}$ is that if $L$ is an LWE
@@ -3158,120 +3247,3 @@ Let's see how this works in practice using our `bootstrap` implementation in the
 previous section.
 
 EXAMPLE
-
-# A Fully Homomorphic NAND Gate
-
-We will now use the bootstrapping function to implement the fully homomorphic
-NAND gate promised in the introduction.
-
-## Definition {#definition-cnand}
-
-In this section we'll introduce an encoding of boolean values and precisely
-define the homomorphic NAND function.
-
-We'll use the $\mathrm{Encode}$ function from section LINK to represent boolean
-values as LWE plaintexts. Specifically, we'll represent $\mathrm{True}$ by
-$\mathrm{Encode}(2)$ and represent $\mathrm{False}$ by $\mathrm{Encode}(0)$.
-
-Let $b_0$ and $b_1$ denote two booleans with the above representation. The
-homomorphic NAND gate $CNAND$ will be defined as:
-
-\\[ \mathrm{CNAND}: \mathrm{LWE}(b_0) \times \mathrm{LWE}(b_1) \rightarrow
-\mathrm{LWE}(\mathrm{NAND}(b_0, b_1)) \\]
-
-In other words, if $L_0$ is an LWE encryption of $b_0$ and $L_1$ is an LWE
-encryption of $b_1$ then $\mathrm{CNAND}(L_0, L_1)$ is an LWE encryption of
-$\mathrm{NAND}(b_0, b_1)$.
-
-Here is the definition of $\mathrm{CNAND}$ in code:
-
-CODE
-
-Here is an example:
-
-## Implementation
-
-We'll now implement the homomorphic NAND function defined in the previous
-section. Our strategy will be to express the standard NAND function in terms of
-subtraction and the step function from section LINK. We'll then use the
-homomorphic versions of these, $\mathrm{CSub}$ and $\mathrm{Bootstrap}$, to
-implement a homomorphic NAND function. Finally, an analysis of the noise will
-show that this implementation is in fact _fully_ homomorphic.
-
-Recall that our encoding function $\mathrm{Encode}$ maps values from
-$\mathbb{Z}_8$ to $\mathbb{Z}_q$. We'll start by expressing NAND in terms of
-operations of $\mathbb{Z}_8$:
-
-IMAGE (circle)
-
-As before, we will identify $\mathrm{True}$ with $2$ and $\mathrm{False}$ with
-$0$. Let $b_0, b_1 \in \\{0, 2\\}$ be two boolean values and consider the
-expression:
-
-\\[F(b_0, b_1) = -3 - b_0 - b_1 \\]
-
-In terms of the diagram above, we start at $-3$ and take two steps counter
-clockwise for each $b_i$ that is "true". Here are the four possible values
-(modulo $8$) that this expression can take:
-
-| $b_0$ | $b_1$ | $F(b_0, b_1)$ |
-| ----- | ----- | ------------- |
-| $0$   | $0$   | $-3$          |
-| $0$   | $2$   | $3$           |
-| $2$   | $0$   | $3$           |
-| $2$   | $2$   | $1$           |
-
-Note that $\vert F(b_0, b_1) \vert < 2$ if and only if $b_0 = b_1 = 2$. We can
-therefore upgrade $F(b_0, b_1)$ to a NAND function by composing it with a step
-function $S(x)$ defined by:
-
-<div>
-$$
-S(x) =
-\begin{cases} 0 & \vert x \vert < 2 \\
-              2 & \mathrm{else}
-\end{cases}
-$$
-</div>
-
-Here's what happens when we apply $S(x)$ to $F(b_0, b_1)$:
-
-<div class="table-wrapper" markdown="block">
-
-| $b_0$ | $b_1$ | $F(b_0, b_1)$ | $S(F(b_0, b_1))$ |
-| ----- | ----- | ------------- | ---------------- |
-| $0$   | $0$   | $-3$          | $2$              |
-| $0$   | $2$   | $3$           | $2$              |
-| $2$   | $0$   | $3$           | $2$              |
-| $2$   | $2$   | $1$           | $0$              |
-
-</div>
-
-As expected, it is evident from the table that
-
-\\[ NAND(b_0, b_1) = S(F(b_0, b_1)) = S(3 - b_0 - b_1) \\]
-
-Returning to the LWE plaintext space $\mathrm{Z}_q$, let $b_0$ and $b_1$ be two
-boolean values using the original representation where $\mathrm{True}$ is
-represented by $\mathrm{Encode}(2)$ and $\mathrm{False}$ by
-$\mathrm{Encode}(0)$. We can similarly express $\mathrm{NAND}(b_0, b_1)$ in
-terms of the step function $\mathrm{Step}$ from section LINK:
-
-\\[ \mathrm{NAND}(b_0, b_1) = \mathrm{Step}(\mathrm{Encode}(-3) - b_0 - b_1) \\]
-
-Finally, we can use our homomorphic step function, $\mathrm{Bootstrap}$, to
-upgrade this to a _homomorphic_ NAND function. Let $L_0$ and $L_1$ be LWE
-encryptions of $\mathrm{Encode}(0)$ or $\mathrm{Encode}(2)$. Our homomorphic
-NAND function is defined by:
-
-\\[ \mathrm{CNAND}(L_0, L_1) = \mathrm{Bootstrap}(
-\mathrm{CSub}(\mathrm{CSub}(\mathrm{Encode}(-3), L_0), L_1) ) \\]
-
-Here is a concrete implementation:
-
-CODE
-
-In section LINK we saw that the ... bounded noise ... arbitrary ops ... _fully
-homomorphic_
-
-OR example
