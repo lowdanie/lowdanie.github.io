@@ -11,11 +11,11 @@ _Fully Homomorphic Encryption_ (FHE) is a form of encryption that makes it
 possible to evaluate functions on encrypted inputs without needing to decrypt
 them. For example, suppose you want to use a neural network running on an
 untrusted server to determine whether your image contains a cat. Since the
-server is untrusted, you do not want it to see your image. With FHE you could
+server is untrusted, you do not want it to see your image. With FHE you can
 encrypt the image with your secret key and upload the encrypted image to the
-server. The server could then apply its neural network to the encrypted image
-and produce an encrypted bit. You could then download the encrypted bit and
-decrypt it with your secret key to obtain the result.
+server. The server can then apply its neural network to the encrypted image and
+produce an encrypted bit. You can then download the encrypted bit and decrypt it
+with your secret key to obtain the result.
 
 In other words, FHE makes it possible to leverage the computational resources of
 an untrusted server without having to send it any unencrypted data.
@@ -27,7 +27,7 @@ encrypted data?
 
 In this post we will explore a popular FHE encryption scheme called
 [TFHE](https://eprint.iacr.org/2018/421.pdf) and implement it from scratch in
-Python. The git repo accompanying this post can be found here:
+Python. All of the code in this post together with tests can be found here:
 [https://github.com/lowdanie/tfhe](https://github.com/lowdanie/tfhe)
 
 The standard cryptography exposition disclaimer applies. Namely, that it
@@ -88,6 +88,7 @@ ciphertext_nand = homomorphic_nand(ciphertext_0, ciphertext_1)
 # Client side: Decrypt ciphertext_nand.
 # The result should be equal to NAND(True, False) = True
 result = decrypt(ciphertext_nand, client_key)
+assert result
 ```
 
 Importantly, the server never receives the `client_key` and so it is not able to
@@ -105,10 +106,10 @@ evaluating the NAND function locally not involving a server at all.
 Homomorphic encryption becomes more useful when the client wants to evaluate a
 complex circuit such as a neural network which is composed of many billions of
 NAND gates. In that case the client may not have the compute or the permission
-to run the program locally. The can offload the computation to an untrusted
-using the approach in the code snippet above, where the `homomorphic_nand`
-server side evaluation is used to evaluate all of the NAND gates in the complex
-circuit.
+to run the program locally. They can offload the computation to an untrusted
+server using the approach in the code snippet above, where the
+`homomorphic_nand` function is used by the server to evaluate all of the NAND
+gates in the complex circuit.
 
 The goal of this post is to implement `generate_key`, `encrypt`, `decrypt` and
 `homomorphic_nand`.
@@ -128,10 +129,11 @@ Similarly, TFHE is based on a problem called
 construct an encryption scheme.
 
 As we will see, in the LWE encryption scheme it is possible to homomorphically
-_add_ ciphertexts but not to _multiply_ them. This type of encryption scheme is
-called _Partially Homomorphic_ because not all operations are supported. Despite
-this limitation, the partially homomorphic operations in the LWE scheme will be
-useful stepping stones on the path towards fully homomorphic encryption.
+_add_ ciphertexts but not to homomorphically _multiply_ them. This type of
+encryption scheme is called _Partially Homomorphic_ because not all operations
+are supported. Despite this limitation, the partially homomorphic operations in
+the LWE scheme will be useful stepping stones on the path towards fully
+homomorphic encryption.
 
 In this section we will define the _Learning With Errors_ (LWE) problem and use
 it to implement our encryption scheme as well as some partially homomorphic
@@ -142,8 +144,8 @@ operations.
 Let $q$ be a positive integer. We will denote the integers modulo $q$ by
 $\mathbb{Z}_q := \mathbb{Z} / q\mathbb{Z}$. In this post, it will be convenient
 to set $q=2^{32}$ so that elements of $\mathbb{Z}_q$ can be represented by the
-32-bit integers $[-2^{31}, 2^{31})$. One advantage of using 32-bit integers is
-that all operations are natively done modulo $2^{32}$.
+signed 32-bit integers: $[-2^{31}, 2^{31})$. One advantage of using 32-bit
+integers is that all operations are natively done modulo $2^{32}$.
 
 Similarly, $\mathbb{Z}_8$ will denote the integers modulo $8$. We will identify
 $\mathbb{Z}_8$ with the set of integers $[-4, 4)$.
@@ -183,9 +185,9 @@ idea is the same.
 We can think of the above problem as _Learning Without Errors_ since we are
 given the exact dot products $b_i = \mathbf{a}\_i \cdot \mathbf{s}$. It turns
 out that if we introduce errors by adding a bit of noise $e_i$ to each $b_i$,
-then learning $\mathbf{s}$ from the random vectors $A$ and the _noisy_ dot
-products $b_i = \mathbf{a}\_i \cdot \mathbf{s} + e_i$ is very hard. We can now
-state the
+then learning $\mathbf{s}$ from the random vectors $\mathbf{a}\_i$ and the
+_noisy_ dot products $b_i = \mathbf{a}\_i \cdot \mathbf{s} + e_i$ is very hard.
+We can now state the
 [Learning With Errors](https://en.wikipedia.org/wiki/Learning_with_errors)
 problem:
 
@@ -196,10 +198,15 @@ problem:
 Note that we have not yet specified which distribution the errors
 $e_i \in \mathbb{Z}_q$ are drawn from. In TFHE, they are sampled by first
 sampling a real number $-\frac{1}{2} \leq x_i < \frac{1}{2}$ from a Gaussian
-distribution $\mathcal{N}(0, \sigma)$, and then scaling $x$ to obtain an integer
-in the interval $[-\frac{q}{2}, \frac{q}{2})$:
+distribution $\mathcal{N}(0, \sigma)$, and then scaling $x$ by $q$ to obtain a
+number in the interval $[-\frac{q}{2}, \frac{q}{2})$ and finally rounding to the
+nearest integer:
 
-\\[ e = \lfloor x \cdot \frac{q}{2} \rfloor \\]
+$$
+\begin{equation}\label{eq:int-noise}
+e = \lfloor x \cdot \frac{q}{2} \rfloor
+\end{equation}
+$$
 
 We will denote the distribution on $\mathbb{Z}_q$ obtained in this way by
 $\mathcal{N}_q(0, \sigma)$.
@@ -215,7 +222,9 @@ Typical values would be $q=2^{32}$, $n=500$ and $\sigma=2^{-20}$.
 
 The valid inputs to an encryption function are known as the _message space_. The
 message space of the LWE scheme is $\mathbb{Z}\_q$. We will also call valid
-messages _plaintexts_. The encryption keys are random length $n$ binary vectors
+messages _plaintexts_.
+
+The encryption keys are random length $n$ binary vectors
 $\mathbf{s} \in \\{0, 1\\}^n \subset \mathbb{Z}^n_q$.
 
 To encrypt a message $m \in \mathbb{Z}\_q$ with a key
@@ -379,12 +388,15 @@ where $e$ is some small noise whose magnitude depends on the LWE parameters. In
 other words, when we decrypt $L$ we get the original message $m$ together with a
 small error term. We will call $e$ the _noise_ in the ciphertext $L$.
 
-As an example, we'll use the code above to encrypt the message $m = 2^{29}$ 1000
-times and plot a histogram of the ciphertext noise. We'll be using the LWE
+As an example, we'll use the code above to encrypt the message $m = 2^{29}$ one
+thousand times and plot a histogram of the ciphertext noise. We'll use the LWE
 config above where the encryption noise has a standard deviation of $2^{-24}$.
-Since we multiply this by $q/2 = 2^{31}$ during encryption, we expect the
-ciphertext noise to have a standard deviation of roughly
-$\sigma=2^{31-24} = 2^7 = 128$.
+Since we multiply this by $q/2 = 2^{31}$ during encryption following equation
+\ref{eq:int-noise}, we expect the ciphertext noise to have a standard deviation
+of roughly $\sigma=2^{31-24} = 2^7 = 128$.
+
+<div class="codeblock-with-filename">
+Generate LWE Error Samples
 
 ```python
 # Generate an LWE key.
@@ -399,6 +411,8 @@ for _ in range(1000):
     ciphertext = lwe.lwe_encrypt(plaintext, key)
     errors.append(lwe.lwe_decrypt(ciphertext, key).message - plaintext.message)
 ```
+
+</div>
 
 Here is a histogram of `errors`:
 
@@ -558,6 +572,9 @@ an encryption of $m$ and outputs an encryption of $c\cdot m$.
 We will add these operations to our library by implementing the following
 methods:
 
+<div class="codeblock-with-filename">
+[tfhe/lwe.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py)
+
 ```python
 def lwe_add(
     ciphertext_left: LweCiphertext, ciphertext_right: LweCiphertext
@@ -580,6 +597,8 @@ def lwe_plaintext_multiply(c: int, ciphertext: LweCiphertext) -> LweCiphertext:
     pass
 
 ```
+
+</div>
 
 Before showing how this works let's take a minute to explain why this is both
 interesting and useful. Suppose a server hosts a simple linear regression model
@@ -617,7 +636,7 @@ Note that this example can easily be extended to general dot product between a
 vector a weights $\mathbf{w}$ and a vector of features $\mathbf{x}$ which is a
 core component of neural networks.
 
-### Homomorphic Addition
+## Homomorphic Addition {#lwe-homomorphic-addition}
 
 In this section we'll implement the homomorphic addition function:
 
@@ -731,7 +750,7 @@ decoded = lwe.lwe_decode(decrypted)
 assert decoded == 2
 ```
 
-### Homomorphic Multiplication By Plaintext
+## Homomorphic Multiplication By Plaintext {#lwe-homomorphic-mul-plaintext}
 
 In this section we'll implement the homomorphic multiplication by plaintext
 function:
@@ -786,7 +805,7 @@ def lwe_plaintext_multiply(c: int, ciphertext: LweCiphertext) -> LweCiphertext:
 
 </div>
 
-### Noise Analysis
+## Noise Analysis
 
 In this section we'll analyze the effects of homomorphic operations on
 ciphertext noise.
@@ -838,6 +857,53 @@ A major goal for the rest of this post will be to develop a homomorphic
 operation whose output noise is independent of the input. This will make it
 possible to compose an _arbitrary_ number of homomorphic operations, without
 running into the noise issue above.
+
+## Trivial Encryption {#lwe-trivial-encryption}
+
+Let $m$ be an LWE plaintext and let $\mathbf{s}$ be an LWE encryption key.
+Consider the tuple:
+
+$$
+L := (\mathbf{0}, m)
+$$
+
+where $\mathbf{0}$ is a length $N$ vector of zeroes. We claim that $L$ is a
+valid LWE encryption of $m$ with no noise. Indeed, the decryption of $L$ is
+exactly equal to $m$:
+
+$$
+\mathrm{Dec}_{\mathbf{s}}(L) = m - \mathbf{0} \cdot \mathbf{s} = m
+$$
+
+The tuple $L$ is called the _trivial encryption_ of $m$.
+
+Here is our library implementation:
+
+<div class="codeblock-with-filename">
+[tfhe/lwe.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/lwe.py)
+
+```python
+def lwe_trivial_ciphertext(plaintext: LwePlaintext, config: LweConfig):
+    """Generate a trivial encryption of the plaintext."""
+    return LweCiphertext(
+        config=config,
+        a=np.zeros(config.dimension, dtype=np.int32),
+        b=plaintext.message,
+    )
+```
+
+</div>
+
+As an example of why this is useful, let $m_1$ be an LWE plaintext and let
+$L_2\in\mathrm{LWE}(m_2)$ be an LWE encryption of $m_2$. How can we
+homomorphically add $m_1$ to $L_2$ to produce an encryption of $m_1 + m_2$?
+
+In section [Homomorphic Addition](#lwe-homomorphic-addition) we implemented the
+function $\mathrm{CAdd}$ which homomorphically adds two LWE _ciphertexts_. We
+cannot directly apply $\mathrm{CAdd}$ since we are trying to add the _plaintext_
+$m_1$ to the ciphertext $L$. Instead, we can first convert $m_1$ to its trivial
+encryption $L_1$ denote the trivial encryption of $m_1$, and then compute
+$\mathrm{CAdd}(L_1, L_2)$.
 
 # Homomorphic NAND Revisited
 
@@ -1098,6 +1164,8 @@ def lwe_nand(
 
 # Bootstrapping
 
+## Definition {#bootstrapping-definition}
+
 In the context of TFHE, the $\mathrm{Bootstrap}$ function is a homomorphic
 version of the $\mathrm{Step}$ function defined in equation \ref{def:step}.
 
@@ -1142,10 +1210,15 @@ The `bootstrap_key` will be explained later in this post. The `scale` parameter
 is the non zero output value of the step function. Our definition of
 $\mathrm{Step}$ above corresponds to `scale = utils.encode(2)`.
 
-For example, let $m_0=\mathrm{Encode}(0)$ and $m_1 = \mathrm{Encode}(3)$ be two
-LWE messages. Let $L_0 = \mathrm{Encrypt}\_{\mathbf{s}}(m_0)$ be an encryption
-of $m_0$ and $L_1 = \mathrm{Encrypt}\_{\mathbf{s}}(m_1)$ and encryption of
-$m_1$.
+## Noise Properties {#bootstrapping-noise-properties}
+
+As mentioned in the previous section, a key property of the bootstrap function
+is that it has bounded output noise. In this section we'll explore this property
+in more detail through an example.
+
+Let $m_0=\mathrm{Encode}(0)$ and $m_1 = \mathrm{Encode}(3)$ be two LWE messages.
+Let $L_0 = \mathrm{Encrypt}\_{\mathbf{s}}(m_0)$ be an encryption of $m_0$ and
+$L_1 = \mathrm{Encrypt}\_{\mathbf{s}}(m_1)$ and encryption of $m_1$.
 
 Suppose we homomorphically multiply $L_0$ by $2^{20}$ and add the result to
 $L_1$:
@@ -1212,6 +1285,8 @@ Furthermore, the distribution clearly is less noisy after bootstrapping. Indeed,
 the standard deviation of $\mathrm{Bootstrap}(L)$ is $2^{25}$ which is _less_
 than the standard deviation of $L$!
 
+## Implementation Strategy {#bootstrapping-impl-strategy}
+
 The rest of this post will build towards an implementation of
 $\mathrm{Bootstrap}$. The implementation will rely on an extension of LWE called
 Ring LWE where messages can be polynomials rather than scalars. The general idea
@@ -1219,9 +1294,14 @@ is that we will express $\mathrm{Step}$ in terms of polynomial multiplication,
 and then use a homomorphic polynomial multiplication function to derive a
 homomorphic version of $\mathrm{Step}$.
 
-In the next section we'll introduce the Ring LWE encryption scheme. Then we will
-develop a homomorphic polynomial multiplication algorithm and use it to
-implement bootstrapping.
+If you prefer to get a high level picture of the implementation before diving
+into all the details, then it would make sense to start with the following
+sections:
+
+1. [Ring LWE](#ring-lwe)
+2. [Blind Rotation Definition](#definition-blind-rotation)
+3. [Sample Extraction Definition](#definition-sample-extraction)
+4. [Bootstrapping Implementation](#bootstrapping-implementation)
 
 # Ring LWE
 
@@ -1572,12 +1652,10 @@ decoded = rlwe.rlwe_decode(decrypted)
 assert np.all(decoded.coeff == p.coeff)
 ```
 
-## Homomorphic Operations {#rlwe-homomorphic-operations}
+## Homomorphic Addition {#rlwe-homomorphic-addition}
 
-In this section we'll develop the RLWE analogs of the
-[LWE Homomorphic Operations](#homomorphic-operations).
-
-### Homomorphic Addition
+In this section we'll develop the RLWE analog of
+[LWE Homomorphic Addition](#lwe-homomorphic-addition).
 
 Let $s(x)$ be an RLWE encryption key and let
 $f_1(x), f_2(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ be RLWE plaintexts. The
@@ -1625,7 +1703,10 @@ def rlwe_subtract(
 
 </div>
 
-### Homomorphic Multiplication By Plaintext
+## Homomorphic Multiplication By Plaintext {#rlwe-homomorphic-mul-plaintext}
+
+In this section we'll develop the RLWE analog of
+[LWE Homomorphic Multiplication By Plaintext](#lwe-homomorphic-mul-plaintext).
 
 Let $s(x)$ be an RLWE encryption key and let
 $c(x), f(x) \in \mathbb{Z}_q[x] / (x^n + 1)$ be RLWE plaintexts. The signature
@@ -1699,6 +1780,45 @@ cm_decoded = rlwe.rlwe_decode(cm_decrypted)
 # The decoded result should be equal to c(x)*m(x) = 2x^3
 assert np.all(cm_decoded.coeff == polynomial.polynomial_multiply(c, m))
 ```
+
+## Trivial Encryption {#rlwe-trivial-encryption}
+
+In this section we'll define the RLWE analog of
+[LWE Trivial Encryption](#lwe-trivial-encryption)
+
+Let $f(x)$ be an RLWE plaintext. The trivial encryption of $f(x)$ is defined to
+be:
+
+$$
+R = (0, f(x))
+$$
+
+As in the LWE case, it is easy to verify that this is a valid RLWE encryption of
+$f(x)$ with zero noise.
+
+Here is an implementation:
+
+<div class="codeblock-with-filename">
+<a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/rlwe.py">tfhe/rlwe.py</a>
+
+```python
+def rlwe_trivial_ciphertext(
+    f: Polynomial, config: RlweConfig
+) -> RlweCiphertext:
+    """Generate a trivial encryption of the plaintext."""
+    if f.N != config.degree:
+        raise ValueError(
+            f"The degree of f ({f.N}) does not match the config degree ({config.degree}) "
+        )
+
+    return RlweCiphertext(
+        config=config,
+        a=polynomial.zero_polynomial(config.degree),
+        b=f,
+    )
+```
+
+</div>
 
 # A Homomorphic Multiplexer
 
@@ -2644,8 +2764,8 @@ homomorphic multiplexer $\mathrm{CMux}$ that we implemented in
 [A Homomorphic Multiplexer](#a-homomorphic-multiplexer). Finally, we'll replace
 the product $x^{a'_i} \cdot g\_{i-1}(x)$ with the homomorphic product
 $\mathrm{PMul}$ from section
-[Homomorphic Operations](#rlwe-homomorphic-operations). Putting this all
-together, our new inductive equation is:
+[Homomorphic Multiplication By Plaintext](#rlwe-homomorphic-mul-plaintext).
+Putting this all together, our new inductive equation is:
 
 $$
 \begin{equation}\label{eq:ind-blind-rotation}
@@ -2784,7 +2904,7 @@ assert rotated_f.coeff[-1] == -1
 
 </div>
 
-## Noise Analysis
+## Noise Analysis {#blind-rotation-noise-analysis}
 
 Let $L=(\mathbf{a}, b)$ be an LWE ciphertext and let $R$ be an RLWE encryption
 of $f(x)$. An interesting property of $\mathrm{BlindRotate}$ is that noise in
@@ -3004,7 +3124,7 @@ assert coeff_decoded == 2
 
 </div>
 
-## Noise Analysis
+## Noise Analysis {#sample-extraction-noise-analysis}
 
 As before, let $\mathbf{s} = (s_0,\dots,s_{N-1})$ be an LWE encryption key and
 let $s(x)=\sum_{i=0}^{N-1}s_ix^i$ be the corresponding RLWE key. Let
@@ -3051,7 +3171,7 @@ $\mathrm{Bootstrap}$.
 Consider the polynomial $t(x) \in \mathbb{Z}_q / (x^N+1)$ whose first $N/2$
 coefficients are $-1$ and the last $N/2$ coefficients are $1$:
 
-\\[ f(x) = -1 - x - \dots - x^{N/2 - 1} + x^{N/2} + \dots + x^{N-1} \\]
+\\[ t(x) = -1 - x - \dots - x^{N/2 - 1} + x^{N/2} + \dots + x^{N-1} \\]
 
 We will later refer to $t(x)$ as the _Test Polynomial_. What happens if we
 rotate $t(x)$ by an integer $-N \leq i < N$? Let's start with $i=1$:
@@ -3168,15 +3288,18 @@ version of $\mathrm{Step}$ that we will call $\mathrm{Bootstrap}.
 
 More precisely, let $\mathrm{L}\in\mathrm{LWE}(i)$ be an LWE encryption of $i$.
 Also, let $R \in \mathrm{RLWE}(\frac{\mathrm{Encode}(2)}{2} \cdot t(x))$ be a
-trivial RLWE encryption LINK of the scaled test polynomial and let
-$B \in \mathrm{LWE}(\frac{\mathrm{Encode}(2)}{2})$ be a trivial LWE encryption
-of the translation factor $\frac{\mathrm{Encode}(2)}{2}$.
+[trivial RLWE encryption](#rlwe-trivial-encryption) of the scaled test
+polynomial and let $B \in \mathrm{LWE}(\frac{\mathrm{Encode}(2)}{2})$ be a
+[trivial LWE encryption](#lwe-trivial-encryption) of the translation factor
+$\frac{\mathrm{Encode}(2)}{2}$.
 
 We can compute $\mathrm{Bootstrap}(L)$ by using the homomorphic analog of
 equation \ref{eq:step-from-coeff-rotate}:
 
 $$
+\begin{equation}\label{eq:bootstrap-implementation}
 \mathrm{Bootstrap}(L) = \mathrm{CAdd}(B, \mathrm{SampleExtract}(\mathrm{BlindRotate}(L, R), 0))
+\end{equation}
 $$
 
 Here is a concrete implementation:
@@ -3227,23 +3350,25 @@ def bootstrap(
 
 </div>
 
-Note that in the presentation above we used `scale=utils.Encode(2)`.
-## Bootstrapping Noise
+Note that this implementation of `bootstrap` returns either an encryption of `0`
+or an encryption of the `scale` parameter. In the presentation above we used
+`scale=utils.Encode(2)`.
 
-Recall that a key property of $\mathrm{Bootstrap}$ is that if $L$ is an LWE
-ciphertext then the noise of $\mathrm{Bootstrap}(L)$ should be bounded
-independently of the noise in $L$.
+## Noise Analysis
+
+Recall from section [Bootstrapping](#bootstrapping-noise-properties) that a key
+property of $\mathrm{Bootstrap}$ is that if $L$ is an LWE ciphertext then the
+noise of $\mathrm{Bootstrap}(L)$ should be bounded independently of the noise in
+$L$.
 
 This bound follows immediately from our previous noise analyses of the two
 bootstrapping building blocks: $\mathrm{BlindRotate}$ and
-$\mathrm{SampleExtract}$. In LINK we saw that the noise of
-$\mathrm{BlindRotate}(f(x), L)$ is bounded and independent of the input
-ciphertext $L$. And in section LINK we saw that $\mathrm{SampleExtract}(R, 0)$
-preserves the noise in the input ciphertext $R$. The bound on the noise of
-$\mathrm{Bootstrap}(L)$ now follows from these two results together with
-equation EQ.
+$\mathrm{SampleExtract}$. In section
+[Blind Rotation](#blind-rotation-noise-analysis) we saw that the coefficient
+noise of $\mathrm{BlindRotate}(f(x), L)$ is bounded and independent of the input
+ciphertext $L$. And in section
+[Sample Extraction](#sample-extraction-noise-analysis) we saw that
+$\mathrm{SampleExtract}(R, 0)$ preserves the noise in the input ciphertext $R$.
 
-Let's see how this works in practice using our `bootstrap` implementation in the
-previous section.
-
-EXAMPLE
+The desired bound on the noise of $\mathrm{Bootstrap}(L)$ now follows from these
+two results together with equation \ref{eq:bootstrap-implementation}.
