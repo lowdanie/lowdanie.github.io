@@ -80,11 +80,13 @@ ciphertext_0 = encrypt(b_0, client_key)
 ciphertext_1 = encrypt(b_1, client_key)
 
 # The client sends the ciphertexts to the server.
+
 # Server side: Compute an encryption of NAND(b_0, b_1) from
 # the two ciphertexts:
 ciphertext_nand = homomorphic_nand(ciphertext_0, ciphertext_1)
 
 # The server sends ciphertext_nand back to the client.
+
 # Client side: Decrypt ciphertext_nand.
 # The result should be equal to NAND(True, False) = True
 result = decrypt(ciphertext_nand, client_key)
@@ -445,30 +447,30 @@ We will use the following encoding function to encode an integer
 $i \in \mathbb{Z}_8$ as an LWE plaintext in $\mathbb{Z}_q$ (i.e as a 32-bit
 integer):
 
-<div>
+$$
 \begin{align*}
     \mathrm{Encode}: \mathbb{Z}_8 &\rightarrow \mathbb{Z}_q \\
     i &\mapsto i \cdot 2^{29}
 \end{align*}
-</div>
+$$
 
 Similarly, we will use the following decoding function to convert a 32-bit LWE
 plaintext in $\mathbb{Z}_q$ back to an integer in $\mathbb{Z}_8$:
 
-<div>
+$$
 \begin{align*}
     \mathrm{Decode}: \mathbb{Z}_q & \rightarrow [-4, 4) \\
     m &\mapsto \lfloor m \cdot 2^{-29} \rceil
 \end{align*}
-</div>
+$$
 
 where $\lfloor \cdot \rceil$ denotes rounding to the nearest integer. In terms
 of the image above, the decoding function maps a point on the circle to the
 nearest blue dot.
 
-The green segment of the circle depicts points whose distance from the message
-$m = 3 \cdot 2^{29}$ is less than $2^{28}$. Note that for the points on the
-green segment, the closest blue dot is still $m = 3\cdot 2^{29}$. In general, if
+The thick segment of the circle depicts points whose distance from the message
+$m = 3 \cdot 2^{29}$ is less than $2^{28}$. Note that for the points in this
+segment, the closest blue dot is still $m = 3\cdot 2^{29}$. In general, if
 $i \in \mathbb{Z}_8$ and $\vert e \vert < 2^{28}$ then
 
 \\[ \mathrm{Decode}(\mathrm{Encode}(i) + e) = i \\]
@@ -476,8 +478,8 @@ $i \in \mathbb{Z}_8$ and $\vert e \vert < 2^{28}$ then
 In the previous section we saw that, using our standard LWE parameters, the
 distribution of LWE ciphertext errors has a standard deviation of around $2^7$
 which is significantly less than $2^{28}$. This means that if
-$m = \mathrm{Encode}(i)$ and $L \in \mathrm{LWE}(m)$ is an encryption of $m$
-then we can decrypt $L$ and remove the noise by decoding:
+$m = \mathrm{Encode}(i)$ and $L \in \mathrm{LWE}_{\mathbf{s}}(m)$ is an
+encryption of $m$ then we can decrypt $L$ and remove the noise by decoding:
 
 \\[
 \mathrm{Decode}(\mathrm{Dec}\_{\mathbf{s}}(\mathrm{Enc}\_{\mathbf{s}}(\mathrm{Encode}(i))))
@@ -546,8 +548,8 @@ assert decoded == 2
 
 ## Homomorphic Operations
 
-In this section we will show that the LWE scheme above is homomorphic under
-addition and multiplication by a plaintext.
+In the next two sections we will show that the LWE scheme above is homomorphic
+under addition and multiplication by a plaintext.
 
 More precisely, we will define a homomorphic addition function, $\mathrm{CAdd}$
 with the following signature:
@@ -568,6 +570,9 @@ signature:
 
 In other words, the $\mathrm{PMul}$ function takes as input a plaintext $c$ and
 an encryption of $m$ and outputs an encryption of $c\cdot m$.
+
+Importantly, these homomorphic operations operate only on ciphertexts and do not
+receive the secret key $\mathbf{s}$ as an input.
 
 We will add these operations to our library by implementing the following
 methods:
@@ -611,6 +616,9 @@ use an untrusted server to compute $f(m_0, m_1)$. Since the server is untrusted,
 you do not want to send $m_0$ or $m_1$. Instead you can leverage the homomorphic
 addition and multiplication methods above to run the following computation:
 
+<div class="codeblock-with-filename">
+Homomorphic Operations Example
+
 ```python
 # Client side: Generate and encryption key and encrypt m_0 and m_1
 key = lwe.generate_lwe_key(config.LWE_CONFIG)
@@ -631,6 +639,8 @@ ciphertext_result = lwe.lwe_add(
 # Client side: Decrypt ciphertext_result to obtain f(m_0, m_1)
 result = lwe.lwe_decrypt(ciphertext_result, key)
 ```
+
+</div>
 
 Note that this example can easily be extended to general dot product between a
 vector a weights $\mathbf{w}$ and a vector of features $\mathbf{x}$ which is a
@@ -658,11 +668,11 @@ It turns out that all we have to do is add the coefficients of $L_1$ and $L_2$:
 \\[ \mathrm{CAdd}(L_1, L_2) := (\mathbf{a}_1 + \mathbf{a}_2, b_1 + b_2) \\]
 
 To prove that $L\_{\mathrm{sum}} = \mathrm{CAdd}(L_1, L_2)$ is indeed an
-encryption of $m\_1 + m\_2$, all we have to do is decrypt it:
+encryption of $m\_1 + m\_2$, let's decrypt it:
 
 $$
 \begin{align*}
-\mathrm{Dec}\_{\mathbf{s}}(L_{\mathrm{sum}}) &= \mathrm{Dec}_{\mathbf{s}}((\mathbf{a}_1 + \mathbf{a}_2,
+\mathrm{Dec}_{\mathbf{s}}(L_{\mathrm{sum}}) &= \mathrm{Dec}_{\mathbf{s}}((\mathbf{a}_1 + \mathbf{a}_2,
 b_1 + b_2)) \\
 &= (b_1 + b_2) - (\mathbf{a}_1 + \mathbf{a}_2) \cdot \mathbf{s} \\
 &= (b_1 - \mathbf{a}_1 \cdot \mathbf{s}) + (b_2 - \mathbf{a}_2 \cdot \mathbf{s}) \\
@@ -683,8 +693,8 @@ $$
 This proves that $L_{\mathrm{sum}}$ is an encryption of $m_1 + m_2$ with noise
 $e_1 + e_2$.
 
-Later in this post we will also use the homomorphic subtraction function
-$\mathrm{CSub}$ which is implemented similarly:
+Later in this post we will also use the analogous homomorphic subtraction
+function $\mathrm{CSub}$:
 
 \\[ \mathrm{CSub}: \mathrm{LWE}\_{\mathbf{s}}(m_1) \times
 \mathrm{LWE}\_{\mathbf{s}}(m_2) \rightarrow \mathrm{LWE}\_{\mathbf{s}}(m_1 -
@@ -729,6 +739,9 @@ def lwe_subtract(
 
 Here is an example of homomorphic addition:
 
+<div class="codeblock-with-filename">
+Homomorphic Addition Example
+
 ```python
 key = lwe.generate_lwe_key(config.LWE_CONFIG)
 
@@ -750,6 +763,8 @@ decoded = lwe.lwe_decode(decrypted)
 assert decoded == 2
 ```
 
+</div>
+
 ## Homomorphic Multiplication By Plaintext {#lwe-homomorphic-mul-plaintext}
 
 In this section we'll implement the homomorphic multiplication by plaintext
@@ -764,8 +779,8 @@ let $L = (\mathbf{a}, b)$ be an encryption of $m$.
 By definition, $\mathrm{PMul}(c, L)$ should be equal to a ciphertext
 $L_{\mathrm{prod}}$ that is an encryption of $c \cdot m$.
 
-Inspired by the previous section, you might guess that we could implement
-$\mathrm{PMul}$ by element wise multiplication of the scalar $c$ with the vector
+Inspired by the previous section, we can attempt to implement $\mathrm{PMul}$ by
+element wise multiplication of the scalar $c$ with the vector
 $L = (\mathbf{a}, b)$:
 
 \\[ \mathrm{PMul}(c, L) := c \cdot L = (c \cdot \mathbf{a}, c \cdot b) \\]
@@ -816,9 +831,13 @@ $\mathrm{CAdd}(L_1, L_2)$ is an encryption of $m_1 + m_2$ with noise
 $e_1 + e_2$. This means that when we homomorphically add two ciphertexts, the
 noise in each of the inputs gets added to the result.
 
-For example, let's see what happens when we take an encryption of $0$ and add it
-to itself 10 times. We'll repeat the entire process 1000 times and plot the
-ciphertext error distribution:
+For example, let's see what happens when we take an encryption of $0$ and
+homomorphically add it to itself 10 times. We'll repeat the entire process 1000
+times and plot the ciphertext error distribution before and after the
+homomorphic addition:
+
+<div class="codeblock-with-filename">
+Homomorphic Addition Noise Analysis
 
 ```python
 key = lwe.generate_lwe_key(config.LWE_CONFIG)
@@ -841,17 +860,22 @@ for _ in range(1000):
     addition_errors.append(lwe.lwe_decrypt(ciphertext_sum, key).message)
 ```
 
+</div>
+
 ![LWE Ciphertext Noise](/assets/tfhe/lwe_homomorphic_add_noise_hist.png){:
 .center-image}
 
-The graph on the left shows the error distribution of the initial encryption of
-$0$. The graph on the right shows the error distribution after 10 homomorphic
-additions which, as expected, is about 10 times larger. The maximum error in the
-graph on the right is around 5000 which is still significantly smaller than the
-maximal acceptable error of $2^{28}$. However, after $2^{20}$ homomorphic
-additions we'd eventually surpass that limit and no longer be able to accurately
-decode messages. $2^{20}$ additions may seem like a lot, but a standard CPU can
-process that many additions in around a millisecond.
+The graph on the left shows the distribution of `initial_errors` which records
+the errors in the initial encryptions of $0$. The graph on the right shows the
+distribution of `addition_errors` which contains the ciphertext errors after 10
+homomorphic additions. As expected, the noise on the right is about 10 times
+larger.
+
+The maximum error in the graph on the right is around 5000 which is still
+significantly smaller than the maximal acceptable error of $2^{28}$. However,
+after $2^{20}$ homomorphic additions we'd eventually surpass that limit and no
+longer be able to accurately decode messages. $2^{20}$ additions may seem like a
+lot, but a standard CPU can process that many additions in around a millisecond.
 
 A major goal for the rest of this post will be to develop a homomorphic
 operation whose output noise is independent of the input. This will make it
@@ -867,7 +891,7 @@ $$
 L := (\mathbf{0}, m)
 $$
 
-where $\mathbf{0}$ is a length $N$ vector of zeroes. We claim that $L$ is a
+where $\mathbf{0}$ is a length $n$ vector of zeroes. We claim that $L$ is a
 valid LWE encryption of $m$ with no noise. Indeed, the decryption of $L$ is
 exactly equal to $m$:
 
@@ -875,7 +899,7 @@ $$
 \mathrm{Dec}_{\mathbf{s}}(L) = m - \mathbf{0} \cdot \mathbf{s} = m
 $$
 
-The tuple $L$ is called the _trivial encryption_ of $m$.
+The ciphertext $L$ is called the _trivial encryption_ of $m$.
 
 Here is our library implementation:
 
@@ -895,15 +919,14 @@ def lwe_trivial_ciphertext(plaintext: LwePlaintext, config: LweConfig):
 </div>
 
 As an example of why this is useful, let $m_1$ be an LWE plaintext and let
-$L_2\in\mathrm{LWE}(m_2)$ be an LWE encryption of $m_2$. How can we
+$L_2\in\mathrm{LWE}_{\mathbf{s}}(m_2)$ be an LWE encryption of $m_2$. How can we
 homomorphically add $m_1$ to $L_2$ to produce an encryption of $m_1 + m_2$?
 
 In section [Homomorphic Addition](#lwe-homomorphic-addition) we implemented the
 function $\mathrm{CAdd}$ which homomorphically adds two LWE _ciphertexts_. We
 cannot directly apply $\mathrm{CAdd}$ since we are trying to add the _plaintext_
 $m_1$ to the ciphertext $L$. Instead, we can first convert $m_1$ to its trivial
-encryption $L_1$ denote the trivial encryption of $m_1$, and then compute
-$\mathrm{CAdd}(L_1, L_2)$.
+encryption $L_1$ and then compute $\mathrm{CAdd}(L_1, L_2)$.
 
 # Homomorphic NAND Revisited
 
@@ -924,20 +947,25 @@ plaintexts. Specifically, we'll represent $\mathrm{True}$ by
 $\mathrm{Encode}(2)$ and represent $\mathrm{False}$ by $\mathrm{Encode}(0)$.
 
 Let $b_0$ and $b_1$ denote two booleans with the above representation. The
-homomorphic NAND gate $\mathrm{CNAND}$ will be defined as:
+homomorphic NAND gate $\mathrm{CNAND}$ has the signature:
 
-\\[ \mathrm{CNAND}: \mathrm{LWE}(b_0) \times \mathrm{LWE}(b_1) \rightarrow
-\mathrm{LWE}(\mathrm{NAND}(b_0, b_1)) \\]
+$$
+\mathrm{CNAND}: \mathrm{LWE}_{\mathbf{s}}(b_0) \times
+\mathrm{LWE}_{\mathbf{s}}(b_1) \rightarrow
+\mathrm{LWE}_{\mathbf{s}}(\mathrm{NAND}(b_0, b_1))
+$$
 
-In other words, if $L_0$ is an LWE encryption of $b_0$ and $L_1$ is an LWE
+In other words, if $L_0 \in \mathrm{LWE}\_{\mathbf{s}}(b_0)$ is an LWE
+encryption of $b_0$ and $L_1\in \mathrm{LWE}\_{\mathbf{s}}(b_1)$ is an LWE
 encryption of $b_1$ then $\mathrm{CNAND}(L_0, L_1)$ is an LWE encryption of
 $\mathrm{NAND}(b_0, b_1)$.
 
 Another important requirement for $\mathrm{CNAND}$ is that the noise of the
 output ciphertext $\mathrm{CNAND}(L_0, L_1)$ should be bounded and independent
-of the noise of $L_0$ and $L_1$. This property will make it possible to compose
-an arbitrary number of homomorphic NAND gates without suffering from the noise
-explosion issue that we saw in section [Noise Analysis](#noise-analysis).
+of the noise of the inputs $L_0$ and $L_1$. This property will make it possible
+to compose an arbitrary number of homomorphic NAND gates without suffering from
+the noise explosion issue that we saw in section
+[Noise Analysis](#noise-analysis).
 
 Here are the functions we'll use to encode booleans as LWE plaintexts and to
 decode plaintexts back to booleans. Note that we're using the `encode` and
@@ -998,10 +1026,13 @@ def lwe_nand(
 
 </div>
 
-As we'll see later, the `bootstrap_key` is a public key that untrusted parties
-can use to homomorphically evaluate functions.
+As we'll see [later](#bootstrapping-implementation), `bootstrap_key` is a public
+key that untrusted parties can use to homomorphically evaluate functions.
 
 Here is an example:
+
+<div class="codeblock-with-filename">
+Homomorphic NAND Example
 
 ```python
 # Generate a private LWE encryption key.
@@ -1033,6 +1064,8 @@ boolean_nand = lwe.lwe_decode_bool(plaintext_nand)
 # The result should be equal to NAND(False, True) = True
 assert boolean_nand == True
 ```
+
+</div>
 
 ## Implementation Strategy
 
@@ -1069,8 +1102,8 @@ $q = 2^{32}$) that this expression can take:
 
 Note that $-2 \cdot 2^{29} < F(b_0, b_1) \leq 2 \cdot 2^{29}$ if and only if
 $b_0 = b_1 = \mathrm{Encode}(2)$. We can therefore upgrade $F(b_0, b_1)$ to a
-NAND function by composing it with a step function $\mathrm{Step}(x)$ on
-$\mathbb{Z}_q$ defined by:
+NAND function by composing it the following step function $\mathrm{Step}(x)$ on
+$\mathbb{Z}_q$:
 
 $$
 \begin{equation}\label{def:step}
@@ -1102,7 +1135,7 @@ It is evident from the table that
 In summary, we've expressed the NAND function in terms of two operations on
 $\mathbb{Z}\_q$: subtraction and the step function.
 
-In section [Homomorphic Operations](#homomorphic-operations) we already
+In section [Homomorphic Addition](#lwe-homomorphic-addition) we already
 implemented a homomorphic subtraction function $\mathrm{CSub}$. Therefore, all
 that remains is to implement a homomorphic step function. In the remainder of
 this post we will develop the _bootstrapping_ function $\mathrm{Bootstrap}$
@@ -1172,18 +1205,22 @@ version of the $\mathrm{Step}$ function defined in equation \ref{def:step}.
 More precisely, let $m \in \mathbb{Z}_q$ be an LWE message. The signature of
 $\mathrm{Bootstrap}$ is:
 
-\\[ \mathrm{Bootstrap}: \mathrm{LWE}(m) \rightarrow
-\mathrm{LWE}(\mathrm{Step}(m)) \\]
+$$
+\mathrm{Bootstrap}: \mathrm{LWE}_{\mathbf{s}}(m) \rightarrow
+\mathrm{LWE}_{\mathbf{s}}(\mathrm{Step}(m))
+$$
 
 In other words, $\mathrm{Bootstrap}$ takes as input an LWE encryption of a
 message $m$ and outputs an LWE encryption of $\mathrm{Step}(m)$.
 
-The other key property of $\mathrm{Bootstrap}$ is that noise distribution of its
-output ciphertext is independent on the noise of the input. In particular, if
-bootstrapping is applied to a very noisy ciphertext then the output noise could
-be lower than the input noise.
+The other key property of $\mathrm{Bootstrap}$ is that the noise distribution of
+its output ciphertext is independent on the noise of the input. In particular,
+if bootstrapping is applied to a very noisy ciphertext then the output noise
+could be lower than the input noise. This property is what will allow us to
+compose an arbitrary number of homomorphic NAND functions without an explosion
+of the ciphertext noise.
 
-Here is the declaration of our library function:
+Here is the declaration of the $\mathrm{Bootstrap}$ function:
 
 <div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/bootstrap.py">tfhe/bootstrap.py</a>
@@ -2652,7 +2689,7 @@ def blind_rotate(
 
 </div>
 
-## Implementation
+## Implementation {#bootstrapping-implementation}
 
 Let $\mathbf{s}$ be an LWE encryption key, let
 $L = (\mathbf{a}, b) \in \mathrm{LWE}_{\mathbf{s}}(i)$ be an LWE encryption of
@@ -2815,6 +2852,28 @@ Here is a concrete implementation of our $\mathrm{BlindRotate}$ algorithm:
 [tfhe/bootstrap.py](https://github.com/lowdanie/tfhe/blob/main/tfhe/bootstrap.py)
 
 ```python
+@dataclasses.dataclass
+class BootstrapKey:
+    config: gsw.GswConfig
+    gsw_ciphertexts: Sequence[gsw.GswCiphertext]
+
+
+def generate_bootstrap_key(
+    lwe_key: lwe.LweEncryptionKey, gsw_key: gsw.GswEncryptionKey
+) -> BootstrapKey:
+    bootstrap_key = BootstrapKey(config=gsw_key.config, gsw_ciphertexts=[])
+
+    for b in lwe_key.key:
+        b_plaintext = rlwe.build_monomial_rlwe_plaintext(
+            b, 0, gsw_key.config.rlwe_config
+        )
+        bootstrap_key.gsw_ciphertexts.append(
+            gsw.gsw_encrypt(b_plaintext, gsw_key)
+        )
+
+    return bootstrap_key
+
+
 def blind_rotate(
     lwe_ciphertext: lwe.LweCiphertext,
     rlwe_ciphertext: rlwe.RlweCiphertext,
@@ -3372,3 +3431,5 @@ $\mathrm{SampleExtract}(R, 0)$ preserves the noise in the input ciphertext $R$.
 
 The desired bound on the noise of $\mathrm{Bootstrap}(L)$ now follows from these
 two results together with equation \ref{eq:bootstrap-implementation}.
+
+## Performance
