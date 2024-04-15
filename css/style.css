@@ -157,7 +157,7 @@ pre {
     }
 }
 
-.codeblock-with-filename > p {
+.codeblock-with-filename>p {
     margin: 0;
     background-color: var(--code-filename-bg-color);
     border-top: solid 1px var(--border-color);
@@ -165,12 +165,13 @@ pre {
     border-right: solid 1px var(--border-color);
     border-top-left-radius: 0.3rem;
     border-top-right-radius: 0.3rem;
-    padding: 10px; 
+    padding: 10px;
 }
 
 .codeblock-with-filename pre {
     border-top-left-radius: 0;
-    border-top-right-radius: 0;;
+    border-top-right-radius: 0;
+    ;
     margin-top: 0;
 }
 
@@ -241,6 +242,13 @@ td.post-date {
     text-align: right;
 }
 
+details summary {
+    cursor: pointer;
+}
+
+details summary>* {
+    display: inline;
+}
 
 .MathJax_Display {
     overflow-x: auto;
