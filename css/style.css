@@ -250,6 +250,13 @@ details summary>* {
     display: inline;
 }
 
+.details-content {
+    border: solid 1px var(--border-color);
+    border-radius: 0.3rem;
+    padding: 0px 10px;
+    background-color: var(--code-bg-color);
+}
+
 .MathJax_Display {
     overflow-x: auto;
     overflow-y: hidden;
