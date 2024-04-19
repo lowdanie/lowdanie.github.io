@@ -1037,7 +1037,7 @@ key that untrusted parties can use to homomorphically evaluate functions.
 Here is an example:
 
 <div class="codeblock-with-filename">
-Homomorphic NAND Example
+[tests/test_nand.py](https://github.com/lowdanie/tfhe/blob/main/tests/test_nand.py)
 
 ```python
 # Generate a private LWE encryption key.
