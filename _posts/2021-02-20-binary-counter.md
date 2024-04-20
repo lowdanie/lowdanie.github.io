@@ -3,6 +3,7 @@ layout: post
 title: "Building a Binary Counter"
 date: 2021-02-08
 mathjax: true
+utterance-issue: 11
 ---
 
 A binary counter is an electronic component that records the number of times it has received a pulse. It is called _binary_ because it stores the number in its binary representation. Counters are absolutely ubiquitous in electronics and can be used to make circuits ranging from memory chips to FM radio decoders.

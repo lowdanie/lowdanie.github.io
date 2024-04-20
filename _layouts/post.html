@@ -11,9 +11,22 @@ hamburger: true
   </div>
 
   <div class="main-content">
-    <h1 class="post-title">{{ page.title }}</h1>
-    <p class="post-date">{{ page.date | date_to_string }}</p>
+    <div class="main-post">
+      <h1 class="post-title">{{ page.title }}</h1>
+      <p class="post-date">{{ page.date | date_to_string }}</p>
 
-    {{ content }}
+      {{ content }}
+    </div>
+
+    <div class="main-comments">
+      <h1>Comments</h1>
+      The comments are powered by the <a href="https://utteranc.es/">utterences</a> Github app.
+      If you do not want the app to post on your behalf, you can comment directly on this
+      <a href="https://github.com/lowdanie/lowdanie.github.io/issues/{{page.utterance-issue}}">Github issue</a>.
+
+      <script src="https://utteranc.es/client.js" repo="lowdanie/lowdanie.github.io" issue-term="pathname"
+        label="comment" theme="github-light" crossorigin="anonymous" async>
+        </script>
+    </div>
   </div>
 </div>

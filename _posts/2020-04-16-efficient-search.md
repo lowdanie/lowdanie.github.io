@@ -3,6 +3,7 @@ layout: post
 title: "Efficient Search with Markov Chains"
 date: 2020-04-16
 mathjax: true
+utterance-issue: 9
 ---
 
 In this post we will discuss a method for quickly solving seemingly intractable search problems called the _Metrolopis algorithm_. This is one of the most popular algorithms in applied science and engineering -- its use cases include optimizing the layout of circuit elements on a chip, finding a region of the genome that causes a specific disease and Google's PageRank algorithm.
@@ -203,6 +204,7 @@ Generally speaking, we start at a random key and keep trying to improve it by ma
 Amazingly, this simple algorithm almost always manages to find the correct key after just 5000 iterations!
 
 Here is some code that implements the algorithm:
+
 ```python
 def apply_key(key, text_idx):
     return substitution[text_idx]
@@ -317,6 +319,7 @@ In the next few sections we will explain why the algorithm works. We'll start by
 A _Markov chain_ describes a process which is defined by a set of _states_ $\\{x_1,\dots,x_n\\}$ and an array of _transition probabilities_ $[p_{ij}]\_{1 \leq i,j \leq n}$. The process starts at some initial state $x_\mathrm{initial}$. If we are currently at state $x_i$, the probability that we will move to state $x_j$ is $p_{ij}$.
 
 Here is an example from [Wikipedia](https://en.wikipedia.org/wiki/Examples_of_Markov_chains) involving the following simplified weather model:
+
 {% include image_with_source.html url="/assets/weather_markov_chain.png" source_url="https://en.wikipedia.org/wiki/Examples_of_Markov_chains" %}
 
 
@@ -328,6 +331,7 @@ In this model there are only two states - $S$ and $R$ representing sunny and rai
 The first row of $P$ tells us the transition probabilities assuming that the weather is currently sunny. In that case, the next day will be sunny with probability $p_{11} = 0.9$ and rainy with probability $p_{12} = 0.1$. Similarly, the bottom row tells us that if it is rainy today, then tomorrow it is equally likely to be sunny or rainy.
 
 We call this process a _chain_ because we can use it to simulate a random sequence (or "chain") of states. Here is some code that samples a sequence from a Markov chain with two states like the one in our example.
+
 ```python
 def sample_chain(P, initial_state, n_steps):
     """Sample n_steps iterations of a Markov chain with two states."""
@@ -420,9 +424,9 @@ This transition matrix implies that sunny days are always followed by rainy days
 
 Fortunately, a common type of Markov chains called _regular_ Markov chains do have stationary distributions.
 
-{%include definition.html
-name = "Definition" content = "A Markov chain with transition matrix $P$ is called <b>regular</b> if there exists an integer $n$ such that all of the entries of $P^n$ are greater than zero."
-%}
+
+> Definition: _A Markov chain with transition matrix $P$ is called **regular**_
+> _if there exists an integer $n$ such that all of the entries of $P^n$ are greater than zero._
 
 In other words, a Markov chain is regular if there exists an integer $n$ such that it is possible to get from every state to every other state in $n$ steps.
 
@@ -430,10 +434,9 @@ Our original weather forecasting Markov chain is clearly regular since the posit
 
 We can now state a key theorem in theory of Markov chains which formalizes the fact that every regular Markov chain has a stationary distribution:
 
-{%include theorem.html
-name = "Theorem 1"
-label = "thm:stat-dist"
-content = "Let $P$ be the transition matrix of a regular Markov chain. Then, as $n\rightarrow\infty$, the powers $P^n$ approach a limiting matrix $W$ with all rows equal to the same vector $\mathbf{w}$."%}
+<div id="thm:stat-dist">
+> Theorem 1. Let $P$ be the transition matrix of a regular Markov chain. Then, as $n\rightarrow\infty$, the powers $P^n$ approach a limiting matrix $W$ with all rows equal to the same vector $\mathbf{w}$.
+</div>
 
 For example, we already saw that our weather forecasting Markov chain was regular so the theorem applies. Indeed, we've already seen that:
 
@@ -452,15 +455,11 @@ But how can we calculate the stationary distribution? The naive way is to calcul
 
 It turns out that there is a faster way to do this which takes advantage of the following important theorem.
 
-{%include theorem.html
-name = "Theorem 2"
-label = "thm:eigen-vec"
-content = "Let $P$ be the transition matrix of a regular Markov chain whose stationary distribution is the row vector $\mathbf{w}$. Then
-\[
-\mathbf{w}P = \mathbf{w}
-\]
-and any row vector $\mathbf{x}$ satisfying $\mathbf{x}P = \mathbf{x}$ is a scalar multiple of $\mathbf{w}$."
-%}
+<div id="thm:eigen-vec">
+> Theorem 2. Let $P$ be the transition matrix of a regular Markov chain whose stationary distribution is the row vector $\mathbf{w}$. Then
+> $\mathbf{w}P = \mathbf{w} $
+> and any row vector $\mathbf{x}$ satisfying $\mathbf{x}P = \mathbf{x}$ is a scalar multiple of $\mathbf{w}$.
+</div>
 
 We will prove this theorem at the end of the section. For now, let's apply this theorem to our weather example. In that case:
 \\[
@@ -486,12 +485,13 @@ First let's show that if $\mathbf{w}$ is the stationary distribution then $\math
 \\]
 
 where all the rows of $W$ are equal to the stationary distribution $\mathbf{w}$. Now note that
-<div style="font-size: 1.4em;">
+
+$$
 \begin{align*}
     W &= \lim_{n\rightarrow\infty}P^n = \lim_{n\rightarrow\infty}P^{n+1} \\
       &= \lim_{n\rightarrow\infty}P^n\cdot P = (\lim_{n\rightarrow\infty} P^n) \cdot P = WP
 \end{align*}
-</div>
+$$
 
 In summary we've shown that $WP = W$. But since each row of $W$ is equal to $\mathbf{w}$, it follows that $\mathbf{w}P = \mathbf{w}$.
 
@@ -504,8 +504,6 @@ For the other direction, suppose that $\mathbf{x}P = \mathbf{x}$ for some row ve
  Let $r$ be equal to the sum of the components of $\mathbf{x}$. Since all of the rows of $W$ are equal to $\mathbf{w}$, it is easy to see that $\mathbf{x}W = r\mathbf{w}$.
 
  Together, with our previous observation that $\mathbf{x}W = \mathbf{x}$ it follows that $\mathbf{x} = r\mathbf{w}$. Indeed, $\mathbf{x}$ is proportional to $\mathbf{w}$ which is what we wanted to show.
-
-
 
 # Why the Metropolis Algorithm Works
 We are finally in a position to understand the logic behind the Metropolis algorithm. Recall that the algorithm works by starting at an initial key, and then at each stage we with some probability either stay at the same key or move to a random neighboring key. We can now recognize this rule as describing a Markov chain $M$ whose states are the possible keys $K_1,\dots,K_n$. We will soon describe this chain in more detail.
@@ -555,14 +553,10 @@ For the regularity, note that it is possible to turn any key $K$ into any other 
 
 Since our Markov chain $M$ is regular, by [theorem 1](#stat-dist) it must have a stationary distribution. We boldly make the following assertion.
 
-{%include theorem.html
-name = "Claim 1"
-label = "clm:stat-dist"
-content = "The stationary distribution of the Markov chain $M$ is proportional to the row vector $\mathbf{w}$ whose $i$-th entry is equal to the likelihood of $K_i$:
-\[
-    \mathbf{w}_i := L(K_i)
-\]"
-%} 
+<div id="clm:stat-dist">
+> Claim 1. The stationary distribution of the Markov chain $M$ is proportional to the row vector $\mathbf{w}$ whose $i$-th entry is equal to the likelihood of $K_i$:
+$\mathbf{w}_i := L(K_i)$.
+</div>
 
 As we mentioned earlier, this claim is the fundamental reason that the Metropolis algorithm works. To reiterate, if the stationary distribution of $M$ is $\mathbf{w}$ then, by definition, if we start from a random key and apply many iterations of the Markov chain, then the probability of ending up at key $K_i$ is proportional to $\mathbf{w}_i$. According to the claim, $\mathbf{w}_i=L(K_i)$. Therefore, the probability of ending up at $K_i$ is proportional to its likelihood $L(K_i)$. 
 
@@ -578,19 +572,13 @@ In this section we will prove [claim 1](#clm:stat-dist).
 
 Given the complexity of $P$ this doesn't seem a lot easier. However, it actually follows quite easily from the following lemma:
 
-{%include theorem.html
-name = "Lemma 1"
-label = "lem:swap-idx"
-content = "For any indices $i$ and $j$,
-\[
-    L(K_i)P_{ij} = L(K_j)P_{ji}
-\]
-"
-%}
+<div id="lem:swap-idx">
+> Lemma 1. For any indices $i$ and $j$, $L(K_i)P_{ij} = L(K_j)P_{ji}$
+</div>
 
 Before proving this lemma let's use it to prove equation \ref{eq:eigen-vec} and thus [claim 1](#clm:stat-dist). Indeed, note that it follows from the lemma that that for any $i$:
 
-<div style="font-size: 1.4em;">
+$$
 \begin{align*}
     (\mathbf{w}P)_i &\overset{(1)}{=} \sum_j\mathbf{w}_jP_{ji}
      \overset{(2)}{=} \sum_jL(K_j)P_{ji}
@@ -598,7 +586,7 @@ Before proving this lemma let's use it to prove equation \ref{eq:eigen-vec} and 
     &= L(K_i)\sum_jP_{ij}
      \overset{(4)}{=} L(K_i) = \mathbf{w}_i
 \end{align*}
-</div>
+$$
 
 Let's unpack this. Equality $(1)$ is just the definition of matrix multiplication. Equality $(2)$ follows from the definition of $\mathbf{w}$. The key nontrivial step is $(3)$ which uses [lemma 1](#lem:swap-idx). Finally, $(4)$ holds because the sum of any row of a transition matrix is equal to $1$.
 

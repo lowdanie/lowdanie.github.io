@@ -3,6 +3,7 @@ layout: post
 title: "The Sampling Theorem"
 date: 2019-09-01
 mathjax: true
+utterance-issue: 5
 ---
 
 ![Currents](/assets/currents.jpeg){: .center-image}
@@ -63,12 +64,12 @@ e^{i\theta} = \cos(\theta) + i \sin(\theta)
 
 From this together with the identities $\cos(-t) = \cos(t)$ and $\sin(-t) = -\sin(t)$ it is easy to deduce:
 
-<div style="font-size: 1.4em;">
+$$
 \begin{align*}
 \cos(\theta) &= \frac{1}{2}(e^{i\theta} + e^{-i\theta}) \\
 \sin(\theta) &= -\frac{i}{2}(e^{i\theta} - e^{-i\theta})
 \end{align*}
-</div>
+$$
 
 Therefore, we can represent a function with bandwidth $N$ by
 
@@ -94,13 +95,13 @@ For $k = 0, \dots , 2N$. Here is an example of a function with period $T = 2\pi$
 
 Let's try to express the value of the sample taken at the $k$-th point in terms of the Fourier series of $f(t)$. Using the Fourier expansion of $f(t)$ we have
 
-<div style="font-size: 1.4em;">
+$$
 \begin{align*}
 f(t_k) &= \sum_{n=-N}^{N} F_n e^{n \frac{2\pi i}{T}t_k}
 = \sum_{n=-N}^{N} F_n e^{n \frac{2\pi i}{T} k\frac{T}{2N+1}} \\
 &= \sum_{n=-N}^{N} F_n e^{\frac{2\pi i}{2N + 1}nk}
 \end{align*}
-</div>
+$$
 
 We can simplify this expression by introducing the $2N + 1$-th _root of unity_ $W_{2N+1}$ which is defined to be 
 
@@ -128,13 +129,13 @@ W_{2N+1}^{-kN}f(t_k) = \sum_{m=0}^{2N} F_{m-N} W_{2N+1}^{-km}
 
 At last, the sum on the right is indeed the expression for the $k$-th row of the multiplication of a matrix and a vector which we can write out explicitly as follows
 
-<div>
+$$
 \begin{equation}\label{fft-matrix}
-\begin{bmatrix} f(t_0) \\ W_{2N+1}^{-N}f(t_1) \\ W_{2N+1}^{-2N}f(t_2) \\ \vdots \\ W_{2N+1}^{-2N^2}f(t_{2N}) \end{bmatrix} =
-\begin{bmatrix} 1 & 1 & 1 & \cdots & 1 \\ 1 & W_{2N+1}^{-1} & W_{2N+1}^{-2} & \cdots & W_{2N+1}^{-2N} \\ 1 & W_{2N+1}^{-2} & W_{2N+1}^{-4} & \cdots & W_{2N+1}^{-2 \cdot 2N} \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ 1 & W_{2N+1}^{-2N} & W_{2N+1}^{-2N \cdot 2} & \cdots & W_{2N+1}^{-2N \cdot 2N} \end{bmatrix}
-\begin{bmatrix} F_{-N} \\ F_{-N + 1} \\\\ F_{-N + 2} \\ \vdots \\ F_N \end{bmatrix}
+\left[\begin{matrix} f(t_0) \\ W_{2N+1}^{-N}f(t_1) \\ W_{2N+1}^{-2N}f(t_2) \\ \vdots \\ W_{2N+1}^{-2N^2}f(t_{2N}) \end{matrix}\right] =
+\left[\begin{matrix} 1 & 1 & 1 & \cdots & 1 \\ 1 & W_{2N+1}^{-1} & W_{2N+1}^{-2} & \cdots & W_{2N+1}^{-2N} \\ 1 & W_{2N+1}^{-2} & W_{2N+1}^{-4} & \cdots & W_{2N+1}^{-2 \cdot 2N} \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ 1 & W_{2N+1}^{-2N} & W_{2N+1}^{-2N \cdot 2} & \cdots & W_{2N+1}^{-2N \cdot 2N} \end{matrix}\right]
+\left[\begin{matrix} F_{-N} \\ F_{-N + 1} \\\\ F_{-N + 2} \\ \vdots \\ F_N \end{matrix}\right]
 \end{equation}
-</div>
+$$
 
 Let's denote this matrix by $M_{2N + 1}$. It is an interesting exercise in the properties of the root of unity $W_{2N+1}$ to show that the columns of $M_{2N + 1}$ are orthogonal and that they all have a norm of $2N + 1$. From this it immediately follows that 
 
@@ -144,14 +145,14 @@ M_{2N + 1}^{-1} = \frac{1}{2N + 1} M_{2N+1}^*
 
 where $M_{2N+1}^\*$ denotes the conjugate transpose. By multiplying both sides of \ref{fft-matrix} with $M_{2N+1}^*$ and using the fact that the complex conjugate of  $W_{2N+1}^{-1}$ is $W_{2N+1}$ we arrive at the following key equality:
 
-<div>
+$$
 \begin{equation*}
 \begin{bmatrix} F_{-N} \\ F_{-N + 1} \\ F_{-N + 2} \\ \vdots \\ F_N \end{bmatrix} =
 \frac{1}{2N + 1}
 \begin{bmatrix} 1 & 1 & 1 & \cdots & 1 \\ 1 & W_{2N+1}^{1} & W_{2N+1}^{2} & \cdots & W_{2N+1}^{2N} \\ 1 & W_{2N+1}^{2} & W_{2N+1}^{4} & \cdots & W_{2N+1}^{2 \cdot 2N} \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ 1 & W_{2N+1}^{2N} & W_{2N+1}^{2N \cdot 2} & \cdots & W_{2N+1}^{2N \cdot 2N} \end{bmatrix}
 \begin{bmatrix} f(t_0) \\ W_{2N+1}^{-N}f(t_1) \\ W_{2N+1}^{-2N}f(t_2) \\ \vdots \\ W_{2N+1}^{-2N^2}f(t_{2N}) \end{bmatrix}
 \end{equation*}
-</div>
+$$
 
 The matrix appearing in the above equality is known as the _discrete Fourier transform_ which is denoted by DFT. So we can rewrite the equality more compactly as:
 
@@ -230,13 +231,13 @@ F = [\frac{i}{2}, \frac{1}{2}, 0, \frac{1}{2}, -\frac{i}{2}]
 
 Let's verify this by plugging these coefficients into the definition of the Fourier series and check that we get $f(t)$:
 
-<div style="font-size: 1.4em;">
+$$
 \begin{align*}
 \sum_{n=-2}^2 F_n e^{n \cdot it} &= \frac{i}{2}e^{-2 \cdot it} + \frac{1}{2}e^{-it} +  0 + \frac{1}{2}e^{it} -\frac{i}{2}e^{2 \cdot it} \\
 &= \frac{1}{2}(e^{it} + e^{-it}) - \frac{i}{2}(e^{2\cdot it} - e^{-2\cdot it}) \\
 &= \cos(t) + sin(2t) = f(t)
 \end{align*}
-</div>
+$$
 
 # Aliasing
 
@@ -254,32 +255,34 @@ In other words, in addition to the $2N+1$ non zero coefficients of a function wi
 
 Now, suppose we naively sample this function at only $2N+1$ points as if it had bandwidth $N$ and try to measure the Fourier coefficients $F_{-N}, \dots, F_N$. Similar to our derivation of the DFT above, the value of the sample $f(t_k)$ is equal to
 
-<div style="font-size: 1.3em;">
+$$
 \begin{align*}
 W_{2N+1}^{-kN}f(t_k) &= \sum_{m=0}^{2N} F_{m-N} W_{2N+1}^{-km} + \sum_{m=2N+1}^{4N+1} F_{m-N} W_{2N+1}^{-km} = \\
 &= \sum_{m=0}^{2N} F_{m-N} W_{2N+1}^{-km} + \sum_{m=0}^{2N} F_{m+N+1} W_{2N+1}^{-k(m + 2N + 1)} \\
 &= \sum_{m=0}^{2N} (F_{m-N} + F_{m+N+1}) W_{2N+1}^{-km}
 \end{align*}
-</div>
+$$
 
 Note the similarity of this to equation \ref{linear-eq} in our original derivation of the DFT . Similarly to there we can conclude that
 
-\begin{equation\*}
-\begin{bmatrix} F_{-N} + F_{N+1} \\\\ F_{-N + 1} + F_{N+2} \\\\ F_{-N + 2} + F_{N+3} \\\\ \vdots \\\\ F_N + F_{3N + 1} \end{bmatrix} =
+$$
+\begin{equation*}
+\begin{bmatrix} F_{-N} + F_{N+1} \\ F_{-N + 1} + F_{N+2} \\ F_{-N + 2} + F_{N+3} \\ \vdots \\ F_N + F_{3N + 1} \end{bmatrix} =
 \frac{1}{N} \mathrm{DFT} \left(
-\begin{bmatrix} f(t_0) \\\\ W_{2N+1}^{-N}f(t_1) \\\\ W_{2N+1}^{-2N}f(t_2) \\\\ \vdots \\\\ W_{2N+1}^{-2N^2}f(t_{2N}) \end{bmatrix}
+\begin{bmatrix} f(t_0) \\ W_{2N+1}^{-N}f(t_1) \\ W_{2N+1}^{-2N}f(t_2) \\ \vdots \\ W_{2N+1}^{-2N^2}f(t_{2N}) \end{bmatrix}
 \right)
-\end{equation\*}
+\end{equation*}
+$$
 
 This means that if we run the DFT algorithm under the assumption that the bandwidth of $f(t)$ is $N$, our estimate of the coefficient $F_n$ for $-N \leq n \leq N$ will be $$F'_n = F_n + F_{n + (2N + 1)}$$. In other words, our estimates of the lower frequency components $F_{-N}, \dots, F_N$ are clouded ("aliased") by the higher frequency components $F_{N+1}, \dots, F_{3N+1}$.
 
 The general pattern in the case of a function $f(t)$ with arbitrarily high bandwidth is that is that our estimate of $F_n$ for $-N \leq n \leq N$ will be:
 
-<div style="font-size: 1.3em;">
+$$
 \begin{equation}\label{aliasing-sum}
 F'_n = \sum_{m=-\infty}^{\infty} F_{n + m(2N + 1)}
 \end{equation}
-</div>
+$$
 
 Note that even though the sum is written as infinite, in practice all but finitely many coefficients are zero since we are assuming that $f(t)$ has finite bandwidth.
 
@@ -307,7 +310,7 @@ Suppose we sample this function at only $2\cdot 2  + 1 = 5$ samples per second c
 
 According to equation \ref{aliasing-sum} and the Fourier coefficients of $f(t)$ we calculated above, if we apply the DFT algorithm to these samples we'll recover the following (incorrect) Fourier coefficients which to avoid confusion will be denoted by $G_n$:
 
-<div style="font-size: 1.4em;">
+$$
 \begin{align*}
 G_{-2} &= F_{-2} = 0 \\
 G_{-1} &= F_{-1} + F_{-1 + 5} = 0 + \frac{i}{2} = \frac{i}{2} \\
@@ -315,7 +318,7 @@ G_{0} &= F_{0} = 0 \\
 G_{1} &= F_{1} + F_{1 - 5} = 0 - \frac{i}{2} = -\frac{i}{2} \\
 G_{2} &= F_2 = 0
 \end{align*}
-</div>
+$$
 
 Plugging these coefficients into the Fourier series expression we see that the function we have measured is:
 

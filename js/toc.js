@@ -33,7 +33,7 @@ function toggleSidebar() {
 }
 
 function findHeaders(state) {
-    let allHeaders = Array.from(document.querySelectorAll(".main-content h1, .main-content h2"));
+    let allHeaders = Array.from(document.querySelectorAll(".main-post h1, .main-post h2"));
 
     for (let i = 0; i < allHeaders.length; i++) {
         let header = allHeaders[i];

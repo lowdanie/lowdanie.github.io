@@ -3,6 +3,7 @@ layout: post
 title: "Heat Capacity and the Speed of Sound"
 date: 2020-12-19
 mathjax: true
+utterance-issue: 10
 ---
 It is well known that sound waves travel through different gases at different speeds. Perhaps the most popular demonstration of this phenomenon are the modulated voices of people who have inhaled Helium [^UNSW].
 
@@ -119,12 +120,13 @@ We'll now show that the speed of the wave is actually equal to $c$! To see why t
 \\]
 
 To verify that this is a valid solution, we calculate some derivatives
-<div style="font-size: 1.4em;">
+
+$$
 \begin{align*}
     \frac{\partial^2}{\partial t^2}\cos(x - c\cdot t) &= -c^2\cos(x - c\cdot t) \\
     \frac{\partial^2}{\partial x^2}\cos(x - c\cdot t)  &= -\cos(x - c\cdot t) \\
 \end{align*}
-</div>
+$$
 
 and find that indeed
 \\[ 

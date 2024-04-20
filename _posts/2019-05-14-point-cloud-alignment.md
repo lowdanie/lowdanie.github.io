@@ -3,6 +3,7 @@ layout: post
 title: "Point Cloud Alignment"
 date: 2019-05-14
 mathjax: true
+utterance-issue: 4
 ---
 
 # Introduction
@@ -171,14 +172,14 @@ This definition of $\mathfrak{so}(n)$ is not very illuminating, so we will now l
 
 For the first condition, we note that it is easy to show that for any matrix $X$, $\mathrm{exp}(X)^T = \mathrm{exp}(X^T)$. We have also already seen that $\mathrm{exp}(0_n) = I$. Therefore, we can simplify the first condition via:
 
-<div style="font-size: 1.4em;">
+$$
 \begin{align*}
 \mathrm{exp}(M)\mathrm{exp}(M)^T = I
 & \Leftrightarrow \mathrm{exp}(M + M^T) = \mathrm{exp}(0_n) \\
 & \Leftrightarrow M + M^T = 0_n \\
 & \Leftrightarrow M = -M^T
 \end{align*}
-</div>
+$$
 
 In other words, the first condition is equivalent to $M$ being _skew-symmetric_.
 
@@ -221,7 +222,7 @@ This means that each skew-symmetric matrix can be identified with a column vecto
 
 In particular, we can write every antisymmetric matrix $M$ as a linear combination of the matrices
 
-<div>
+$$
 \begin{equation*}
 (\mathbf{e}\_1)\_\times =
 \begin{bmatrix} 0 & 1 & 0 \\ -1 & 0 & 0 \\ 0 & 0 & 0
@@ -233,7 +234,7 @@ In particular, we can write every antisymmetric matrix $M$ as a linear combinati
 \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & 1 \\ 0 & -1 & 0
 \end{bmatrix}
 \end{equation*}
-</div>
+$$
 
 Where $\mathbf{e}_i$ is the i-th standard basis vector of $\mathbb{R}^3$. Concretely, we have:
 
@@ -282,12 +283,12 @@ R(\boldsymbol{\theta}) := \mathrm{exp}(\boldsymbol{\theta})R_\mathrm{op}
 
 We can now define our error term $E_i$ as a function of  $\mathfrak{so}(3) \simeq \mathbb{R}^3$
 
-<div style="font-size: 1.4em;">
+$$
 \begin{align*}
 E_i : & \mathbb{R}^3 \rightarrow \mathbb{R}^3 \\
 & \boldsymbol{\theta} \mapsto \mathrm{exp}(\boldsymbol{\theta})R_\mathrm{op}\mathbf{x}_i - \mathbf{y}_i
 \end{align*}
-</div>
+$$
 
 Note that $E_i(0) = R_\mathrm{op}\mathbf{x}_i - \mathbf{y}_i$. Our cost function now becomes
 
@@ -313,7 +314,7 @@ All that remains is to compute the $3 \times 3$ gradient matrix $\nabla_{\boldsy
 
 We will calculate the first column and the second two will be analogous. The calculation goes as follows
 
-<div style="font-size: 1.4em;">
+$$
 \begin{align*}
 \left. \frac{\partial}{\partial \theta_1}E_i \right\rvert_\mathbf{0} &=
 \left. \frac{\partial}{\partial \theta_1}\mathrm{exp}(\boldsymbol{\theta}) \right\rvert_\mathbf{0} R_\mathrm{op}\mathbf{x}_i \\
@@ -321,7 +322,7 @@ We will calculate the first column and the second two will be analogous. The cal
 &= (\mathbf{e}_1)_\times \cdot R_\mathrm{op}\mathbf{x}_i =
 -(R_\mathrm{op}\mathbf{x}_i)_\times \mathbf{e}_1
 \end{align*}
-</div>
+$$
 
 For the second equality we used the identity
 

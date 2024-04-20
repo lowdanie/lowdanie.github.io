@@ -3,6 +3,7 @@ layout: post
 title: "Book Review: Consciousness Explained"
 date: 2020-02-08
 mathjax: false
+utterance-issue: 7
 ---
 
 # Introduction

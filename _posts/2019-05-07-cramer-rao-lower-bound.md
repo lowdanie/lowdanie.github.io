@@ -3,6 +3,7 @@ layout: post
 title: "The Cramer-Rao Lower Bound"
 date: 2019-05-07
 mathjax: true
+utterance-issue: 3
 ---
 
 # Introduction
@@ -59,15 +60,14 @@ E[\hat{x}(Z) - x] = \int_{-\infty}^{\infty}[\hat{x}(Z) - x]p(Z | x)dZ = 0
 
 Note that we have replaced $x_\mathrm{true}$ with $x$ in the definition of the bias since the unbiasedness condition holds regardless of the true value of the parameter $x$. Now, comes the key step of the proof. We have an identity involving the mean of $\hat{x}(Z) - x$ and we would like to deduce a bound on the mean of its square $(\hat{x}(Z) - x)^2$. For this we use a standard trick which seems unmotivated the first time you see it but which is quite common in the literature. As a first step, we differentiate the above expression with respect to $x$:
 
-
-<div style="font-size: 1.3em;">
+$$
 \begin{align*}
 \frac{d}{dx} \int_{-\infty}^{\infty}[\hat{x}(Z) - x]p(Z | x)dZ & =
 \int_{-\infty}^{\infty}\frac{\partial}{\partial x}([\hat{x}(Z) - x]p(Z | x))dZ \\
 &=  -\int_{-\infty}^{\infty}p(Z | x)dZ + \int_{-\infty}^{\infty}[\hat{x}(Z) -x]\frac{\partial p(Z | x)}{\partial x}dZ \\
 & = 0
 \end{align*}
-</div>
+$$
 
 The first integral in the sum is equal to $1$ by the definition of a pdf.
 As for the second integral, we use the following identity to recover $p(Z \vert x)$:
@@ -99,12 +99,12 @@ where $\Vert f \Vert := \sqrt{\langle f, f \rangle} = \left(\int_{-\infty}^{\inf
 
 Applying this to \ref{integral-product} we get
 
-<div style="font-size: 1.2em;">
+$$
 \begin{equation*}
 \left(\int_{-\infty}^{\infty}[\hat{x}(Z) - x]^2 p(Z | x)dZ \right)^{1/2}
 \left(\int_{-\infty}^{\infty}\left(\frac{\partial \ln{p(Z | x)}}{\partial x}\right)^2 p(Z | x)dZ \right)^{1/2} \geq 1
 \end{equation*}
-</div>
+$$
 
 which can be written as
 
@@ -152,7 +152,7 @@ p(Z | x) = \frac{1}{(\sqrt{2\pi\sigma^2})^k} e^{-\frac{1}{2\sigma^2}\sum_{i=1}^{
 
 Therefore, the Fischer information $J$ is given by
 
-<div style="font-size: 1.3em;">
+$$
 \begin{align*}
 -E\left[\frac{\partial^2\ln{p(Z | x)}}{\partial^2 x} \right] \bigg\rvert_{x_\mathrm{true}} &=
 -E\left[\frac{\partial^2}{\partial^2 x} \left(
@@ -160,7 +160,7 @@ Therefore, the Fischer information $J$ is given by
 \right)\right] \bigg\rvert_{x_\mathrm{true}} \\
 &= \frac{k}{\sigma^2}
 \end{align*}
-</div>
+$$
 
 By the CRLB we have:
 

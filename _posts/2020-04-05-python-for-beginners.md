@@ -3,6 +3,7 @@ layout: post
 title: "Python for Beginners"
 date: 2020-02-08
 mathjax: false
+utterance-issue: 8
 ---
 
 I recently finished teaching an introductory Python course as part of the [Youth Remote Learning](https://youthremotelearning.com/2020/) project. The intended audience was 6th-8th graders and consisted of 6 classes, each lasting 30 minutes.
