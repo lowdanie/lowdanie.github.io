@@ -9,9 +9,9 @@ utterance-issue: 2
 # Introduction
 
 _Fully Homomorphic Encryption_ (FHE) is a form of encryption that makes it
-possible to evaluate functions on encrypted inputs without needing to decrypt
-them. For example, suppose you want to use a neural network running on an
-untrusted server to determine whether your image contains a cat. Since the
+possible to evaluate functions on encrypted inputs without access to the
+decryption key. For example, suppose you want to use a neural network running on
+an untrusted server to determine whether your image contains a cat. Since the
 server is untrusted, you do not want it to see your image. With FHE you can
 encrypt the image with your secret key and upload the encrypted image to the
 server. The server can then apply its neural network to the encrypted image and
@@ -21,7 +21,7 @@ with your secret key to obtain the result.
 In other words, FHE makes it possible to leverage the computational resources of
 an untrusted server without having to send it any unencrypted data.
 
-At first glance it seems like FHE should be impossible. Encrypted data should be
+At first glance it seems like FHE is impossible. Encrypted data should be
 indistinguishable from random bytes to a person without access to the encryption
 key. So how could such a person perform a meaningful calculation on the
 encrypted data?
@@ -97,10 +97,10 @@ assert result
 Importantly, the server never receives the `client_key` and so it is not able to
 read the contents of `ciphertext_left` or `ciphertext_right`. Nevertheless, it
 can run the `homomorphic_nand` function on the ciphertexts to produce
-`ciphertext_nand` which encrypts `NAND(b_0, b_1)`. Without `client_key`, the
-server also cannot read the contents of `ciphertext_nand`. All if can do is send
-`ciphertext_nand` back to the client whose can use `client_key` to decrypt it
-and reveal the result.
+`ciphertext_nand` which encrypts `NAND(b_0, b_1)`. Without the `client_key`, the
+server cannot read the contents of `ciphertext_nand`. All it can do is send
+`ciphertext_nand` back to the client who can use their `client_key` to decrypt
+it and reveal the result.
 
 Of course, all of this complexity is unnecessary if the client is only
 interested in evaluating a single NAND gate. The client would be better off just
@@ -109,8 +109,8 @@ evaluating the NAND function locally not involving a server at all.
 Homomorphic encryption becomes more useful when the client wants to evaluate a
 complex circuit such as a neural network which is composed of many billions of
 NAND gates. In that case the client may not have the compute or the permission
-to run the program locally. They can offload the computation to an untrusted
-server using the approach in the code snippet above, where the
+to run the program locally. Instead they can offload the computation to an
+untrusted server using the approach in the code snippet above, where the
 `homomorphic_nand` function is used by the server to evaluate all of the NAND
 gates in the complex circuit.
 
@@ -201,9 +201,9 @@ problem:
 Note that we have not yet specified which distribution the errors
 $e_i \in \mathbb{Z}_q$ are drawn from. In TFHE, they are sampled by first
 sampling a real number $-\frac{1}{2} \leq x_i < \frac{1}{2}$ from a Gaussian
-distribution $\mathcal{N}(0, \sigma)$, and then scaling $x$ by $q$ to obtain a
-number in the interval $[-\frac{q}{2}, \frac{q}{2})$ and finally rounding to the
-nearest integer:
+distribution $\mathcal{N}(0, \sigma)$ with $\sigma \ll 1$, and then scaling $x$
+by $q$ to obtain a number in the interval $[-\frac{q}{2}, \frac{q}{2})$ and
+finally rounding to the nearest integer:
 
 $$
 \begin{equation}\label{eq:int-noise}
@@ -232,9 +232,9 @@ $\mathbf{s} \in \\{0, 1\\}^n \subset \mathbb{Z}^n_q$.
 
 To encrypt a message $m \in \mathbb{Z}\_q$ with a key
 $\mathbf{s} \in \mathbb{Z}^n_q$ we first uniformly sample a vector
-$\mathbf{a} \in \mathbb{Z}^n_q$ and sample a noise element $e$ from the Gaussian
-distribution $\mathcal{N}\_q(0, \sigma)$. The encrypted message, also known as
-the _ciphertext_, is defined to be the pair
+$\mathbf{a} \in \mathbb{Z}^n_q$ and sample a noise element $e\in\mathbb{Z}\_q$
+from the Gaussian distribution $\mathcal{N}\_q(0, \sigma)$. The encrypted
+message, also known as the _ciphertext_, is defined to be the pair
 
 \\[ \mathrm{Enc}\_{\mathbf{s}}(m) := (\mathbf{a}, \mathbf{a} \cdot \mathbf{s} +
 m + e) \in \mathbb{Z}\_q^n \times \mathbb{Z}\_q \\]
@@ -246,8 +246,13 @@ $(\mathbf{a}, b)$ by computing:
 = (\mathbf{a} \cdot \mathbf{s} + m + e) - \mathbf{a} \cdot \mathbf{s} = m + e
 \\]
 
-Note that the encryption function is not deterministic. It turns out that this
-is a feature and not a bug. Indeed, any
+In section [Message Encoding](#lwe-message-encoding) we'll describe a method for
+removing the error term $e$ in the equation above so that we can recover the
+exact message $m$ after decryption.
+
+Note that the encryption function is not deterministic since it samples from the
+distribution $\mathcal{N}\_q(0, \sigma)$. It turns out that this is a feature
+and not a bug. Indeed, any
 [semantically secure](https://en.wikipedia.org/wiki/Semantic_security)
 encryption scheme _must_ have a non-deterministic encryption function. To see
 why, suppose we use the scheme to encrypt yes/no responses to a poll. If the
@@ -2988,7 +2993,8 @@ $$
 Note that our implementation of $\mathrm{BlindRotate}$ relies on the GSW
 encryptions $t_i := \mathrm{Enc}\_{\mathbf{s}}^{\mathrm{GSW}}(s_i)$. For reasons
 that will become apparent later on, we'll call the list $t_1,\dots,t_N$ the
-_Bootstrapping Key_.
+_Bootstrapping Key_. Since the bootstrapping key is itself encrypted, it is
+considered to be a public key that can be shared with untrusted parties.
 
 Here is a concrete implementation of our $\mathrm{BlindRotate}$ algorithm:
 
