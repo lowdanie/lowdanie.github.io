@@ -111,7 +111,7 @@ complex circuit such as a neural network which is composed of many billions of
 NAND gates. In that case the client may not have the compute or the permission
 to run the program locally. Instead they can offload the computation to an
 untrusted server using the approach in the code snippet above, where the
-`homomorphic_nand` function is used by the server to evaluate all of the NAND
+`homomorphic_nand` function is used by the server to evaluate each of the NAND
 gates in the complex circuit.
 
 The goal of this post is to implement `generate_key`, `encrypt`, `decrypt` and
@@ -139,8 +139,7 @@ the LWE scheme will be useful stepping stones on the path towards fully
 homomorphic encryption.
 
 In this section we will define the _Learning With Errors_ (LWE) problem and use
-it to implement our encryption scheme as well as some partially homomorphic
-operations.
+it to implement our encryption scheme as well as some homomorphic operations.
 
 ## Notation
 
@@ -398,10 +397,10 @@ small error term. We will call $e$ the _noise_ in the ciphertext $L$.
 
 As an example, we'll use the code above to encrypt the message $m = 2^{29}$ one
 thousand times and plot a histogram of the ciphertext noise. We'll use the LWE
-config above where the encryption noise has a standard deviation of $2^{-24}$.
-Since we multiply this by $q/2 = 2^{31}$ during encryption following equation
-\ref{eq:int-noise}, we expect the ciphertext noise to have a standard deviation
-of roughly $\sigma=2^{31-24} = 2^7 = 128$.
+config above where the encryption noise has a standard deviation of
+$\sigma=2^{-24}$. Since we multiply this by $q/2 = 2^{31}$ during encryption
+following equation \ref{eq:int-noise}, we expect the ciphertext noise to have a
+standard deviation of roughly $\sigma'=2^{31-24} = 2^7 = 128$.
 
 <div class="codeblock-with-filename">
 Generate LWE Error Samples
@@ -426,7 +425,7 @@ Here is a histogram of `errors`:
 
 ![LWE Ciphertext Noise](/assets/tfhe/lwe_noise_hist.png){: .center-image}
 
-This matches our estimated standard deviation of $\sigma=128$ pretty well.
+This matches our estimated standard deviation of $\sigma'=128$ pretty well.
 
 ## Message Encoding {#lwe-message-encoding}
 
@@ -465,7 +464,7 @@ plaintext in $\mathbb{Z}_q$ back to an integer in $\mathbb{Z}_8$:
 
 $$
 \begin{align*}
-    \mathrm{Decode}: \mathbb{Z}_q & \rightarrow [-4, 4) \\
+    \mathrm{Decode}: \mathbb{Z}_q & \rightarrow \mathbb{Z}_8 \\
     m &\mapsto \lfloor m \cdot 2^{-29} \rceil
 \end{align*}
 $$
@@ -476,7 +475,7 @@ nearest blue dot.
 
 The thick segment of the circle depicts points whose distance from the message
 $m = 3 \cdot 2^{29}$ is less than $2^{28}$. Note that for the points in this
-segment, the closest blue dot is still $m = 3\cdot 2^{29}$. In general, if
+segment, the closest blue dot is $m = 3\cdot 2^{29}$. In general, if
 $i \in \mathbb{Z}_8$ and $\vert e \vert < 2^{28}$ then
 
 \\[ \mathrm{Decode}(\mathrm{Encode}(i) + e) = i \\]
@@ -487,11 +486,11 @@ which is significantly less than $2^{28}$. This means that if
 $m = \mathrm{Encode}(i)$ and $L \in \mathrm{LWE}_{\mathbf{s}}(m)$ is an
 encryption of $m$ then we can decrypt $L$ and remove the noise by decoding:
 
-\\[
-\mathrm{Decode}(\mathrm{Dec}\_{\mathbf{s}}(\mathrm{Enc}\_{\mathbf{s}}(\mathrm{Encode}(i))))
-= i \\]
+$$
+\mathrm{Decode}(\mathrm{Dec}_{\mathbf{s}}(L)) = i
+$$
 
-In summary, if we only encrypt messages that are encodings of $\mathrm{Z}_8$
+In summary, if we only encrypt messages that are encodings of $\mathbb{Z}_8$
 then we can use the decoding function to remove the noise from our decryption
 results.
 
@@ -562,7 +561,7 @@ assert decoded == 2
 In the next two sections we will show that the LWE scheme above is homomorphic
 under addition and multiplication by a plaintext.
 
-More precisely, we will define a homomorphic addition function, $\mathrm{CAdd}$
+More precisely, we will define a homomorphic addition function $\mathrm{CAdd}$
 with the following signature:
 
 \\[ \mathrm{CAdd}: \mathrm{LWE}\_{\mathbf{s}}(m_1) \times
@@ -573,14 +572,13 @@ In other words, $\mathrm{CAdd}$ takes as input encryptions of $m_1$ and $m_2$
 and outputs an encryption of $m_1 + m_2$.
 
 Similarly, let $c \in \mathbb{Z}_q$ be an LWE plaintext. We will define a
-homomorphic multiplication by $c$ function $\mathrm{PMul}$ function with the
-signature:
+homomorphic "multiplication by $c$" function $\mathrm{PMul}$ with the signature:
 
 \\[ \mathrm{PMul}(c, \cdot): \mathrm{LWE}\_{\mathbf{s}}(m) \rightarrow
 \mathrm{LWE}\_{\mathbf{s}}(c \cdot m) \\]
 
-In other words, the $\mathrm{PMul}$ function takes as input a plaintext $c$ and
-an encryption of $m$ and outputs an encryption of $c\cdot m$.
+In other words, $\mathrm{PMul}$ takes as input a plaintext $c$ and an encryption
+of $m$ and outputs an encryption of $c\cdot m$.
 
 Importantly, these homomorphic operations operate only on ciphertexts and do not
 receive the secret key $\mathbf{s}$ as an input.
@@ -618,7 +616,7 @@ def lwe_plaintext_multiply(c: int, ciphertext: LweCiphertext) -> LweCiphertext:
 
 Before showing how this works let's take a minute to explain why this is both
 interesting and useful. Suppose a server hosts a simple linear regression model
-with weights whose $w_0$ and $w_1$ linear part is defined by:
+with weights $w_0$ and $w_1$ whose linear part is defined by:
 
 \\[ f(x_0, x_1) = w_0\cdot x_0 + w_1 \cdot x_1 \\]
 
@@ -639,7 +637,7 @@ ciphertext_1 = lwe.lwe_encrypt(m_1, key)
 # Send the ciphertexts to the untrusted server.
 
 # Server side: Generate an encryption of
-# f(m_0, m_1) w_0*m_0 + w_1*m_1
+# f(m_0, m_1) = w_0*m_0 + w_1*m_1
 ciphertext_result = lwe.lwe_add(
     lwe.lwe_plaintext_multiply(w_0, ciphertext_0),
     lwe.lwe_plaintext_multiply(w_1, ciphertext_1),
@@ -653,8 +651,8 @@ result = lwe.lwe_decrypt(ciphertext_result, key)
 
 </div>
 
-Note that this example can easily be extended to general dot product between a
-vector a weights $\mathbf{w}$ and a vector of features $\mathbf{x}$ which is a
+Note that this example can easily be extended to general dot products between a
+vector of weights $\mathbf{w}$ and a vector of features $\mathbf{x}$ which is a
 core component of neural networks.
 
 ## Homomorphic Addition {#lwe-homomorphic-addition}
@@ -885,13 +883,12 @@ larger.
 The maximum error in the graph on the right is around 5000 which is still
 significantly smaller than the maximal acceptable error of $2^{28}$. However,
 after $2^{20}$ homomorphic additions we'd eventually surpass that limit and no
-longer be able to accurately decode messages. $2^{20}$ additions may seem like a
-lot, but a standard CPU can process that many additions in around a millisecond.
+longer be able to accurately decode messages.
 
-A major goal for the rest of this post will be to develop a homomorphic
-operation whose output noise is independent of the input. This will make it
-possible to compose an _arbitrary_ number of homomorphic operations, without
-running into the noise issue above.
+A major goal for the rest of this post is to develop a homomorphic operation
+whose output noise is independent of the input noise. This will make it possible
+to compose an _arbitrary_ number of homomorphic operations, without running into
+the noise issue above.
 
 ## Trivial Encryption {#lwe-trivial-encryption}
 
@@ -1037,8 +1034,8 @@ def lwe_nand(
 
 </div>
 
-As we'll see [later](#bootstrapping-implementation), `bootstrap_key` is a public
-key that untrusted parties can use to homomorphically evaluate functions.
+As we'll see [later](#blind-rotation-implementation), `bootstrap_key` is a
+public key that untrusted parties can use to homomorphically evaluate functions.
 
 Here is an example:
 
@@ -1089,7 +1086,7 @@ $\mathrm{Encode}(i) := i \cdot 2^{29}$:
 
 ![Z8](/assets/tfhe/z8_plain.png){: .center-image}
 
-We'll start by expressing NAND in terms of elementary operations of
+We'll start by expressing NAND in terms of elementary operations on
 $\mathbb{Z}_q$.
 
 As before, we will identify $\mathrm{True}$ with $\mathrm{Encode}(2)$ and
@@ -1113,8 +1110,8 @@ $q = 2^{32}$) that this expression can take:
 
 Note that $-2 \cdot 2^{29} < F(b_0, b_1) \leq 2 \cdot 2^{29}$ if and only if
 $b_0 = b_1 = \mathrm{Encode}(2)$. We can therefore upgrade $F(b_0, b_1)$ to a
-NAND function by composing it the following step function $\mathrm{Step}(x)$ on
-$\mathbb{Z}_q$:
+NAND function by composing it with the step function $\mathrm{Step}(x)$ which is
+defined on $\mathbb{Z}_q$ as follows:
 
 $$
 \begin{equation}\label{def:step}
@@ -1125,8 +1122,7 @@ $$
 \end{equation}
 $$
 
-Note that we've used the fact that $q/4 = 2^{29}$. Here's what happens when we
-apply $\mathrm{Step}(x)$ to $F(b_0, b_1)$:
+Here's what happens when we apply $\mathrm{Step}(x)$ to $F(b_0, b_1)$:
 
 <div class="table-wrapper">
 
@@ -1141,7 +1137,12 @@ apply $\mathrm{Step}(x)$ to $F(b_0, b_1)$:
 
 It is evident from the table that
 
-\\[ \mathrm{NAND}(b_0, b_1) = \mathrm{Step}(\mathrm{Encode}(-3) - b_0 - b_1) \\]
+$$
+\begin{align*}
+\mathrm{NAND}(b_0, b_1) &= \mathrm{Step}(F(b_0, b_1)) \\
+&= \mathrm{Step}(\mathrm{Encode}(-3) - b_0 - b_1)
+\end{align*}
+$$
 
 In summary, we've expressed the NAND function in terms of two operations on
 $\mathbb{Z}\_q$: subtraction and the step function.
@@ -1225,11 +1226,9 @@ In other words, $\mathrm{Bootstrap}$ takes as input an LWE encryption of a
 message $m$ and outputs an LWE encryption of $\mathrm{Step}(m)$.
 
 The other key property of $\mathrm{Bootstrap}$ is that the noise distribution of
-its output ciphertext is independent on the noise of the input. In particular,
-if bootstrapping is applied to a very noisy ciphertext then the output noise
-could be lower than the input noise. This property is what will allow us to
-compose an arbitrary number of homomorphic NAND functions without an explosion
-of the ciphertext noise.
+its output ciphertext is independent of the noise of the input. This property is
+what will allow us to compose an arbitrary number of homomorphic NAND functions
+without an explosion of the ciphertext noise.
 
 Here is the declaration of the $\mathrm{Bootstrap}$ function:
 
@@ -1254,8 +1253,9 @@ def bootstrap(
 
 </div>
 
-The `bootstrap_key` will be explained later in this post. The `scale` parameter
-is the non zero output value of the step function. Our definition of
+The `bootstrap_key` argument will be explained
+[later](#blind-rotation-implementation) in this post. The `scale` parameter is
+the non zero output value of the step function. Our definition of
 $\mathrm{Step}$ above corresponds to `scale = utils.encode(2)`.
 
 ## Noise Properties {#bootstrapping-noise-properties}
@@ -1396,15 +1396,19 @@ $\mathbb{Z}_q[x]$ can have arbitrarily high degrees.
 
 We now turn to the ring $\mathbb{Z}_q[x] / (x^n + 1)$. The denominator $x^n+1$
 plays a similar role to the denominator in
-$\mathbb{Z}_q = \mathbb{Z} / q\mathbb{Z}$. Just as $\mathbb{Z}_q$ is defined to
-be the integers modulo $q$, $\mathbb{Z}_q[x] / (x^n + 1)$ is the set of
-polynomials "modulo" the polynomial $x^n + 1$.
+$\mathbb{Z}_q = \mathbb{Z} / q\mathbb{Z}$. Two integers are considered to be
+equal modulo $q$ if they differ by a multiple of $q$. Similarly, two polynomials
+are considered to be equal modulo $x^n + 1$ if they differ by a multiple of
+$x^n + 1$.
 
-What does this mean? We can represent elements of $\mathbb{Z}_q[x] / (x^n + 1)$
-by polynomials whose degree is less than $n$. If we are given a polynomial with
-a degree larger than $n$, we can find it's representative modulo $x^n + 1$ by
-replacing $x^n$ with $-1$ as many times as necessary. For example, if $n=4$ then
-we have the following equivalences modulo $x^4 + 1$:
+> $\mathbb{Z}_q[x] / (x^n + 1)$ is defined to be the ring of polynomials modulo
+> $x^n + 1$.
+
+As an important special case, $x^n = -1\ (\mathrm{mod}\ x^n + 1)$. Therefore, if
+we are given a polynomial with a degree larger than $n$, we can find it's
+representative modulo $x^n + 1$ by replacing $x^n$ with $-1$ as many times as
+necessary. For example, if $n=4$ then we have the following equivalences modulo
+$x^4 + 1$:
 
 $$
 \begin{align*}
@@ -1737,8 +1741,13 @@ Similarly to [LWE Homomorphic Addition](#lwe-homomorphic-addition), we can
 implement $\mathrm{CAdd}$ for the RLWE scheme by adding the input ciphertexts
 element-wise:
 
-\\[ \mathrm{CAdd}((a_1(x), b_1(x)), (a_2(x), b_2(x))) := (a_1(x) + a_2(x),
-b_1(x) + b_2(x)) \\]
+$$
+\mathrm{CAdd}((a_1(x), b_1(x)), (a_2(x), b_2(x))) := (a_1(x) + a_2(x),
+b_1(x) + b_2(x))
+$$
+
+The RLWE version of the homomorphic subtraction function $\mathrm{CSub}$ is
+analogous.
 
 Here is the corresponding code:
 

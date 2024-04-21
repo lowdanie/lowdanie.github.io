@@ -20,6 +20,10 @@ let sidebar = document.querySelector(".sidebar");
 let currentActiveIndex = -1;
 
 function toggleSidebar() {
+    if (window.getComputedStyle(hamburger).display == 'none') {
+        return;
+    }
+
     hamburger.classList.toggle("is-active");
 
     if (hamburger.classList.contains("is-active")) {
@@ -32,62 +36,36 @@ function toggleSidebar() {
     }
 }
 
-function findHeaders(state) {
-    let allHeaders = Array.from(document.querySelectorAll(".main-post h1, .main-post h2"));
+function loadTableOfContents(state) {
+    let primaryContentsList = document.querySelector(".primary-contents-list");
 
-    for (let i = 0; i < allHeaders.length; i++) {
-        let header = allHeaders[i];
-        if (header.classList.contains("post-title")) {
-            continue;
-        }
-        if (header.nodeName.toLowerCase() == "h1") {
-            state.headers.primary.push(header);
-            state.headers.secondary.push([]);
-            continue;
-        }
+    for (let primaryIdx = 0; primaryIdx < primaryContentsList.children.length; primaryIdx++) {
+        let elem = primaryContentsList.children[primaryIdx];
+        let linkElem = elem.querySelector('a');
+        let headerId = linkElem.getAttribute('href');
+        let headerElem = document.querySelector(headerId);
 
-        if (state.headers.secondary.length == 0) {
-            console.log("Found h2 before any h1. Skipping.");
-            continue;
-        }
+        linkElem.addEventListener("click", toggleSidebar);
+        state.tocListElements.primary.push(elem);
+        state.headers.primary.push(headerElem);
 
-        state.headers.secondary.at(-1).push(header);
-    }
-}
-
-function buildTableOfContentsListElement(headerElem) {
-    a_elem = document.createElement("a");
-    a_elem.appendChild(document.createTextNode(headerElem.innerHTML));
-    a_elem.setAttribute("href", "#" + headerElem.id);
-    a_elem.addEventListener("click", toggleSidebar);
-
-    li_elem = document.createElement("li");
-    li_elem.append(a_elem);
-
-    return li_elem;
-}
-
-function buildTableOfContents(state) {
-    let contentsList = document.querySelector(".primary-contents-list");
-    for (let primaryIdx = 0; primaryIdx < state.headers.primary.length; primaryIdx++) {
-        let primaryListElem = buildTableOfContentsListElement(state.headers.primary[primaryIdx]);
-        contentsList.append(primaryListElem);
-        state.tocListElements.primary.push(primaryListElem);
         state.tocListElements.secondary.push([]);
+        state.headers.secondary.push([]);
 
-        let secondaryHeaders = state.headers.secondary[primaryIdx];
-        if (secondaryHeaders.length == 0) {
+        let secondaryContentsList = elem.querySelector('ul');
+        if (secondaryContentsList == null) {
             continue;
         }
 
-        let secondaryList = document.createElement("ul");
-        secondaryList.classList.add("secondary-contents-list");
-        primaryListElem.append(secondaryList);
+        for (let secondaryIdx = 0; secondaryIdx < secondaryContentsList.children.length; secondaryIdx++) {
+            elem = secondaryContentsList.children[secondaryIdx];
+            linkElem = elem.querySelector('a');
+            headerId = linkElem.getAttribute('href');
+            headerElem = document.querySelector(headerId);
 
-        for (let secondaryIdx = 0; secondaryIdx < secondaryHeaders.length; secondaryIdx++) {
-            let secondaryListElem = buildTableOfContentsListElement(secondaryHeaders[secondaryIdx]);
-            secondaryList.append(secondaryListElem);
-            state.tocListElements.secondary.at(-1).push(secondaryListElem);
+            linkElem.addEventListener("click", toggleSidebar);
+            state.tocListElements.secondary.at(-1).push(elem);
+            state.headers.secondary.at(-1).push(headerElem);
         }
     }
 }
@@ -148,9 +126,7 @@ function addActiveHeaderClass(state) {
 
 
 function init(state) {
-    findHeaders(state);
-    buildTableOfContents(state);
-    console.log(state);
+    loadTableOfContents(state);
 }
 
 function update(state) {
@@ -203,3 +179,10 @@ window.addEventListener('scroll', throttle(() => {
 }, 100));
 
 hamburger.addEventListener("click", toggleSidebar);
+
+const mql = window.matchMedia("(min-width: 1000px)");
+mql.onchange = (e) => {
+    if (e.matches) {
+        sidebar.style.top = '0'
+    }
+}

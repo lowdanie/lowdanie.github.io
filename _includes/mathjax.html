@@ -1,47 +1,15 @@
 {% if page.mathjax %}
-<script type="text/x-mathjax-config">
-  // MathJax.Hub.Config({
-  //   tex2jax: {
-  //     inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-  //     processEscapes: true
-  //   }
-  // });
-    MathJax.Hub.Config({
-    extensions: [
-      "MathMenu.js",
-      "MathZoom.js",
-      "AssistiveMML.js",
-      "a11y/accessibility-menu.js"
-    ],
-    jax: ["input/TeX", "output/HTML-CSS"],
-    TeX: {
-      extensions: [
-        "AMSmath.js",
-        "AMSsymbols.js",
-        "noErrors.js",
-        "noUndefined.js",
-      ],
-      equationNumbers: {
-        autoNumber: "AMS"
-      }
+<script>
+  window.MathJax = {
+    tex: {
+      tags: "ams",
+      inlineMath: [['$', '$'], ["\\(", "\\)"]],
+      displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+      processEscapes: true,
+      packages: ['base', 'ams', 'noerrors', 'noundefined']
     },
-    tex2jax: {
-	    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-	    displayMath: [ ["$$", "$$"], ["\\[", "\\]"] ],
-	    processEscapes: true
-    },
-    CommonHTML: {
-      scale: 100
-    },
-    positionToHash: false
-  });
+  };
 </script>
-<!-- <script -->
-<!--   type="text/javascript" -->
-<!--   charset="utf-8" -->
-<!--   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" -->
-<!-- ></script> -->
-<script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+<script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 </script>
 {% endif %}
