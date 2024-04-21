@@ -1989,7 +1989,7 @@ function in terms of addition, subtraction and multiplication:
 l_0 \end{equation}
 
 Therefore, all we need to do to implement $\mathrm{CMux}$ is to homomorphically
-evaluate the right hand side of equation \ref{eq:mux}. In a section
+evaluate the right hand side of equation \ref{eq:mux}. In section
 [Homomorphic Addition](#rlwe-homomorphic-addition) we saw how to homomorphically
 evaluate addition and subtraction of RLWE ciphertexts. In section
 [Homomorphic Multiplication By Plaintext](#rlwe-homomorphic-mul-plaintext) we
@@ -2027,8 +2027,7 @@ $$
 $$
 
 Here is an implementation of $\mathrm{CMux}$ which builds on the GSW encryption
-scheme and the $\mathrm{CMul}$ function that we'll implement in the next
-section.
+scheme and the $\mathrm{CMul}$ function that we'll explore in the next section.
 
 <div class="codeblock-with-filename">
 <a href="https://github.com/lowdanie/tfhe/blob/main/tfhe/gsw.py">tfhe/gsw.py</a>
@@ -2180,7 +2179,7 @@ def gsw_multiply(
 An _encryption of zero_ is an RLWE encryption of the zero polynomial.
 
 In this section we'll see how encryptions of zero can help us make progress
-towards implementing homomorphic multiplication between RLWE ciphertexts.
+towards implementing homomorphic multiplication between ciphertexts.
 
 Let $s(x)$ be an RLWE secret key, let $f_1(x)$ and $f_2(x)$ be two RLWE messages
 and let $R_i = (a_i(x), b_i(x)) \in \mathrm{RLWE}_{s(x)}(f_i(x))$ be an RLWE
@@ -2297,17 +2296,18 @@ According to the claim above, $\mathrm{CMul}(G, R)$ will be a valid RLWE
 encryption of $f_1(x)\cdot f_2(x)$ so long as the coefficients of $f_1(x)$,
 $a(x)$ and $b(x)$ are small.
 
-The requirement on $f_1(x)$ is not an issue for us. In fact, in this post we
-will only consider GSW encryptions of the constant polynomials $f_1(x)=0$ and
-$f_1(x)=1$. The requirements on $a(x)$ and $b(x)$ however are an issue. Since
-$a(x)$ and $b(x)$ are the elements of the ciphertext $R$, their coefficients
-should be indistinguishable from randomness and so they certainly are not small.
+The small coefficient requirement on $f_1(x)$ is not an issue for us. In fact,
+in this post we will only consider GSW encryptions of the constant polynomials
+$f_1(x)=0$ and $f_1(x)=1$. The requirements on $a(x)$ and $b(x)$ however are an
+issue. Since $a(x)$ and $b(x)$ are the elements of the ciphertext $R$, their
+coefficients should be indistinguishable from randomness and so they certainly
+are not small.
 
 Perhaps the simplest way to decrease the magnitude of the coefficients of the
-ciphertext $R$ is to divide $R$ by a constant $p > 1$ as part of the
-implementation of $\mathrm{CMul}$. In order for the output to still be an
-encryption of $f_1(x)\cdot f_2(x)$, we can balance this out by redefining the
-GSW encryption of $f_1(x)$ to be:
+ciphertext $R$ is to divide $R$ by a constant $p > 1$ inside the implementation
+of $\mathrm{CMul}$. In order for the output to still be an encryption of
+$f_1(x)\cdot f_2(x)$, we can balance this out by redefining the GSW encryption
+of $f_1(x)$ to be:
 
 \\[ G := p \cdot f_1(x)I_{2\times 2} + Z \\]
 
@@ -2316,8 +2316,9 @@ Together we get:
 \\[ \mathrm{CMul}(R, G) := \frac{1}{p}R \cdot G = \frac{1}{p}R \cdot (p\cdot
 f_1(x)I_{2\times 2} + Z) \\]
 
-It is not hard to show that with this new definition, $\mathrm{CMul}(R, G)$ is
-still an RLWE encryption of $f_1(x)\cdot f_2(x)$. Furthermore, the noise of
+It is not hard to show that with this new definition, the division and
+multiplication by $p$ cancel out and $\mathrm{CMul}(R, G)$ is still an RLWE
+encryption of $f_1(x)\cdot f_2(x)$. Furthermore, the noise of
 $\mathrm{CMul}(R, G)$ is now only
 
 \\[ f_1(x)\cdot e_2(x) + \frac{1}{p}a_2(x)\cdot z_1(x) + \frac{1}{p}b_2(x)\cdot
@@ -2351,7 +2352,7 @@ obtain a better bound on the noise.
 Recall that in this post, $q=2^{32}$ and $\mathbb{Z}_q$ is represented by the
 signed 32-bit integers $[-2^{31}, 2^{31})$. In this section we'll similarly set
 $p=2^8$ and $\mathbb{Z}_p$ will denote the signed 8-bit integers $[-2^7, 2^7)$.
-We'll also set $k = \frac{\log(q)}{\log(p)} = 4$
+We'll also set $k = \frac{\log(q)}{\log(p)} = 4$.
 
 Let $x \in \mathbb{Z}\_q$ be a signed 32-bit integer. The _base-$p$
 representation_ of $x$ is defined to be a length $k$ sequence of elements of
@@ -2413,11 +2414,13 @@ Indeed:
 
 \\[ 1000 = 232 + 3\cdot 2^8 + 0 \cdot 2^{2\cdot 8} + 0 \cdot 2^{3\cdot 8} \\]
 
-To implement $\mathrm{Base}\_p$ for _signed_ integers, we'll first add an offset
-$B$ (whose value will be specified later) to $x$ and compute the unsigned
-base-$p$ representation of $x + B$, denoted $(x'\_0,\dots,x'_{k-1})$, where
-$x'_i\in[0, 256)$. We'll then subtract $\frac{p}{2}=128$ from the elements of
-the unsigned representation to get the signed representation:
+Note that this is not a valid signed base-$p$ representation since
+$232 \notin [-128, 128)$. To implement $\mathrm{Base}\_p$ for _signed_ integers,
+we'll first add an offset $B$ (whose value will be specified later) to $x$ and
+compute the unsigned base-$p$ representation of $x + B$, denoted
+$(x'\_0,\dots,x'_{k-1})$, where $x'_i\in[0, 256)$. We'll then subtract
+$\frac{p}{2}=128$ from the elements of the unsigned representation to get the
+signed representation:
 
 \\[ \mathrm{Base}\_p(x) = (x'\_0 - \frac{p}{2},\dots,x'\_{k-1} - \frac{p}{2} )
 \\]
@@ -2480,21 +2483,21 @@ def base_p_to_array(a_base_p: Sequence[np.ndarray], log_p) -> np.ndarray:
 </div>
 
 We'll similarly define the base-$p$ representation of a polynomial
-$f(x) \in \mathbb{Z}\_q / (x^N+1)$ to be a sequence of polynomials
-$f_0,\dots,f_{k-1}\in\mathbb{Z}\_p/(x^N+1)$ such that:
+$f(x) \in \mathbb{Z}\_q[x] / (x^N+1)$ to be a sequence of polynomials
+$f_0(x),\dots,f_{k-1}(x)\in\mathbb{Z}\_p[x]/(x^N+1)$ satisfying:
 
 $$
 \begin{equation}\label{eq:polynomial-base-p}
 f(x) = f_0(x) + p\cdot f_1(x) + \dots + p^{k-1} \cdot f_{k-1}(x) \end{equation}
 $$
 
-and we'll extend the function $\mathrm{Base}_p$ defined above from scalars to
-include polynomials:
+and we'll extend the function $\mathrm{Base}_p$ defined above to include
+polynomials:
 
 $$
 \begin{align*}
-\mathrm{Base}_p: \mathbb{Z}_q/(x^N+1) &\rightarrow
-\left(\mathbb{Z}_p/(x^N+1)\right)^k \\ f(x) &\mapsto (f_0(x),\dots,f_{k-1}(x))
+\mathrm{Base}_p: \mathbb{Z}_q[x]/(x^N+1) &\rightarrow
+\left(\mathbb{Z}_p[x]/(x^N+1)\right)^k \\ f(x) &\mapsto (f_0(x),\dots,f_{k-1}(x))
 \end{align*}
 $$
 
@@ -2535,7 +2538,7 @@ def base_p_to_polynomial(
 Note that equation \ref{eq:polynomial-base-p} can also be written as a dot
 product:
 
-\\[ f(x) = (f_0(x),\dots,f_{k-1}) \cdot (1, p, \dots, p^{k-1}) \\]
+\\[ f(x) = (f_0(x),\dots,f_{k-1}(x)) \cdot (1, p, \dots, p^{k-1}) \\]
 
 We'll define the row vector $\mathbf{v}_p$ to be:
 
