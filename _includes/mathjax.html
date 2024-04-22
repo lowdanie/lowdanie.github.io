@@ -1,12 +1,13 @@
 {% if page.mathjax %}
 <script>
   window.MathJax = {
+    loader: {load: ['[tex]/boldsymbol']},
     tex: {
       tags: "ams",
       inlineMath: [['$', '$'], ["\\(", "\\)"]],
       displayMath: [["$$", "$$"], ["\\[", "\\]"]],
       processEscapes: true,
-      packages: ['base', 'ams', 'noerrors', 'noundefined']
+      packages: ['base', 'ams', 'noerrors', 'noundefined', 'boldsymbol']
     },
   };
 </script>
