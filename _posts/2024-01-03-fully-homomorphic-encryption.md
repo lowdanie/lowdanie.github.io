@@ -829,7 +829,7 @@ def lwe_plaintext_multiply(c: int, ciphertext: LweCiphertext) -> LweCiphertext:
 
 </div>
 
-## Noise Analysis
+## Noise Analysis {#lwe-noise-analysis}
 
 In this section we'll analyze the effects of homomorphic operations on
 ciphertext noise.
@@ -973,7 +973,7 @@ output ciphertext $\mathrm{CNAND}(L_0, L_1)$ should be bounded and independent
 of the noise of the inputs $L_0$ and $L_1$. This property will make it possible
 to compose an arbitrary number of homomorphic NAND gates without suffering from
 the noise explosion issue that we saw in section
-[Noise Analysis](#noise-analysis).
+[Noise Analysis](#lwe-noise-analysis).
 
 Here are the functions we'll use to encode booleans as LWE plaintexts and to
 decode plaintexts back to booleans. Note that we're using the `encode` and
@@ -1278,8 +1278,8 @@ As we saw in section
 $\mathrm{PMul}(2^{20}, L_0)$ is an encryption of $2^{20} \cdot 0 = 0$.
 Therefore, $L$ is an encryption of
 $\mathrm{Encode}(3) + 0 = \mathrm{Encode}(3)$. Furthermore, as we saw in section
-[Noise Analysis](#noise-analysis), we the expect noise distribution of $L$ to
-roughly have a standard deviation of $2^{20} \cdot 2^7 = 2^{27}$.
+[Noise Analysis](#lwe-noise-analysis), we the expect noise distribution of $L$
+to roughly have a standard deviation of $2^{20} \cdot 2^7 = 2^{27}$.
 
 The following program computes the ciphertexts $L$ and $\mathrm{Bootstrap}(L)$
 1000 times so that we can compare the distributions of the decryptions
@@ -2223,7 +2223,7 @@ that the coefficients of $f_1(x)$ and $R_2=(a_2(x), b_2(x))$ are small.
 
 <details id="proof:cmul-preliminary">
 <summary>
-Proof
+Proof [click to expand]
 </summary>
 <div class="details-content">
 
@@ -2570,6 +2570,9 @@ R = (\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x))) \cdot B_p
 \end{equation}
 $$
 
+where $(\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x)))$ denotes the concatenation
+of $\mathrm{Base}_p(a(x))$ and $\mathrm{Base}_p(a(x))$.
+
 Note that similarly to the trivial factorization $R = \frac{1}{p}R \cdot p$ from
 the previous section, the coefficients on the left hand side of the base-$p$
 factorization are small. Indeed, the output of $\mathrm{Base}_p(f(x))$ is, by
@@ -2596,14 +2599,12 @@ and $Z$ is a $2k\times 2$ matrix whose $i$-th row is an RLWE encryption of zero.
 
 We'll now implement homomorphic multiplication. Let
 $G \in \mathrm{GSW}_{s(x)}(f_1(x))$ be a GSW encryption of $f_1(x)$ and let
-$R\in\mathrm{RLWE}\_{s(x)}(f_2(x))$ be an RLWE encryption of $f_2(x)$.
-Homomorphic multiplication between $G$ and $R$ is defined by:
+$R = (a(x), b(x)) \in\mathrm{RLWE}\_{s(x)}(f_2(x))$ be an RLWE encryption of
+$f_2(x)$. Motivated by equation \ref{eq:base-p-factor}, homomorphic
+multiplication between $G$ and $R$ is defined by:
 
 \\[ \mathrm{CMul}(G, R) := (\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x))) \cdot
 G \\]
-
-where $(\mathrm{Base}_p(a(x)), \mathrm{Base}_p(b(x)))$ denotes the concatenation
-of $\mathrm{Base}_p(a(x))$ and $\mathrm{Base}_p(a(x))$.
 
 We claim that $\mathrm{CMul}(G, R)$ is a valid RLWE encryption of
 $f_1(x)\cdot f_2(x)$ and that the ciphertext noise is small assuming only that
@@ -2718,7 +2719,7 @@ that was started in the [Introduction](#introduction-2).
 Consider the polynomial
 
 $$
-f(x) = 1 + 2x + 3x^2 + 4x^3 \in \mathbb{Z}_q / (x^3+1)
+f(x) = 1 + 2x + 3x^2 + 4x^3 \in \mathbb{Z}_q[x] / (x^3+1)
 $$
 
 in the [negacyclic](#negacyclic-polynomials) polynomial ring of degree $N=3$. If
@@ -2739,27 +2740,28 @@ $$
 For this reason, multiplication by a monomial $x^i$ in a negacyclic polynomial
 ring is sometimes referred to as _rotation_ by $i$.
 
-Note that in the negacyclic polynomial ring $\mathbb{Z}_q / (x^N+1)$, the
+Note that in the negacyclic polynomial ring $\mathbb{Z}_q[x] / (x^N+1)$, the
 monomial $x^i$ is well defined even if $i$ is negative. For instance, we can use
-the relation $-x^N = 1$ to rewrite $x^{-1}$ as
+the relation $-x^N = 1\ (\text{mod}\ x^N+1)$ to rewrite $x^{-1}$ as
 
 $$
-x^{-1} = -x^N \cdot x^{-1} = -x^{N-1}
+x^{-1} = -x^N \cdot x^{-1} = -x^{N-1}\ (\text{mod}\ x^N+1)
 $$
 
 Therefore, we can define a function $\mathrm{IntRotate}$ that rotates a
-polynomial $f(x)\in\mathbb{Z}_q / (x^N+1)$ by an integer $i\in\mathbb{Z}$:
+polynomial $f(x)\in\mathbb{Z}_q[x] / (x^N+1)$ by an integer $i\in\mathbb{Z}$:
 
 $$
 \begin{align*}
-\mathrm{IntRotate}: \mathbb{Z} \times \mathbb{Z}_q/(x^N+1)
-&\rightarrow \mathbb{Z}_q / (x^N+1) \\
+\mathrm{IntRotate}: \mathbb{Z} \times \mathbb{Z}_q[x]/(x^N+1)
+&\rightarrow \mathbb{Z}_q[x] / (x^N+1) \\
 (i, f(x)) &\mapsto x^i \cdot f(x)
 \end{align*}
 $$
 
-Note that due to the negacyclic relation $x^{2N} = (-1)^2 = 1$, the function
-$\mathrm{IntRotate}$ is periodic in the first variable with period $2N$:
+Note that due to the negacyclic relation
+$x^{2N} = (-1)^2 = 1\ (\text{mod}\ x^N+1)$, the function $\mathrm{IntRotate}$ is
+periodic in the first variable with period $2N$:
 
 $$
 \mathrm{IntRotate}(i + 2N, f(x)) = \mathrm{IntRotate}(i, f(x))
@@ -2767,8 +2769,8 @@ $$
 
 In this post we're working with the integers modulo $q$, $\mathbb{Z}\_q$, rather
 than the regular integers $\mathbb{Z}$. Unfortunately, $\mathrm{IntRotate}$ is
-not well defined on $\mathbb{Z}_q$ in the first coefficient. The reason for this
-is that operations in $\mathbb{Z}_q$ are defined modulo $q$ whereas, as we just
+not well defined on $\mathbb{Z}_q$ in the first variable. The reason for this is
+that operations in $\mathbb{Z}_q$ are defined modulo $q$ whereas, as we just
 saw, $\mathrm{IntRotate}$ has a period of $2N$.
 
 We can reconcile this difference by rescaling $i\in\mathbb{Z}_q$ by
@@ -2777,8 +2779,8 @@ $\mathrm{IntRotate}$ to the function $\mathrm{Rotate}$:
 
 $$
 \begin{align*}
-\mathrm{Rotate}: \mathbb{Z}_q \times \mathbb{Z}_q / (x^N+1)
-&\rightarrow \mathbb{Z}_q / (x^N+1) \\
+\mathrm{Rotate}: \mathbb{Z}_q[x] \times \mathbb{Z}_q[x] / (x^N+1)
+&\rightarrow \mathbb{Z}_q[x] / (x^N+1) \\
 (i, f(x)) &\mapsto x^{\lfloor\frac{2N}{q} \cdot i \rfloor} \cdot f(x)
 \end{align*}
 $$
@@ -2954,7 +2956,7 @@ Putting this all together, our new inductive equation is:
 
 $$
 \begin{equation}\label{eq:ind-blind-rotation}
-G_i := \mathrm{CMux}(t_i, G_{i-1}(x), \mathrm{PMul}(x^{a'_i}, G_{i-1}))
+G_i := \mathrm{CMux}(t_i, G_{i-1}, \mathrm{PMul}(x^{a'_i}, G_{i-1}))
 \end{equation}
 $$
 
@@ -2971,7 +2973,7 @@ We claim that $G_i$ is an RLWE encryption of of $g_i(x)$.
 
 <details id="proof:cmul-preliminary">
 <summary>
-Proof
+Proof [click to expand]
 </summary>
 <div class="details-content">
 
@@ -3003,10 +3005,10 @@ $$
 $$
 
 Note that our implementation of $\mathrm{BlindRotate}$ relies on the GSW
-encryptions $t_i := \mathrm{Enc}\_{\mathbf{s}}^{\mathrm{GSW}}(s_i)$. For reasons
-that will become apparent later on, we'll call the list $t_1,\dots,t_N$ the
-_Bootstrapping Key_. Since the bootstrapping key is itself encrypted, it is
-considered to be a public key that can be shared with untrusted parties.
+encryptions $t_i := \mathrm{Enc}\_{\mathbf{s}}^{\mathrm{GSW}}(s_i)$. We'll call
+the list $t_1,\dots,t_N$ the _Bootstrapping Key_. Since the bootstrapping key is
+itself encrypted, it is considered to be a public key that can be shared with
+untrusted parties.
 
 Here is a concrete implementation of our $\mathrm{BlindRotate}$ algorithm:
 
@@ -3100,13 +3102,13 @@ f.coeff[: N // 2] = -1
 f_plaintext = rlwe.rlwe_encode(f, config.RLWE_CONFIG)
 f_ciphertext = rlwe.rlwe_encrypt(f_plaintext, rlwe_key)
 
-# i = 3/8 * q. This means that we will rotate by 3/4 * N.
+# i = 3/8 * q. This means that we will rotate by (2N/q)*i = 3/4 * N.
 # Encode i as an LWE plaintext and encrypt it with the key.
 index_plaintext = lwe.lwe_encode(3)
 index_ciphertext = lwe.lwe_encrypt(index_plaintext, lwe_key)
 
-# Use blind_rotate to rotate the f(x) by i, using only the ciphertexts
-# index_ciphertext and f_ciphertext. The output is an encryption of the result.
+# Use blind_rotate to rotate f(x) by i, using only the ciphertexts
+# index_ciphertext and f_ciphertext.
 rotated_ciphertext = bootstrap.blind_rotate(
     index_ciphertext, f_ciphertext, bootstrap_key
 )
@@ -3141,10 +3143,10 @@ $$
 \cdot 2^{29} = 2^{29} \cdot x^{\frac{N}{2}}
 $$
 
-Let $L \in \mathrm{LWE}(i)$ be an LWE encryption of $i$ and let
-$R\in\mathrm{RLWE}(f(x))$ be an RLWE encryption of $f(x)$. Now we'll compute the
-_blind_ rotation using $L$ and $R$ and decrypt the result to get a rotated
-polynomial $g(x)$:
+Let $L \in \mathrm{LWE}\_{\mathbf{s}}(i)$ be an LWE encryption of $i$ and let
+$R\in\mathrm{RLWE}\_{s(x)}(f(x))$ be an RLWE encryption of $f(x)$. Now we'll
+compute the _blind_ rotation of $f(x)$ using $L$ and $R$ and decrypt the result
+to get a rotated polynomial $g(x)$:
 
 $$
 g(x) = \mathrm{Dec}^{\mathrm{RLWE}}_{s(x)}(\mathrm{BlindRotate}(L, R))
@@ -3163,20 +3165,20 @@ where the $e_k$ are small error terms and $j$ is close to $\frac{N}{2}$. If $L$
 is noisier, the index $j$ will move further from $\frac{N}{2}$ but the magnitude
 of the errors $e_i$ will not be affected.
 
-To see why $\mathrm{BlindRotate}$ has this property, we'll again turn to our
-inductive equation \ref{eq:ind-blind-rotation}. The key observation is that the
+To see why $\mathrm{BlindRotate}$ has this property, consider our inductive
+equation \ref{eq:ind-blind-rotation}. The key observation is that the
 coefficients of $L=(\mathbf{a},
 b)$ only appear in the homomorphic multiplication
 
 $$
-\mathrm{PMul}(x^{a'_i}, R\_{i-1})
+\mathrm{PMul}(x^{a'_i}, R_{i-1})
 $$
 
 Multiplying the ciphertext $R_{i-1}$ by the plaintext $x^{a'\_i}$ changes the
 _position_ of the coefficients in underlying plaintext but not their magnitudes.
 
-This property of $\mathrm{BlindRotate}$ will play an important role in the
-analysis of bootstrapping noise REF.
+This property of $\mathrm{BlindRotate}$ will play an important role in our
+[analysis](#bootstrapping-noise-analysis) of bootstrapping noise.
 
 # Sample Extraction
 
@@ -3186,19 +3188,19 @@ The _coefficient function_ $\mathrm{Coeff}$ takes as input an index $i$ and a
 polynomial
 
 $$
-f(x) = f_0 + f_1x + \dots + f_{N-1}x^{N-1} \in \mathbb{Z}_q/(x^N+1)
+f(x) = f_0 + f_1x + \dots + f_{N-1}x^{N-1} \in \mathbb{Z}_q[x]/(x^N+1)
 $$
 
 and outputs $f_i$, the $i$-th coefficient of $f(x)$:
 
 $$
 \begin{align*}
-\mathrm{Coeff}: \mathbb{Z} \times \mathbb{Z}_q/(x^N+1)
+\mathrm{Coeff}: \mathbb{Z} \times \mathbb{Z}_q[x]/(x^N+1)
 &\rightarrow \mathbb{Z}_q \\ (i, f(x)) &\mapsto f_i
 \end{align*}
 $$
 
-_Sample Extraction_ is homomorphic version of the coefficient function. The
+_Sample Extraction_ is the homomorphic version of the coefficient function. The
 $\mathrm{SampleExtract}$ function takes as input an index $i$ and an RLWE
 _encryption_ of $f(x)$ and outputs an LWE _encryption_ of $f_i$:
 
@@ -3396,7 +3398,7 @@ $\mathrm{Bootstrap}$.
 
 ## Building The Step Function From Polynomial Rotations
 
-Consider the polynomial $t(x) \in \mathbb{Z}_q / (x^N+1)$ whose first $N/2$
+Consider the polynomial $t(x) \in \mathbb{Z}_q[x] / (x^N+1)$ whose first $N/2$
 coefficients are $-1$ and the last $N/2$ coefficients are $1$:
 
 \\[ t(x) = -1 - x - \dots - x^{N/2 - 1} + x^{N/2} + \dots + x^{N-1} \\]
@@ -3409,7 +3411,7 @@ start with $i=1$:
 x^{N/2+1} + \dots + x^{N-1} \\]
 
 All of the coefficients get shifted one place to the right, and the last
-coefficient $t_{N-1} = 1$ circles back to the beginning and, due to the
+coefficient, $t_{N-1} = 1$, circles back to the beginning and, due to the
 negacyclic property, picks up a minus sign to become $-1$. In summary, the
 number of negative coefficients has grown by one from $N/2$ to $N/2+1$ and the
 number of positive coefficients has decreased by one.
@@ -3447,7 +3449,7 @@ negative:
 
 $$
 \begin{equation}\label{eq:coeff-int-rotate}
-\mathrm{Coeff}(o, \mathrm{IntRotate}(i,
+\mathrm{Coeff}(0, \mathrm{IntRotate}(i,
 t(x))) = \begin{cases} -1 & \text{if}\ -N/2 < i \leq N/2 \\ 1 & \text{else}
 \end{cases}
 \end{equation}
@@ -3465,7 +3467,7 @@ Plugging this into equation \ref{eq:coeff-int-rotate} gives us:
 
 $$
 \begin{equation}\label{eq:coeff-rotate}
-\mathrm{Coeff}(, \mathrm{Rotate}(i,t(x))) = \begin{cases}
+\mathrm{Coeff}(0, \mathrm{Rotate}(i,t(x))) = \begin{cases}
 -1 & \text{if}\ -q/4 < i \leq q/4 \\ 1 & \text{else}
 \end{cases}
 \end{equation}
@@ -3480,7 +3482,7 @@ $$
 $$
 
 Indeed, we can obtain the step function by translating and scaling
-$\mathrm{Coeff}(0, \mathrm{Rotate}(i, f(x)))$. The following equality follows
+$\mathrm{Coeff}(0, \mathrm{Rotate}(i, t(x)))$. The following equality follows
 directly from equation \ref{eq:coeff-rotate}:
 
 $$
@@ -3581,7 +3583,7 @@ Note that this implementation of `bootstrap` returns either an encryption of `0`
 or an encryption of the `scale` parameter. In the presentation above we used
 `scale=utils.Encode(2)`.
 
-## Noise Analysis
+## Noise Analysis {#bootstrapping-noise-analysis}
 
 Recall from section [Bootstrapping](#bootstrapping-noise-properties) that a key
 property of $\mathrm{Bootstrap}$ is that if $L$ is an LWE ciphertext then the
@@ -3627,5 +3629,4 @@ which has a runtime complexity of $O(N\log(N))$.
 
 Since even heavily optimized implementations take over a millisecond to perform
 a single homomorphic NAND gate, use of FHE to secure real-world computations
-will likely require algorithmic advances that result in speed ups of a factor of
-1000 or more.
+will likely require additional algorithmic advances.
