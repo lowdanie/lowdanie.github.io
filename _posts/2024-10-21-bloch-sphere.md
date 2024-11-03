@@ -125,6 +125,26 @@ physical motivation for this is that due to the properties of
 [quantum measurement](https://en.wikipedia.org/wiki/Measurement_in_quantum_mechanics)
 a global phase has no observable effect.
 
+For example, consider the state:
+
+$$
+|\psi\rangle = \frac{1}{\sqrt{2}}\left(|0\rangle + |1\rangle\right)
+$$
+
+We can write this as
+
+$$
+|\psi\rangle = \cos(\theta/2)|0\rangle + e^{i\cdot \varphi}\sin(\theta/2)|1\rangle
+$$
+
+for $\theta = \pi/2$ and $\varphi = 0$. Therefore, by the definition of the
+Bloch projection:
+
+$$
+\mathrm{Bloch}(|\psi\rangle) = (\cos(0)\sin(\pi/2), \sin(0)\sin(\pi/2), \cos(\pi/2)) =
+(1, 0, 0)
+$$
+
 ## Unitary Transformations
 
 Recall that a $2\times 2$
@@ -137,7 +157,8 @@ $$
 
 where $U^*$ denotes the complex conjugate of $U$. The set of unitary matrices
 together with matrix multiplication form a the
-[Unitary Group](https://en.wikipedia.org/wiki/Unitary_group) denoted $U(2)$.
+[Unitary Group](https://en.wikipedia.org/wiki/Unitary_group) denoted
+$\mathrm{U}(2)$.
 
 We can represent a qubit state $|\psi\rangle = a|0\rangle + b|1\rangle$ as a
 length $2$ column vector in $\mathbb{C}^2$:
@@ -153,143 +174,183 @@ $$
 U|\psi\rangle = U\left[\begin{matrix}a\\b\end{matrix}\right]
 $$
 
-It is natural to wonder what multiplication by $U$ corresponds to on the Bloch
-sphere. Or, more precisely, what is the relationship between the points
+For example, consider the state
+
+$$
+|\psi\rangle = \frac{1}{\sqrt{2}}\left(|0\rangle + |1\rangle\right)
+$$
+
+and the unitary matrix:
+
+$$
+Z = \left[\begin{matrix} 1 & 0 \\ 0 & -1 \end{matrix}\right]
+$$
+
+Applying $Z$ to $\|\psi\rangle$ gives us:
+
+$$
+Z|\psi\rangle = \frac{1}{\sqrt{2}}\left(|0\rangle - |1\rangle\right)
+$$
+
+All operations that we can physically apply to a qubit correspond to
+transformation by a unitary matrix $U$. It is therefore natural to wonder what
+multiplication by $U$ corresponds to on the Bloch sphere. Or, more precisely,
+what is the relationship between the points
 $\mathrm{Bloch}(|\psi\rangle)\in\mathbb{R}^3$ and
 $\mathrm{Bloch}(U|\psi\rangle)\in\mathbb{R}^3$?
 
-It turns out that transforming qubit states by a unitary matrix corresponds to
-_rotating_ the Bloch sphere. Rotations in $\mathbb{R}^3$ can be parameterized by
-an
-[axis and an angle](https://en.wikipedia.org/wiki/Axis%E2%80%93angle_representation).
-There is a formula that we can use to find the axis and angle of the rotation of
-the Bloch sphere that corresponds to a given unitary matrix.
-
-The formula relies on the parameterization of unitary matrices by
-[Pauli Matrices](https://en.wikipedia.org/wiki/Pauli_matrices) via the
-[matrix exponential](https://en.wikipedia.org/wiki/Matrix_exponential) which we
-will introduce in the following sections.
-
-## The Special Unitary Group
-
-It is easy to prove that the determinant of a unitary matrix $U\inU(2)$ is a
-complex number with norm $1$. First, applying the determinant to both sides of
-the equation $UU^* = I$ gives us:
+We'll start by answering this question for the unitary matrix $Z$ from the
+previous example. If we apply $Z$ to a general qubit state:
 
 $$
-\mathrm{det}(UU^*) = det(I) = 1.
+|\psi\rangle = \cos(\theta/2)|0\rangle + e^{i\varphi}\sin(\theta/2)|1\rangle
 $$
 
-By elementary properties of the determinant:
+we get:
 
 $$
-\mathrm{det}(UU^*) = \mathrm{det}(U)\mathrm{det}(U)^\* = |\mathrm{det}(U)|^2
+\begin{align*}
+Z|\psi\rangle &= \cos(\theta/2)|0\rangle - e^{i\varphi}\sin(\theta/2)|1\rangle \\
+ &= \cos(\theta/2)|0\rangle + e^{i(\varphi + \pi)}\sin(\theta/2)|1\rangle
+\end{align*}
 $$
 
-Putting this together we see that indeed:
+In terms of spherical coordinates, $Z$ transforms the coordinates
+$(\theta, \varphi)$ to $(\theta, \varphi + \pi)$. On the Bloch sphere, adding
+$\pi$ to the $\varphi$ coordinate corresponds to rotation by $\pi$ radians
+around the z-axis.
+
+We can easily generalize this example to unitary matrices of the form
 
 $$
-|\mathrm{det}(U)| = 1
+Z_\alpha = \left[\begin{matrix} 1 & 0 \\ 0 & e^{i\alpha} \end{matrix}\right]
 $$
 
-The
-[Special Unitary Group](https://en.m.wikipedia.org/wiki/Special_unitary_group),
-denoted $\mathrm{SO}(2)$ is the subgroup of $U(2)$ consisting of matrices whose
-determinant is _exactly_ $1$. The relationship we alluded to earlier between
-unitary transformations and rotations of the Bloch sphere is only true for
-unitary transformations whose determinant is equal to $1$ and so for the
-remainder of this post we will focus on the special unitary group $SU(2)$.
-
-As an aside, note that is similar to the situation with
-[orthogonal matrices](https://en.wikipedia.org/wiki/Orthogonal_matrix) over the
-real numbers which can have a determinant of $1$ or $-1$. Only the orthogonal
-matrices with determinant $1$ preserve orientations and rotations of
-$\mathbb{R}^3$ are therefore identified with the
-[Special Orthogonal Group](https://en.wikipedia.org/wiki/Orthogonal_group#Special_orthogonal_group).
-
-A useful tool for studying matrix groups such as $SU(2)$ is the
-[matrix exponential](https://en.wikipedia.org/wiki/Matrix_exponential) which
-sends an $n\times n$ matrix with complex coefficients $M$ to another $n\times n$
-matrix $e^M$.
-
-In the case where $n=1$, this is simply the usual exponential of a complex
-number. This is generalized to any $n$ by plugging the matrix $M$ into the same
-Taylor series that is used to define the scalar exponential:
+Clearly
 
 $$
-e^M = \sum_{i=0}^\infty \frac{1}{i!}M^i
+Z_\alpha |\psi\rangle =
+ \cos(\theta/2)|0\rangle + e^{i(\varphi + \alpha)}\sin(\theta/2)|1\rangle
 $$
 
-Suppose that $U = e^M$ is a special unitary matrix. What does this imply about
-the matrix $M$? Using the definition of a unitary matrix we get:
+and so multiplication by $Z_\alpha$ corresponds to rotating the Bloch sphere by
+$\alpha$ radians around the z-axis (see for reference
+[axis-angle representation](https://en.wikipedia.org/wiki/Axis%E2%80%93angle_representation)).
+
+In order to formalize this correspondence, we'll define the function
 
 $$
-e^M \cdot \left(e^M\right)^* = UU^* = I
+F : \mathrm{U}(2) \rightarrow \mathrm{Aut}(\mathbb{R}^3)
 $$
 
-By using basic properties of the exponential map we get:
+which sends a unitary matrix $U$ to the corresponding automorphism of the Bloch
+sphere. In other words, $F$ is defined to satisfy
 
 $$
-e^M \cdot \left(e^M\right)^* = e^M e^{M^\*} = e^{M + M^\*}
+\mathrm{Bloch}(U|\psi\rangle) = F(U)\cdot\mathrm{Bloch}(|\psi\rangle)
 $$
 
-Putting this together we get:
+for any qubit state $|\psi\rangle \in \mathbb{C}^2$ and unitary
+$U\in\mathrm{U}(2)$.
+
+We will also use the notation $\mathrm{Rot}_{\mathbf{n}}(\alpha)$ to denote
+[rotation](https://en.wikipedia.org/wiki/Axis%E2%80%93angle_representation) of
+$\mathbb{R}^3$ by $\alpha$ radians around the axis $\mathbf{n}\in\mathbb{R}^3$.
+
+Using this notation, we can restate our above observations about $Z_\alpha$ more
+compactly as:
 
 $$
-e^{M + M^*} = I
+F(Z_\alpha) = \mathrm{Rot}_{\mathbf{z}}(\alpha)
 $$
 
-which implies that $M = -M^*$. I.e, $M$ must be _skew Hermitian_. Note that if
-$M$ is Hermitian then $iM$ is skew Hermitian. Putting this all together we see
-that if $M$ is a Hermitian matrix then $e^{iM}$ is unitary.
+where $\mathbf{z} = (0, 0, 1)$ denotes the z-axis.
 
-In addition to being unitary, by the definition of $\mathrm{SU}(2)$ we know that
-$\mathrm{det}(U)=1$. The
-[Jacobi Formula](https://en.wikipedia.org/wiki/Matrix_exponential#The_determinant_of_the_matrix_exponential)
-relates the trace of a matrix $X$ to the determinant of $e^X$:
+The goal of this post is to prove the following generalization to arbitrary
+unitary matrices:
+
+{: #thm:bloch-rotation }
+
+> **Theorem (Bloch Rotation)** Let $U\in\mathrm{U}(2)$ be a unitary matrix with
+> eigenvalues $\lambda_1,\lambda_2\in\mathbb{C}$ and corresponding eigenvectors
+> $|\psi_1\rangle,|\psi_2\rangle\in\mathbb{C}^2$. Then
+>
+> $$
+> F(U) = \mathrm{Rot}_{\mathbf{n}}(\alpha)
+> $$
+>
+> Where $\mathbf{n} = \mathrm{Bloch}(|\psi_1\rangle)$ and $\alpha$ is the angle
+> satisfying $\lambda_2/\lambda_1 = e^{i\alpha}$.
+
+To see how this works, let's apply the theorem to the unitary matrix $Z_\alpha$
+from the example above. The eigenvalues of $Z_\alpha$ are $\lambda_1 = 1$ and
+$\lambda_2=e^{i\alpha}$ with eigenvectors $|\psi_1\rangle=|0\rangle$ and
+$\psi_2\rangle=|1\rangle$.
+
+According to the [theorem](#thm:bloch-rotation), the axis of rotation is:
 
 $$
-\mathrm{det}(e^X) = e^{\mathrm{tr}(X)}
+\mathbf{n} = \mathrm{Bloch}(|\psi_1\rangle)
+= \mathrm{Bloch}(|0\rangle) = (0, 0, 1)
 $$
 
-Applying this to $U=e^{iM}$ gives us:
+which is indeed equal to the z-axis $\mathbf{z}$. To find the angle of rotation,
+we can compute:
 
 $$
-e^{\mathrm{tr}(iM)} = \mathrm{det}(e^{iM}) = \mathrm{det}(U) = 1
+\lambda_2 / \lambda_1 = e^{i\alpha} / 1 = e^{i\alpha}
 $$
 
-which implies That
+which by the theorem implies that the angle of rotation is equal to $\alpha$ as
+we found above.
+
+Note that it is not obvious from the definition of the Bloch projection that
+$F(U)$ is even a rotation at all. We can think of the
+[Bloch Rotation](#thm:bloch-rotation) theorem as consisting of two parts:
+
+1. A unitary transformation $U$ of qubit states corresponds to some rotation
+   $F(U)$ of the Bloch sphere.
+2. A formula relating the angle and axis of the rotation $F(U)$ to the
+   eigenvalues and eigenvectors of $U$.
+
+In the next section we will prove the angle and axis formula under the
+assumption that $F(U)$ is indeed a rotation. In the following sections we'll
+introduce an alternative formulation of the Bloch projection and use it to prove
+that $F(U)$ is always a rotation.
+
+Finally, in the last section we'll use the theorem to prove the standard
+[rotation formula](https://en.wikipedia.org/wiki/Bloch_sphere#Rotations_about_a_general_axis)
+relating the axis of rotation to the
+[Pauli Matrices](https://en.wikipedia.org/wiki/Pauli_matrices).
+
+## Proof Of The Bloch Rotation Theorem
+
+In this section we will prove the [Bloch Rotation](#thm:bloch-rotation) theorem
+under the assumption that $F(U)$ is always a rotation.
+
+We saw in the previous section that the theorem holds for the unitary matrice
 
 $$
-\mathrm{tr}(iM) = 0
+Z_\alpha = \left[\begin{matrix} 1 & 0 \\ 0 & e^{i\alpha} \end{matrix}\right]
 $$
 
-Since $\mathrm{tr}(iM) = i\mathrm{tr}(M)$ this implies that $\mathrm{tr}(M)=0$.
+Our strategy to prove the general case is to show that an arbitrary unitary
+matrix $U$ can be transformed to $Z_\alpha$ using a change of coordinates. This
+will allow us to deduce the general case of the theorem from the special case of
+$Z_\alpha$.
 
-In summary, if $e^{iM}$ is a special unitary matrix then $M$ is a traceless
-Hermitian matrix.
+Let $U\in\mathrm{U}(2)$ be a unitary matrix. By the unitary property, it has two
+eigenvalues $\lambda_1,\lambda_2\in\mathbb{C}$ which both have an absolute value
+of $1$
+([wikipedia](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Additional_properties)).
+Let $\mathbf{v}_1,\mathbf{v}_2\in\mathbb{C}^2$ be the corresponding
+eigenvectors.
 
-The same calculation shows that the converse is true as well. I.e, if $M$ is a
-Hermitian matrix with trace $0$ then $e^{iM}$ is a special unitary matrix.
+Let $V$ denote the matrix whose columns are the eigenvectors:
 
-We will denote the set of $2\times 2$ Hermitian matrices with trace $0$ by
-$\mathfrak{su}(2)$. Another way of stating the above correspondence between
-$\mathfrak{su}(2)$ and $\mathrm{SU}(2)$ is that $\mathfrak{su}(2)$ is the
-[lie algebra](https://en.wikipedia.org/wiki/Special_unitary_group#Lie_algebra_2)
-of $\mathrm{SU}(2)$. Note that we are using the physics convention of working
-with Hermitian matrices multiplied by $i$ rather than skew Hermitian matrices.
-
-Since $\mathrm{SU}(2)$ is
-[compact and connected](https://en.wikipedia.org/wiki/Special_unitary_group#Properties),
-_any_ special unitary matrix $U$ has the form $e^{iM}$ for some
-$M\in\mathfrak{su}(2)$. In other words, we can parameterize $\mathrm{SU}(2)$ by
-matrices in $\mathfrak{su}(2)$.
-
-It is easy to see that $\mathfrak{su}(2)$ is closed under matrix addition and
-scalar multiplication which gives is the structure of a vector space. In the
-next section we'll introduce the
-[Pauli Matrices](https://en.wikipedia.org/wiki/Pauli_matrices) which form a
-basis for $\mathfrak{su}(2)$.
+$$
+V = \left[\mathbf{v}_1\,|\,\mathbf{v}_2\right]
+$$
 
 ## Pauli Matrices
 
@@ -311,7 +372,7 @@ $$
 \left[ \begin{matrix}a^* & c^* \\ b^* & d^* \end{matrix}\right]
 $$
 
-This implies that $a$ and $d$ are real numbers and that $b = c^*$.
+This implies that $a$ and $d$ are real numbers and that $c = b^*$.
 
 The traceless condition implies that:
 
@@ -319,23 +380,23 @@ $$
 \mathrm{tr}(M) = a + d = 0
 $$
 
-and so $a = -d$. Setting $a=x\in\mathbb{R}$ and $c=z+yi\in\mathbb{C}$ we can
+and so $a = -d$. Setting $a=z\in\mathbb{R}$ and $c=x+yi\in\mathbb{C}$ we can
 write $M$ as:
 
 $$
 M = \left[\begin{matrix}x & z-yi \\ z+yi & -x \end{matrix}\right] =
-x \left[\begin{matrix}1 & 0 \\ 0 & -1 \end{matrix}\right] +
+x \left[\begin{matrix}0 & 1 \\ 1 & 0 \end{matrix}\right] +
 y \left[\begin{matrix}0 & -i \\ i & 0 \end{matrix}\right] +
-z \left[\begin{matrix}0 & 1 \\ 1 & 0 \end{matrix}\right]
+z \left[\begin{matrix}1 & 0 \\ 0 & -1 \end{matrix}\right]
 $$
 
 for some _real_ numbers $x,y,z\in\mathbb{R}$. The matrices
 
 $$
 \begin{align*}
-X &= \left[ \begin{matrix}1 & 0 \\ 0 & -1 \end{matrix}\right] \\
+X &= \left[ \begin{matrix}0 & 1 \\ 1 & 0 \end{matrix}\right] \\
 Y &= \left[ \begin{matrix}0 & -i \\ i & 0 \end{matrix}\right] \\
-Z &= \left[ \begin{matrix}0 & 1 \\ 1 & 0 \end{matrix}\right]
+Z &= \left[ \begin{matrix}1 & 0 \\ 0 & -1 \end{matrix}\right]
 \end{align*}
 $$
 
@@ -350,8 +411,21 @@ $$
 \overrightarrow{\sigma} = \left(X,Y,Z\right)
 $$
 
-Analogously to the dot product, the product of a vector $(x,y,z)\in\mathbb{R}^3$
-and $\overrightarrow{\sigma}$
+Analogously to the dot product, the product of a vector
+$\mathbf{v} = (x,y,z)\in\mathbb{R}^3$ and $\overrightarrow{\sigma}$ is defined
+to be:
+
+$$
+\mathbf{v} \cdot \overrightarrow{\sigma} = xX + yY + zZ
+$$
+
+By our discussion above, for any traceless Hermitian matrix
+$H\in\mathfrak{su}(2)$ there exists a vector $\mathbf{v}\in\mathbb{R}^3$ such
+that
+
+$$
+H = \mathbf{v} \cdot \overrightarrow{\sigma}
+$$
 
 ## The Rotation Formula
 
@@ -366,9 +440,92 @@ $$
 U = e^{iH}
 $$
 
-As we say in the previous section, there exist real numbers
-$x,y,z \in \mathbb{R}$ such that
+As we saw in the end of the previous section, there exists a real vector
+$\mathbf{v} \in \mathbb{R}^3$ such that
 
 $$
-H = xX +
+H = \mathbf{v} \cdot \overrightarrow{\sigma}
+$$
+
+Note that we can write $\mathbf{v}$ as
+
+$$
+\mathbf{v} = \theta \mathbf{n}
+$$
+
+for where $\theta = \|\|\mathbf{v}\|\|$ and $\mathbf{n}\in\mathbb{R}^3$ is a
+unit vector.
+
+Putting this all together we can parameterize special unitary matrices $U$ by a
+real number $\theta \in \mathbb{R}$ and a real unit vector
+$\mathbf{n} \in \mathbb{R}^3$:
+
+$$
+U = e^{i\theta\mathbf{n}\cdot\overrightarrow{\sigma}}
+$$
+
+Finally, given a unit vector $\mathbf{n}\in\mathbb{R}^3$ and an angle
+$\theta\in\mathbb{R}$, let
+$R_{\mathbf{n}}(\theta)\in\mathrm{Mat}_{3\times 3}(\mathbb{R})$ denote the real
+$3\times 3$
+[rotation matrix](https://en.wikipedia.org/wiki/3D_rotation_group#Axis_of_rotation)
+representing a 3D rotation around the axis $\mathbf{n}$ by $\theta$ radians.
+
+We can now state the relationship between unitary transformations of quantum
+states and Bloch sphere:
+
+> Let
+> $U = e^{-i\frac{\theta}{2}\mathbf{n}\cdot\overrightarrow{\sigma}} \in \mathrm{SO}(2)$
+> be a special unitary matrix and let $|\psi\rangle\in\mathbb{C}^2$ be a qubit
+> state. Then transforming $|\psi\rangle$ by $U$ corresponds to a rotation by
+> $\theta$ radians around the axis $\mathbf{n}$ on the Bloch sphere. More
+> precisely:
+>
+> $$
+> \mathrm{Bloch}(U |\psi\rangle) = R_{\mathbf{n}}(\theta)(\mathrm{Bloch}(|\psi\rangle))
+> $$
+
+We can easily extend this formula to determine the rotation corresponding to
+_any_ unitary matrix $U\in\mathrm{U}(2)$.
+
+Recall from section [The Special Unitary Group](#the-special-unitary-group) that
+the determinant of a unitary matrix has norm $1$. This means that there exists a
+real number $\alpha\in\mathbb{R}$ such that
+
+$$
+\mathrm{det}(U) = e^{i\alpha}
+$$
+
+Since $U$ is a $2\times 2$ matrix, the determinant of
+$V = e^{-i\frac{\alpha}{2}}U$ is equal to 1:
+
+$$
+\mathrm{det}(V) = \mathrm{det}(e^{-i\frac{\alpha}{2}}U) =
+\left(e^{-i\frac{\alpha}{2}}\right)^2\mathrm{det}(U) =
+e^{-i\alpha}e^{i\alpha} = 1
+$$
+
+Since $V$ is clearly unitary, this means that $V$ is a special unitary matrix.
+By the definition of $V$ we have:
+
+$$
+U = e^{i\frac{\alpha}{2}}V
+$$
+
+In conclusion, for every unitary matrix $U\in\mathrm{U}(2)$ there exists a real
+number $\alpha\in\mathbb{R}$ and a special unitary matrix $V\in\mathrm{SO}(2)$
+such that
+
+$$
+U = e^{i\alpha}V
+$$
+
+Recall from section [Bloch Sphere](#the-bloch-sphere) that the Bloch projection
+is invariant under scalar multiplications of the qubit state. This means that
+the matrices $U$ and $V$ have the same effect on the Bloch sphere.
+
+As an example, let's use the formula to determine the effect of the Pauli matrix
+
+$$
+X = \left[\begin{matrix}1 & 0 \\ 0 & -1 \end{matrix}\right]
 $$
