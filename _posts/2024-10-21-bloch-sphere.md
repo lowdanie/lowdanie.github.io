@@ -326,8 +326,7 @@ relating the axis of rotation to the
 ## Proof Of The Bloch Rotation Theorem
 
 In this section we will prove the [Bloch Rotation](#thm:bloch-rotation) theorem
-under the assumption that $F(U)$ is always a rotation of
-$\mathbb{R}^3. The set
+under the assumption that $F(U)$ is always a rotation of $\mathbb{R}^3$. The set
 of rotations of $\mathbb{R}^3$ forms a group called the
 [Special Orthogonal Group](https://en.wikipedia.org/wiki/3D_rotation_group)
 denoted $\mathrm{SO}(3)$. So we can rephrase our assumption on $F$ as saying
@@ -342,7 +341,7 @@ We saw in the previous section that the [Bloch Rotation](#thm:bloch-rotation)
 theorem holds for the unitary matrices
 
 $$
-Z\_\alpha = \left[\begin{matrix} 1 & 0 \\ 0 & e^{i\alpha} \end{matrix}\right]
+Z_\alpha = \left[\begin{matrix} 1 & 0 \\ 0 & e^{i\alpha} \end{matrix}\right]
 $$
 
 Our strategy to prove the general case is to show that an arbitrary unitary
@@ -379,6 +378,8 @@ $$
 for any vector $\mathbf{v}$ on the Bloch sphere which implies that
 $F(UV)=F(U)F(V)$.
 
+_q.e.d_
+
 {: #lem:f-inverse }
 
 > **Lemma (Inverse).** Let $U\in\mathrm{U}(2)$ be a unitary matrix. Then
@@ -390,6 +391,8 @@ $F(UV)=F(U)F(V)$.
 _Proof._ This follows directly from the composition lemma above and the fact
 that $F$ maps the identity in $\mathrm{U}(2)$ to the identity in
 $\mathrm{SO}(3)$.
+
+_q.e.d_
 
 {: #lem:f-scalar-multiplication }
 
@@ -403,13 +406,15 @@ $\mathrm{SO}(3)$.
 _Proof_. This follows immediately from the definition of $F$ and the fact that
 the Bloch projection is invariant under scalar multiplication.
 
+_q.e.d_
+
 {: #lem:f-z-axis }
 
 > **Lemma (Z Axis).** Let $U\in\mathrm{U}(2)$ be a unitary matrix and let
 > $|\psi\rangle\in\mathbb{C}^2$ be the first column of $U$. Then
 >
 > $$
-> F(V)\mathbf{z} = \mathrm{Bloch}(|\psi\rangle)
+> F(U)\mathbf{z} = \mathrm{Bloch}(|\psi\rangle)
 > $$
 >
 > where $\mathbf{z}=(0,0,1)\in\mathbb{R}^3$ denotes the z-axis.
@@ -445,7 +450,7 @@ Let $U\in\mathrm{U}(2)$ be a unitary matrix. By the unitary property, it has two
 eigenvalues $\lambda_1,\lambda_2\in\mathbb{C}$ which both have an absolute value
 of $1$
 ([wikipedia](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Additional_properties)).
-Let $|\psi_1\range,|\psi_2\rangle\in\mathbb{C}^2$ be the corresponding
+Let $|\psi_1\rangle,|\psi_2\rangle\in\mathbb{C}^2$ be the corresponding
 eigenvectors.
 
 Let $V\in\mathbb{C}^{2\times 2}$ denote the matrix whose columns are the
@@ -470,7 +475,7 @@ By the [scalar multiplication](#lem:f-scalar-multiplication),
 [composition](#lem:f-composition) and [identity](#lem:f-identity) lemmas:
 
 $$
-\begin{align*}\label{eq:fu-decomp}
+\begin{align*}
 F(U) &= F(\frac{1}{\lambda_1}U) \\
 &= F(V Z_\alpha V^{-1}) \\
 &= F(V) F(Z_\alpha) F(V)^{-1} \\
@@ -493,9 +498,17 @@ the rotation $F(V)^{-1}$ which rotates $\mathrm{Bloch}(|\psi_1\rangle)$ to the
 z-axis, then preforms a rotation of $\alpha$ radians around the z-axis and then
 applies $F(V)$ which rotates the z-axis back to
 $\mathrm{Bloch}(|\psi_1\rangle)$. This sequence of operations clearly fixes
-$\mathrm{Bloch}(|\psi_1\rangle)$. It is also easy to see that they rotate the
+$\mathrm{Bloch}(|\psi_1\rangle)$. It is also easy to see that it rotates the
 plane orthogonal to $\mathrm{Bloch}(|\psi_1\rangle)$ by $\alpha$ radians.
 Together this proves the theorem.
+
+## Bloch From Reflections
+
+In this section we will present an alternative formulation of the Bloch
+projection. In addition to being interesting in its own right, this new
+perspective will make it easy to prove that unitary transformations of qubits
+always correspond to rotations of the Bloch sphere which will complete our proof
+of the [Bloch Rotation](#thm:bloch-rotation) theorem.
 
 ## Pauli Matrices
 
