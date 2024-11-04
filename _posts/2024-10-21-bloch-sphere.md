@@ -271,7 +271,7 @@ unitary matrices:
 
 {: #thm:bloch-rotation }
 
-> **Theorem (Bloch Rotation)** Let $U\in\mathrm{U}(2)$ be a unitary matrix with
+> **Theorem (Bloch Rotation).** Let $U\in\mathrm{U}(2)$ be a unitary matrix with
 > eigenvalues $\lambda_1,\lambda_2\in\mathbb{C}$ and corresponding eigenvectors
 > $|\psi_1\rangle,|\psi_2\rangle\in\mathbb{C}^2$. Then
 >
@@ -326,12 +326,23 @@ relating the axis of rotation to the
 ## Proof Of The Bloch Rotation Theorem
 
 In this section we will prove the [Bloch Rotation](#thm:bloch-rotation) theorem
-under the assumption that $F(U)$ is always a rotation.
-
-We saw in the previous section that the theorem holds for the unitary matrice
+under the assumption that $F(U)$ is always a rotation of
+$\mathbb{R}^3. The set
+of rotations of $\mathbb{R}^3$ forms a group called the
+[Special Orthogonal Group](https://en.wikipedia.org/wiki/3D_rotation_group)
+denoted $\mathrm{SO}(3)$. So we can rephrase our assumption on $F$ as saying
+that $F$ is a function from the group of unitary matrices $\mathrm{U}(2)$ to the
+group of rotations $\mathrm{SO}(3)$:
 
 $$
-Z_\alpha = \left[\begin{matrix} 1 & 0 \\ 0 & e^{i\alpha} \end{matrix}\right]
+F : \mathrm{U}(2) \rightarrow \mathrm{SO}(3)
+$$
+
+We saw in the previous section that the [Bloch Rotation](#thm:bloch-rotation)
+theorem holds for the unitary matrices
+
+$$
+Z\_\alpha = \left[\begin{matrix} 1 & 0 \\ 0 & e^{i\alpha} \end{matrix}\right]
 $$
 
 Our strategy to prove the general case is to show that an arbitrary unitary
@@ -339,18 +350,152 @@ matrix $U$ can be transformed to $Z_\alpha$ using a change of coordinates. This
 will allow us to deduce the general case of the theorem from the special case of
 $Z_\alpha$.
 
+We'll start by proving some simple facts about the function $F$.
+
+{: #lem:f-composition }
+
+> **Lemma (Composition).** Let $U$ and $V$ be unitary matrices. Then
+>
+> $$
+> F(UV) = F(U)F(V)
+> $$
+
+_Proof._ By the definition of $F$, for any state $\|\psi\rangle$ we have:
+
+$$
+\begin{align*}
+F(UV)\mathrm{Bloch}(|\psi\rangle) &= \mathrm{Bloch}(UV|\psi\rangle) \\
+&= F(U)\mathrm{Bloch}(V|\psi\rangle) \\
+&= F(U)F(V)\mathrm{Bloch}(|\psi\rangle)
+\end{align*}
+$$
+
+Since the Bloch projection is onto, this means that
+
+$$
+F(UV)\mathbf{v} = F(U)F(V)\mathbf{v}
+$$
+
+for any vector $\mathbf{v}$ on the Bloch sphere which implies that
+$F(UV)=F(U)F(V)$.
+
+{: #lem:f-inverse }
+
+> **Lemma (Inverse).** Let $U\in\mathrm{U}(2)$ be a unitary matrix. Then
+>
+> $$
+> F(U^{-1}) = F(U)^{-1}
+> $$
+
+_Proof._ This follows directly from the composition lemma above and the fact
+that $F$ maps the identity in $\mathrm{U}(2)$ to the identity in
+$\mathrm{SO}(3)$.
+
+{: #lem:f-scalar-multiplication }
+
+> **Lemma (Scalar Multiplication).** Let $U\in\mathrm{U}(2)$ be a unitary matrix
+> and $\lambda\in\mathbb{C}$ be a complex number with norm $1$. Then
+>
+> $$
+> F(\lambda U) = F(U)
+> $$
+
+_Proof_. This follows immediately from the definition of $F$ and the fact that
+the Bloch projection is invariant under scalar multiplication.
+
+{: #lem:f-z-axis }
+
+> **Lemma (Z Axis).** Let $U\in\mathrm{U}(2)$ be a unitary matrix and let
+> $|\psi\rangle\in\mathbb{C}^2$ be the first column of $U$. Then
+>
+> $$
+> F(V)\mathbf{z} = \mathrm{Bloch}(|\psi\rangle)
+> $$
+>
+> where $\mathbf{z}=(0,0,1)\in\mathbb{R}^3$ denotes the z-axis.
+
+_Proof._ By the definition of $\|\psi\rangle$,
+
+$$
+U|0\rangle = |\psi\rangle
+$$
+
+Furthermore, direct calculation easily shows that
+
+$$
+\mathrm{Bloch}(|0\rangle) = \mathbf{z}
+$$
+
+The claim follows from these two observations together with the definition of
+$F$:
+
+$$
+\begin{align*}
+F(U)\mathbf{z} &= F(U)\mathrm{Bloch}(|0\rangle) \\
+&= \mathrm{Bloch}(V|0\rangle) \\
+&= \mathrm{Bloch}(|\psi\rangle)
+\end{align*}
+$$
+
+_q.e.d_
+
+We are now ready to prove the [Bloch Rotation](#thm:bloch-rotation) theorem.
+
 Let $U\in\mathrm{U}(2)$ be a unitary matrix. By the unitary property, it has two
 eigenvalues $\lambda_1,\lambda_2\in\mathbb{C}$ which both have an absolute value
 of $1$
 ([wikipedia](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Additional_properties)).
-Let $\mathbf{v}_1,\mathbf{v}_2\in\mathbb{C}^2$ be the corresponding
+Let $|\psi_1\range,|\psi_2\rangle\in\mathbb{C}^2$ be the corresponding
 eigenvectors.
 
-Let $V$ denote the matrix whose columns are the eigenvectors:
+Let $V\in\mathbb{C}^{2\times 2}$ denote the matrix whose columns are the
+eigenvectors.
+
+By the
+[eigendecomposition](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Diagonalization_and_the_eigendecomposition)
+theorem, we can factor $U$ as:
 
 $$
-V = \left[\mathbf{v}_1\,|\,\mathbf{v}_2\right]
+U = V \left[\begin{matrix} \lambda_1 & 0 \\ 0 & \lambda_2 \end{matrix}\right] V^{-1}
 $$
+
+Dividing by $\lambda_1$ and setting $\alpha$ to satisfy
+$e^{i\alpha}=\lambda_2/\lambda_1$ we get:
+
+$$
+\frac{1}{\lambda_1}U = V Z_\alpha V^{-1}
+$$
+
+By the [scalar multiplication](#lem:f-scalar-multiplication),
+[composition](#lem:f-composition) and [identity](#lem:f-identity) lemmas:
+
+$$
+\begin{align*}\label{eq:fu-decomp}
+F(U) &= F(\frac{1}{\lambda_1}U) \\
+&= F(V Z_\alpha V^{-1}) \\
+&= F(V) F(Z_\alpha) F(V)^{-1} \\
+&= F(V)\mathrm{Rot}_\mathbf{z}(\alpha)F(V)^{-1}
+\end{align*}
+$$
+
+In summary:
+
+$$
+\begin{equation}\label{eq:fu-decomp}
+F(U) = F(V)\mathrm{Rot}_\mathbf{z}(\alpha)F(V)^{-1}
+\end{equation}
+$$
+
+By the [z-axis](#lem:f-z-axis) lemma and the definition of $V$, $F(V)$
+transforms the z-axis in $\mathbb{R}^3$ to $\mathrm{Bloch}(|\psi_1\rangle)$.
+Combining this with equation \ref{eq:fu-decomp} we see that $F(U)$ first applies
+the rotation $F(V)^{-1}$ which rotates $\mathrm{Bloch}(|\psi_1\rangle)$ to the
+z-axis, then preforms a rotation of $\alpha$ radians around the z-axis and then
+applies $F(V)$ which rotates the z-axis back to
+$\mathrm{Bloch}(|\psi_1\rangle)$. This sequence of operations clearly fixes
+$\mathrm{Bloch}(|\psi_1\rangle)$. It is also easy to see that they rotate the
+plane orthogonal to $\mathrm{Bloch}(|\psi_1\rangle)$ by $\alpha$ radians.
+Together this proves the theorem.
 
 ## Pauli Matrices
 
