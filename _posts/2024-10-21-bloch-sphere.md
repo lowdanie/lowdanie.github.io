@@ -510,20 +510,48 @@ perspective will make it easy to prove that unitary transformations of qubits
 always correspond to rotations of the Bloch sphere which will complete our proof
 of the [Bloch Rotation](#thm:bloch-rotation) theorem.
 
-## Pauli Matrices
+> **Definition (Reflection).** Let $\|\psi\rangle\in\mathbb{C}^2$ be a qubit
+> state. The reflection with axis $\|\psi\rangle$, denoted
+> $\mathrm{Ref}(\|\psi\rangle$, is defined to be the linear transformation of
+> $\mathbb{C}^2$ that fixes $\|\psi\rangle$ and scales the vector orthogonal to
+> $\|\psi\rangle$ by $-1$.
 
-In the previous section we introduced the vector space $\mathfrak{su}(2)$ of
-$2\times 2$ traceless Hermitian matrices with complex coefficients. To be
-concrete, consider the $2\times 2$ matrix
+More concretely, if $|\psi^\perp\rangle\in\mathbb{C}^2$ denotes a vector
+orthogonal to $|\psi\rangle$ then $\mathrm{Ref}(|\psi\rangle)$ is defined to
+satisfy:
+
+$$
+\begin{alignat*}{3}
+\mathrm{Ref}(|\psi\rangle) &\cdot |\psi\rangle       &&=  &&|\psi\rangle \\
+\mathrm{Ref}(|\psi\rangle) &\cdot |\psi^\perp\rangle &&= -&&|\psi^\perp\rangle
+\end{alignat*}
+$$
+
+Clearly the eigenvalues of $\mathrm{Ref}(|\psi\rangle)$ are $1$ and $-1$ which
+[implies](https://en.wikipedia.org/wiki/Hermitian_matrix#Spectral_properties)
+that $\mathrm{Ref}(|\psi\rangle)$ is
+[Hermitian](https://en.wikipedia.org/wiki/Hermitian_matrix). Furthermore, since
+the trace of a matrix is equal to the sum of its eigenvalues, the trace of
+$\mathrm{Ref}(|\psi\rangle)$ is $0$. We'll denote the vector space of
+$2\times 2$ Hermitian matrices with trace $0$ by $\mathfrak{su}(2)$ and define
+the _reflection function_:
+
+$$
+\begin{align*}
+\mathrm{Refl} : \mathbb{C}^2 &\rightarrow \mathfrak{su}(2) \\
+                |\psi\rangle &\mapsto \mathrm{Refl}(|\psi\rangle)
+\end{align*}
+$$
+
+We'll now find a basis for the vector space $\mathfrak{su}(2)$. Let
+$M \in  \mathfrak{su}(2)$ be a matrix with coefficients:
 
 $$
 M = \left[ \begin{matrix}a & b \\ c & d \end{matrix}\right]
 $$
 
-where $a,b,c,d \in \mathbb{C}$. Let's see what $M$ being in $\mathfrak{su}(2)$
-implies for the coefficients of $M$.
-
-The Hermitian condition means that $M=M^*$ and so
+where $a,b,c,d \in \mathbb{C}$. The Hermitian condition means that $M=M^*$ and
+so
 
 $$
 \left[ \begin{matrix}a & b \\ c & d \end{matrix}\right] =
@@ -558,9 +586,33 @@ Z &= \left[ \begin{matrix}1 & 0 \\ 0 & -1 \end{matrix}\right]
 \end{align*}
 $$
 
-are called [Pauli Matrices](https://en.wikipedia.org/wiki/Pauli_matrices). The
-above calculation shows that the Pauli matrices form a basis for
-$\mathfrak{su}(2)$.
+are called [Pauli Matrices](https://en.wikipedia.org/wiki/Pauli_matrices). It is
+easy to see that all three Pauli matrices are in $\mathfrak{su}(2)$. The above
+calculation shows that the Pauli matrices form a basis for $\mathfrak{su}(2)$.
+
+We'll define the _Pauli function_
+
+$$
+\mathrm{Pauli} : \mathfrak{su}(2) \rightarrow \mathbb{R}^3
+$$
+
+to be the function that sends a matrix $M\in\mathfrak{su}(2)$ to it's
+coordinates with respect to the basis of Pauli matrices
+$X,Y,Z\in\mathfrak{su}(2)$.
+
+The relationship to the Bloch projection is given by the following claim:
+
+{: #clm:bloch-from-reflections }
+
+> **Claim (Bloch From Reflections).** Let $|\psi\rangle\in\mathbb{C}^2$ be a
+> qubit state. Then:
+>
+> $$
+> \mathrm{Bloch}(|\psi\rangle) = \mathrm{Pauli}(\mathrm{Ref}(|\psi\rangle))
+> $$
+
+<!-- https://q.uiver.app/#q=WzAsMyxbMCwwLCJcXG1hdGhiYntDfV4yIl0sWzIsMCwiXFxtYXRoYmJ7Un1eMyJdLFsxLDEsIlxcbWF0aGZyYWt7c3V9KDIpIl0sWzAsMV0sWzAsMl0sWzIsMV1d -->
+<iframe class="quiver-embed" src="https://q.uiver.app/#q=WzAsMyxbMCwwLCJcXG1hdGhiYntDfV4yIl0sWzIsMCwiXFxtYXRoYmJ7Un1eMyJdLFsxLDEsIlxcbWF0aGZyYWt7c3V9KDIpIl0sWzAsMV0sWzAsMl0sWzIsMV1d&embed" width="438" height="304" style="border-radius: 8px; border: none;"></iframe>
 
 The [Pauli Vector](https://en.wikipedia.org/wiki/Pauli_matrices#Pauli_vectors)
 is defined to be the tuple:
