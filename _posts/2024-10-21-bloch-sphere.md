@@ -527,6 +527,19 @@ $$
 \end{alignat*}
 $$
 
+In terms of coordinates, if $\|\psi\rangle = a\|0\rangle + b\|1\rangle$ then
+$\|\psi^\perp\rangle = -b^\*\|0\rangle + a^\*\|1\rangle$ and so:
+
+$$
+\begin{align}\label{eq:refl-coords}
+\mathrm{Refl}(|\psi\rangle) &=
+\left[\begin{matrix} a & -b^* \\ b & a^* \end{matrix}\right]
+\left[\begin{matrix} 1 & 0 \\ 0 & -1 \end{matrix}\right]
+\left[\begin{matrix} a^* & b^* \\ -b & a \end{matrix}\right] \\
+&= \left[\begin{matrix} aa^* - bb^* & 2ab^* \\ 2a^*b & -aa^* + bb^* \end{matrix}\right] \notag
+\end{align}
+$$
+
 Clearly the eigenvalues of $\mathrm{Ref}(|\psi\rangle)$ are $1$ and $-1$ which
 [implies](https://en.wikipedia.org/wiki/Hermitian_matrix#Spectral_properties)
 that $\mathrm{Ref}(|\psi\rangle)$ is
@@ -589,6 +602,8 @@ $$
 are called [Pauli Matrices](https://en.wikipedia.org/wiki/Pauli_matrices). It is
 easy to see that all three Pauli matrices are in $\mathfrak{su}(2)$. The above
 calculation shows that the Pauli matrices form a basis for $\mathfrak{su}(2)$.
+In particular this implies that $\mathfrak{su}(2)$ is a three dimensional real
+vector space.
 
 We'll define the _Pauli function_
 
@@ -599,6 +614,28 @@ $$
 to be the function that sends a matrix $M\in\mathfrak{su}(2)$ to it's
 coordinates with respect to the basis of Pauli matrices
 $X,Y,Z\in\mathfrak{su}(2)$.
+
+The vector space $\mathfrak{su}(2)$ has an inner product defined by the
+[Frobenious Product](https://en.wikipedia.org/wiki/Frobenius_inner_product).
+Specifically, the inner product of $A,B\in\mathfrak{su}(2)$ is defined to be:
+
+$$
+(A, B) := \frac{1}{2}\mathrm{tr}(AB^*)
+$$
+
+It is not hard to see via direct calculation that the Pauli matrices form an
+[orthonormal basis](https://en.wikipedia.org/wiki/Orthonormal_basis) for
+$\mathfrak{su}(2)$. For example:
+
+$$
+XZ^* = \left[\begin{matrix} 0 & -1 \\ 1 & 0 \end{matrix}\right]
+$$
+
+which implies that $X$ and $Z$ are orthogonal:
+
+$$
+(X, Z) = \frac{1}{2}\mathrm{tr}(XZ^*) = 0
+$$
 
 The relationship to the Bloch projection is given by the following claim:
 
@@ -611,8 +648,75 @@ The relationship to the Bloch projection is given by the following claim:
 > \mathrm{Bloch}(|\psi\rangle) = \mathrm{Pauli}(\mathrm{Ref}(|\psi\rangle))
 > $$
 
-<!-- https://q.uiver.app/#q=WzAsMyxbMCwwLCJcXG1hdGhiYntDfV4yIl0sWzIsMCwiXFxtYXRoYmJ7Un1eMyJdLFsxLDEsIlxcbWF0aGZyYWt7c3V9KDIpIl0sWzAsMV0sWzAsMl0sWzIsMV1d -->
-<iframe class="quiver-embed" src="https://q.uiver.app/#q=WzAsMyxbMCwwLCJcXG1hdGhiYntDfV4yIl0sWzIsMCwiXFxtYXRoYmJ7Un1eMyJdLFsxLDEsIlxcbWF0aGZyYWt7c3V9KDIpIl0sWzAsMV0sWzAsMl0sWzIsMV1d&embed" width="438" height="304" style="border-radius: 8px; border: none;"></iframe>
+We can restate the claim in terms of the following diagram:
+
+{: .center-image}
+![Bloch Factorization](/assets/bloch_sphere/bloch_factorization.png)
+
+The diagram shows two ways to map a point in $\mathbb{C}^2$ to $\mathbb{R}^3$.
+We can either follow the top arrow or compose the two bottom ones. The claim
+states that both paths are equivalent.
+
+The rest of this section will be dedicated to proving the claim. In the next
+section we will use this claim to prove that for any unitary matrix
+$U\in\mathrm{U}(2)$, the corresponding transformation of the Bloch sphere,
+$F(U)$, is always a rotation.
+
+First lets obtain a more concrete version of the Pauli basis map
+$\mathrm{Pauli}$. Since the Pauli matrices $X,Y,Z\in\mathfrak{su}(2)$ form an
+orthonormal basis, the coordinates of a matrix $M\in\mathfrak{su}(2)$ in the
+Pauli basis are given by the inner products with $X$, $Y$ and $Z$:
+
+$$
+\begin{equation}\label{eq:pauli-coords}
+\mathrm{Pauli}(M) = ((M, X), (M, Y), (M, Z))
+\end{equation}
+$$
+
+Consider the qubit state
+
+$$
+|\psi\rangle = a|0\rangle + b|1\rangle
+$$
+
+We'll use equations \ref{eq:refl-coords} and \ref{eq:pauli-coords} to compute
+$\mathrm{Pauli}(\mathrm{Refl}(|\psi\rangle))$.
+
+By equation \ref{eq:refl-coords} it's easy to see that
+
+$$
+\begin{alignat*}{3}
+(\mathrm{Refl}(|\psi\rangle), X) &= \frac{1}{2}\mathrm{tr}(\mathrm{Refl}(|\psi\rangle)X^*) &&= ab^* + a^*b \\
+(\mathrm{Refl}(|\psi\rangle), Y) &= \frac{1}{2}\mathrm{tr}(\mathrm{Refl}(|\psi\rangle)Y^*) &&= i(ab^* - a^*b) \\
+(\mathrm{Refl}(|\psi\rangle), Z) &= \frac{1}{2}\mathrm{tr}(\mathrm{Refl}(|\psi\rangle)Z^*) &&= aa^* - bb^*
+\end{alignat*}
+$$
+
+By equation \ref{eq:pauli-coords} this implies:
+
+$$
+\begin{equation}\label{eq:pauli-refl-coords}
+\mathrm{Pauli}(\mathrm{Refl}(|\psi\rangle)) = (ab^* + a^*b,\, i(ab^* - a^*b),\, aa^* - bb^*)
+\end{equation}
+$$
+
+If $\|\psi\rangle$ has the form
+
+$$
+|\psi\rangle = \cos(\theta/2)|0\rangle + e^{i\varphi}\sin(\theta/2)|1\rangle
+$$
+
+The plugging $a=\cos(\theta/2)$ and $b=e^{i\varphi}\sin(\theta/2)$ into equation
+\ref{eq:pauli-refl-coords}, together with standard trig identities gives us:
+
+$$
+\mathrm{Pauli}(\mathrm{Refl}(|\psi\rangle)) = (\cos\varphi\sin\theta, \sin\varphi\sin\theta, \cos\theta)
+$$
+
+which by definition is equal to $\mathrm{Bloch}(|\phi\rangle)$. This concludes
+the proof of claim [Bloch From Reflections](#clm:bloch-from-reflections).
+
+Now let's see what happnes
 
 The [Pauli Vector](https://en.wikipedia.org/wiki/Pauli_matrices#Pauli_vectors)
 is defined to be the tuple:
