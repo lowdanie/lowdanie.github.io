@@ -716,10 +716,89 @@ $$
 which by definition is equal to $\mathrm{Bloch}(|\phi\rangle)$. This concludes
 the proof of claim [Bloch From Reflections](#clm:bloch-from-reflections).
 
-Now let's see what happnes
+## Unitaries Correspond To Rotations
 
-The [Pauli Vector](https://en.wikipedia.org/wiki/Pauli_matrices#Pauli_vectors)
-is defined to be the tuple:
+In this section we will prove that unitary transformations $U\in\mathrm{U}(2)$
+on $\mathbb{C}^2$ correspond to rotations of the Bloch sphere in $\mathbb{R}^3$.
+To be precise, we define a _rotation_ of $\mathbb{R}^3$ to be a linear
+transformation that preserves the inner product and orientation. The group of
+linear transformations with this form is called the
+[Special Orthogonal Group](https://en.wikipedia.org/wiki/3D_rotation_group).
+
+By claim [Bloch From Reflections](#clm:bloch-from-reflections) in the previous
+section, the Bloch projection can be decomposed into the composition of the
+reflection map $\mathrm{Refl}$ and the Pauli basis map:
+
+{: .center-image}
+![Bloch Factorization](/assets/bloch_sphere/bloch_factorization.png)
+
+Since $\mathrm{Pauli}$ is an isomorphism of inner product spaces, rotations of
+the inner product space $\mathfrak{su}(2)$ correspond under the $\mathrm{Pauli}$
+map to rotations of $\mathbb{R}^3$. So we just need to show that unitary
+transformations of $\mathbb{C}^2$ correspond to rotations of $\mathfrak{su}(2)$
+under $\mathrm{Refl}$.
+
+Let $U\in\mathrm{U}(2)$ be a unitary transformation. We will define $G(U)$ to be
+the corresponding transformation of $\mathfrak{su}(2)$. More precisely, $G(U)$
+is defined to be the unique transformation of $\mathfrak{su}(2)$ satisfying:
+
+$$
+\mathrm{Refl}(U|\psi\rangle) = G(U)\mathrm{Refl}(|\psi\rangle)
+$$
+
+for all $|\psi\rangle\in\mathbb{C}^2$. Our goal in this section is to prove that
+for every unitary matrix $U\in\mathrm{U}(2)$, $G(U)$ is a rotation of
+$\mathfrak{su}(2)$.
+
+By definition, $\mathrm{Refl}(\|\psi\rangle)\in\mathfrak{su}(2)$ is a reflection
+along the vector $\|\psi\rangle\in\mathbb{C}^2$. Similarly,
+$\mathrm{Refl}(U\|\psi\rangle)\in\mathfrak{su}(2)$ is a reflection along the
+vector $U\|\psi\rangle\in\mathbb{C}^2$. This means that we can obtain
+$\mathrm{Refl}(U\|\psi\rangle)$ by applying a change of basis to
+$\mathrm{Refl}(\|\psi\rangle)$ via the unitary matrix $U$:
+
+$$
+\mathrm{Refl}(U|\psi\rangle) = U\mathrm{Refl}(|\psi\rangle)U^*
+$$
+
+In particular, this implies that for all $M\in\mathfrak{su}(2)$:
+
+$$
+G(U)\cdot M = UMU^*
+$$
+
+Clearly $G(U)$ is a linear transformation of $M$. We'll now show that $G(U)$
+preserves the inner product. Let $M$ and $N$ be elements of $\mathfrak{su}(2)$.
+By the definition of the inner product, the trace
+[cyclic property](<https://en.wikipedia.org/wiki/Trace_(linear_algebra)#Cyclic_property>),
+and the fact that $U$ is unitary we have:
+
+$$
+\begin{align*}
+(G(U)M, G(U)N) &= (UMU^*, UNU^*) \\
+&= \frac{1}{2}\mathrm{tr}(UMU^*UN^*U^*) \\
+&= \frac{1}{2}\mathrm{tr}(UMN^*U^*) \\
+&= \frac{1}{2}\mathrm{tr}(MN^*U^*U) \\
+&= \frac{1}{2}\mathrm{tr}(MN^*) \\
+&= (M, N)
+\end{align*}
+$$
+
+This proves that $G(U)$ preserves the inner product. The last step in proving
+that $G(U)$ is a rotation is to show that it preserves orientation. To see why
+this is true, note that if $I\in\mathrm{U}(2)$ is the identity matrix then
+$G(I)$ is the identity on $\mathfrak{su}(2)$ and in particular preserves
+orientation. Since $\mathrm{U}(2)$
+[is connected](https://en.wikipedia.org/wiki/Unitary_group#Topology) and
+$G: \mathrm{U}(2) \rightarrow \mathrm{O}(3)$ is continuous, this implies that
+$G(U)$ preserves orientation for all $U\in\mathrm{U}(2)$.
+
+## The Pauli Vector Rotation Formula
+
+The standard relationship between unitary transformations of qubits and
+rotations of the Bloch Sphere is stated in terms of _Pauli Vectors_. The
+[Pauli Vector](https://en.wikipedia.org/wiki/Pauli_matrices#Pauli_vectors) is
+defined to be the tuple of Pauli matrices:
 
 $$
 \overrightarrow{\sigma} = \left(X,Y,Z\right)
@@ -730,116 +809,150 @@ $\mathbf{v} = (x,y,z)\in\mathbb{R}^3$ and $\overrightarrow{\sigma}$ is defined
 to be:
 
 $$
-\mathbf{v} \cdot \overrightarrow{\sigma} = xX + yY + zZ
+\mathbf{v} \cdot \overrightarrow{\sigma} = xX + yY + zZ \in \mathfrak{su}(2)
 $$
 
-By our discussion above, for any traceless Hermitian matrix
-$H\in\mathfrak{su}(2)$ there exists a vector $\mathbf{v}\in\mathbb{R}^3$ such
-that
+Since $\mathbf{v} \cdot \overrightarrow{\sigma}$ is a traceless Hermitian
+matrix, the
+[matrix exponential](https://en.wikipedia.org/wiki/Matrix_exponential)
+$e^{i\mathbf{v} \cdot \overrightarrow{\sigma}}$ is unitary.
 
-$$
-H = \mathbf{v} \cdot \overrightarrow{\sigma}
-$$
+The connection to the Bloch Sphere comes from the following theorem:
 
-## The Rotation Formula
-
-We are now ready to state the correspondence between special unitary matrices
-$U\in\mathrm{SU}(2)$ and rotations of the Bloch sphere.
-
-Let $U\in\mathrm{SU}(2)$ be a special unitary matrix. By our results in section
-[The Special Unitary Group](#the-special-unitary-group), there exists a
-traceless Hermitian matrix $H\in\mathfrak{su}(2)$ such that
-
-$$
-U = e^{iH}
-$$
-
-As we saw in the end of the previous section, there exists a real vector
-$\mathbf{v} \in \mathbb{R}^3$ such that
-
-$$
-H = \mathbf{v} \cdot \overrightarrow{\sigma}
-$$
-
-Note that we can write $\mathbf{v}$ as
-
-$$
-\mathbf{v} = \theta \mathbf{n}
-$$
-
-for where $\theta = \|\|\mathbf{v}\|\|$ and $\mathbf{n}\in\mathbb{R}^3$ is a
-unit vector.
-
-Putting this all together we can parameterize special unitary matrices $U$ by a
-real number $\theta \in \mathbb{R}$ and a real unit vector
-$\mathbf{n} \in \mathbb{R}^3$:
-
-$$
-U = e^{i\theta\mathbf{n}\cdot\overrightarrow{\sigma}}
-$$
-
-Finally, given a unit vector $\mathbf{n}\in\mathbb{R}^3$ and an angle
-$\theta\in\mathbb{R}$, let
-$R_{\mathbf{n}}(\theta)\in\mathrm{Mat}_{3\times 3}(\mathbb{R})$ denote the real
-$3\times 3$
-[rotation matrix](https://en.wikipedia.org/wiki/3D_rotation_group#Axis_of_rotation)
-representing a 3D rotation around the axis $\mathbf{n}$ by $\theta$ radians.
-
-We can now state the relationship between unitary transformations of quantum
-states and Bloch sphere:
-
-> Let
-> $U = e^{-i\frac{\theta}{2}\mathbf{n}\cdot\overrightarrow{\sigma}} \in \mathrm{SO}(2)$
-> be a special unitary matrix and let $|\psi\rangle\in\mathbb{C}^2$ be a qubit
-> state. Then transforming $|\psi\rangle$ by $U$ corresponds to a rotation by
-> $\theta$ radians around the axis $\mathbf{n}$ on the Bloch sphere. More
-> precisely:
+> **Theorem [Pauli Vector Rotation Formula].** Let $\theta\in\mathbb{R}$ be a
+> real number and $\mathbf{n}\in\mathbb{R}^3$ be a unit vector. Let $U$ be the
+> unitary matrix
+> $U = e^{-i\frac{\theta}{2}\mathbf{n}\cdot\overrightarrow{\sigma}} \in \mathrm{U}(2)$.
+> Then transforming qubit states by $U$ corresponds to a rotation by $\theta$
+> radians around the axis $\mathbf{n}$ on the Bloch sphere. More precisely, for
+> every qubit state $|\psi\rangle\in\mathbb{C}^2$:
 >
 > $$
 > \mathrm{Bloch}(U |\psi\rangle) = R_{\mathbf{n}}(\theta)(\mathrm{Bloch}(|\psi\rangle))
 > $$
 
-We can easily extend this formula to determine the rotation corresponding to
-_any_ unitary matrix $U\in\mathrm{U}(2)$.
+We'll prove this theorem using the [Bloch Rotation](#thm:bloch-rotation) theorem
+and [Bloch From Rotations](#clm:bloch-from-reflections).
 
-Recall from section [The Special Unitary Group](#the-special-unitary-group) that
-the determinant of a unitary matrix has norm $1$. This means that there exists a
-real number $\alpha\in\mathbb{R}$ such that
+In order to apply the [Bloch Rotation](#thm:bloch-rotation) theorem to
+$U = e^{-i\frac{\theta}{2}\mathbf{n}\cdot\overrightarrow{\sigma}}$ we need to
+find the eigenvalues and eigenvectors of $U$. For this we'll use the following
+lemma:
 
-$$
-\mathrm{det}(U) = e^{i\alpha}
-$$
+> **Lemma (Pauli Vector Norm).** Let $\mathbf{v}\in\mathbb{R}^3$ be a vector.
+> Then
+>
+> $$
+> \mathrm{det}(\mathbf{v}\cdot\overrightarrow{\sigma}) = -||\mathbf{v}||^2
+> $$
 
-Since $U$ is a $2\times 2$ matrix, the determinant of
-$V = e^{-i\frac{\alpha}{2}}U$ is equal to 1:
-
-$$
-\mathrm{det}(V) = \mathrm{det}(e^{-i\frac{\alpha}{2}}U) =
-\left(e^{-i\frac{\alpha}{2}}\right)^2\mathrm{det}(U) =
-e^{-i\alpha}e^{i\alpha} = 1
-$$
-
-Since $V$ is clearly unitary, this means that $V$ is a special unitary matrix.
-By the definition of $V$ we have:
+_Proof._ We'll denote the coordinates of $\mathbf{v}$ by $\mathbf{v}=(x,y,z)$.
+Then by the definition of $\overrightarrow{\sigma}$:
 
 $$
-U = e^{i\frac{\alpha}{2}}V
+\begin{align*}
+\mathbf{v}\cdot\overrightarrow{\sigma} &= xX + yY + zZ \\
+&= \left[\begin{matrix} z & x + yi \\ x - yi & -z \end{matrix}\right]
+\end{align*}
 $$
 
-In conclusion, for every unitary matrix $U\in\mathrm{U}(2)$ there exists a real
-number $\alpha\in\mathbb{R}$ and a special unitary matrix $V\in\mathrm{SO}(2)$
-such that
+And so
 
 $$
-U = e^{i\alpha}V
+\begin{align*}
+\mathrm{det}(\mathbf{v}\cdot\overrightarrow{\sigma}) &= -x^2 - y^2 - z^2 \\
+&= -||\mathbf{v}||^2
+\end{align*}
 $$
 
-Recall from section [Bloch Sphere](#the-bloch-sphere) that the Bloch projection
-is invariant under scalar multiplications of the qubit state. This means that
-the matrices $U$ and $V$ have the same effect on the Bloch sphere.
+_q.e.d_
 
-As an example, let's use the formula to determine the effect of the Pauli matrix
+To facilitate notation, we'll define
 
 $$
-X = \left[\begin{matrix}1 & 0 \\ 0 & -1 \end{matrix}\right]
+M = \mathbf{n}\cdot\overrightarrow{\sigma}
 $$
+
+According to the lemma, if $||\mathbf{n}||=1$ then $\mathrm{det}(M)=-1$. Since
+$M=\mathbf{n}\cdot\overrightarrow{\sigma}$ is Hermitian with zero trace and
+determinant equal to $1$, this means that its eigenvalues $\lambda_1(M)$ and
+$\lambda_2(M)$ are real numbers satisfying:
+
+$$
+\begin{alignat}{3}
+\lambda_1(M) + \lambda_2(M) &= \mathrm{tr}(M) &&= 0 \\
+\lambda_1(M) \cdot \lambda_2(M) &= \mathrm{det}(M) &&= -1
+\end{alignat}
+$$
+
+This means that one of the eiganvalues must be $1$ and the other is $-1$. We'll
+set $\lambda_1(M)=1$ and $\lambda_2(M)=-1$. This means that we can diagonalize
+$M$ as:
+
+$$
+M = V Z V^*
+$$
+
+where the columns of $V$ are the eigenvectors of $M$. By
+[elementary properties](https://en.wikipedia.org/wiki/Matrix_exponential#Diagonalizable_case)
+of the matrix exponential, this implies that:
+
+$$
+\begin{align*}
+U &= e^{i\frac{\theta}{2}M}
+= e^{i\frac{\theta}{2}VZV^*}
+= V e^{i\frac{\theta}{2}Z} V^* \\
+&= V\left[\begin{matrix} e^{i\frac{\theta}{2}} & 0 \\ 0 & -i\frac{\theta}{2}\end{matrix}\right]V^*
+\end{align*}
+$$
+
+This shows that the eigenvalues of $U$ are:
+
+$$
+\begin{align*}
+\lambda_1(U) &= e^{i\frac{\theta}{2}} \\
+\lambda_2(U) &= e^{-i\frac{\theta}{2}}
+\end{align*}
+$$
+
+and that the eigenvectors of $U$ are equal to the eigenvectors of $M$.
+
+We can now apply theorem [Bloch Rotation](#thm:bloch-rotation) to $U$. We just
+saw that the first eigenvector of $U$, $|\psi_1\rangle$ is equal to the first
+eigenvector of $M$. Since the eigenvectors of $M$ are $\lambda_1(M)=1$ and
+$\lambda_2(M)=-1$, $M$ is a reflection matrix and
+
+$$
+\mathrm{Refl}(|\psi_1\rangle) = M
+$$
+
+By [Bloch From Rotations](#clm:bloch-from-reflections):
+
+$$
+\mathrm{Bloch}(|\psi_1\rangle) = \mathrm{Pauli}(\mathrm{Refl}(|\psi_1\rangle))
+= \mathrm{Pauli}(M)
+$$
+
+But since by definition $M = \mathbf{n} \cdot \overrightarrow{\sigma}$ we have:
+
+$$
+\mathrm{Pauli}(M) = \mathbf{n}
+$$
+
+Together we've shown that
+
+$$
+\mathrm{Bloch}(|\psi_1\rangle) = \mathbf{n}
+$$
+
+By theorem [Bloch Rotation](#thm:bloch-rotation) this means that $U$ corresponds
+to a rotation of the Bloch Sphere around the axis $\mathbf{n}$.
+
+Furthermore, since
+
+$$
+\lambda_2(U) / \lambda_1(U) = e^{i\frac{\theta}}
+$$
+
+the theorem implies that $U$ corresponds to rotation by $\theta$ radians around
+$\mathbf{n}$.
