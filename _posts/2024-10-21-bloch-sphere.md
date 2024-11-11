@@ -142,8 +142,10 @@ for $\theta = \pi/2$ and $\varphi = 0$. Therefore, by the definition of the
 Bloch projection:
 
 $$
-\mathrm{Bloch}(|\psi\rangle) = (\cos(0)\sin(\pi/2), \sin(0)\sin(\pi/2), \cos(\pi/2)) =
-(1, 0, 0)
+\begin{align*}
+\mathrm{Bloch}(|\psi\rangle) &= (\cos(0)\sin(\pi/2), \sin(0)\sin(\pi/2), \cos(\pi/2)) \\
+&= (1, 0, 0)
+\end{align*}
 $$
 
 # Unitary Transformations
