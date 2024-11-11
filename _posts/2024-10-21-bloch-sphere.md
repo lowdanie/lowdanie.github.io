@@ -8,7 +8,8 @@ utterance-issue: 9
 
 # Introduction
 
-A single [qubit](https://en.wikipedia.org/wiki/Qubit) is a vector of the form
+In [quantum computing](https://en.wikipedia.org/wiki/Quantum_computing), a
+[qubit](https://en.wikipedia.org/wiki/Qubit) is a vector of the form
 
 $$
 | \psi \rangle = a |0\rangle + b |1\rangle
@@ -40,7 +41,8 @@ $$
 x^2 + y^2 + z^2 + w^2 = 1
 $$
 
-which is precisely the definition of $S^3$.
+which is precisely the definition of a sphere in four dimensions with radius
+$1$.
 
 It is difficult to visualize $S^3$ and even more difficult to imagine how it
 behaves under unitary transformations.
@@ -51,12 +53,12 @@ dimensional space $S^2 \subset \mathbb{R}^3$. Importantly, under this projection
 unitary transformations of the state space correspond to ordinary rotations of
 the sphere. Furthermore, there is an explicit formula that determines precisely
 which rotation corresponds to a given unitary matrix. This makes the Bloch
-sphere an indispensible tool for analyzing single qubit operations.
+Sphere an indispensible tool for analyzing single qubit operations.
 
 The [classic formula](https://en.wikipedia.org/wiki/Bloch_sphere#Rotations) for
-the Bloch Sphere rotation associated to a unitary matrix $U$ is given in terms
-of [matrix exponentials](https://en.wikipedia.org/wiki/Matrix_exponential) of
-[Pauli Matrices](https://en.wikipedia.org/wiki/Pauli_matrices).
+the rotation of the Bloch Sphere associated to a unitary matrix $U$ is given in
+terms of [matrix exponentials](https://en.wikipedia.org/wiki/Matrix_exponential)
+of [Pauli Matrices](https://en.wikipedia.org/wiki/Pauli_matrices).
 
 The goal of this post is to present an alternative version of the formula that
 describes the rotation in terms of the eigenvalues and eigenvectors of $U$. In
@@ -155,7 +157,7 @@ U U^* = I
 $$
 
 where $U^*$ denotes the complex conjugate of $U$. The set of unitary matrices
-together with matrix multiplication form a the
+together with matrix multiplication forms the
 [Unitary Group](https://en.wikipedia.org/wiki/Unitary_group) denoted
 $\mathrm{U}(2)$.
 
@@ -240,8 +242,7 @@ Z_\alpha |\psi\rangle =
 $$
 
 and so multiplication by $Z_\alpha$ corresponds to rotating the Bloch sphere by
-$\alpha$ radians around the z-axis (see for reference
-[axis-angle representation](https://en.wikipedia.org/wiki/Axis%E2%80%93angle_representation)).
+$\alpha$ radians around the z-axis.
 
 ## Theorem Statement
 
@@ -290,7 +291,9 @@ qubits and rotations of the Bloch Sphere.
 > $$
 >
 > Where $\mathbf{n} = \mathrm{Bloch}(|\psi_1\rangle)$ and $\alpha$ is the angle
-> satisfying $\lambda_2/\lambda_1 = e^{i\alpha}$.
+> satisfying $\lambda_2/\lambda_1 = e^{i\alpha}$. In other words, transforming
+> qubits by $U$ corresponds to rotating the Bloch Sphere by $\alpha$ radians
+> around the axis $\mathbf{n}$.
 
 To see how this works, let's apply the theorem to the unitary matrix $Z_\alpha$
 from the example above. The eigenvalues of $Z_\alpha$ are $\lambda_1 = 1$ and
@@ -510,11 +513,13 @@ Together this proves the theorem.
 
 ## Reflections
 
-In this section we will present an alternative formulation of the Bloch
+In this section we will start to develop an alternative formulation of the Bloch
 projection. In addition to being interesting in its own right, this new
 perspective will make it easy to prove that unitary transformations of qubits
 always correspond to rotations of the Bloch sphere which will complete our proof
 of the [Bloch Rotation](#thm:bloch-rotation) theorem.
+
+{: #def:reflection}
 
 > **Definition (Reflection).** Let $\|\psi\rangle\in\mathbb{C}^2$ be a qubit
 > state. The reflection with axis $\|\psi\rangle$, denoted
@@ -581,7 +586,7 @@ $$
 
 This implies that $a$ and $d$ are real numbers and that $c = b^*$.
 
-The traceless condition implies that:
+The trace $0$ condition implies that:
 
 $$
 \mathrm{tr}(M) = a + d = 0
@@ -591,7 +596,7 @@ and so $a = -d$. Setting $a=z\in\mathbb{R}$ and $c=x+yi\in\mathbb{C}$ we can
 write $M$ as:
 
 $$
-M = \left[\begin{matrix}x & z-yi \\ z+yi & -x \end{matrix}\right] =
+M = \left[\begin{matrix}z & x-yi \\ x+yi & -z \end{matrix}\right] =
 x \left[\begin{matrix}0 & 1 \\ 1 & 0 \end{matrix}\right] +
 y \left[\begin{matrix}0 & -i \\ i & 0 \end{matrix}\right] +
 z \left[\begin{matrix}1 & 0 \\ 0 & -1 \end{matrix}\right]
@@ -670,7 +675,7 @@ states that both paths are equivalent.
 
 The rest of this section will be dedicated to proving the claim.
 
-First lets obtain a more concrete version of the Pauli basis map
+First let's obtain a more concrete version of the Pauli basis map
 $\mathrm{Pauli}$. Since the Pauli matrices $X,Y,Z\in\mathfrak{su}(2)$ form an
 orthonormal basis, the coordinates of a matrix $M\in\mathfrak{su}(2)$ in the
 Pauli basis are given by the inner products with $X$, $Y$ and $Z$:
@@ -715,8 +720,8 @@ $$
 $$
 
 then plugging $a=\cos(\theta/2)$ and $b=e^{i\varphi}\sin(\theta/2)$ into
-equation \ref{eq:pauli-refl-coords}, together with standard trig identities
-gives us:
+equation \ref{eq:pauli-refl-coords}, together with standard trig identities and
+[Euler's formula](https://en.wikipedia.org/wiki/Euler%27s_formula) gives us:
 
 $$
 \mathrm{Pauli}(\mathrm{Ref}(|\psi\rangle)) = (\cos\varphi\sin\theta, \sin\varphi\sin\theta, \cos\theta)
@@ -734,7 +739,8 @@ theorem.
 
 To be precise, a [rotation](https://en.wikipedia.org/wiki/Rotation) of
 $\mathbb{R}^3$ is defined as a linear transformation that preserves the inner
-product and orientation.
+product and
+[orientation](<https://en.wikipedia.org/wiki/Orientation_(vector_space)>).
 
 By claim [Bloch From Reflections](#clm:bloch-from-reflections) in the previous
 section, the Bloch projection can be decomposed into the composition of the
@@ -932,7 +938,7 @@ and that the eigenvectors of $U$ are equal to the eigenvectors of $M$.
 We can now apply theorem [Bloch Rotation](#thm:bloch-rotation) to $U$. We just
 saw that the first eigenvector of $U$, $|\psi_1\rangle$ is equal to the first
 eigenvector of $M$. Since the eigenvalues of $M$ are $\lambda_1(M)=1$ and
-$\lambda_2(M)=-1$, $M$ is a reflection matrix and
+$\lambda_2(M)=-1$, $M$ is a [reflection](#def:reflection) matrix and
 
 $$
 \mathrm{Ref}(|\psi_1\rangle) = M
