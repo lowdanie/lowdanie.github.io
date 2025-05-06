@@ -168,10 +168,14 @@ $|\psi_{\neq}\rangle$.
 
 # Simon's Problem
 
-Let $G_N$ denote the set of bit-strings of length $N$ and let $\oplus$ denote
-the bitwise XOR operation.
+Simon's problem was introduced by
+[Daniel Simon](https://epubs.siam.org/doi/10.1137/S0097539796298637) in 1994 as
+an example of an problem with an efficient quantum algorithm.
 
-For example, if $N=3$ then $110$ and $101$ are elements of $G_3$ and:
+Let $B_N = \\{0,1\\}^N$ denote the set of bit-strings of length $N$ and let
+$\oplus$ denote the bitwise XOR operation.
+
+For example, if $N=3$ then $110$ and $101$ are elements of $B_3$ and:
 
 $$
 110 \oplus 101 = 011
@@ -180,11 +184,229 @@ $$
 Simon's problem is defined as follow:
 
 > We are given access to a black-box for computing a function
-> $f: G_N \rightarrow A$ from $G_N$ to a set $A$. In addition, we are promised
+> $f: B_N \rightarrow A$ from $B_N$ to a set $A$. In addition, we are promised
 > that there is a secret bit-string $\mathbf{s}\in G$ such that
 > $f(\mathbf{x}) = f(\mathbf{x}')$ if and only if $\mathbf{x}' = \mathbf{x}$ or
 > $\mathbf{x}' = \mathbf{x} \oplus \mathbf{s}$. The challenge is to find $s$
 > with as few calls as possible to the black box for $f$.
 
 To get some intuition for the role of the secret bit-string $\mathbf{s}$,
-consider the following function on $G_3$:
+consider the following function on $B_3$ where $A = B_2$:
+
+| $\mathbf{x}$ | $f(\mathbf{x})$ |
+| ------------ | --------------- |
+| $000$        | $10$            |
+| $001$        | $00$            |
+| $010$        | $11$            |
+| $011$        | $01$            |
+| $100$        | $00$            |
+| $101$        | $10$            |
+| $110$        | $01$            |
+| $111$        | $11$            |
+
+It is easy to check that in this case, the solution to Simon's problem is
+$\mathbf{s}=101$. Note that $f$ is a 2 to 1 function. In general, we can think
+of $\mathbf{s}$ as a bitmask where $f(\mathbf{x}) = f(\mathbf{x}')$ if and only
+if $\mathbf{x}$ and $\mathbf{x}'$ differ exactly at the elements masked by
+$\mathbf{s}$.
+
+How hard is it to solve Simon's problem classically? Without knowing anything
+about $f$, we intuitively have to keep calculating $f$ for different elements
+$\mathbf{x}\in B_N$ until we get the same result twice. Based on the analysis of
+the
+[Birthday Problem](https://en.wikipedia.org/wiki/Birthday_problem#Arbitrary_number_of_days),
+we have to compute $f$ for approximately $\sqrt{|B_N|}=2^{N/2}$ elements in
+order to have a good chance of finding a collisions.
+
+Simon's algorithm, introduced in the
+[same paper](https://epubs.siam.org/doi/10.1137/S0097539796298637), is a quantum
+algorithm that solves Simon's problem in $\mathcal{O(N)}$ time - an exponential
+improvement over the best classical algorithm.
+
+The first step of the algorithm os to prepare a superposition of all elements in
+$B_N$, together with some auxiliary qubits that will be used to compute $f$:
+
+$$
+|\psi\rangle = \sum_{\mathbf{x}\in B_N}|\mathbf{x}\rangle |\mathbf{0}\rangle
+$$
+
+The auxiliary bits at the end are commonly referred to as the
+[ancilla bits](https://en.wikipedia.org/wiki/Ancilla_bit).
+
+We can then apply $f$ to obtain:
+
+$$
+\sum_{\mathbf{x}\in B_N}|\mathbf{x}\rangle |f(\mathbf{x})\rangle
+$$
+
+Note that if we now measure the ancilla bits we will observe some value
+$f(\mathbf{x})\in A$ and the new state will be:
+
+$$
+|\varphi_\mathbf{x}\rangle = \sum_{\mathbf{x}'\in B_N,\, f(\mathbf{x}')=f(\mathbf{x})}|\mathbf{x}'\rangle |a\rangle
+$$
+
+In other words, we obtain a superposition of the elements in $B_N$ that are
+mapped to $f(\mathbf{x})$ by $f$. By our assumption on $f$, the only elements
+that get mapped to $f(\mathbf{x})$ are $\mathbf{x}$ itself and
+$\mathbf{x}' = \mathbf{x}\oplus\mathbf{s}$ where $\mathbf{s}$ is the hidden
+element. Therefore, after discarding the ancilla bits we can rewrite
+$|\varphi_\mathbf{x}\rangle$ as:
+
+$$
+|\varphi_\mathbf{x}\rangle = |\mathbf{x}\rangle + |\mathbf{x}\oplus\mathbf{s}\rangle
+$$
+
+At a first glance it seems like we can easily deduce $\mathbf{s}$ from
+$|\varphi_\mathbf{x}\rangle$ since
+$\mathbf{s} = \mathbf{x} \oplus (\mathbf{x}\oplus\mathbf{s})$. The fundamental
+issue is that we cannot directly observe both of the basis vectors in
+$|\varphi_\mathbf{x}\rangle$. Specifically, if we measure
+$|\varphi_\mathbf{x}\rangle$ then we will observe _either_ $\mathbf{x}$ _or_
+$\mathbf{x}\oplus\mathbf{s}$ with equal probability. Without knowing
+$\mathbf{x}$, neither of these values provide any information whatsoever about
+$\mathbf{s}$.
+
+To get another perspective on $|\varphi\_\mathbf{x}\rangle$, consider the _Shift
+Operator_
+
+$$
+\begin{align*}
+L_\mathbf{x}: \mathbb{C}[B_N] &\rightarrow \mathbb{C}[B_N] \\
+|\mathbf{x}'\rangle &\mapsto |\mathbf{x}\oplus\mathbf{x}'\rangle
+\end{align*}
+$$
+
+We are using $\mathbb{C}[B_N]$ to denote the complex vector space with an
+orthogonal basis given by $|\mathbf{x}'\rangle$ for $\mathbf{x}'\in B_N$. The
+shift operator $L_\mathbf{x}$ sends the basis element
+$|\mathbf{x}'\rangle\in\mathbb{C}[B_N]$ to
+$|\mathbf{x}\oplus\mathbf{x}'\rangle \in \mathbb{C}[B_N]$. Using $L_\mathbb{x}$
+we can rewrite $|\varphi_\mathbb{x}\rangle$ as:
+
+$$
+|\varphi_\mathbb{x}\rangle = L_\mathbf{x}(|\mathbf{0}\rangle + |\mathbf{s}\rangle)
+$$
+
+With this perspective, we could recover information about $\mathbf{s}$ from
+$|\varphi_\mathbb{x}\rangle$ if we had some way of undoing the shift operator
+$L_\mathbf{x}$ to obtain $|\mathbf{0}\rangle + |\mathbf{s}\rangle$. The key idea
+of Simon's algorithm is to apply a change of basis to
+$|\varphi\_\mathbf{x}\rangle$ before measuring it. The new basis will be one
+that _simultaneously diagonalizes_ the shift operators $L_\mathbf{x}$ for all
+$\mathbf{x}\in B_N$.
+
+Since $L_\mathbf{x}$ is diagonalized in this basis for all $\mathbb{x}$,
+measuring
+$|\varphi_\mathbb{x}\rangle = L_\mathbf{x}(|\mathbf{0}\rangle + |\mathbf{s}\rangle)$
+in the new basis is equivalent to measuring
+$|\mathbf{0}\rangle + |\mathbf{s}\rangle$. Therefore, measuring in the new basis
+will provide direct information about $\mathbb{s}$.
+
+In the following sections we will construct this new basis and show how to use
+it to recover $\mathbf{s}$.
+
+## Diagonalizing The Shift operators
+
+Let $\mathbf{x}\in B_N$ be a bit-string. In the previous section we defined the
+shift operator $L_\mathbf{x}$ on the Hilbert space $\mathbb{C}[B_N]$:
+
+$$
+\begin{align*}
+L_\mathbf{x}: \mathbb{C}[B_N] &\rightarrow \mathbb{C}[B_N] \\
+|\mathbf{x}'\rangle &\mapsto |\mathbf{x}\oplus\mathbf{x}'\rangle
+\end{align*}
+$$
+
+For example, if $N=3$ and $\mathbf{x}=110$ then:
+
+$$
+L_\mathbf{x}(|010\rangle + |111\rangle) = |100\rangle + |001\rangle
+$$
+
+Note that clearly $L_\mathbf{x}$ is not diagonal in the standard basis of
+$\mathbb{C}[B_N]$ given by elements of $B_N$. For example, applying $L_{110}$ to
+$|101\rangle$ gives:
+
+$$
+L_{110}(|101\rangle) = |011\rangle
+$$
+
+which is not a scalar multiple of the input $|101\rangle$.
+
+The goal of this section is to find another basis of $\mathbb{C}[B_N]$ which
+diagonalizes $L_\mathbf{x}$ for all $\mathbf{x}$.
+
+First of all, note that for all $\mathbf{x}\in B_N$, the square of
+$L_\mathbf{x}$ is the identity:
+
+$$
+\begin{align*}
+L_\mathbf{x}^2 &= L_\mathbf{x} \circ L_\mathbf{x} = L_{\mathbf{x}\oplus\mathbf{x}} \\
+&= L_\mathbf{0} = \mathrm{Id}
+\end{align*}
+$$
+
+This implies that the eigenvalues of $L_\mathbf{x}$ are equal to $\pm 1$.
+
+Suppose that $|\mathbf{y}\rangle\in\mathbb{C}[B_N]$ is a vector in the new
+basis. We can write $|\mathbf{y}\rangle$ in terms of the standard basis as:
+
+$$
+|\mathbf{y}\rangle = \sum_{\mathbf{x}\in B_N} \chi_\mathbf{y}(\mathbf{x})|\mathbf{x}\rangle
+$$
+
+for some constants $\chi_\mathbf{y}(\mathbf{x})\in\mathbb{C}$. Since
+$|\mathbf{y}\rangle$ is only determined up to scalar, we can assume that
+$\chi_\mathbb{y}(\mathbb{0})=1$.
+
+Let $\mathbf{x}$ be an element of $B_N$. Since $L_\mathbf{x}$ is diagonal in the
+new basis, there must be some complex scalar
+$\lambda_\mathbf{y}(\mathbf{x})=\pm 1$ such that:
+
+$$
+L_\mathbf{x}(|\mathbf{y}\rangle) = \lambda_\mathbf{y}(\mathbf{x}) |\mathbf{y}\rangle
+$$
+
+By the definition of $L_\mathbf{x}$:
+
+$$
+\begin{align*}
+L_\mathbf{x}(|\mathbf{y}\rangle) &= L_\mathbf{x}( \sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}'\rangle) \\
+&=  \sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}') L_\mathbf{x}(|\mathbf{x}'\rangle) \\
+&=  \sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}\oplus\mathbf{x}'\rangle
+\end{align*}
+$$
+
+Together we get that:
+
+$$
+\sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}\oplus\mathbf{x}'\rangle =
+\lambda_\mathbf{y}(\mathbf{x}) \sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}'\rangle
+$$
+
+Comparing the coefficients in each sum, we see that for each
+$\mathbf{x}'\in B_N$:
+
+$$
+\chi_\mathbf{y}(\mathbf{x}') = \lambda_\mathbf{y}(\mathbf{x}) \cdot \chi_\mathbf{y}(\mathbf{x}\oplus\mathbf{x}')
+$$
+
+Since $\lambda_\mathbf{y}(\mathbf{x})^2 = 1$, we can rearrange this to:
+
+$$
+\chi_\mathbf{y}(\mathbf{x}\oplus\mathbf{x}') = \lambda_\mathbf{y}(\mathbf{x}) \cdot \chi_\mathbf{y}(\mathbf{x}')
+$$
+
+Plugging in $\mathbf{x}' = \mathbf{0}$ and using our normalization
+$\chi_\mathbf{y}(\mathbf{0})=1$ gives us:
+
+$$
+\chi_\mathbf{y}(\mathbf{x}) = \lambda_\mathbf{y}(\mathbf{x}) \cdot \chi_\mathbf{y}(\mathbf{0}) =  \lambda_\mathbf{y}(\mathbf{x})
+$$
+
+In summary:
+
+$$
+\chi_\mathbf{y}(\mathbf{x}\oplus\mathbf{x}') = \chi_\mathbf{y}(\mathbf{x}) \cdot \chi_\mathbf{y}(\mathbf{x}')
+$$
