@@ -337,76 +337,255 @@ which is not a scalar multiple of the input $|101\rangle$.
 The goal of this section is to find another basis of $\mathbb{C}[B_N]$ which
 diagonalizes $L_\mathbf{x}$ for all $\mathbf{x}$.
 
-First of all, note that for all $\mathbf{x}\in B_N$, the square of
-$L_\mathbf{x}$ is the identity:
+Suppose $|\varphi\rangle\in\mathbb{C}[B_N]$ is a vector in the new basis. This
+means that, for all $\mathbf{x}\in B_N$, $|\varphi\rangle$ is an eigenvector of
+$L_\mathbf{x}$ for all $\mathbf{x}\in B_N$ with some eigenvalue
+$\lambda(\mathbf{x})$. The eigenvalues $\lambda(\mathbf{x})$ can be packaged
+into a function
+
+$$
+\lambda: B_N \rightarrow \mathbb{C}
+$$
+
+We'll start with the following observation about $\lambda$:
+
+> **Claim.** Suppose that $|\varphi\rangle\in\mathbb{C}[B_N]$ is a vector
+> satisfying $L_\mathbf{x}|\varphi\rangle = \lambda(\mathbf{x})|\varphi\rangle$
+> for all $\mathbf{x}\in B_N$. Then for all $\mathbf{x},\mathbf{x}'\in B_N$:
+>
+> $$
+> \lambda(\mathbf{x}\oplus\mathbf{x}') = \lambda(\mathbf{x}) \cdot \lambda(\mathbf{x}')
+> $$
+
+_Proof._ Since addition in $B_N$ is associative, the shift operators satisfy:
+
+$$
+\begin{equation}\label{eq:shift-composition}
+L_\mathbf{x} \circ L_{\mathbf{x}'} = L_{\mathbf{x}\oplus\mathbf{x}'}
+\end{equation}
+$$
+
+Applying the left hand side of \ref{eq:shift-composition} to $|\varphi\rangle$
+gives:
 
 $$
 \begin{align*}
-L_\mathbf{x}^2 &= L_\mathbf{x} \circ L_\mathbf{x} = L_{\mathbf{x}\oplus\mathbf{x}} \\
-&= L_\mathbf{0} = \mathrm{Id}
+L_\mathbf{x} \circ L_{\mathbf{x}'}|\varphi\rangle &= L_\mathbf{x}(\lambda(\mathbf{x}')|\varphi\rangle) \\
+&= \lambda(\mathbf{x})\cdot\lambda(\mathbf{x}')|\varphi\rangle
 \end{align*}
 $$
 
-This implies that the eigenvalues of $L_\mathbf{x}$ are equal to $\pm 1$.
-
-Suppose that $|\mathbf{y}\rangle\in\mathbb{C}[B_N]$ is a vector in the new
-basis. We can write $|\mathbf{y}\rangle$ in terms of the standard basis as:
+Applying the right hand side of \ref{eq:shift-composition} to $|\varphi\rangle$
+gives:
 
 $$
-|\mathbf{y}\rangle = \sum_{\mathbf{x}\in B_N} \chi_\mathbf{y}(\mathbf{x})|\mathbf{x}\rangle
+L_{\mathbf{x}\oplus\mathbf{x}'}|\varphi\rangle = \lambda(\mathbf{x}\oplus\mathbf{x}')|\varphi\rangle
 $$
 
-for some constants $\chi_\mathbf{y}(\mathbf{x})\in\mathbb{C}$. Since
-$|\mathbf{y}\rangle$ is only determined up to scalar, we can assume that
-$\chi_\mathbb{y}(\mathbb{0})=1$.
-
-Let $\mathbf{x}$ be an element of $B_N$. Since $L_\mathbf{x}$ is diagonal in the
-new basis, there must be some complex scalar
-$\lambda_\mathbf{y}(\mathbf{x})=\pm 1$ such that:
+Together this implies:
 
 $$
-L_\mathbf{x}(|\mathbf{y}\rangle) = \lambda_\mathbf{y}(\mathbf{x}) |\mathbf{y}\rangle
+\lambda(\mathbf{x})\cdot\lambda(\mathbf{x}')|\varphi\rangle =
+\lambda(\mathbf{x}\oplus\mathbf{x}')|\varphi\rangle
 $$
 
-By the definition of $L_\mathbf{x}$:
+and the claim follows.
+
+_q.e.d_
+
+Functions satisfying this type of multiplicative property are called
+[characters](<https://en.wikipedia.org/wiki/Character_(mathematics)>). More
+precisely:
+
+> **Definition (Character)** Let $G$ be a group. A _character_ on $G$ is a
+> non-zero complex function
+>
+> $$
+> \chi: G \rightarrow \mathbb{C}
+> $$
+>
+> satisfying
+>
+> $$
+> \chi(g_1 g_2) = \chi(g_1)\chi(g_2)
+> $$
+>
+> for all $g_1,g_2\in G$.
+
+We can restate the claim above as saying that the eigenvalue function $\lambda$
+must be a character on $B_N$. Interestingly, implies that we can use the
+eigenvalues $\lambda(\mathbf{x})$ to construct the corresponding eigenvector
+$|\varphi\rangle$:
+
+{: #clm:eig-from-char }
+
+> **Claim (Eigenvectors From Characters).** Let
+> $\chi: B_N \rightarrow \mathbb{C}$ be a character on $B_N$. Define
+> $|\varphi\rangle\in\mathbb{C}[B_N]$ by:
+>
+> $$
+> |\varphi\rangle = \sum_{\mathbf{x}}\chi(\mathbf{x})|\mathbf{x}\rangle
+> $$
+>
+> Then, all $\mathbf{x}\in B_N$, $|\varphi\rangle$ is an eigenvector of
+> $L_\mathbf{x}$ with eigenvalue $\chi(\mathbf{x})$.
+
+_Proof._ Direct calculation shows that:
 
 $$
 \begin{align*}
-L_\mathbf{x}(|\mathbf{y}\rangle) &= L_\mathbf{x}( \sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}'\rangle) \\
-&=  \sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}') L_\mathbf{x}(|\mathbf{x}'\rangle) \\
-&=  \sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}\oplus\mathbf{x}'\rangle
+L_{\mathbf{x}}|\varphi\rangle &= L_{\mathbf{x}}\sum_{\mathbf{x}'}\chi(\mathbf{x}')|\mathbf{x}'\rangle \\
+&= \sum_{\mathbf{x}'}\chi(\mathbf{x}')|\mathbf{x}\oplus\mathbf{x}'\rangle \\
+&= \sum_{\mathbf{x}'}\chi(\mathbf{x}\oplus\mathbf{x}')|\mathbf{x}'\rangle \\
+&= \sum_{\mathbf{x}'}\chi(\mathbf{x})\chi(\mathbf{x}')|\mathbf{x}'\rangle \\
+&= \chi(\mathbf{x})\cdot\sum_{\mathbf{x}'}\chi(\mathbf{x}')|\mathbf{x}'\rangle \\
+&= \chi(\mathbf{x})|\varphi\rangle
 \end{align*}
 $$
 
-Together we get that:
+_q.e.d_
+
+This reduces the problem of simultaneously diagonalizing $L_\mathbf{x}$ to
+finding characters of $B_N$.
+
+To facilitate notation, we'll denote the bitwise dot product modulo $2$ on two
+elements $\mathbf{x},\mathbf{y}\in B_N$ by $\mathbf{x}\cdot\mathbf{y}$.
+Specifically:
 
 $$
-\sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}\oplus\mathbf{x}'\rangle =
-\lambda_\mathbf{y}(\mathbf{x}) \sum_{\mathbf{x}'\in B_N} \chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}'\rangle
+\mathbf{x} \cdot \mathbf{y} = \sum_{i=1}^N x_i y_i \mathrm{(mod 2)}
 $$
 
-Comparing the coefficients in each sum, we see that for each
-$\mathbf{x}'\in B_N$:
+For each $\mathbf{y}\in B_N$ we can define a character $\chi_{\mathbf{y}}$ on
+$B_N$ by:
 
 $$
-\chi_\mathbf{y}(\mathbf{x}') = \lambda_\mathbf{y}(\mathbf{x}) \cdot \chi_\mathbf{y}(\mathbf{x}\oplus\mathbf{x}')
+\chi_{\mathbf{y}}(\mathbf{x}) := (-1)^{\mathbf{x}\cdot\mathbf{y}}
 $$
 
-Since $\lambda_\mathbf{y}(\mathbf{x})^2 = 1$, we can rearrange this to:
+The fact that $\chi_{\mathbf{y}}$ is a character follows from direct
+calculation:
 
 $$
-\chi_\mathbf{y}(\mathbf{x}\oplus\mathbf{x}') = \lambda_\mathbf{y}(\mathbf{x}) \cdot \chi_\mathbf{y}(\mathbf{x}')
+\begin{align*}
+\chi_{\mathbf{y}}(\mathbf{x}\oplus\mathbf{x}') &= (-1)^{(\mathbf{x}\oplus\mathbf{x'})\cdot\mathbf{y}} \\
+&= (-1)^{\mathbf{x}\cdot\mathbf{y}}\cdot(-1)^{\mathbf{x}'\cdot\mathbf{y}} \\
+&= \chi_\mathbf{y}(\mathbf{x})\cdot\chi_\mathbf{y}(\mathbf{x}')
+\end{align*}
 $$
 
-Plugging in $\mathbf{x}' = \mathbf{0}$ and using our normalization
-$\chi_\mathbf{y}(\mathbf{0})=1$ gives us:
+By claim [Eigenvectors From Characters](#clm:eig-from-char), for all
+$\mathbf{x}\in B_N$, the vector
 
 $$
-\chi_\mathbf{y}(\mathbf{x}) = \lambda_\mathbf{y}(\mathbf{x}) \cdot \chi_\mathbf{y}(\mathbf{0}) =  \lambda_\mathbf{y}(\mathbf{x})
+\sum_{\mathbf{x}'}\chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}'\rangle
 $$
 
-In summary:
+is an eigenvector of $L_\mathbf{x}$ with eigenvalue
+$\chi_\mathbf{y}(\mathbf{x})$. 
+We can use these eigenvectors to construct a unitary change of basis that 
+simultaneously diagonalizes all of the shift operators:
+
+{: #clm:unitary-diag }
+
+> **Claim (Unitary Diagonalization).** Let $U: \mathbb{C}[B_N]\rightarrow\mathbb{C}[B_N]$ be the linear transformation defined by:
+>
+> $$
+> U|\mathbf{y}\rangle = \frac{1}{\sqrt{|B_N|}}\sum_{\mathbf{x}\in B_N}\chi_\mathbf{y}(\mathbf{x})|\mathbf{x}\rangle
+> $$
+> 
+> Then, $U$ is a unitary transformation that diagonalizes the shift operator $L_{\mathbf{x}'}$ 
+> for all $\mathbf{x}'\in B_N$.
+
+To prove the claim we will use the following lemma.
+
+> **Lemma.** For all $\mathbf{x}\in B_N$, the shift operator $L_\mathbf{x}$ is a
+> real and symmetric transformation.
+
+_Proof of lemma._ Let $\mathbf{x}$ be an element of $B_N$. The fact that $L_\mathbf{x}$ is real
+follows imemdiately from the definition of the shift operator.
+
+To prove that $L_\mathbf{x}$ is symmetric we must show that for all $\mathbf{x}',\mathbf{x}''\in B_N$:
 
 $$
-\chi_\mathbf{y}(\mathbf{x}\oplus\mathbf{x}') = \chi_\mathbf{y}(\mathbf{x}) \cdot \chi_\mathbf{y}(\mathbf{x}')
+\langle \mathbf{x}' | L_\mathbf{x} |\mathbf{x}''\rangle = 
+\langle \mathbf{x}'' | L_\mathbf{x} |\mathbf{x}'\rangle
 $$
+
+By the definition of the shift operator:
+
+$$
+\langle \mathbf{x}' | L_\mathbf{x} |\mathbf{x}''\rangle = 
+\langle \mathbf{x}' |\mathbf{x} \oplus \mathbf{x}''\rangle
+$$
+
+Therefore:
+
+$$
+\langle \mathbf{x}' | L_\mathbf{x} |\mathbf{x}''\rangle =
+\begin{cases}
+1 & \mathbf{x}' = \mathbf{x} \oplus \mathbf{x}'' \\
+0 & \mathrm{else}
+\end{cases}
+$$
+
+Now, note that the condition $\mathbf{x}' = \mathbf{x} \oplus \mathbf{x}''$ is equivalent
+to $\mathbf{x}'\oplus\mathbf{x}'' = \mathbf{x}$ which is symmetric in $\mathbf{x}'$ and $\mathbf{x}''$ which proves the lemma.
+
+_q.e.d_
+
+We can now prove the claim.
+
+_Proof of claim._ By claim [Eigenvectors From Characters](#clm:eig-from-char), for all $\mathbf{x}\in B_N$ 
+$U|\mathbf{y}\rangle$ is an eigenvector of $L_\mathbf{x}$ with eigenvalue $\chi_\mathbf{y}(\mathbf{x})$.
+
+Furthermore, since $\|\chi_\mathbf{y}(\mathbf{x})\|=1$ for all $\mathbf{x},\mathbf{y}\in B_N$ it is 
+easy to see that the vectors $U|\mathbf{y}\rangle$ all have norm $1$.
+
+Therefore, it suffices to show that $U|\mathbf{y}\rangle$ and $U|\mathbf{y}'\rangle$
+are orthogonal for $\mathbf{y}\neq\mathbf{y}'\in B_N$. 
+
+If $\mathbf{y}\neq\mathbf{y}'$, there must be some index
+$i$ such that $y_i \neq y'_i$. Let $\mathbf{x}\in B_N$ be defined by $x_i=1$ and $x_j=0$ for $j\neq i$.
+It is easy to see that
+
+$$
+\chi_\mathbf{y}(\mathbf{x}) \neq \chi_{\mathbf{y}'}(\mathbf{x})
+$$
+
+This means that $U|\mathbf{y}\rangle$ and $U|\mathbf{y}'\rangle$ are eigenvectors
+of $L_\mathbf{x}$ with different eigenvalues. By the lemma, $L_\mathbf{x}$ is a real symmetric
+transformation which means that eigenvectors with distinct eigenvalues are orthogonal.
+
+_q.e.d_
+
+We can describe $U$ more explicitly by plugging in the definition of $\chi_\mathbf{y}(\mathbf{x})$:
+
+$$
+U|\mathbf{y}\rangle = \sum_{\mathbf{x}\in B_N} (-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{x}\rangle
+$$
+
+From this it is clear that, in addition to being unitary, $U$ is also real and symmetric which means that:
+
+$$
+U^{-1} = U^* = U
+$$
+
+In other words, the inverse of $U$ is given by:
+
+$$
+U^{-1}|\mathbf{x}\rangle = \sum_{\mathbf{y}\in B_N}\chi_\mathbf{y}(\mathbf{x})|\mathbf{y}\rangle
+$$
+
+We will define the _Quantum Fourier Transform_ to be the inverse of $U$:
+
+> **Definition (Quantum Fourier Transform of $B_N$).** The Quantum Fourier Transform of $B_N$, denoted 
+> $\mathrm{QFT}$, is the transform of $\mathbb{C}[B_N]$ defined by:
+>
+> $$
+> \mathrm{QFT}(|\mathbf{x}\rangle) = \sum_{\mathbf{y}\in B_N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
+> $$
+
+
+
+
