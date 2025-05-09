@@ -360,7 +360,7 @@ We'll start with the following observation about $\lambda$:
 _Proof._ Since addition in $B_N$ is associative, the shift operators satisfy:
 
 $$
-\begin{equation}\label{eq:shift-composition}
+\begin{equation}\label{eq:shift-composition-old}
 L_\mathbf{x} \circ L_{\mathbf{x}'} = L_{\mathbf{x}\oplus\mathbf{x}'}
 \end{equation}
 $$
@@ -417,7 +417,7 @@ must be a character on $B_N$. Interestingly, implies that we can use the
 eigenvalues $\lambda(\mathbf{x})$ to construct the corresponding eigenvector
 $|\varphi\rangle$:
 
-{: #clm:eig-from-char }
+{: #clm:eig-from-char-old }
 
 > **Claim (Eigenvectors From Characters).** Let
 > $\chi: B_N \rightarrow \mathbb{C}$ be a character on $B_N$. Define
@@ -585,6 +585,184 @@ We will define the _Quantum Fourier Transform_ to be the inverse of $U$:
 > $$
 > \mathrm{QFT}(|\mathbf{x}\rangle) = \sum_{\mathbf{y}\in B_N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
 > $$
+
+# The Quantum Fourier Transform
+
+Recall from section XXX that our strategy for solving the hidden subgroup problem
+is to find a unitary transformation that diagonalizes all of the shift operators $L_g$ for
+$g\in G$. This transform is commonly called the
+[Quantum Fourier Transform](https://en.wikipedia.org/wiki/Quantum_Fourier_transform) (QFT).
+
+## Shift Operators
+
+PUT THIS IN THE HSG OVERVIEW
+
+For a group $G$, we will use $\mathbb{C}[G]$ to denote the vector space with one basis
+vector for each element of $G$. To be consistent with quantum mechanics notation,
+we will denote the basis vector corresponding to $g$ by $|g\rangle$.
+Concretely, elements of $\mathbb{C}[G]$ are of the form
+
+$$
+\sum_{g\in G}\alpha_g |g\rangle
+$$
+
+for complex coefficients $\alpha_g\in\mathbb{C}$.
+
+Let $h\in G$ be an element of $G$. We will define the _Shift Operator_ $L_h$ to
+be the following linear transformation of $\mathbb{C}[G]$ defined by:
+
+$$
+\begin{align*}
+L_h : \mathbb{C}[G] &\rightarrow \mathbb{C}[G] \\
+|g\rangle &\mapsto |hg\rangle
+\end{align*}
+$$
+
+Note that it is sufficient to define $L_h$ on vectors of the form $|g\rangle$ since
+they form a basis for $\mathbb{C}[B]$.
+
+As we noted in section XXXX, our strategy for solving the hidden subgroup problem
+is to find a unitary transformation of $\
+
+## Characters
+
+As a first step in diagonalizing the shift operators, we'll analyze their eigenvalues.
+
+Suppose that $|\varphi\rangle\in\mathbb{C}[G]$ is an eigenvector of $L_g$ for all $g\in G$.
+This means that for all $g\in G$ there is a complex number $\lambda(g)\in\mathbb{C}$ such that
+
+$$
+L_g(|\varphi\rangle) = \lambda(g)|\varphi\rangle
+$$
+
+We can package these eigenvalues into a function:
+
+$$
+\lambda: G \rightarrow \mathbb{C}
+$$
+
+What can we say about the function $\lambda$?
+Note that since $G$ is associative, for any $g,h\in G$:
+
+$$
+\begin{equation}\label{eq:shift-composition}
+L_g \circ L_h = L_{gh}
+\end{equation}
+$$
+
+Applying the left hand side of \ref{eq:shift-composition} to $|\varphi\rangle$
+gives:
+
+$$
+\begin{align*}
+L_g \circ L_h|\varphi\rangle &= L_g(\lambda(h)|\varphi\rangle) \\
+&= \lambda(g)\cdot\lambda(h)|\varphi\rangle
+\end{align*}
+$$
+
+Applying the right hand side of \ref{eq:shift-composition} to $|\varphi\rangle$
+gives:
+
+$$
+L_{gh}|\varphi\rangle = \lambda(gh)|\varphi\rangle
+$$
+
+Together this implies that for all $g,h\in G$:
+
+$$
+\lambda(gh) = \lambda(g)\cdot\lambda(h)
+$$
+
+Functions satisfying this type of multiplicative property are called
+[characters](<https://en.wikipedia.org/wiki/Character_(mathematics)>). More
+precisely:
+
+> **Definition (Character)** Let $G$ be a group. A _character_ on $G$ is a
+> complex function
+>
+> $$
+> \chi: G \rightarrow \mathbb{C}^\times
+> $$
+>
+> satisfying
+>
+> $$
+> \chi(gh) = \chi(g)\chi(h)
+> $$
+>
+> for all $gh\in G$.
+
+We can restate the claim above as saying that the eigenvalue function $\lambda$
+must be a character on $G$.
+
+We'll denote the set of characters on $G$ by $\hat{G}$. The set $\hat{G}$ has a group
+structure where the product of characters $\chi_1,\chi_2\in\hat{G}$ is defined by:
+
+$$
+(\chi_1\chi_2)(g) := \chi_1(g)\cdot\chi_2(g)
+$$
+
+## Eigenvectors
+
+In the previous section we saw that the eigenvalues of $L_g$ are given by characters
+of $G$. Interestingly, given a character $\chi\in\hat{G}$, it is easy to construct
+a simultaneous eigenvector for $L_g$ whose eigenvalues are given by $\chi$:
+
+{: #clm:eig-from-char }
+
+> **Claim (Eigenvectors From Characters).** Let
+> $\chi: G \rightarrow \mathbb{C}$ be a character on $G$. Define
+> $|\varphi\rangle\in\mathbb{C}[G]$ by:
+>
+> $$
+> |\varphi\rangle = \sum_{g\in G}\chi^{-1}(g)|g\rangle
+> $$
+>
+> Then, for all $g\in G$, $|\varphi\rangle$ is an eigenvector of
+> $L_g$ with eigenvalue $\chi(g)$.
+
+_Proof._ Direct calculation shows that:
+
+$$
+\begin{align*}
+L_g|\varphi\rangle &= L_g\sum_{h}\chi^{-1}(h)|h\rangle \\
+&= \sum_{h\inG}\chi^{-1}(h)|gh\rangle \\
+&= \sum_{h\in G}\chi^{-1}(g^{-1}h)|g g^{-1}h\rangle \\
+&= \sum_{h\in G}\chi^{-1}(g^{-1})\chi(h)|h\rangle \\
+&= \chi(g)\cdot\sum_{h\in G}\chi(h)|h\rangle \\
+&= \chi(g)|\varphi\rangle
+\end{align*}
+$$
+
+_q.e.d_
+
+We can use this result to simultaneously diagonalize the shift operators $L_g$.
+To facilitate notation, for each $g\in G$ we will define $D_g$ to be the diagonal transformation
+of $\mathbb{C}[\hat{G}]$ defined by:
+
+$$
+\begin{align*}
+D_g: \mathbb{C}[\hat{G}] $\rightarrow \mathbb{C}[\hat{G}] \\
+|\chi\rangle &\mapsto \chi(g)|\chi\rangle
+\end{align*}
+$$
+
+> **Claim (Diagonalization).** Let $U$ be the linear transformation defined by:
+>
+> $$
+> \begin{align*}
+> U : \mathbb{C}[\hat{G}] &\rightarrow \mathbb{C}[G] \\
+> |\chi\rangle &\mapsto \sum_{g\in G}\chi^{-1}(g)|g\rangle
+> \end{align*}
+> $$
+>
+> Then, $U$ is unitary and for all $g\in G$:
+>
+> $$
+> L_g = U D_g U^*
+> $$
+
+
 
 
 
