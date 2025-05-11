@@ -690,7 +690,7 @@ precisely:
 > \chi(gh) = \chi(g)\chi(h)
 > $$
 >
-> for all $gh\in G$.
+> for all $g,h\in G$.
 
 We can restate the claim above as saying that the eigenvalue function $\lambda$
 must be a character on $G$.
@@ -756,20 +756,20 @@ We can use these characters to define a function from $\mathbb{Z}/N$ to $\wideha
 
 $$
 \begin{align*}
-F: \mathbb{Z} &\rightarrow \widehat{\mathbb{Z}/N} \\
+F: \mathbb{Z}/N &\rightarrow \widehat{\mathbb{Z}/N} \\
 k &\mapsto \chi_k
 \end{align*}
 $$
 
 We claim that $F$ is a group isomorphism. The fact that $F$ is a homomorphism follows from direct
-calculation. To see that it is an isomorphism, note that the following function is an inverse of $F$:
+calculation. 
 
-$$
-\begin{align*}
-G: \widehat{\mathbb{Z}/N} &\rightarrow \mathbb{Z}/N \\
-\chi &\mapsto \chi(1)
-\end{align*}
-$$
+To see that $F$ is injective, note that if $k\in\mathbb{Z}/N$ is in the kernel of $F$
+then $\chi_k(l) = \omega_N^{kl} = 1$ for all $l\in\mathbb{Z}/N$. But this implies that $k=0$.
+
+To see that $F$ is surjective, let $\chi\in\widehat{Z/N}$ be a character. By
+[Character Properties](#clm:char-props), $\chi(1)^N=1$. Therefore, there exists some
+$k\in\mathbb{Z}/N$ such that $\chi(1) = \omega_N^k$. It is easy to see that $\chi = F(k)$.
 
 Now suppose $G$ is an arbitrary finite abelian group. Recall that by the
 [Fundamental Theorem of Abelian Groups](https://en.wikipedia.org/wiki/Finitely_generated_abelian_group#Primary_decomposition),
@@ -905,8 +905,8 @@ We will define the _Quantum Fourier Transform_ of $G$ to be complex conjugate of
 
 The following claim is a direct consequence of [Diagonalization](#clm:unitary-diag):
 
-> **Claim (QFT Diagonalization).** Let $G$ be a finite abelian group. Then for all
-> $g\in G$:
+> **Claim (QFT Diagonalization).** Let $G$ be a finite abelian group.
+> Then $\mathrm{Q}$ is unitary and for all $g\in G$:
 >
 > $$
 > L_g = \mathrm{QFT}^* \circ D_g \circ \mathrm{QFT}
