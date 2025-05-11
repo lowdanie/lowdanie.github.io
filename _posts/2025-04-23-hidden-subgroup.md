@@ -486,7 +486,7 @@ $\chi_\mathbf{y}(\mathbf{x})$.
 We can use these eigenvectors to construct a unitary change of basis that 
 simultaneously diagonalizes all of the shift operators:
 
-{: #clm:unitary-diag }
+{: #clm:unitary-diag-old }
 
 > **Claim (Unitary Diagonalization).** Let $U: \mathbb{C}[B_N]\rightarrow\mathbb{C}[B_N]$ be the linear transformation defined by:
 >
@@ -702,6 +702,106 @@ $$
 (\chi_1\chi_2)(g) := \chi_1(g)\cdot\chi_2(g)
 $$
 
+Here are some basic properties of characters that will be useful below:
+
+{: #clm:char-props}
+
+> **Claim (Character Properties).** Let $G$ be a finite group and let $N=|G|$ denote the order of $G$.
+> Let $\chi$ be a character on $G$. Then:
+>
+> 1. $\chi(1) = 1$
+> 2. $\chi(g)^N = 1$ for all $g\in G$.
+> 3. $\chi(g)^* = \chi(g)^{-1} for all $g\in G$.
+
+_Proof._
+
+1. By the definition of characters, $\chi(1)\neq 0$ and:
+
+    $$
+    \chi(1)\cdot\chi(1) = \chi(1\cdot 1) = \chi(1)
+    $$
+
+    Therefore, $\chi(1) = 1$.
+
+2. By [Lagrange's Theorem](https://en.wikipedia.org/wiki/Lagrange%27s_theorem_(group_theory)),
+ $g^N = 1$. Therefore:
+
+    $$
+    \chi(g)^N = \chi(g^N) = \chi(1) = 1
+    $$
+
+3. By the previous item, $\chi(g)$ is a root of unity.
+
+_q.e.d_
+
+
+It turns out that when $G$ is abelian, the group of characters on $G$ is isomorphic to $G$:
+
+{: #clm:abelian-char-group}
+
+> **Claim (Abelian Character Group).** For any finite abelian group $G$, $G\cong\hat{G}$.
+
+_Proof._ We'll start with the case when $G$ is the group of integers modulo $N$:
+$G=\mathbb{Z}/N$.
+
+Let $\omega_N = e^{2\pi i / N}\in\mathbb{C}$ be a primitive $N$-th root of unity. 
+
+For each $0\leq k < N$, we'll define the character $\chi_k\in\widehat{\mathbb{Z}/N}$ by:
+
+$$
+\chi_k(l) = \omega_N^{kl}
+$$
+
+We can use these characters to define a function from $\mathbb{Z}/N$ to $\widehat{\mathbb{Z}/N}$:
+
+$$
+\begin{align*}
+F: \mathbb{Z} &\rightarrow \widehat{\mathbb{Z}/N} \\
+k &\mapsto \chi_k
+\end{align*}
+$$
+
+We claim that $F$ is a group isomorphism. The fact that $F$ is a homomorphism follows from direct
+calculation. To see that it is an isomorphism, note that the following function is an inverse of $F$:
+
+$$
+\begin{align*}
+G: \widehat{\mathbb{Z}/N} &\rightarrow \mathbb{Z}/N \\
+\chi &\mapsto \chi(1)
+\end{align*}
+$$
+
+Now suppose $G$ is an arbitrary finite abelian group. Recall that by the
+[Fundamental Theorem of Abelian Groups](https://en.wikipedia.org/wiki/Finitely_generated_abelian_group#Primary_decomposition),
+$G$ is isomorphic to a direct sum of cyclic groups:
+
+$$
+G \cong \bigoplus_{i=1}^{n}\mathbb{Z}/N_i
+$$
+
+Furthermore, note that the group of characters of $G$ can be written as the group of homomorphisms
+from $G$ to $\mathbb{C}^\times$:
+
+$$
+\hat{G} \cong \mathrm{Hom}(G, \mathbb{C}^\times)
+$$
+
+Applying this to the decomposition of $G$ and using our result for the cyclic case gives:
+
+$$
+\begin{align*}
+\hat{G} &\cong \mathrm{Hom}(G, \mathbb{C}^\times)
+\cong \mathrm{Hom}(\bigoplus_{i=1}^{n}\mathbb{Z}/N_i, \mathbb{C}^\times) \\
+&\cong \bigoplus_{i=1}^n\mathrm{Hom}(\mathbb{Z}/N_i, \mathbb{C}^\times)
+\cong \bigoplus_{i=1}^n\widehat{\mathbb{Z}/N_i} \\
+&\cong \bigoplus_{i=1}^n\mathbb{Z}/N_i
+\cong G
+\end{align*}
+$$
+
+_q.e.d_
+
+
 ## Eigenvectors
 
 In the previous section we saw that the eigenvalues of $L_g$ are given by characters
@@ -710,25 +810,26 @@ a simultaneous eigenvector for $L_g$ whose eigenvalues are given by $\chi$:
 
 {: #clm:eig-from-char }
 
-> **Claim (Eigenvectors From Characters).** Let
+> **Claim (Eigenvectors From Characters).** Let $G$ be a finite group and let
 > $\chi: G \rightarrow \mathbb{C}$ be a character on $G$. Define
 > $|\varphi\rangle\in\mathbb{C}[G]$ by:
 >
 > $$
-> |\varphi\rangle = \sum_{g\in G}\chi^{-1}(g)|g\rangle
+> |\varphi\rangle = \sum_{g\in G}\chi^*(g)|g\rangle
 > $$
 >
 > Then, for all $g\in G$, $|\varphi\rangle$ is an eigenvector of
 > $L_g$ with eigenvalue $\chi(g)$.
 
-_Proof._ Direct calculation shows that:
+_Proof._ Recall that by [Character Properties](#clm:char-prop), 
+$\chi^*(g)=\chi^{-1}(g)$ for all $g\in G$. The claim follows by direct calculation:
 
 $$
 \begin{align*}
-L_g|\varphi\rangle &= L_g\sum_{h}\chi^{-1}(h)|h\rangle \\
-&= \sum_{h\inG}\chi^{-1}(h)|gh\rangle \\
-&= \sum_{h\in G}\chi^{-1}(g^{-1}h)|g g^{-1}h\rangle \\
-&= \sum_{h\in G}\chi^{-1}(g^{-1})\chi(h)|h\rangle \\
+L_g|\varphi\rangle &= L_g\sum_{h}\chi^*(h)|h\rangle \\
+&= \sum_{h\inG}\chi^*(h)|gh\rangle \\
+&= \sum_{h\in G}\chi^*(g^{-1}h)|g g^{-1}h\rangle \\
+&= \sum_{h\in G}\chi^*(g^{-1})\chi(h)|h\rangle \\
 &= \chi(g)\cdot\sum_{h\in G}\chi(h)|h\rangle \\
 &= \chi(g)|\varphi\rangle
 \end{align*}
@@ -737,22 +838,24 @@ $$
 _q.e.d_
 
 We can use this result to simultaneously diagonalize the shift operators $L_g$.
+
 To facilitate notation, for each $g\in G$ we will define $D_g$ to be the diagonal transformation
 of $\mathbb{C}[\hat{G}]$ defined by:
 
 $$
 \begin{align*}
-D_g: \mathbb{C}[\hat{G}] $\rightarrow \mathbb{C}[\hat{G}] \\
+D_g: \mathbb{C}[\hat{G}] &\rightarrow \mathbb{C}[\hat{G}] \\
 |\chi\rangle &\mapsto \chi(g)|\chi\rangle
 \end{align*}
 $$
 
+{: #clm:unitary-diag }
 > **Claim (Diagonalization).** Let $U$ be the linear transformation defined by:
 >
 > $$
 > \begin{align*}
 > U : \mathbb{C}[\hat{G}] &\rightarrow \mathbb{C}[G] \\
-> |\chi\rangle &\mapsto \sum_{g\in G}\chi^{-1}(g)|g\rangle
+> |\chi\rangle &\mapsto \frac{1}{\sqrt{|G|}}\sum_{g\in G}\chi^*(g)|g\rangle
 > \end{align*}
 > $$
 >
@@ -761,6 +864,69 @@ $$
 > $$
 > L_g = U D_g U^*
 > $$
+
+In other words, $U$ is a [unitary transformation](https://en.wikipedia.org/wiki/Unitary_transformation) that simultaneously diagonalizes
+$L_g$ for all $g\in G$.
+
+_Proof._ By [Abelian Character Group](#clm:abelian-char-group), $\mathbb{C}[\hat{G}]$
+and $\mathbb{C}[G]$ have the same dimension. Therefore, it suffices to show that $U$
+maps basis vectors $|\chi\rangle\in\mathbb{C}[G]$ to orthogonal unit eigenvectors of $L_g$.
+
+We'll start by showing orthogonality. Let $\chi_1\neq\chi_2\in\hat{G}$ be different characters on $G$.
+Since $\chi_1\neq\chi_2$, there must be some $g\in G$ such that $\chi_1(g)\neq\chi_2(g)$.
+By claim [Eigenvectors From Characters](#clm:eig-from-char), this implies that $U|\chi_1\rangle$
+and $U|\chi_2\rangle$ are eigenvectors of $L_g$ with different eigenvalues. Since $L_g$ is a permutation
+transformation, [it follows](https://en.wikipedia.org/wiki/Permutation_matrix#Linear-algebraic_properties)
+that is [normal](https://en.wikipedia.org/wiki/Normal_matrix). Eigenvectors of a normal transformation
+with distinct eigenvalues are orthogonal which implies that $U|\chi_1\rangle$ and $U|\chi_s\rangle$
+are orthogonal.
+
+It remains to show that $U|\chi\rangle$ has unit length for all $\chi\in\hat{G}$.
+Recall that by [Character Properties](#clm:char-props), $\chi^*(g)=\chi^{-1}(g)$ for all
+$g\in G$ which implies that $\|\chi^*(g)\|^2 = 1$. Therefore:
+
+$$
+||U|\chi\rangle||^2 = \frac{1}{G}\sum_{g\in G}|\chi^*(g)|^2 = 1
+$$
+
+_q.e.d_
+
+We will define the _Quantum Fourier Transform_ of $G$ to be complex conjugate of $U$:
+
+> **Definition (Quantum Fourier Transform).** Let $G$ be a finite abelian group.
+> The Quantum Fourier Transform (QFT) on $G$ is defined by:
+>
+> $$
+> \begin{align*}
+> \mathrm{QFT} : \mathbb{C}[G] &\rightarrow \mathbb{C}[\hat{G}] \\
+> |g\rangle &\mapsto \frac{1}{\sqrt{|G|}}\sum_{\chi\in \hat{G}}\chi(g)|\chi\rangle
+> \end{align*}
+> $$
+
+The following claim is a direct consequence of [Diagonalization](#clm:unitary-diag):
+
+> **Claim (QFT Diagonalization).** Let $G$ be a finite abelian group. Then for all
+> $g\in G$:
+>
+> $$
+> L_g = \mathrm{QFT}^* \circ D_g \circ \mathrm{QFT}
+> $$
+
+_Proof._ This follows immediately from [Diagonalization](#clm:unitary-diag) and the fact that
+$\mathrm{QFT} = U^*$
+
+_q.e.d_
+
+## Coset States
+
+
+
+
+
+
+
+
+
 
 
 
