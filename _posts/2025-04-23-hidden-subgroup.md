@@ -737,7 +737,7 @@ _q.e.d_
 
 It turns out that when $G$ is abelian, the group of characters on $G$ is isomorphic to $G$:
 
-{: #clm:abelian-char-group}
+{: #clm:abelian-character-group}
 
 > **Claim (Abelian Character Group).** For any finite abelian group $G$, $G\cong\hat{G}$.
 
@@ -868,7 +868,7 @@ $$
 In other words, $U$ is a [unitary transformation](https://en.wikipedia.org/wiki/Unitary_transformation) that simultaneously diagonalizes
 $L_g$ for all $g\in G$.
 
-_Proof._ By [Abelian Character Group](#clm:abelian-char-group), $\mathbb{C}[\hat{G}]$
+_Proof._ By [Abelian Character Group](#clm:abelian-character-group), $\mathbb{C}[\hat{G}]$
 and $\mathbb{C}[G]$ have the same dimension. Therefore, it suffices to show that $U$
 maps basis vectors $|\chi\rangle\in\mathbb{C}[G]$ to orthogonal unit eigenvectors of $L_g$.
 
@@ -893,6 +893,8 @@ _q.e.d_
 
 We will define the _Quantum Fourier Transform_ of $G$ to be complex conjugate of $U$:
 
+{: #defn:quantum-fourier-transform }
+
 > **Definition (Quantum Fourier Transform).** Let $G$ be a finite abelian group.
 > The Quantum Fourier Transform (QFT) on $G$ is defined by:
 >
@@ -904,6 +906,8 @@ We will define the _Quantum Fourier Transform_ of $G$ to be complex conjugate of
 > $$
 
 The following claim is a direct consequence of [Diagonalization](#clm:unitary-diag):
+
+{: #clm:qft-diagonalization }
 
 > **Claim (QFT Diagonalization).** Let $G$ be a finite abelian group.
 > Then $\mathrm{Q}$ is unitary and for all $g\in G$:
@@ -918,6 +922,294 @@ $\mathrm{QFT} = U^*$
 _q.e.d_
 
 ## Coset States
+
+We'll now see how the quantum fourier transform can be used to solve the hidden subgroup problem.
+Recall from section XXX that the first part of the _standard method_ produces a coset state:
+
+$$
+|gH\rangle = \frac{1}{\sqrt{|H|}}\sum_{h\in H}|gh\rangle
+$$
+
+where $H$ is the hidden subgroup and $g$ is an unknown element of $G$. We'll use the QFT
+to extract information about $H$ from a coset state $|gH\rangle$.
+
+If $\chi\in\hat{G}$ is a character on $G$ and $H\subset G$ is a subgroup of $G$
+then we will use the notation $\chi_H$ to denote the restriction of $\chi$ to $H$.
+
+Let's see what happens if we apply the QFT to $\|H\rangle$:
+
+{: #clm:qft-subgroup-state }
+
+> **Claim (QFT Subgroup State).** Let $G$ be a finite abelian group and let $H\subset G$ be
+> a subgroup. Then:
+>
+> $$
+> \mathrm{QFT}(|H\rangle) = \sqrt{\frac{|H|}{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}|\chi\rangle
+> $$
+
+In other words, applying the QFT to $|H\rangle$ gives a sum over the characters on $G$
+whose restriction to $H$ is trivial.
+
+_Proof._ First, note that for all $h\in H$ the state $\|H\rangle$ is invariant under
+a shift by $h$:
+
+$$
+\begin{equation}\label{eq:subgroup-state-shift}
+L_h|H\rangle = |H\rangle
+\end{equation}
+$$
+
+By [QFT Diagonalization](#clm:qft-diagonalization), $\mathrm{QFT}$ is unitary and:
+
+$$
+L_h = \mathrm{QFT}^* \circ D_h \circ \mathrm{QFT}
+$$
+
+Applying this to \ref{eq:subgroup-state-shift} gives and multiplying both sides
+by $\mathrm{QFT}$ gives:
+
+$$
+\mathrm{QFT}|H\rangle = D_h\mathrm{QFT}|H\rangle 
+$$
+
+Taking the inner product of both sides with a character $\chi\in\hat{G}$ and
+using the definition of $D_h$:
+
+$$
+\begin{align*}
+\langle\chi|\mathrm{QFT}|H\rangle &= \langle\chi|D_h\mathrm{QFT}|H\rangle \\
+&= \chi(h)\langle\chi|\mathrm{QFT}|H\rangle
+\end{align*}
+$$
+
+Therefore, either $\langle\chi\|\mathrm{QFT}\|H\rangle=0$ or $\chi(h)=1$ for all $h\in H$.
+
+Suppose that $\chi_H=1$. Then:
+
+$$
+\begin{align*}
+\langle\chi|\mathrm{QFT}|H\rangle &= \frac{1}{\sqrt{|G|}\sqrt{|H|}}\sum_{h\in H}\chi(h)|\chi\rangle \\
+&= \frac{|H|}{\sqrt{|G|}\sqrt{|H|}}\sum_{h\in H}|\chi\rangle \\
+&= \sqrt{\frac{|H|}{|G|}}|\chi\rangle
+\end{align*}
+$$
+
+_q.e.d_
+
+We can use this claim together with another application of [QFT Diagonalization](#clm:qft-diagonalization) to determine what
+happens when we apply the QFT to a coset state:
+
+{: #clm:qft-coset-state }
+> **Claim (QFT Coset State).** Let $G$ be a finite abelian group and let $H\subset G$ be
+> a subgroup and $g\in G$ and element of $G$. Then:
+>
+> $$
+> \mathrm{QFT}(|gH\rangle) = \sqrt{\frac{|H|}{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}\chi(g)|\chi\rangle
+> $$
+
+_Proof._ We can rewrite the coset state as:
+
+$$
+|gH\rangle = L_g|H\rangle
+$$
+
+By [QFT Diagonalization](#clm:qft-diagonalization), $L_g = \mathrm{QFT}^*\circ D_g\circ \mathrm{QFT}$ and so:
+
+$$
+\mathrm{QFT}|gH\rangle = (D_g\circ\mathrm{QFT})|H\rangle
+$$
+
+Applying [QFT Subgroup State](#clm:qft-subgroup-state) gives:
+
+$$
+\begin{align*}
+\mathrm{QFT}|gH\rangle &= D_g \frac{\sqrt{|H|}}{\sqrt{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}|\chi\rangle \\
+&= \frac{\sqrt{|H|}}{\sqrt{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}D_g|\chi\rangle \\
+&= \frac{\sqrt{|H|}}{\sqrt{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}\chi(g)|\chi\rangle 
+\end{align*}
+$$
+
+_q.e.d_
+
+This gives us a strategy for extracting information about $H$ from an arbitrary coset state $|gH\rangle$.
+According to [QFT Coset State](#clm:qft-coset-state), if we apply the QFT to $|gH\rangle$ and measure in
+the standard basis of $\mathbb{C}[\hat{G}]$ then we are guaranteed to measure a character $\chi$
+whose restriction to $H$ is trivial. As we will see in the following sections, this essentially imposes
+a linear constraint on the generators of $H$. Repeating the process $\mathcal{O}(\log\|H\|)$ times will determine
+the generators of $H$ with high probability.
+
+# Simon's Algorithm
+
+In section XXX we introduced Simon's problem and saw that it is a special case of
+the hidden subgroup problem with $G = (\mathbb{Z}/2)^N$ and function $f:G\rightarrow A$ 
+that hides a subgroup $H$ of order $2$.
+
+In this section we'll apply the theory from section [The Quantum Fourier Transform](#the-quantum-fourier-transform)
+to this group and recover Simon's original solution to the problem.
+
+We'll represent elements of $(\mathbb{Z}/2)^N$ as bit-strings 
+
+$$
+\mathbf{x} = x_1,\dots,x_n
+$$
+
+where $x_i\in\{0,1\}$. The group operation on $(\mathbb{Z}/2)^N$ is bitwise addition modulo $2$
+which we will denote by $\oplus$.
+
+## Characters
+
+In order to construct the Quantum Fourier Transform we need to
+find the characters on $(\mathbb{Z}/2)^N$.
+
+To facilitate notation, we will introduce the bitwise dot product on elements of
+$(\mathbb{Z}/2)^N$:
+
+$$
+\mathbf{x} \cdot \mathbf{x}' := \sum_{i=1}^N x_ix'_i
+$$
+
+Given a bit-string $\mathbf{y}\in(\mathbb{Z}/2)^N$, we'll define the character $\chi_\mathbf{y}$
+to be:
+
+$$
+\begin{align*}
+\chi_\mathbf{y}: (\mathbb{Z}/2)^N &\rightarrow \mathbb{C}^\times \\
+\mathbf{x} &\mapsto (-1)^{\mathbf{x}\cdot\mathbf{y}}
+\end{align*}
+$$
+
+To check that $\chi_\mathbf{y}$ is a character, let $\mathbf{x},\mathbf{x}'\in (\mathbb{Z}/2)^N$
+be to bit-strings. Then indeed:
+
+$$
+\begin{align*}
+\chi_{\mathbf{y}}(\mathbf{x}\oplus\mathbf{x}') &= (-1)^{(\mathbf{x}\oplus\mathbf{x}')\cdot\mathbf{y}} \\
+&= (-1)^{(\mathbf{x}\cdot\mathbf{y})\oplus(\mathbf{x}'\cdot\mathbf{y})} \\
+&= (-1)^{(\mathbf{x}\cdot\mathbf{y})}\cdot (-1)^{(\mathbf{x}'\cdot\mathbf{y})} \\
+&= \chi_\mathbf{y}(\mathbf{x})\cdot\chi_\mathbf{y}(\mathbf{x}')
+\end{align*}
+$$
+
+By [Abelian Character Group](#clm:abelian-character-group), there are $2^N$ characters on
+$(\mathbb{Z}/2)^N$ which means that all of the characters on $(\mathbb{Z}/2)^N$ are of the form
+$\chi_\mathbf{y}$ for some $\mathbf{y}\in (\mathbb{Z}/2)^N$.
+
+By [definition](#defn:quantum-fourier-transform), this means that the QFT on this group is given by:
+
+$$
+\mathrm{QFT}(|\mathbf{x}\rangle) = 
+\frac{1}{2^{N-1}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
+$$
+
+## The Standard Method
+
+We now use the QFT to use the standard method from section XXX to solve Simon's problem.
+
+First, recall in this case the hidden subgroup $H$ is guaranteed to be of order $2$.
+So we'll write it as:
+
+$$
+H = \{\mathbf{0}, \mathbf{s} \}
+$$
+
+for some hidden element $\mathbf{s}\in(\mathbb{Z}/2)^N$ that we are trying to find.
+
+As usual, the first step of the standard method is to construct the state:
+
+$$
+\frac{1}{2^{N-1}}\sum_{\mathbf{x}\in(\mathbb{Z}/2)^N}|\mathbf{x}\rangle|0\rangle
+$$
+
+Next we apply $f$ to obtain:
+
+$$
+\frac{1}{2^{N-1}}\sum_{\mathbf{x}\in(\mathbb{Z}/2)^N}|\mathbf{x}\rangle|f(\mathbf{x})\rangle
+$$
+
+Then we measure the auxiliary register and are left with a coset state:
+
+$$
+|\mathbf{x} \oplus H\rangle = \frac{1}{\sqrt{2}}(|\mathbf{x}\rangle + |\mathbf{x}\oplus\mathbf{s}\rangle)
+$$
+
+for some unknown $mathbf{x}\in(\mathbb{Z}/2)^N$.
+
+By [QFT Coset State](#clm:qft-coset-state), we expect that applying the QFT to 
+$|\mathbf{x} \oplus H\rangle$ should remove confounding effect of $\mathbf{x}$ and reveal information about $\mathbf{s}$.
+
+Indeed, using the explicit form for the QFT in this case from the previous section:
+
+$$
+\begin{align*}
+\mathrm{QFT}($|\mathbf{x} \oplus H\rangle) &= 
+\frac{1}{2^{N-1}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}((-1)^{\mathbf{x}\cdot\mathbf{y}} + (-1)^{(\mathbf{x}\oplus\mathbf{s})\cdot\mathbf{y}}|\mathbf{y}\rangle \\
+&= \frac{1}{2^{N-1}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}((-1)^{\mathbf{x}\cdot\mathbf{y}}(1 + (-1)^{\mathbf{s}\cdot\mathbf{y}})|\mathbf{y}\rangle
+\end{align*}
+$$
+
+Note that the coefficient of $|\chi_\mathbf{y}\rangle$ is either equal to $0$ or $2$:
+
+$$
+1 + (-1)^{\mathbf{s}\cdot\mathbf{y}} = \begin{cases}
+2 & \mathbf{s}\cdot\mathbf{y} = 0 \\
+0 & \mathrm{else}
+$$
+
+Therefore:
+
+$$
+\mathrm{QFT}($|\mathbf{x} \oplus H\rangle) =
+\frac{1}{2^{N-2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N,\,\mathbf{s}\cdot\mathbf{y}=0}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
+$$
+
+as predicted by claim [QFT Coset State](#clm:qft-coset-state).
+
+This means that if we measure $\mathrm{QFT}($|\mathbf{x} \oplus H\rangle)$ in the standard basis
+we get an element $\mathbf{y}\in(\mathbb{Z}/2)^N$ satisfying
+
+$$
+\mathbf{s}\cdot\mathbf{y} = \sum_{i=1}^N s_iy_i = 0 \mathrm{(mod 2)}$.
+$$
+
+In other words, after measuring $\mathrm{QFT}(|\mathbf{x} \oplus H\rangle)$ we will get one linear
+constraint on the hidden vector $\mathbf{s}$. If we repeat the process $\mathcal{O}(N)$ times, we have a high
+chance of finding $N$ independent linear constraints on the length $N$ vector $\mathbf{s}$ which
+is sufficient to recover $\mathbf{s}$ and solve Simon's problem.
+
+In conclusion, we can use the QFT to solve Simon's problem in only $\mathcal{O}(N)$ invocations of $f$.
+In the next section we'll show how to efficiently implement the QFT in this case.
+
+## QFT Implementation
+
+In this section we'll show how to efficiently implement the QFT on $(\mathbb{Z}/2)^N$.
+By _efficiently_ we mean that the quantum circuit for the QFT should consist of $\mathcal{O}(N)$ gates,
+where each gate operates on no more than two bits.
+
+Recall that the QFT on $(\mathbb{Z}/2)^N$ is given by:
+
+$$
+\mathrm{QFT}(|\mathbf{x}\rangle) = 
+\frac{1}{2^{N-1}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
+$$
+
+Since there are $2^N$ terms in the sum, a naive implementation that computes the QFT term by term would
+be too slow. The key to an efficient implementation is the following claim:
+
+> **Claim (QFT For Bit-strings).** The QFT on $(\mathbb{Z}/2)^N$ can be expressed as:
+>
+> $$
+> \mathrm{QFT}(|\mathbf{x}\rangle) = \bigotimes_{i=1}^N (|0\rangle + (-1)^{x_i}|1\rangle)
+> $$
+
+
+
+
+
+
+
+
+
+
 
 
 
