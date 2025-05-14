@@ -704,14 +704,14 @@ $$
 
 Here are some basic properties of characters that will be useful below:
 
-{: #clm:char-props}
+{: #clm:character-properties }
 
 > **Claim (Character Properties).** Let $G$ be a finite group and let $N=|G|$ denote the order of $G$.
 > Let $\chi$ be a character on $G$. Then:
 >
 > 1. $\chi(1) = 1$
 > 2. $\chi(g)^N = 1$ for all $g\in G$.
-> 3. $\chi(g)^* = \chi(g)^{-1} for all $g\in G$.
+> 3. $\chi(g)^{-1} = \bar{\chi} for all $g\in G$.
 
 _Proof._
 
@@ -768,7 +768,7 @@ To see that $F$ is injective, note that if $k\in\mathbb{Z}/N$ is in the kernel o
 then $\chi_k(l) = \omega_N^{kl} = 1$ for all $l\in\mathbb{Z}/N$. But this implies that $k=0$.
 
 To see that $F$ is surjective, let $\chi\in\widehat{Z/N}$ be a character. By
-[Character Properties](#clm:char-props), $\chi(1)^N=1$. Therefore, there exists some
+[Character Properties](#clm:character-properties), $\chi(1)^N=1$. Therefore, there exists some
 $k\in\mathbb{Z}/N$ such that $\chi(1) = \omega_N^k$. It is easy to see that $\chi = F(k)$.
 
 Now suppose $G$ is an arbitrary finite abelian group. Recall that by the
@@ -821,7 +821,7 @@ a simultaneous eigenvector for $L_g$ whose eigenvalues are given by $\chi$:
 > Then, for all $g\in G$, $|\varphi\rangle$ is an eigenvector of
 > $L_g$ with eigenvalue $\chi(g)$.
 
-_Proof._ Recall that by [Character Properties](#clm:char-prop), 
+_Proof._ Recall that by [Character Properties](#clm:character-properties), 
 $\chi^*(g)=\chi^{-1}(g)$ for all $g\in G$. The claim follows by direct calculation:
 
 $$
@@ -855,7 +855,7 @@ $$
 > $$
 > \begin{align*}
 > U : \mathbb{C}[\hat{G}] &\rightarrow \mathbb{C}[G] \\
-> |\chi\rangle &\mapsto \frac{1}{\sqrt{|G|}}\sum_{g\in G}\chi^*(g)|g\rangle
+> |\chi\rangle &\mapsto \frac{1}{\sqrt{|G|}}\sum_{g\in G}\bar{\chi(g)}|g\rangle
 > \end{align*}
 > $$
 >
@@ -882,7 +882,7 @@ with distinct eigenvalues are orthogonal which implies that $U|\chi_1\rangle$ an
 are orthogonal.
 
 It remains to show that $U|\chi\rangle$ has unit length for all $\chi\in\hat{G}$.
-Recall that by [Character Properties](#clm:char-props), $\chi^*(g)=\chi^{-1}(g)$ for all
+Recall that by [Character Properties](#clm:character-properties), $\bar{\chi}(g)=\chi^{-1}(g)$ for all
 $g\in G$ which implies that $\|\chi^*(g)\|^2 = 1$. Therefore:
 
 $$
@@ -900,7 +900,7 @@ We will define the _Quantum Fourier Transform_ of $G$ to be complex conjugate of
 >
 > $$
 > \begin{align*}
-> \mathrm{QFT} : \mathbb{C}[G] &\rightarrow \mathbb{C}[\hat{G}] \\
+> \mathrm{QFT}_G : \mathbb{C}[G] &\rightarrow \mathbb{C}[\hat{G}] \\
 > |g\rangle &\mapsto \frac{1}{\sqrt{|G|}}\sum_{\chi\in \hat{G}}\chi(g)|\chi\rangle
 > \end{align*}
 > $$
@@ -910,16 +910,83 @@ The following claim is a direct consequence of [Diagonalization](#clm:unitary-di
 {: #clm:qft-diagonalization }
 
 > **Claim (QFT Diagonalization).** Let $G$ be a finite abelian group.
-> Then $\mathrm{Q}$ is unitary and for all $g\in G$:
+> Then $\mathrm{QFT}_G$ is unitary and for all $g\in G$:
 >
 > $$
-> L_g = \mathrm{QFT}^* \circ D_g \circ \mathrm{QFT}
+> L_g = \mathrm{QFT}_G^* \circ D_g \circ \mathrm{QFT}_G
 > $$
 
 _Proof._ This follows immediately from [Diagonalization](#clm:unitary-diag) and the fact that
 $\mathrm{QFT} = U^*$
 
 _q.e.d_
+
+It is common to construct groups as products of smaller groups. Suppose that $G$ and $H$
+are finite abelian groups and that we know $\mathrm{QFT}_G$ and $\mathrm{QFT}_H$. What can we say about
+$\mathrm{QFT}_{G\times H}$, the QFT on the product $G\times H$?
+
+First of all, note that $\mathbb{C}[G\times H]$ is isomorphic to $\mathbb{C}[G]\otimes\mathbb{C}[H]$
+with the isomorphism given by:
+
+$$
+\begin{align*}
+\mathbb{C}[G]\otimes\mathbb{C}[H] &\rightarrow \mathbb{C}[G\times H] \\
+|g\rangle \otimes |h\rangle &\mapsto |(g,h)\rangle
+\end{align*}
+$$
+
+We will therefore slightly abuse notation and identify $\mathbb{C}[G\times H]$ with
+$\mathbb{C}[G]\otimes\mathbb{C}[H]$. We can use this identification to compare
+$\mathrm{QFT}\_{G\times H}$ to $\mathrm{QFT}\_{G}$ and $\mathrm{QFT}\_{H}$
+
+{: #clm:qft-product }
+
+> **Claim (QFT Product).** Let $G$ and $H be finite abelian groups. Then:
+>
+> $$
+> \mathrm{QFT}_{G\times H} = \mathrm{QFT}_G \otimes \mathrm{QFT}_H
+> $$
+
+_Proof._ First, let's see how the characters on $G\times $H relate to the characters on
+$G$ and $H$. Suppose that $\chi\in\hat{G}$ is a character on $G$ and $\lambda\in\hat{H}$
+is a character on $H$. It is easy to see that the function $(\chi,\lambda)$ defined by: 
+
+$$
+\begin{align*}
+(\chi,\lambda): G\times H &\rightarrow \mathbb{C}^\times \\
+(g, h) &\mapsto \chi(g)\lambda(h)
+\end{align*}
+$$
+
+is a character on $G\times H$. This defines a group homomorphism:
+
+$$
+\hat{G} \times \hat{H} \rightarrow \widehat{G\times H}
+$$
+
+It is easy to see that it is injective. Furthermore, 
+by [Abelian Character Group](#clm:abelian-character-group) the groups on both sides have
+order $|G|\cdot|H|$. Therefore this correspondence is an isomorphism. As a consequence we have:
+
+$$
+\mathbb{C}[\widehat{G\times H}] \cong \mathbb{C}[\hat{G}]\otimes\mathbb{C}[\hat{H}]
+$$
+
+Now, let $g\in G$ be an element of $G$ and $h\in H$ be an element of $H$. By the above identification 
+of $\widehat{G\times H}$ and $\hat{G}\times\hat{H}$ together with the definition
+of $\mathrm{QFT}_{G\times H}$:
+
+$$
+\begin{align*}
+\mathrm{QFT}_{G\times H}|(g,h)\rangle &= \frac{1}{\sqrt{|G\times H|}}\sum_{\chi\in \widehat{G\times H}}\chi((g,h))|\chi\rangle \\
+&= \frac{1}{\sqrt{|G|\cdot| H|}}\sum_{\chi\in \hat{G},\,\lambda\in\hat{H}}\chi(g)\lambda(h)|\chi\rangle|\lambda\rangle \\
+&= \left(\frac{1}{\sqrt{|G|}}\sum_{\chi\in \hat{G}}\chi(g)|\chi\rangle\right) \otimes \left(\frac{1}{\sqrt{|H|}}\sum_{\lambda\in \hat{H}}\lambda(h)|\lambda\rangle\right) \\
+&= \mathrm{QFT}_G(g) \otimes \mathrm{QFT}_H(h) 
+\end{align*}
+$$
+
+_q.e.d_
+
 
 ## Coset States
 
@@ -1065,7 +1132,7 @@ To facilitate notation, we will introduce the bitwise dot product on elements of
 $(\mathbb{Z}/2)^N$:
 
 $$
-\mathbf{x} \cdot \mathbf{x}' := \sum_{i=1}^N x_ix'_i
+\mathbf{x} \cdot \mathbf{y} := \sum_{i=1}^N x_iy_i
 $$
 
 Given a bit-string $\mathbf{y}\in(\mathbb{Z}/2)^N$, we'll define the character $\chi_\mathbf{y}$
@@ -1098,8 +1165,11 @@ By [definition](#defn:quantum-fourier-transform), this means that the QFT on thi
 
 $$
 \mathrm{QFT}(|\mathbf{x}\rangle) = 
-\frac{1}{2^{N-1}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
+\frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
 $$
+
+Note that in this sum, we are representing the character basis elements $\|\chi_\mathbf{y}\rangle$ by
+the bit-string $\|\mathbf{y}\rangle$.
 
 ## The Standard Method
 
@@ -1117,13 +1187,13 @@ for some hidden element $\mathbf{s}\in(\mathbb{Z}/2)^N$ that we are trying to fi
 As usual, the first step of the standard method is to construct the state:
 
 $$
-\frac{1}{2^{N-1}}\sum_{\mathbf{x}\in(\mathbb{Z}/2)^N}|\mathbf{x}\rangle|0\rangle
+\frac{1}{2^{N/2}}\sum_{\mathbf{x}\in(\mathbb{Z}/2)^N}|\mathbf{x}\rangle|0\rangle
 $$
 
 Next we apply $f$ to obtain:
 
 $$
-\frac{1}{2^{N-1}}\sum_{\mathbf{x}\in(\mathbb{Z}/2)^N}|\mathbf{x}\rangle|f(\mathbf{x})\rangle
+\frac{1}{2^{N/2}}\sum_{\mathbf{x}\in(\mathbb{Z}/2)^N}|\mathbf{x}\rangle|f(\mathbf{x})\rangle
 $$
 
 Then we measure the auxiliary register and are left with a coset state:
@@ -1142,8 +1212,8 @@ Indeed, using the explicit form for the QFT in this case from the previous secti
 $$
 \begin{align*}
 \mathrm{QFT}($|\mathbf{x} \oplus H\rangle) &= 
-\frac{1}{2^{N-1}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}((-1)^{\mathbf{x}\cdot\mathbf{y}} + (-1)^{(\mathbf{x}\oplus\mathbf{s})\cdot\mathbf{y}}|\mathbf{y}\rangle \\
-&= \frac{1}{2^{N-1}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}((-1)^{\mathbf{x}\cdot\mathbf{y}}(1 + (-1)^{\mathbf{s}\cdot\mathbf{y}})|\mathbf{y}\rangle
+\frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}((-1)^{\mathbf{x}\cdot\mathbf{y}} + (-1)^{(\mathbf{x}\oplus\mathbf{s})\cdot\mathbf{y}}|\mathbf{y}\rangle \\
+&= \frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}((-1)^{\mathbf{x}\cdot\mathbf{y}}(1 + (-1)^{\mathbf{s}\cdot\mathbf{y}})|\mathbf{y}\rangle
 \end{align*}
 $$
 
@@ -1159,7 +1229,7 @@ Therefore:
 
 $$
 \mathrm{QFT}($|\mathbf{x} \oplus H\rangle) =
-\frac{1}{2^{N-2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N,\,\mathbf{s}\cdot\mathbf{y}=0}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
+\frac{1}{2^{(N-1)/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N,\,\mathbf{s}\cdot\mathbf{y}=0}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
 $$
 
 as predicted by claim [QFT Coset State](#clm:qft-coset-state).
@@ -1188,18 +1258,132 @@ where each gate operates on no more than two bits.
 Recall that the QFT on $(\mathbb{Z}/2)^N$ is given by:
 
 $$
-\mathrm{QFT}(|\mathbf{x}\rangle) = 
-\frac{1}{2^{N-1}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
+\mathrm{QFT}_{(\mathbb{Z}/2)^N}(|\mathbf{x}\rangle) = 
+\frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
 $$
 
 Since there are $2^N$ terms in the sum, a naive implementation that computes the QFT term by term would
-be too slow. The key to an efficient implementation is the following claim:
+be too slow.
+
+Instead, we will implement the QFT using [Hadamard Gates](https://en.wikipedia.org/wiki/Quantum_logic_gate#Hadamard_gate).
+Recall that a Hadamard gate $H$ on a single qubit is defined by:
+
+$$
+\begin{align*}
+H|0\rangle &= \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle) \\
+H|1\rangle &= \frac{1}{\sqrt{2}}(|0\rangle - |1\rangle)
+\end{align*}
+$$
+
+We can write this more succinctly as:
+
+$$
+H|x\rangle = \frac{1}{\sqrt{2}}(|0\rangle + (-1)^x|1\rangle)
+$$
+
+where $x\in\mathbb{Z}/2$. But note that this is equal to the QFT on $\mathbb{Z}/2$.
+In other words:
+
+$$
+\mathrm{QFT}_{\mathbb{Z}/2} = H
+$$
+
+
+The following claim follows immediately from this observation and [QFT Product](#clm:qft-product):
 
 > **Claim (QFT For Bit-strings).** The QFT on $(\mathbb{Z}/2)^N$ can be expressed as:
 >
 > $$
-> \mathrm{QFT}(|\mathbf{x}\rangle) = \bigotimes_{i=1}^N (|0\rangle + (-1)^{x_i}|1\rangle)
+> \mathrm{QFT}_{(\mathbb{Z}/2)^N} = H^{\otimes N}
 > $$
+
+# Shor's Algorithm
+
+In section XXX we saw that the quantum component of Shor's algorithm for factoring
+integers can be reduced to the hidden subgroup problem on the additive group of
+integers modulo $N$: $G=\mathbb{Z}/N$.
+
+Similarly to section [Simon's Algorithm](#simons-algorithm), in this section we'll
+compute the QFT for $\mathbb{Z}/N$ and use it to derive Shor's algorithm.
+
+We will represent elements of $\mathbb{Z}/N$ as integers $0 \leq l < N$ and denote the
+addition operation by $+$.
+
+## Characters
+
+In order to get a handle on $\mathrm{QFT}_{\mathbb{Z}/N}$ we first need to find the characters
+on $\mathbb{Z}/N$.
+
+We'll denote the primitive $N$-th root of unity by $\omega_N$:
+
+$$
+\omega_N = e^{2\pi i / N}
+$$
+
+Let $\chi\in\widehat{\mathbb{Z}/N}$ be a character on $\mathbb{Z}/N$.
+First note that $\chi$ is determined by its value on $1\in\mathbb{Z}/N$ since for
+all $0 \leq l < N$:
+
+$$
+\chi(l) = \chi(l\cdot 1) = \chi(1)^l
+$$
+
+In addition, by [Character Properties](#clm:character-properties):
+
+$$
+\chi(1)^N = 1
+$$
+
+Therefore, there is some $k\in\mathbb{Z}$ satisfying $0\leq k < N$ such that:
+
+$$
+\chi(1) = \omega_N^k
+$$
+
+Together this implies that the characters on $\mathbb{Z}/N$ are all of the form:
+
+$$
+\chi(l) = \omega_N^{kl}
+$$
+
+for some $0\leq k < N$.
+
+By [definition](#defn:quantum-fourier-transform), it follows that the QFT on
+$\mathbb{Z}/N$ is given by:
+
+$$
+\mathrm{QFT}_{\mathbb{Z}/N}(|l\rangle) = \frac{1}{\sqrt{N}}\sum_{k=0}^{N-1}\omega_N^{kl}|k\rangle
+$$
+
+## The Standard Method
+
+Similarly to Simon's Algorithm, we can use $\mathrm{QFT}_{\mathbb{Z}/N}$ to apply the [standard method](XXX)
+to solve the hidden subgroup problem on $\mathbb{Z}/N$.
+
+
+In this case the hidden subgroup $H$ will be generated by an element $l\in\mathbb{Z}/N$ such that
+$l$ divides $N$. Therefore, determining $H$ is equivalent to finding the generator $l$.
+Furthermore, note that:
+
+$$
+|H| = N / l
+$$
+
+As usual, the first step of the standard method will produce a coset state:
+
+$$
+|m + H\rangle
+$$
+
+for some unknown $m\in\mathbb{Z}/N$. By theorem [QFT Coset State](#clm:qft-coset-state),
+applying $\mathrm{QFT}_{\mathbb{Z}/N}$ to this state will give us:
+
+USE \chi_k to make this more clear. i.e, (\chi_k)_H=1 iff \omega_N^{kl}=1
+$$
+\mathrm{QFT}_{\mathbb{Z}/N}|m + H\rangle = \frac{1}{l}\sum_{k\in\mathbb{Z}/N,\,\omega_N^{kl}=1}\omega_N^{km}|k\rangle
+$$
+
+
 
 
 
