@@ -734,35 +734,50 @@ _Proof._
 
 _q.e.d_
 
+Since this post is focused on abelian groups, it will be helpful to have an explicit
+description of characters in that setting. 
 
-It turns out that when $G$ is abelian, the group of characters on $G$ is isomorphic to $G$:
+Recall that by the
+[Fundamental Theorem of Abelian Groups](https://en.wikipedia.org/wiki/Finitely_generated_abelian_group#Primary_decomposition),
+any abelian group is a product of cyclic groups. We'll start by describing the characters on
+cyclic groups and then show how characters on a product can be understood in terms of the
+constituent factors.
 
-{: #clm:abelian-character-group}
+{: #clm:cyclic-character-group }
 
-> **Claim (Abelian Character Group).** For any finite abelian group $G$, $G\cong\hat{G}$.
+> **Claim (Cyclic Character Group).** Let $N$ be an integer and let $\omega_N\in\mathbb{C}$ be the primitive
+> $N$-th root of unity defined by $\omega_N = e^{2\pi i/N}$. For each integer $0 \leq k < N$,
+> let $\chi_k: \mathbb{Z}/N \rightarrow \mathbb{C}^\times$ be the function defined by:
+>
+> $$
+> \chi_k(l) = \omega_N^{kl}
+> $$
+>
+>Then:
+>
+> 1. For all $0 \leq k < N$ the function $\chi_k$ is a character on $\mathbb{Z}/N$
+> 1. The following function is a group isomorphism:
+>
+> $$
+> \begin{align*}
+> F: \mathbb{Z}/N &\rightarrow \widehat{\mathbb{Z}/N} \\
+> k &\mapsto \chi_k
+> \end{align*}
+> $$
 
-_Proof._ We'll start with the case when $G$ is the group of integers modulo $N$:
-$G=\mathbb{Z}/N$.
+_Proof._ The fact that $\chi_k$ is a character follows directly by the definition of a character.
 
-Let $\omega_N = e^{2\pi i / N}\in\mathbb{C}$ be a primitive $N$-th root of unity. 
-
-For each $0\leq k < N$, we'll define the character $\chi_k\in\widehat{\mathbb{Z}/N}$ by:
-
-$$
-\chi_k(l) = \omega_N^{kl}
-$$
-
-We can use these characters to define a function from $\mathbb{Z}/N$ to $\widehat{\mathbb{Z}/N}$:
+To see that $F$ is a homomorphism, we must show that $\chi_{k_1 + k_2} = \chi_{k_1}\cdot\chi_{k_2}$.
+Let $k_1,k_2\in\mathbb{Z}/N$ be elements of $\mathbb{Z}/N$.
+Then for all $l\in\mathbb{Z}/N$:
 
 $$
 \begin{align*}
-F: \mathbb{Z}/N &\rightarrow \widehat{\mathbb{Z}/N} \\
-k &\mapsto \chi_k
+\chi_{k_1 + k_2}(l) &= \omega_N^{(k_1 + k_2)l} \\
+&= \omega_N^{k_1 l}\cdot \omega_N^{k_2 l} \\
+&= \chi_{k_1}(l)\cdot\chi_{k_2}(l)
 \end{align*}
 $$
-
-We claim that $F$ is a group isomorphism. The fact that $F$ is a homomorphism follows from direct
-calculation. 
 
 To see that $F$ is injective, note that if $k\in\mathbb{Z}/N$ is in the kernel of $F$
 then $\chi_k(l) = \omega_N^{kl} = 1$ for all $l\in\mathbb{Z}/N$. But this implies that $k=0$.
@@ -771,36 +786,77 @@ To see that $F$ is surjective, let $\chi\in\widehat{Z/N}$ be a character. By
 [Character Properties](#clm:character-properties), $\chi(1)^N=1$. Therefore, there exists some
 $k\in\mathbb{Z}/N$ such that $\chi(1) = \omega_N^k$. It is easy to see that $\chi = F(k)$.
 
-Now suppose $G$ is an arbitrary finite abelian group. Recall that by the
-[Fundamental Theorem of Abelian Groups](https://en.wikipedia.org/wiki/Finitely_generated_abelian_group#Primary_decomposition),
-$G$ is isomorphic to a direct sum of cyclic groups:
+_q.e.d_
+
+Now suppose that the group $G$ is a product:
 
 $$
-G \cong \bigoplus_{i=1}^{n}\mathbb{Z}/N_i
+G = \prod_{l=1}^L G_l
 $$
 
-Furthermore, note that the group of characters of $G$ can be written as the group of homomorphisms
-from $G$ to $\mathbb{C}^\times$:
-
-$$
-\hat{G} \cong \mathrm{Hom}(G, \mathbb{C}^\times)
-$$
-
-Applying this to the decomposition of $G$ and using our result for the cyclic case gives:
+If $\chi_l\in\hat{G}_l$ is a character on $G_l$ then
+we can define a character $P(\chi_1,\dots,\chi_L)$ on $G$ by:
 
 $$
 \begin{align*}
-\hat{G} &\cong \mathrm{Hom}(G, \mathbb{C}^\times)
-\cong \mathrm{Hom}(\bigoplus_{i=1}^{n}\mathbb{Z}/N_i, \mathbb{C}^\times) \\
-&\cong \bigoplus_{i=1}^n\mathrm{Hom}(\mathbb{Z}/N_i, \mathbb{C}^\times)
-\cong \bigoplus_{i=1}^n\widehat{\mathbb{Z}/N_i} \\
-&\cong \bigoplus_{i=1}^n\mathbb{Z}/N_i
-\cong G
+P(\chi_1,\dots,\chi_L): G &\rightarrow \mathbb{C}^\times \\
+(g_1,\dots,g_l) &\mapsto \prod_{l=1}^L\chi_l(g_l)
 \end{align*}
 $$
 
+This defines a function:
+
+$$
+P: \prod_{l=1}^L \hat{G_l} \rightarrow \hat{G}
+$$
+
+The following claim says that all characters on $G$ are of this form.
+
+{: #clm:abelian-character-group}
+
+> **Claim (Product Character Group).** Let the finite group $G$ be a product:
+>
+> $$
+> G = \prod_{l=1}^L G_l
+> $$
+>
+> Then the function
+>
+> $$
+> P: \prod_{l=1}^L \hat{G_l} \rightarrow \hat{G}
+> $$
+>
+> defined above is an isomorphism of groups.
+
+_Proof_. It is easy to see that $P$ is a homomorphism. To see that $P$ is injective,
+suppose that $(\chi_1,\dots,\chi_L)$ is in the kernel of $P$. That implies that for all
+$(g_1,\dots,g_L)\in G$:
+
+$$
+P(\chi_1,\dots,\chi_L)(g_1,\dots,g_L) = \prod_{l=1}^L\chi_l(g_l) = 1
+$$
+
+In particular, if we choose $g_l$ to be the identity for all $l > 1$ then we get that:
+
+$$
+\prod_{l=1}^L\chi_l(g_l) = \chi_1(g_1) = 1
+$$
+
+for all $g_1\in G_1$. This implies that $\chi_1 = 1$. The same argument shows that
+$\chi_l = 1$ for all $l$ which means that the kernel of $P$ is trivial.
+
+To show that $P$ is surjective, let $\chi$ be a character on $G$.
+The restriction of $\chi$ to $G_l$ is a character on $G_l$ which we will denote by $\chi_{G_l}$.
+It is easy to see that $P(\chi_{G_1},\dots,\chi_{G_L}) = \chi$.
+
 _q.e.d_
 
+The next claim follows immediately from the previous two claims and the
+[Fundamental Theorem of Abelian Groups](https://en.wikipedia.org/wiki/Finitely_generated_abelian_group#Primary_decomposition).
+
+{: #clm:abelian-character-group}
+
+> **Claim (Abelian Character Group).** For any finite abelian group $G$, $G\cong\hat{G}$.
 
 ## Eigenvectors
 
@@ -1299,21 +1355,41 @@ The following claim follows immediately from this observation and [QFT Product](
 
 # Shor's Algorithm
 
-In section XXX we saw that the quantum component of Shor's algorithm for factoring
-integers can be reduced to the hidden subgroup problem on the additive group of
-integers modulo $N$: $G=\mathbb{Z}/N$.
+In section XXX we saw that computing [discrete logarithms](https://en.wikipedia.org/wiki/Discrete_logarithm)
+can be reduced to solving the hidden subgroup problem on the group 
+
+$$
+G=\mathbb{Z}/N\times\mathbb{Z}/N
+$$
+
+for an integer $N$.
 
 Similarly to section [Simon's Algorithm](#simons-algorithm), in this section we'll
-compute the QFT for $\mathbb{Z}/N$ and use it to derive Shor's algorithm.
-
-We will represent elements of $\mathbb{Z}/N$ as integers $0 \leq l < N$ and denote the
-addition operation by $+$.
+compute the QFT for $\mathbb{Z}/N \times \mathbb{Z}/N$ and use it to derive Shor's algorithm for the
+discrete logarithm. 
 
 ## Characters
 
-In order to get a handle on $\mathrm{QFT}_{\mathbb{Z}/N}$ we first need to find the characters
-on $\mathbb{Z}/N$.
+In order to compute $\mathrm{QFT}_{\mathbb{Z}/N \times \mathbb{Z}/N}$ we need to
+describe the characters on $\mathbb{Z}/N \times \mathbb{Z}/N$.
 
+Let $\omega_N\in\mathbb{C}$ be the primitive $N$-th root of unity defined by:
+
+$$
+\omega_N = e^{2\pi i/N}
+$$
+
+For an integer $k$, let $\chi_k: \mathbb{Z}/N \rightarrow\mathbb{C}^\times$ be the
+function defined by:
+
+$$
+\chi_k(l) = \omega^{kl}
+$$
+
+By [Cyclic Character Group](#clm:cyclic-character-group), the characters on $\mathbb{Z}/N$
+are all of the form $\chi_k$ for some $0 \leq k < N$.
+
+By [Abelian Character Group](#clm:abelian-character-group), the characters on 
 We'll denote the primitive $N$-th root of unity by $\omega_N$:
 
 $$
