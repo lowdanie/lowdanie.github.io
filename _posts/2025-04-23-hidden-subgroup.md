@@ -52,119 +52,15 @@ Shortest Vector Problem is an instance of the HSP for a non-commutative group
 called the [Dihedral Group](https://en.wikipedia.org/wiki/Dihedral_group) and
 discuss the difficulty of extending Shor's algorithm that group.
 
-# The Group With Two Elements
+# The Hidden Subgroup Problem
 
-Consider the group with two elements $\mathbb{Z}/2\mathbb{Z}$. This group has
-two elements $\\{0,1\\}$ and addition is defined modulo $2$. We'll denote the
-addition operation by the symbol $\oplus$.
+## Definition
 
-The _Hidden Subgroup Problem_ for $\mathbb{Z}/2\mathbb{Z}$ can be stated as
-follows:
+## Simon's Problem
 
-> Let $A=\\{a_0,a_1\\}$ be a set with two elements and
-> $f:\mathbb{Z}/2\mathbb{Z}\rightarrow A$ a function from $\mathbb{Z}$ to $A$.
-> Determine whether $f(0)\in A$ is equal to $f(1)\in A$.
+## The Discrete Logarithm
 
-Of course, it is straightforward to solve this problem classically by simply
-calculating $f(0)$ and $f(1)$ and comparing the results. But, given that $f$ may
-be expensive to compute, it's interesting to wonder if there exists a quantum
-algorithm for this problem that only evaluates $f$ _once_.
-
-A natural starting point is to create a superposition over the elements of
-$\mathbb{Z}/2\mathbb{Z}$ together with an extra bit of scratch space:
-
-$$
-|\psi\rangle = \frac{1}{\sqrt{2}}(|0\rangle|0\rangle + |1\rangle|0\rangle)
-$$
-
-In quantum computing terminology, the extra bit at the end is referred to as the
-[ancilla bit](https://en.wikipedia.org/wiki/Ancilla_bit).
-
-We can then apply $f$ to $|\psi\rangle$ and store the result in the ancilla bit
-to obtain:
-
-$$
-f(|\psi\rangle) = \frac{1}{\sqrt{2}}(|0\rangle|f(0)\rangle + |1\rangle|f(1)\rangle)
-$$
-
-If we measure the ancilla bit there are two possible results. If
-$f(0)=f(1)=a_{\mathrm{eq}}$ then the result of the measurement will be the
-common output $a_{\mathrm{eq}}$ and the new state will be:
-
-$$
-|\psi_{=}\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)|a_{\mathrm{eq}}\rangle
-$$
-
-On the other hand, if $f(0)\neq f(1)$ then the result of the measurement will
-either be $f(0)$ or $f(1)$ with equal probability. If the result of the
-measurement is $f(0)$ then the new state will be:
-
-$$
-|\psi_0\rangle = |0\rangle|f(0)\rangle
-$$
-
-and if the result is $f(1)$ then the new state will be:
-
-$$
-|\psi_1\rangle = |1\rangle|f(1)\rangle
-$$
-
-We will denote by $|\psi\_{\neq}\rangle$ the
-[mixed state](https://en.wikipedia.org/wiki/Quantum_state#Mixed_states) that is
-equally likely to be one of $|\psi_0\rangle$ or $|\psi_1\rangle$.
-
-At first glance it would appear as though we've solved the HSP with only a
-single application of $f$ to $|\psi\rangle$ followed by a measurement. However,
-we still need a way to distinguish between $|\psi_{=}}\rangle$ and
-$|\psi_{\neq}\rangle$.
-
-What happens if we just measure the final state?
-
-The outcome of measuring $\|\psi\_{=}\rangle$ will be either
-$(0, a\_{\mathrm{eq}})$ or $(1, a\_{\mathrm{eq}})$ with equal likelihood.
-Without knowing any additional information about $f$, $a\_{\mathrm{eq}}$ is
-equally likely be equal to either $a\_0$ or $a\_1$. Therefore, the result of
-measuring $\|\psi\_{=}\rangle$ is equally likely to be any of the four pairs
-$(i, a\_j)$ where $i,j\in\\{0,1\\}$.
-
-On the other hand, the result of measuring $\|\psi_{\neq}\rangle$ is equally
-likely to be $(0, f(0))$ or $(1, f(1))$. Without any prior information about
-$f$, this is also equally likely to be $(i, a_0)$ or $(i, a_1)$. Therefore,
-assuming that $f(0)\neq f(1)$, the final result is also equally likely to be any
-of the four pairs $(i, a\_j)$ where $i,j\in\\{0,1\\}$.
-
-In summary, measuring the final state in the standard basis provides no
-additional information about $f$.
-
-How else can we distinguish between $|\psi_{=}\rangle$ and $\psi\_{\neq}\rangle?
-
-Note that, up to a scaling factor, $|\psi_{=}\rangle$ is equal the sum of the
-standard basis vectors $|0\range$ and $|1\rangle$. On the other hand
-$\psi_{\neq}]rangle$ is equal to either the basis vector $|0\rangle$ or the
-basis vector $|1\rangle$. Therefore, all we need is a way to determine whether
-our final state is a sum of two basis vectors or just equal to one of them.
-
-The key idea is to perform a unitary change of basis that will cause the sum of
-the standard basis vectors to partially cancel out. Specifically, consider the
-transformation $H$ which is defined by:
-
-$$
-\begin{align*}
-H |0\rangle &= \frac{1}{\sqrt{2}}\left(|0\rangle + |1\rangle\right) \\
-H |1\rangle &= \frac{1}{\sqrt{2}}\left(|0\rangle - |1\rangle\right)
-\end{align*}
-$$
-
-The point of $H$ is that if we apply it to the sum
-$\frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$ then the vector $|1\rangle$ cancels
-out and we get:
-
-$$
-H\left(\frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)\right) = |0\rangle
-$$
-
-Let's see what happens if we apply $H$ to our states $|\psi_{=}\rangle$ and
-$|\psi_{\neq}\rangle$.
+## The Standard Method
 
 # Simon's Problem
 
@@ -1161,6 +1057,23 @@ the standard basis of $\mathbb{C}[\hat{G}]$ then we are guaranteed to measure a 
 whose restriction to $H$ is trivial. As we will see in the following sections, this essentially imposes
 a linear constraint on the generators of $H$. Repeating the process $\mathcal{O}(\log\|H\|)$ times will determine
 the generators of $H$ with high probability.
+
+## QFT Implementation
+
+In order for the QFT to be useful, we need to be able to implement it efficiently
+with a quantum circuit. By _efficiently_ we mean that the quantum circuit for the QFT
+of the group $G$ should consist of $\mathcal{O}(\log |G|)$ 
+[gates](https://en.wikipedia.org/wiki/Quantum_logic_gate).
+
+As a first step, by the
+[Fundamental Theorem of Abelian Groups](https://en.wikipedia.org/wiki/Finitely_generated_abelian_group#Primary_decomposition),
+and claim [QFT Product](#clm:qft-product), it is sufficient to efficiently implement
+the QFT on the cyclic groups $\mathbb{Z}/N$ for an arbitrary integer $N$.
+
+Deriving an efficient circuit for $\mathrm{QFT}_{\mathbb{Z}/N}$ is outside the scope of this
+post, but a good reference is chapter 4 of 
+[Andrew Childs' Lecture Notes](https://www.cs.umd.edu/~amchilds/qa).
+
 
 # Simon's Algorithm
 
