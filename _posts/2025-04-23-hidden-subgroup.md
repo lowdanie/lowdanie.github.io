@@ -8,49 +8,35 @@ utterance-issue: 12
 
 # Introduction
 
-A fundamental challenge in
-[quantum computing](https://en.wikipedia.org/wiki/Quantum_computing) is to find
-problems for which there is a
-[quantum algorithm](https://en.wikipedia.org/wiki/Quantum_algorithm) that is
-significantly (i.e more than polynomially) faster than the best known classical
-algorithm.
+Two of the most famous [quantum algorithms](https://en.wikipedia.org/wiki/Quantum_algorithm)
+ are
+[Shor's Algorithms](https://en.wikipedia.org/wiki/Shor%27s_algorithm) for
+[integer factorization](https://en.wikipedia.org/wiki/Integer_factorization) and
+[discrete logarithms](https://en.wikipedia.org/wiki/Discrete_logarithm).
+The significance of these algorithms is that efficient integer factorization breaks 
+the [RSA cryptosystem](https://en.wikipedia.org/wiki/RSA_cryptosystem),
+ and efficient discrete logarithm computation
+breaks the [Diffie-Hellman](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange)
+key exchange protocol.
 
-One of the most impactful examples of this is
-[Shor's Algorithm](https://en.wikipedia.org/wiki/Shor%27s_algorithm) for
-[integer factorization](https://en.wikipedia.org/wiki/Integer_factorization).
-The significance of this problem is that the ability to efficiently factor large
-integers would break the ubiquitous RSA cryptography scheme.
+It is natural to wonder what other types of problems that are classically considered
+to be hard can be efficiently solved with a quantum computer.
 
-The possibility of a quantum computer that can run Shor's algorithm has led to
-the development of alternative cryptographic schemes known as
-[Post Quantum Cryptography](https://en.wikipedia.org/wiki/Post-quantum_cryptography)
-which are considered resistant to quantum computers. Rather than relying on the
-difficulty of integer factorization, the leading PQC schemes are forms of
-[Lattice Cryptography](https://en.wikipedia.org/wiki/Lattice-based_cryptography)
-which rely on the difficulty of a lattice problem called
-[Shortest Vector Problem](<https://en.wikipedia.org/wiki/Lattice_problem#Shortest_vector_problem_(SVP)>)
-(SVP)
-
-It turns out that integer factorization can be reformulated as a special case of
-a more general problem called the
-[Hidden Subgroup Problem](https://en.wikipedia.org/wiki/Hidden_subgroup_problem).
-Furthermore, Shor's algorithm can be generalized to an efficient quantum
+Interestingly, both integer factorization and the discrete logarithm problem 
+are special cases of a more general problem called the
+[Hidden Subgroup Problem](https://en.wikipedia.org/wiki/Hidden_subgroup_problem) (HSP).
+Furthermore, Shor's algorithms can be generalized to an efficient quantum
 algorithm for the HSP whenever the group in question is
 [commutative](https://en.wikipedia.org/wiki/Abelian_group).
 
-Interestingly, almost all known problems with a significant quantum speedup are
+Furthermore, almost all problems that we know of with significant quantum speedups are
 instances of the HSP for commutative groups.
 
-Furthermore, even the Shortest Vector Problem is an instance of the HSP for a
-certain _non-commutative_ group. The reason that the SVP is considered resistant
-to quantum algorithms is that it is not known how to extend Shor's algorithm for
-the HSP from commutative to non-commutative groups.
+In this post we'll introduce the Hidden Subgroup Problem and the standard quantum 
+algorithm that efficiently solves it in the commutative case. We'll also see how
 
-In this post we'll introduce and motivate Shor's algorithm for the commutative
-Hidden Subgroup Problem via a sequence of examples. We'll then see how the
-Shortest Vector Problem is an instance of the HSP for a non-commutative group
-called the [Dihedral Group](https://en.wikipedia.org/wiki/Dihedral_group) and
-discuss the difficulty of extending Shor's algorithm that group.
+
+
 
 # The Hidden Subgroup Problem
 
@@ -365,19 +351,14 @@ and recover the famously efficient quantum algorithms for those problems.
 
 # The Quantum Fourier Transform
 
-Recall from section XXX that our strategy for solving the hidden subgroup problem
-is to find a unitary transformation that diagonalizes all of the shift operators $L_g$ for
-$g\in G$. This transform is commonly called the
+Recall from the [previous section](#the-standard-method) that our strategy for 
+solving the hidden subgroup problem
+is to find a unitary transformation that diagonalizes all of the shift operators
+$L_g$ for $g\in G$. This transform is commonly called the
 [Quantum Fourier Transform](https://en.wikipedia.org/wiki/Quantum_Fourier_transform) (QFT).
 
-## Shift Operators
-
-PUT THIS IN THE HSG OVERVIEW
-
-For a group $G$, 
-
-As we noted in section XXXX, our strategy for solving the hidden subgroup problem
-is to find a unitary transformation of $\
+In this section we'll derive the QFT and then see precisely why it is so useful in the
+context of the Hidden Subgroup Problem.
 
 ## Characters
 
