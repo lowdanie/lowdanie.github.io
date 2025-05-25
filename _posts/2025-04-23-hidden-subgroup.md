@@ -54,24 +54,64 @@ discuss the difficulty of extending Shor's algorithm that group.
 
 # The Hidden Subgroup Problem
 
-## Definition
+In this section we'll formally define the hidden subgroup problem and then see
+how it generalizes some famous problems in quantum computing.
+
+We'll start by defining the notion of a function on a group _hiding_ a subgroup.
+
+{: #defn:hiding-a-subgroup }
+
+> **Definition (Hiding A Subgroup).** Let $G$ be a finite group, $H\subset G$ A
+> subgroup $A$ a set and
+> $f: G \rightarrow A$ a function. We say that $f$ _hides_ $H$ if, for all $g_1,g_2\in G$,
+> $f(g_1) = f(g_2)$ if and only if $g_1H = g_2H$.
+
+In other words, $f$ hides $H$ if it defines an injective function on the cosets of $H$.
+
+The _Hidden Subgroup Problem$ is to find $H$ given an black box which allows
+us to evaluate $f$ on any element of $G$.
+
+{: #defn:hidden-subgroup-problem }
+
+> **Definition (Hidden Subgroup Problem).** Let $G$ be a finite group, $H\subset G$
+> a subgroup and 
+> $f: G \rightarrow A$ a that hides $H$.
+> The objective of the _Hidden Subgroup Problem_ (HSP) is to find generators for 
+> $H$ using evaluations of a black box for $f$.
+
+It's always possible to solve an instance of the hidden subgroup problem 
+with $\mathcal{O}(|G|)$ evaluations of $f$. Indeed, we can evaluate $f$ on every element of
+$G$ and note that:
+
+$$
+H = \\{g\in G | f(g) = f(e) \\}
+$$
+
+where $e\in G$ denotes the identity element in $G$.
+
+The interesting problem is whether we can find $H$ more efficiently.
+
+When $G$ is [abelian](https://en.wikipedia.org/wiki/Abelian_group), a generalization
+of
+[Shor's Algorithm](https://en.wikipedia.org/wiki/Shor%27s_algorithm) 
+called _The Standard Method_ is a quantum algorithm that
+solves the HSP with only $\mathcal{O}(\log(|G|))$ invocations of
+$f$. In contrast, there are many interesting instances of the ableian HSP where the best known
+classical algorithm requires $\mathcal{O}(\sqrt{|G|})$ invocations.
+
+Below we'll consider two important instances of the abelian HSG. We'll then describe
+the Standard Method and apply it to each example.
 
 ## Simon's Problem
-
-## The Discrete Logarithm
-
-## The Standard Method
-
-# Simon's Problem
 
 Simon's problem was introduced by
 [Daniel Simon](https://epubs.siam.org/doi/10.1137/S0097539796298637) in 1994 as
 an example of an problem with an efficient quantum algorithm.
 
-Let $B_N = \\{0,1\\}^N$ denote the set of bit-strings of length $N$ and let
+Let $(\mathbb{Z}/2)^N$ be the group of bit-strings of length $N$ and let
 $\oplus$ denote the bitwise XOR operation.
 
-For example, if $N=3$ then $110$ and $101$ are elements of $B_3$ and:
+For example, if $N=3$ then $110$ and $101$ are elements of $(\mathbb{Z}/2)^3$ and:
 
 $$
 110 \oplus 101 = 011
@@ -80,14 +120,15 @@ $$
 Simon's problem is defined as follow:
 
 > We are given access to a black-box for computing a function
-> $f: B_N \rightarrow A$ from $B_N$ to a set $A$. In addition, we are promised
-> that there is a secret bit-string $\mathbf{s}\in G$ such that
+> $f: (\mathbb{Z}/2)^N \rightarrow A$ from 
+> $(\mathbb{Z}/2)^N$ to a set $A$. In addition, we are promised
+> that there is a secret bit-string $\mathbf{s}\in (\mathbb{Z}/2)^N$ such that
 > $f(\mathbf{x}) = f(\mathbf{x}')$ if and only if $\mathbf{x}' = \mathbf{x}$ or
 > $\mathbf{x}' = \mathbf{x} \oplus \mathbf{s}$. The challenge is to find $s$
 > with as few calls as possible to the black box for $f$.
 
 To get some intuition for the role of the secret bit-string $\mathbf{s}$,
-consider the following function on $B_3$ where $A = B_2$:
+consider the following function on $(\mathbb{Z}/2)^3$ where $A = (\mathbb{Z}/2)^2$:
 
 | $\mathbf{x}$ | $f(\mathbf{x})$ |
 | ------------ | --------------- |
@@ -111,376 +152,216 @@ about $f$, we intuitively have to keep calculating $f$ for different elements
 $\mathbf{x}\in B_N$ until we get the same result twice. Based on the analysis of
 the
 [Birthday Problem](https://en.wikipedia.org/wiki/Birthday_problem#Arbitrary_number_of_days),
-we have to compute $f$ for approximately $\sqrt{|B_N|}=2^{N/2}$ elements in
-order to have a good chance of finding a collisions.
+we have to compute $f$ for approximately $\sqrt{|(\mathbb{Z}/2)^N|}=2^{N/2}$ elements in
+order to have a good chance of finding a collision.
 
 Simon's algorithm, introduced in the
 [same paper](https://epubs.siam.org/doi/10.1137/S0097539796298637), is a quantum
-algorithm that solves Simon's problem in $\mathcal{O(N)}$ time - an exponential
+algorithm that solves Simon's problem in $\mathcal{O(N)}$ time - a nearly exponential
 improvement over the best classical algorithm.
 
-The first step of the algorithm os to prepare a superposition of all elements in
-$B_N$, together with some auxiliary qubits that will be used to compute $f$:
+We'll now see how Simon's problem can be formulated as an instance of the
+HSP. Consider the subgroup $H\subset (\mathbb{Z}/2)^N$ defined by:
 
 $$
-|\psi\rangle = \sum_{\mathbf{x}\in B_N}|\mathbf{x}\rangle |\mathbf{0}\rangle
+H = \{ \mathbf{0},\,\mathbf{s} \}
 $$
 
-The auxiliary bits at the end are commonly referred to as the
-[ancilla bits](https://en.wikipedia.org/wiki/Ancilla_bit).
+where $\mathbf{s}$ is the hidden bit-string in Simon's problem. It is easy to see that 
+$f$ [hides](#defn:hiding-a-subgroup) $H$. Therefore, solving the HSP for 
+$G=(\mathbb{Z}/2)^N$ and $f$ is equivalent to solving Simon's problem.
 
-We can then apply $f$ to obtain:
+As we will see in detail below, this means that (a generalization of)
+Shor's algorithm  can be used to derive Simon's algorithm.
 
-$$
-\sum_{\mathbf{x}\in B_N}|\mathbf{x}\rangle |f(\mathbf{x})\rangle
-$$
+## Discrete Logarithms
 
-Note that if we now measure the ancilla bits we will observe some value
-$f(\mathbf{x})\in A$ and the new state will be:
+Let $p$ be a prime number and let $\mathbb{Z}_p^\times$ denote the
+[multiplicative group](https://en.wikipedia.org/wiki/Multiplicative_group_of_integers_modulo_n)
+of integers module $p$.
 
-$$
-|\varphi_\mathbf{x}\rangle = \sum_{\mathbf{x}'\in B_N,\, f(\mathbf{x}')=f(\mathbf{x})}|\mathbf{x}'\rangle |a\rangle
-$$
+Let $g\in\mathbb{Z}_p^\times$ be a [primitive root](https://en.wikipedia.org/wiki/Primitive_root_modulo_n)
+of $\mathbb{Z}_p^\times$. This means $\mathbb{Z}_p^\times$ is generated by powers of $g$.
 
-In other words, we obtain a superposition of the elements in $B_N$ that are
-mapped to $f(\mathbf{x})$ by $f$. By our assumption on $f$, the only elements
-that get mapped to $f(\mathbf{x})$ are $\mathbf{x}$ itself and
-$\mathbf{x}' = \mathbf{x}\oplus\mathbf{s}$ where $\mathbf{s}$ is the hidden
-element. Therefore, after discarding the ancilla bits we can rewrite
-$|\varphi_\mathbf{x}\rangle$ as:
+Now let $x\in\mathbb{Z}\_p^\times$ be an integer modulo $p$.
+The _Discrete Logarithm_ of $x$ is defined to be the integer $0\leq k < p$
+satisfying:
 
 $$
-|\varphi_\mathbf{x}\rangle = |\mathbf{x}\rangle + |\mathbf{x}\oplus\mathbf{s}\rangle
+x = g^k
 $$
 
-At a first glance it seems like we can easily deduce $\mathbf{s}$ from
-$|\varphi_\mathbf{x}\rangle$ since
-$\mathbf{s} = \mathbf{x} \oplus (\mathbf{x}\oplus\mathbf{s})$. The fundamental
-issue is that we cannot directly observe both of the basis vectors in
-$|\varphi_\mathbf{x}\rangle$. Specifically, if we measure
-$|\varphi_\mathbf{x}\rangle$ then we will observe _either_ $\mathbf{x}$ _or_
-$\mathbf{x}\oplus\mathbf{s}$ with equal probability. Without knowing
-$\mathbf{x}$, neither of these values provide any information whatsoever about
-$\mathbf{s}$.
+The Discrete Logarithm Problem is, given $g$ and $x$, to find the discrete logarithm of $x$.
 
-To get another perspective on $|\varphi\_\mathbf{x}\rangle$, consider the _Shift
-Operator_
+In general there is no known efficient solution to the Discrete Logarithm Problem.
+Indeed, the discrete logarithm problem is
+the foundation of the
+[Diffie-Hellman key exchange](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange)
+protocol in cryptography. An efficient solution to the Discrete Logarithm Problem would
+break this commonly used protocol.
+
+Let's now see how to formulate the Discrete Logarithm Problem as an instance of the HSG.
+
+Consider the group $G=\mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)$ and the function:
 
 $$
 \begin{align*}
-L_\mathbf{x}: \mathbb{C}[B_N] &\rightarrow \mathbb{C}[B_N] \\
-|\mathbf{x}'\rangle &\mapsto |\mathbf{x}\oplus\mathbf{x}'\rangle
+f: G &\rightarrow \mathbb{Z}_p^\times \\
+(a, b) &\mapsto g^a x^{-b}
 \end{align*}
 $$
 
-We are using $\mathbb{C}[B_N]$ to denote the complex vector space with an
-orthogonal basis given by $|\mathbf{x}'\rangle$ for $\mathbf{x}'\in B_N$. The
-shift operator $L_\mathbf{x}$ sends the basis element
-$|\mathbf{x}'\rangle\in\mathbb{C}[B_N]$ to
-$|\mathbf{x}\oplus\mathbf{x}'\rangle \in \mathbb{C}[B_N]$. Using $L_\mathbb{x}$
-we can rewrite $|\varphi_\mathbb{x}\rangle$ as:
+We claim that finding $k$, the discrete logarithm of $x$, can be reduced so solving the
+HSP for the group $G$ with the function $f$.
+
+First, note that $f$ is a group homomorphism. Furthermore, an element $(a,b)$ is in
+the kernel of $f$, denoted $\mathrm{Ker}(f)$ if and only if:
 
 $$
-|\varphi_\mathbb{x}\rangle = L_\mathbf{x}(|\mathbf{0}\rangle + |\mathbf{s}\rangle)
+g^a = x^b
 $$
 
-With this perspective, we could recover information about $\mathbf{s}$ from
-$|\varphi_\mathbb{x}\rangle$ if we had some way of undoing the shift operator
-$L_\mathbf{x}$ to obtain $|\mathbf{0}\rangle + |\mathbf{s}\rangle$. The key idea
-of Simon's algorithm is to apply a change of basis to
-$|\varphi\_\mathbf{x}\rangle$ before measuring it. The new basis will be one
-that _simultaneously diagonalizes_ the shift operators $L_\mathbf{x}$ for all
-$\mathbf{x}\in B_N$.
-
-Since $L_\mathbf{x}$ is diagonalized in this basis for all $\mathbb{x}$,
-measuring
-$|\varphi_\mathbb{x}\rangle = L_\mathbf{x}(|\mathbf{0}\rangle + |\mathbf{s}\rangle)$
-in the new basis is equivalent to measuring
-$|\mathbf{0}\rangle + |\mathbf{s}\rangle$. Therefore, measuring in the new basis
-will provide direct information about $\mathbb{s}$.
-
-In the following sections we will construct this new basis and show how to use
-it to recover $\mathbf{s}$.
-
-## Diagonalizing The Shift operators
-
-Let $\mathbf{x}\in B_N$ be a bit-string. In the previous section we defined the
-shift operator $L_\mathbf{x}$ on the Hilbert space $\mathbb{C}[B_N]$:
+If $k$ is equal to the discrete logarithm of $x$ then by definition
+this means that
 
 $$
-\begin{align*}
-L_\mathbf{x}: \mathbb{C}[B_N] &\rightarrow \mathbb{C}[B_N] \\
-|\mathbf{x}'\rangle &\mapsto |\mathbf{x}\oplus\mathbf{x}'\rangle
-\end{align*}
+x = g^k
 $$
 
-For example, if $N=3$ and $\mathbf{x}=110$ then:
+Together this mean that $(a,b)\in\mathrm{Ker}(f)$ if and only if:
 
 $$
-L_\mathbf{x}(|010\rangle + |111\rangle) = |100\rangle + |001\rangle
+a = b \cdot k
 $$
 
-Note that clearly $L_\mathbf{x}$ is not diagonal in the standard basis of
-$\mathbb{C}[B_N]$ given by elements of $B_N$. For example, applying $L_{110}$ to
-$|101\rangle$ gives:
+In conclusion, the subgroup 
 
 $$
-L_{110}(|101\rangle) = |011\rangle
-$$
+H := \mathrm{Ker}(f)\subset\\mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)
+$$ 
 
-which is not a scalar multiple of the input $|101\rangle$.
-
-The goal of this section is to find another basis of $\mathbb{C}[B_N]$ which
-diagonalizes $L_\mathbf{x}$ for all $\mathbf{x}$.
-
-Suppose $|\varphi\rangle\in\mathbb{C}[B_N]$ is a vector in the new basis. This
-means that, for all $\mathbf{x}\in B_N$, $|\varphi\rangle$ is an eigenvector of
-$L_\mathbf{x}$ for all $\mathbf{x}\in B_N$ with some eigenvalue
-$\lambda(\mathbf{x})$. The eigenvalues $\lambda(\mathbf{x})$ can be packaged
-into a function
+is generated by the element $(k, 1)$:
 
 $$
-\lambda: B_N \rightarrow \mathbb{C}
+H = \langle (k, 1) \rangle
 $$
 
-We'll start with the following observation about $\lambda$:
+Since $f$ is a homomorphism, it is easy to see that $f$ 
+[hides](#defn:hiding-a-subgroup) its kernel $H$.
 
-> **Claim.** Suppose that $|\varphi\rangle\in\mathbb{C}[B_N]$ is a vector
-> satisfying $L_\mathbf{x}|\varphi\rangle = \lambda(\mathbf{x})|\varphi\rangle$
-> for all $\mathbf{x}\in B_N$. Then for all $\mathbf{x},\mathbf{x}'\in B_N$:
+Therefore, a solution to the HSP would in particular allow us to find
+a non trivial element $(bk, b) \in H$ from which we can easily compute $k$.
+
+## The Standard Method
+
+In this section we'll introduce a quantum algorithm for the HSP that is 
+colloquially known as the _Standard Method_.
+
+We'll start with some notation. For a finite group $G$, we will use 
+$\mathbb{C}[G]$ to denote the vector space with one basis
+vector for each element of $G$.
+To be consistent with quantum mechanics notation,
+we will denote the basis vector corresponding to $g$ by $|g\rangle$.
+Concretely, elements of $\mathbb{C}[G]$ are of the form
+
+$$
+\sum_{g\in G}\alpha_g |g\rangle
+$$
+
+for complex coefficients $\alpha_g\in\mathbb{C}$.
+
+Now, suppose that $f:G\rightarrow A$ is a function that hides a subgroup $H\subset G$.
+
+The first step of the standard method is to prepare a superposition
+of the basis vectors of $\mathbb{C}[G]$:
+
+$$
+\frac{1}{\sqrt{|G|}}\sum_{g\in G}|g\rangle
+$$
+
+We then apply the black box of $f$ to this state to obtain:
+
+$$
+\frac{1}{\sqrt{|G|}}\sum_{g\in G}|g\rangle|f(g)\rangle
+$$
+
+Next we measure the right register to obtain $f(g) \in A$ for a random
+$g\in G$. After the measurement the resulting state will be a sum over the 
+vectors $|g'\rangle$ for which $f(g') = f(g)$. Since $f$ hides $H$, this is equal
+to the sum over the coset $gH$ of $H$:
+
+$$
+\frac{1}{\sqrt{|H|}}\sum_{h\in H}|gh\rangle
+$$
+
+To facilitate notation, we will use $|H\rangle$ to denote the sum over the elements
+of the subgroup $H$:
+
+$$
+|H\rangle := \frac{1}{\sqrt{|H|}}\sum_{h\in H}|h\rangle
+$$
+
+and we will similarly use $|gH\rangle$ to denote the sum over the coset $gH$:
+
+$$
+|gH\rangle := \frac{1}{\sqrt{|H|}}\sum_{h\in H}|gh\rangle
+$$
+
+To summarize, the first step of the standard method is to use a single invocation 
+of $f$ to produce a coset state
+
+$$
+|gH\rangle
+$$
+
+where $g\in G$ is chosen uniformly at random and $H$ is the subgroup hidden by $f$.
+
+It is not immediately obvious how $|gH\rangle$ can be used to learn anything about $H$.
+If we simply measure $|gH\rangle$ in the standard basis the result will be $gh$ for some
+$h\in H$. Since $g$ is uniformly distributed in $G$, so is $gh$. Therefore,
+measuring $gh$ does not reveal any information about $H$.
+
+The key to the second step of the standard method is to transform $|gH\rangle$
+into another basis that in some sense removes the obfuscating effect of $g$ and
+allows us to obtain information about $H$.
+
+To see how this works, we'll first introduce the _Shift Operators_ on 
+$\mathbb{C}[G]$:
+
+> **Definition (Shift Operator).** Let $G$ be a finite group and $g\in G$ an
+> element of $G$. The _Shift Operator_ $L_g$ is the linear transformation
+> of $\mathbb{C}[G]$ defined on the basis elements $|g'\rangle$ by:
 >
 > $$
-> \lambda(\mathbf{x}\oplus\mathbf{x}') = \lambda(\mathbf{x}) \cdot \lambda(\mathbf{x}')
+> L_g|g'\rangle := |gg'\rangle
 > $$
 
-_Proof._ Since addition in $B_N$ is associative, the shift operators satisfy:
+The relevance to our situation is that we can rewrite the a coset state
+$|gH\rangle$ in terms of the subgroup state $|H\rangle$ and the shift operator
+$L_g$:
 
 $$
-\begin{equation}\label{eq:shift-composition-old}
-L_\mathbf{x} \circ L_{\mathbf{x}'} = L_{\mathbf{x}\oplus\mathbf{x}'}
-\end{equation}
+|gH\rangle = L_g|H\rangle
 $$
 
-Applying the left hand side of \ref{eq:shift-composition} to $|\varphi\rangle$
-gives:
+The key to the standard method is to apply a unitary transformation that
+_simultaneously diagonalizes the shift operators $L_g$ for all $g\in G$_.
+This is possible when $G$ is abelian since in that case the shift operators
+commute.
 
-$$
-\begin{align*}
-L_\mathbf{x} \circ L_{\mathbf{x}'}|\varphi\rangle &= L_\mathbf{x}(\lambda(\mathbf{x}')|\varphi\rangle) \\
-&= \lambda(\mathbf{x})\cdot\lambda(\mathbf{x}')|\varphi\rangle
-\end{align*}
-$$
+The motivation to finding such a transformation is that, in general, an operator
+that is diagonal in a given basis does not affect measurements in that basis.
+Therefore, it reasonable to assume that after moving to a basis that diagonalizes the
+shift operators $L_g$, measuring $L_g|H\rangle$ will reveal direct information about
+$H$.
 
-Applying the right hand side of \ref{eq:shift-composition} to $|\varphi\rangle$
-gives:
+In the next section we will introduce the _Quantum Fourier Transform_ as an
+explicit construction of a unitary transform that diagonalizes the shift operators.
 
-$$
-L_{\mathbf{x}\oplus\mathbf{x}'}|\varphi\rangle = \lambda(\mathbf{x}\oplus\mathbf{x}')|\varphi\rangle
-$$
+In following sections we will apply it to the coset states obtained in our two examples
+of the HSP, [Simons' Problem](#simons-problem) and the [Discrete Logarithm](#discrete-logarithms),
+and recover the famously efficient quantum algorithms for those problems.
 
-Together this implies:
-
-$$
-\lambda(\mathbf{x})\cdot\lambda(\mathbf{x}')|\varphi\rangle =
-\lambda(\mathbf{x}\oplus\mathbf{x}')|\varphi\rangle
-$$
-
-and the claim follows.
-
-_q.e.d_
-
-Functions satisfying this type of multiplicative property are called
-[characters](<https://en.wikipedia.org/wiki/Character_(mathematics)>). More
-precisely:
-
-> **Definition (Character)** Let $G$ be a group. A _character_ on $G$ is a
-> non-zero complex function
->
-> $$
-> \chi: G \rightarrow \mathbb{C}
-> $$
->
-> satisfying
->
-> $$
-> \chi(g_1 g_2) = \chi(g_1)\chi(g_2)
-> $$
->
-> for all $g_1,g_2\in G$.
-
-We can restate the claim above as saying that the eigenvalue function $\lambda$
-must be a character on $B_N$. Interestingly, implies that we can use the
-eigenvalues $\lambda(\mathbf{x})$ to construct the corresponding eigenvector
-$|\varphi\rangle$:
-
-{: #clm:eig-from-char-old }
-
-> **Claim (Eigenvectors From Characters).** Let
-> $\chi: B_N \rightarrow \mathbb{C}$ be a character on $B_N$. Define
-> $|\varphi\rangle\in\mathbb{C}[B_N]$ by:
->
-> $$
-> |\varphi\rangle = \sum_{\mathbf{x}}\chi(\mathbf{x})|\mathbf{x}\rangle
-> $$
->
-> Then, all $\mathbf{x}\in B_N$, $|\varphi\rangle$ is an eigenvector of
-> $L_\mathbf{x}$ with eigenvalue $\chi(\mathbf{x})$.
-
-_Proof._ Direct calculation shows that:
-
-$$
-\begin{align*}
-L_{\mathbf{x}}|\varphi\rangle &= L_{\mathbf{x}}\sum_{\mathbf{x}'}\chi(\mathbf{x}')|\mathbf{x}'\rangle \\
-&= \sum_{\mathbf{x}'}\chi(\mathbf{x}')|\mathbf{x}\oplus\mathbf{x}'\rangle \\
-&= \sum_{\mathbf{x}'}\chi(\mathbf{x}\oplus\mathbf{x}')|\mathbf{x}'\rangle \\
-&= \sum_{\mathbf{x}'}\chi(\mathbf{x})\chi(\mathbf{x}')|\mathbf{x}'\rangle \\
-&= \chi(\mathbf{x})\cdot\sum_{\mathbf{x}'}\chi(\mathbf{x}')|\mathbf{x}'\rangle \\
-&= \chi(\mathbf{x})|\varphi\rangle
-\end{align*}
-$$
-
-_q.e.d_
-
-This reduces the problem of simultaneously diagonalizing $L_\mathbf{x}$ to
-finding characters of $B_N$.
-
-To facilitate notation, we'll denote the bitwise dot product modulo $2$ on two
-elements $\mathbf{x},\mathbf{y}\in B_N$ by $\mathbf{x}\cdot\mathbf{y}$.
-Specifically:
-
-$$
-\mathbf{x} \cdot \mathbf{y} = \sum_{i=1}^N x_i y_i \mathrm{(mod 2)}
-$$
-
-For each $\mathbf{y}\in B_N$ we can define a character $\chi_{\mathbf{y}}$ on
-$B_N$ by:
-
-$$
-\chi_{\mathbf{y}}(\mathbf{x}) := (-1)^{\mathbf{x}\cdot\mathbf{y}}
-$$
-
-The fact that $\chi_{\mathbf{y}}$ is a character follows from direct
-calculation:
-
-$$
-\begin{align*}
-\chi_{\mathbf{y}}(\mathbf{x}\oplus\mathbf{x}') &= (-1)^{(\mathbf{x}\oplus\mathbf{x'})\cdot\mathbf{y}} \\
-&= (-1)^{\mathbf{x}\cdot\mathbf{y}}\cdot(-1)^{\mathbf{x}'\cdot\mathbf{y}} \\
-&= \chi_\mathbf{y}(\mathbf{x})\cdot\chi_\mathbf{y}(\mathbf{x}')
-\end{align*}
-$$
-
-By claim [Eigenvectors From Characters](#clm:eig-from-char), for all
-$\mathbf{x}\in B_N$, the vector
-
-$$
-\sum_{\mathbf{x}'}\chi_\mathbf{y}(\mathbf{x}')|\mathbf{x}'\rangle
-$$
-
-is an eigenvector of $L_\mathbf{x}$ with eigenvalue
-$\chi_\mathbf{y}(\mathbf{x})$. 
-We can use these eigenvectors to construct a unitary change of basis that 
-simultaneously diagonalizes all of the shift operators:
-
-{: #clm:unitary-diag-old }
-
-> **Claim (Unitary Diagonalization).** Let $U: \mathbb{C}[B_N]\rightarrow\mathbb{C}[B_N]$ be the linear transformation defined by:
->
-> $$
-> U|\mathbf{y}\rangle = \frac{1}{\sqrt{|B_N|}}\sum_{\mathbf{x}\in B_N}\chi_\mathbf{y}(\mathbf{x})|\mathbf{x}\rangle
-> $$
-> 
-> Then, $U$ is a unitary transformation that diagonalizes the shift operator $L_{\mathbf{x}'}$ 
-> for all $\mathbf{x}'\in B_N$.
-
-To prove the claim we will use the following lemma.
-
-> **Lemma.** For all $\mathbf{x}\in B_N$, the shift operator $L_\mathbf{x}$ is a
-> real and symmetric transformation.
-
-_Proof of lemma._ Let $\mathbf{x}$ be an element of $B_N$. The fact that $L_\mathbf{x}$ is real
-follows imemdiately from the definition of the shift operator.
-
-To prove that $L_\mathbf{x}$ is symmetric we must show that for all $\mathbf{x}',\mathbf{x}''\in B_N$:
-
-$$
-\langle \mathbf{x}' | L_\mathbf{x} |\mathbf{x}''\rangle = 
-\langle \mathbf{x}'' | L_\mathbf{x} |\mathbf{x}'\rangle
-$$
-
-By the definition of the shift operator:
-
-$$
-\langle \mathbf{x}' | L_\mathbf{x} |\mathbf{x}''\rangle = 
-\langle \mathbf{x}' |\mathbf{x} \oplus \mathbf{x}''\rangle
-$$
-
-Therefore:
-
-$$
-\langle \mathbf{x}' | L_\mathbf{x} |\mathbf{x}''\rangle =
-\begin{cases}
-1 & \mathbf{x}' = \mathbf{x} \oplus \mathbf{x}'' \\
-0 & \mathrm{else}
-\end{cases}
-$$
-
-Now, note that the condition $\mathbf{x}' = \mathbf{x} \oplus \mathbf{x}''$ is equivalent
-to $\mathbf{x}'\oplus\mathbf{x}'' = \mathbf{x}$ which is symmetric in $\mathbf{x}'$ and $\mathbf{x}''$ which proves the lemma.
-
-_q.e.d_
-
-We can now prove the claim.
-
-_Proof of claim._ By claim [Eigenvectors From Characters](#clm:eig-from-char), for all $\mathbf{x}\in B_N$ 
-$U|\mathbf{y}\rangle$ is an eigenvector of $L_\mathbf{x}$ with eigenvalue $\chi_\mathbf{y}(\mathbf{x})$.
-
-Furthermore, since $\|\chi_\mathbf{y}(\mathbf{x})\|=1$ for all $\mathbf{x},\mathbf{y}\in B_N$ it is 
-easy to see that the vectors $U|\mathbf{y}\rangle$ all have norm $1$.
-
-Therefore, it suffices to show that $U|\mathbf{y}\rangle$ and $U|\mathbf{y}'\rangle$
-are orthogonal for $\mathbf{y}\neq\mathbf{y}'\in B_N$. 
-
-If $\mathbf{y}\neq\mathbf{y}'$, there must be some index
-$i$ such that $y_i \neq y'_i$. Let $\mathbf{x}\in B_N$ be defined by $x_i=1$ and $x_j=0$ for $j\neq i$.
-It is easy to see that
-
-$$
-\chi_\mathbf{y}(\mathbf{x}) \neq \chi_{\mathbf{y}'}(\mathbf{x})
-$$
-
-This means that $U|\mathbf{y}\rangle$ and $U|\mathbf{y}'\rangle$ are eigenvectors
-of $L_\mathbf{x}$ with different eigenvalues. By the lemma, $L_\mathbf{x}$ is a real symmetric
-transformation which means that eigenvectors with distinct eigenvalues are orthogonal.
-
-_q.e.d_
-
-We can describe $U$ more explicitly by plugging in the definition of $\chi_\mathbf{y}(\mathbf{x})$:
-
-$$
-U|\mathbf{y}\rangle = \sum_{\mathbf{x}\in B_N} (-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{x}\rangle
-$$
-
-From this it is clear that, in addition to being unitary, $U$ is also real and symmetric which means that:
-
-$$
-U^{-1} = U^* = U
-$$
-
-In other words, the inverse of $U$ is given by:
-
-$$
-U^{-1}|\mathbf{x}\rangle = \sum_{\mathbf{y}\in B_N}\chi_\mathbf{y}(\mathbf{x})|\mathbf{y}\rangle
-$$
-
-We will define the _Quantum Fourier Transform_ to be the inverse of $U$:
-
-> **Definition (Quantum Fourier Transform of $B_N$).** The Quantum Fourier Transform of $B_N$, denoted 
-> $\mathrm{QFT}$, is the transform of $\mathbb{C}[B_N]$ defined by:
->
-> $$
-> \mathrm{QFT}(|\mathbf{x}\rangle) = \sum_{\mathbf{y}\in B_N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
-> $$
 
 # The Quantum Fourier Transform
 
@@ -493,29 +374,7 @@ $g\in G$. This transform is commonly called the
 
 PUT THIS IN THE HSG OVERVIEW
 
-For a group $G$, we will use $\mathbb{C}[G]$ to denote the vector space with one basis
-vector for each element of $G$. To be consistent with quantum mechanics notation,
-we will denote the basis vector corresponding to $g$ by $|g\rangle$.
-Concretely, elements of $\mathbb{C}[G]$ are of the form
-
-$$
-\sum_{g\in G}\alpha_g |g\rangle
-$$
-
-for complex coefficients $\alpha_g\in\mathbb{C}$.
-
-Let $h\in G$ be an element of $G$. We will define the _Shift Operator_ $L_h$ to
-be the following linear transformation of $\mathbb{C}[G]$ defined by:
-
-$$
-\begin{align*}
-L_h : \mathbb{C}[G] &\rightarrow \mathbb{C}[G] \\
-|g\rangle &\mapsto |hg\rangle
-\end{align*}
-$$
-
-Note that it is sufficient to define $L_h$ on vectors of the form $|g\rangle$ since
-they form a basis for $\mathbb{C}[B]$.
+For a group $G$, 
 
 As we noted in section XXXX, our strategy for solving the hidden subgroup problem
 is to find a unitary transformation of $\
