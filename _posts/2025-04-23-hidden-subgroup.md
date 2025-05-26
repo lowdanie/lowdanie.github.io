@@ -24,19 +24,19 @@ to be hard can be efficiently solved with a quantum computer.
 
 Interestingly, both integer factorization and the discrete logarithm problem 
 are special cases of a more general problem called the
-[Hidden Subgroup Problem](https://en.wikipedia.org/wiki/Hidden_subgroup_problem) (HSP).
+[hidden subgroup problem](https://en.wikipedia.org/wiki/Hidden_subgroup_problem) (HSP).
 Furthermore, Shor's algorithms can be generalized to an efficient quantum
 algorithm for the HSP whenever the group in question is
 [commutative](https://en.wikipedia.org/wiki/Abelian_group).
 
-Furthermore, almost all problems that we know of with significant quantum speedups are
+Furthermore, [almost all](https://en.wikipedia.org/wiki/Hidden_subgroup_problem#Instances)
+problems that we know of with significant quantum speedups are
 instances of the HSP for commutative groups.
 
-In this post we'll introduce the Hidden Subgroup Problem and the standard quantum 
-algorithm that efficiently solves it in the commutative case. We'll also see how
-
-
-
+In this post we'll introduce the hidden subgroup problem and the quantum 
+algorithm that efficiently solves it in the commutative case. We'll also apply this
+framework to the discrete logarithm problem and
+[Simon's Problem](https://en.wikipedia.org/wiki/Simon%27s_problem).
 
 # The Hidden Subgroup Problem
 
@@ -47,22 +47,28 @@ We'll start by defining the notion of a function on a group _hiding_ a subgroup.
 
 {: #defn:hiding-a-subgroup }
 
-> **Definition (Hiding A Subgroup).** Let $G$ be a finite group, $H\subset G$ A
-> subgroup $A$ a set and
-> $f: G \rightarrow A$ a function. We say that $f$ _hides_ $H$ if, for all $g_1,g_2\in G$,
+> **Definition (Hiding A Subgroup).** Let $G$ be a finite group, $H\subset G$ a
+> subgroup of $G$, $A$ a set and
+>
+> $$
+> f: G \rightarrow A
+> $$ 
+> 
+> a function from $G$ to $A$. 
+> We say that $f$ _hides_ $H$ if, for all $g_1,g_2\in G$,
 > $f(g_1) = f(g_2)$ if and only if $g_1H = g_2H$.
 
 In other words, $f$ hides $H$ if it defines an injective function on the cosets of $H$.
 
-The _Hidden Subgroup Problem$ is to find $H$ given an black box which allows
-us to evaluate $f$ on any element of $G$.
+The _hidden subgroup problem_ is to find $H$ given an black box which allows
+us to evaluate $f$ on elements of $G$.
 
 {: #defn:hidden-subgroup-problem }
 
 > **Definition (Hidden Subgroup Problem).** Let $G$ be a finite group, $H\subset G$
 > a subgroup and 
-> $f: G \rightarrow A$ a that hides $H$.
-> The objective of the _Hidden Subgroup Problem_ (HSP) is to find generators for 
+> $f: G \rightarrow A$ a function that hides $H$.
+> The objective of the _hidden subgroup problem_ (HSP) is to find generators for 
 > $H$ using evaluations of a black box for $f$.
 
 It's always possible to solve an instance of the hidden subgroup problem 
@@ -70,29 +76,30 @@ with $\mathcal{O}(|G|)$ evaluations of $f$. Indeed, we can evaluate $f$ on every
 $G$ and note that:
 
 $$
-H = \\{g\in G | f(g) = f(e) \\}
+H = \{g\in G | f(g) = f(e) \}
 $$
 
 where $e\in G$ denotes the identity element in $G$.
 
-The interesting problem is whether we can find $H$ more efficiently.
+The interesting question is whether we can find generators for $H$ more efficiently.
 
-When $G$ is [abelian](https://en.wikipedia.org/wiki/Abelian_group), a generalization
+When $G$ is [abelian](https://en.wikipedia.org/wiki/Abelian_group), there is a generalization
 of
-[Shor's Algorithm](https://en.wikipedia.org/wiki/Shor%27s_algorithm) 
-called _The Standard Method_ is a quantum algorithm that
-solves the HSP with only $\mathcal{O}(\log(|G|))$ invocations of
+[Shor's algorithm](https://en.wikipedia.org/wiki/Shor%27s_algorithm) 
+called _the standard method_ which
+solves the HSP with only $\mathcal{O}(\log(|G|)$ invocations of
 $f$. In contrast, there are many interesting instances of the ableian HSP where the best known
 classical algorithm requires $\mathcal{O}(\sqrt{|G|})$ invocations.
 
 Below we'll consider two important instances of the abelian HSG. We'll then describe
-the Standard Method and apply it to each example.
+the standard method and apply it to each example.
 
 ## Simon's Problem
 
 Simon's problem was introduced by
 [Daniel Simon](https://epubs.siam.org/doi/10.1137/S0097539796298637) in 1994 as
-an example of an problem with an efficient quantum algorithm.
+an example of a problem which classically requires nearly exponential time, but can be
+efficiently solved with a quantum computer.
 
 Let $(\mathbb{Z}/2)^N$ be the group of bit-strings of length $N$ and let
 $\oplus$ denote the bitwise XOR operation.
@@ -106,11 +113,15 @@ $$
 Simon's problem is defined as follow:
 
 > We are given access to a black-box for computing a function
-> $f: (\mathbb{Z}/2)^N \rightarrow A$ from 
-> $(\mathbb{Z}/2)^N$ to a set $A$. In addition, we are promised
+> 
+> $$
+> f: (\mathbb{Z}/2)^N \rightarrow A
+> $$
+>
+> from $(\mathbb{Z}/2)^N$ to a set $A$. In addition, we are promised
 > that there is a secret bit-string $\mathbf{s}\in (\mathbb{Z}/2)^N$ such that
 > $f(\mathbf{x}) = f(\mathbf{x}')$ if and only if $\mathbf{x}' = \mathbf{x}$ or
-> $\mathbf{x}' = \mathbf{x} \oplus \mathbf{s}$. The challenge is to find $s$
+> $\mathbf{x}' = \mathbf{x} \oplus \mathbf{s}$. The challenge is to find $\mathbf{s}$
 > with as few calls as possible to the black box for $f$.
 
 To get some intuition for the role of the secret bit-string $\mathbf{s}$,
@@ -127,7 +138,7 @@ consider the following function on $(\mathbb{Z}/2)^3$ where $A = (\mathbb{Z}/2)^
 | $110$        | $01$            |
 | $111$        | $11$            |
 
-It is easy to check that in this case, the solution to Simon's problem is
+It is easy to check that in this case the solution to Simon's problem is
 $\mathbf{s}=101$. Note that $f$ is a 2 to 1 function. In general, we can think
 of $\mathbf{s}$ as a bitmask where $f(\mathbf{x}) = f(\mathbf{x}')$ if and only
 if $\mathbf{x}$ and $\mathbf{x}'$ differ exactly at the elements masked by
@@ -143,10 +154,10 @@ order to have a good chance of finding a collision.
 
 Simon's algorithm, introduced in the
 [same paper](https://epubs.siam.org/doi/10.1137/S0097539796298637), is a quantum
-algorithm that solves Simon's problem in $\mathcal{O(N)}$ time - a nearly exponential
-improvement over the best classical algorithm.
+algorithm that solves Simon's problem in $\mathcal{O}(N)$ time - a nearly exponential
+improvement over what is possible classically.
 
-We'll now see how Simon's problem can be formulated as an instance of the
+We'll now formulate Simon's problem as an instance of the
 HSP. Consider the subgroup $H\subset (\mathbb{Z}/2)^N$ defined by:
 
 $$
@@ -155,7 +166,7 @@ $$
 
 where $\mathbf{s}$ is the hidden bit-string in Simon's problem. It is easy to see that 
 $f$ [hides](#defn:hiding-a-subgroup) $H$. Therefore, solving the HSP for 
-$G=(\mathbb{Z}/2)^N$ and $f$ is equivalent to solving Simon's problem.
+$G=(\mathbb{Z}/2)^N$ and the function $f$ is equivalent to solving Simon's problem.
 
 As we will see in detail below, this means that (a generalization of)
 Shor's algorithm  can be used to derive Simon's algorithm.
@@ -170,23 +181,22 @@ Let $g\in\mathbb{Z}_p^\times$ be a [primitive root](https://en.wikipedia.org/wik
 of $\mathbb{Z}_p^\times$. This means $\mathbb{Z}_p^\times$ is generated by powers of $g$.
 
 Now let $x\in\mathbb{Z}\_p^\times$ be an integer modulo $p$.
-The _Discrete Logarithm_ of $x$ is defined to be the integer $0\leq k < p$
+The _discrete logarithm_ of $x$ in base $g$ is defined to be the integer $0\leq s < p$
 satisfying:
 
 $$
-x = g^k
+x = g^s\ (\mathrm{mod}\ p)
 $$
 
-The Discrete Logarithm Problem is, given $g$ and $x$, to find the discrete logarithm of $x$.
+The discrete logarithm problem is, given $g$ and $x$, to find the discrete logarithm of $x$ in base $g$.
 
-In general there is no known efficient solution to the Discrete Logarithm Problem.
-Indeed, the discrete logarithm problem is
-the foundation of the
+In general there is no known efficient solution to the discrete logarithm problem.
+Indeed, this problem is the foundation of the
 [Diffie-Hellman key exchange](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange)
-protocol in cryptography. An efficient solution to the Discrete Logarithm Problem would
+protocol in cryptography. An efficient method to compute discrete logarithms would
 break this commonly used protocol.
 
-Let's now see how to formulate the Discrete Logarithm Problem as an instance of the HSG.
+Let's now see how to formulate the discrete logarithm problem as an instance of the HSG.
 
 Consider the group $G=\mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)$ and the function:
 
@@ -197,51 +207,55 @@ f: G &\rightarrow \mathbb{Z}_p^\times \\
 \end{align*}
 $$
 
-We claim that finding $k$, the discrete logarithm of $x$, can be reduced so solving the
+We claim that finding $s$, the discrete logarithm of $x$, can be reduced so solving the
 HSP for the group $G$ with the function $f$.
 
 First, note that $f$ is a group homomorphism. Furthermore, an element $(a,b)$ is in
 the kernel of $f$, denoted $\mathrm{Ker}(f)$ if and only if:
 
 $$
-g^a = x^b
+\begin{equation}\label{eq:dilog-kernel}
+g^a = x^b\ (\mathrm{mod}\ p)
+\end{equation}
 $$
 
-If $k$ is equal to the discrete logarithm of $x$ then by definition
-this means that
+If $s$ is equal to the discrete logarithm of $x$ then by definition:
 
 $$
-x = g^k
+\begin{equation}\label{eq:dilog-def}
+x = g^s\ (\mathrm{mod}\ p)
+\end{equation}
 $$
 
-Together this mean that $(a,b)\in\mathrm{Ker}(f)$ if and only if:
+Combining equations \ref{eq:dilog-kernel} and \ref{eq:dilog-def} implies that 
+$(a,b)\in\mathrm{Ker}(f)$ if and only if:
 
 $$
-a = b \cdot k
+a = b \cdot s\ (\mathrm{mod}\ p - 1)
 $$
 
-In conclusion, the subgroup 
+In other words, the subgroup 
 
 $$
-H := \mathrm{Ker}(f)\subset\\mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)
+H := \mathrm{Ker}(f)\subset\mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)
 $$ 
 
-is generated by the element $(k, 1)$:
+is generated by the element $(s, 1)$:
 
 $$
-H = \langle (k, 1) \rangle
+H = \langle (s, 1) \rangle
 $$
 
 Since $f$ is a homomorphism, it is easy to see that $f$ 
 [hides](#defn:hiding-a-subgroup) its kernel $H$.
 
 Therefore, a solution to the HSP would in particular allow us to find
-a non trivial element $(bk, b) \in H$ from which we can easily compute $k$.
+a non trivial element $(bs, b) \in H$ from which we can easily compute $s$.
 
 ## The Standard Method
 
 In this section we'll introduce a quantum algorithm for the HSP that is 
-colloquially known as the _Standard Method_.
+colloquially known as the _standard method_.
 
 We'll start with some notation. For a finite group $G$, we will use 
 $\mathbb{C}[G]$ to denote the vector space with one basis
@@ -271,30 +285,30 @@ $$
 \frac{1}{\sqrt{|G|}}\sum_{g\in G}|g\rangle|f(g)\rangle
 $$
 
-Next we measure the right register to obtain $f(g) \in A$ for a random
-$g\in G$. After the measurement the resulting state will be a sum over the 
+Next we measure the right register to obtain $f(g) \in A$ for a uniformly random
+$g\in G$. After the measurement, the resulting state will be a sum over the 
 vectors $|g'\rangle$ for which $f(g') = f(g)$. Since $f$ hides $H$, this is equal
-to the sum over the coset $gH$ of $H$:
+to the sum over the coset $gH$:
 
 $$
 \frac{1}{\sqrt{|H|}}\sum_{h\in H}|gh\rangle
 $$
 
-To facilitate notation, we will use $|H\rangle$ to denote the sum over the elements
+To facilitate notation, we will use $|H\rangle$ to denote the normalized sum over the elements
 of the subgroup $H$:
 
 $$
 |H\rangle := \frac{1}{\sqrt{|H|}}\sum_{h\in H}|h\rangle
 $$
 
-and we will similarly use $|gH\rangle$ to denote the sum over the coset $gH$:
+and we will similarly denote the sum over the coset $gH$ by $\|gH\rangle$:
 
 $$
 |gH\rangle := \frac{1}{\sqrt{|H|}}\sum_{h\in H}|gh\rangle
 $$
 
-To summarize, the first step of the standard method is to use a single invocation 
-of $f$ to produce a coset state
+With this notation, we can say that the first step of the standard method is 
+to use a single invocation  of $f$ to produce a coset state
 
 $$
 |gH\rangle
@@ -303,7 +317,7 @@ $$
 where $g\in G$ is chosen uniformly at random and $H$ is the subgroup hidden by $f$.
 
 It is not immediately obvious how $|gH\rangle$ can be used to learn anything about $H$.
-If we simply measure $|gH\rangle$ in the standard basis the result will be $gh$ for some
+If we simply measure $|gH\rangle$ in the standard basis, the result will be $gh$ for some
 $h\in H$. Since $g$ is uniformly distributed in $G$, so is $gh$. Therefore,
 measuring $gh$ does not reveal any information about $H$.
 
@@ -311,11 +325,13 @@ The key to the second step of the standard method is to transform $|gH\rangle$
 into another basis that in some sense removes the obfuscating effect of $g$ and
 allows us to obtain information about $H$.
 
-To see how this works, we'll first introduce the _Shift Operators_ on 
+To see how this works, we'll first introduce the _shift operators_ on 
 $\mathbb{C}[G]$:
 
+{: #defn:shift-operator }
+
 > **Definition (Shift Operator).** Let $G$ be a finite group and $g\in G$ an
-> element of $G$. The _Shift Operator_ $L_g$ is the linear transformation
+> element of $G$. The _shift operator_ $L_g$ is the linear transformation
 > of $\mathbb{C}[G]$ defined on the basis elements $|g'\rangle$ by:
 >
 > $$
@@ -335,16 +351,16 @@ _simultaneously diagonalizes the shift operators $L_g$ for all $g\in G$_.
 This is possible when $G$ is abelian since in that case the shift operators
 commute.
 
-The motivation to finding such a transformation is that, in general, an operator
+The motivation for finding such a transformation is that, in general, an operator
 that is diagonal in a given basis does not affect measurements in that basis.
-Therefore, it reasonable to assume that after moving to a basis that diagonalizes the
+Therefore, it's reasonable to assume that after moving to a basis that diagonalizes the
 shift operators $L_g$, measuring $L_g|H\rangle$ will reveal direct information about
 $H$.
 
-In the next section we will introduce the _Quantum Fourier Transform_ as an
+In the next section we will introduce the _quantum Fourier transform_ (QFT) as an
 explicit construction of a unitary transform that diagonalizes the shift operators.
 
-In following sections we will apply it to the coset states obtained in our two examples
+In later sections we will apply it to the coset states obtained in our two examples
 of the HSP, [Simons' Problem](#simons-problem) and the [Discrete Logarithm](#discrete-logarithms),
 and recover the famously efficient quantum algorithms for those problems.
 
@@ -355,10 +371,10 @@ Recall from the [previous section](#the-standard-method) that our strategy for
 solving the hidden subgroup problem
 is to find a unitary transformation that diagonalizes all of the shift operators
 $L_g$ for $g\in G$. This transform is commonly called the
-[Quantum Fourier Transform](https://en.wikipedia.org/wiki/Quantum_Fourier_transform) (QFT).
+[quantum Fourier transform](https://en.wikipedia.org/wiki/Quantum_Fourier_transform) (QFT).
 
 In this section we'll derive the QFT and then see precisely why it is so useful in the
-context of the Hidden Subgroup Problem.
+context of the hidden subgroup problem.
 
 ## Characters
 
@@ -377,7 +393,7 @@ $$
 \lambda: G \rightarrow \mathbb{C}
 $$
 
-What can we say about the function $\lambda$?
+What can we say about this function?
 Note that since $G$ is associative, for any $g,h\in G$:
 
 $$
@@ -410,8 +426,7 @@ $$
 $$
 
 Functions satisfying this type of multiplicative property are called
-[characters](<https://en.wikipedia.org/wiki/Character_(mathematics)>). More
-precisely:
+[characters](<https://en.wikipedia.org/wiki/Character_(mathematics)>).
 
 > **Definition (Character)** Let $G$ be a group. A _character_ on $G$ is a
 > complex function
@@ -428,7 +443,7 @@ precisely:
 >
 > for all $g,h\in G$.
 
-We can restate the claim above as saying that the eigenvalue function $\lambda$
+We can restate the discussion above as saying that the eigenvalue function $\lambda$
 must be a character on $G$.
 
 We'll denote the set of characters on $G$ by $\hat{G}$. The set $\hat{G}$ has a group
@@ -447,9 +462,13 @@ Here are some basic properties of characters that will be useful below:
 >
 > 1. $\chi(1) = 1$
 > 2. $\chi(g)^N = 1$ for all $g\in G$.
-> 3. $\chi(g)^{-1} = \bar{\chi} for all $g\in G$.
+> 3. $\chi(g^{-1}) = \chi(g)^*$ for all $g\in G$.
 
-_Proof._
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
 
 1. By the definition of characters, $\chi(1)\neq 0$ and:
 
@@ -462,13 +481,26 @@ _Proof._
 2. By [Lagrange's Theorem](https://en.wikipedia.org/wiki/Lagrange%27s_theorem_(group_theory)),
  $g^N = 1$. Therefore:
 
-    $$
-    \chi(g)^N = \chi(g^N) = \chi(1) = 1
-    $$
+   $$
+   \chi(g)^N = \chi(g^N) = \chi(1) = 1
+   $$
 
-3. By the previous item, $\chi(g)$ is a root of unity.
+3. It's easy to see that
+
+   $$
+   \chi(g^{-1}) = \chi(g)^{-1}
+   $$
+
+   By the previous item, $\chi(g)$ is a root of unity and so
+
+   $$
+   \chi(g)^{-1} = \chi(g)^*
+   $$
 
 _q.e.d_
+
+</div>
+</details>
 
 Since this post is focused on abelian groups, it will be helpful to have an explicit
 description of characters in that setting. 
@@ -482,7 +514,13 @@ constituent factors.
 {: #clm:cyclic-character-group }
 
 > **Claim (Cyclic Character Group).** Let $N$ be an integer and let $\omega_N\in\mathbb{C}$ be the primitive
-> $N$-th root of unity defined by $\omega_N = e^{2\pi i/N}$. For each integer $0 \leq k < N$,
+> $N$-th root of unity defined by 
+>
+> $$
+> \omega_N = e^{2\pi i/N}
+> $$
+> 
+> For each integer $0 \leq k < N$,
 > let $\chi_k: \mathbb{Z}/N \rightarrow \mathbb{C}^\times$ be the function defined by:
 >
 > $$
@@ -492,7 +530,8 @@ constituent factors.
 >Then:
 >
 > 1. For all $0 \leq k < N$ the function $\chi_k$ is a character on $\mathbb{Z}/N$
-> 1. The following function is a group isomorphism:
+> 1. The following function is a group isomorphism between the cyclic group $\mathbb{Z}/N$
+> and it's group of characters:
 >
 > $$
 > \begin{align*}
@@ -501,9 +540,17 @@ constituent factors.
 > \end{align*}
 > $$
 
-_Proof._ The fact that $\chi_k$ is a character follows directly by the definition of a character.
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
 
-To see that $F$ is a homomorphism, we must show that $\chi_{k_1 + k_2} = \chi_{k_1}\cdot\chi_{k_2}$.
+The fact that $\chi_k$ is a character follows directly from the definition of a character.
+
+To see that $F$ is a homomorphism, we must show that $\chi_{k_1 + k_2} = \chi_{k_1}\cdot\chi_{k_2}$
+for all $k_1,k_2\in\mathbb{Z}/N$.
+
 Let $k_1,k_2\in\mathbb{Z}/N$ be elements of $\mathbb{Z}/N$.
 Then for all $l\in\mathbb{Z}/N$:
 
@@ -523,6 +570,9 @@ To see that $F$ is surjective, let $\chi\in\widehat{Z/N}$ be a character. By
 $k\in\mathbb{Z}/N$ such that $\chi(1) = \omega_N^k$. It is easy to see that $\chi = F(k)$.
 
 _q.e.d_
+
+</div>
+</details>
 
 Now suppose that the group $G$ is a product:
 
@@ -564,7 +614,13 @@ The following claim says that all characters on $G$ are of this form.
 >
 > defined above is an isomorphism of groups.
 
-_Proof_. It is easy to see that $P$ is a homomorphism. To see that $P$ is injective,
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+It is easy to see that $P$ is a homomorphism. To see that $P$ is injective,
 suppose that $(\chi_1,\dots,\chi_L)$ is in the kernel of $P$. That implies that for all
 $(g_1,\dots,g_L)\in G$:
 
@@ -587,6 +643,9 @@ It is easy to see that $P(\chi_{G_1},\dots,\chi_{G_L}) = \chi$.
 
 _q.e.d_
 
+</div>
+</details>
+
 The next claim follows immediately from the previous two claims and the
 [Fundamental Theorem of Abelian Groups](https://en.wikipedia.org/wiki/Finitely_generated_abelian_group#Primary_decomposition).
 
@@ -597,7 +656,7 @@ The next claim follows immediately from the previous two claims and the
 ## Eigenvectors
 
 In the previous section we saw that the eigenvalues of $L_g$ are given by characters
-of $G$. Interestingly, given a character $\chi\in\hat{G}$, it is easy to construct
+on $G$. Interestingly, given a character $\chi\in\hat{G}$, it is easy to construct
 a simultaneous eigenvector for $L_g$ whose eigenvalues are given by $\chi$:
 
 {: #clm:eig-from-char }
@@ -607,27 +666,36 @@ a simultaneous eigenvector for $L_g$ whose eigenvalues are given by $\chi$:
 > $|\varphi\rangle\in\mathbb{C}[G]$ by:
 >
 > $$
-> |\varphi\rangle = \sum_{g\in G}\chi^*(g)|g\rangle
+> |\varphi\rangle = \frac{1}{\sqrt{|G|}}\sum_{g\in G}\chi(g)^*|g\rangle
 > $$
 >
 > Then, for all $g\in G$, $|\varphi\rangle$ is an eigenvector of
 > $L_g$ with eigenvalue $\chi(g)$.
 
-_Proof._ Recall that by [Character Properties](#clm:character-properties), 
-$\chi^*(g)=\chi^{-1}(g)$ for all $g\in G$. The claim follows by direct calculation:
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Recall that by [Character Properties](#clm:character-properties), 
+$\chi^*(g)=\chi(g^{-1})$ for all $g\in G$. The claim follows by direct calculation:
 
 $$
 \begin{align*}
-L_g|\varphi\rangle &= L_g\sum_{h}\chi^*(h)|h\rangle \\
-&= \sum_{h\inG}\chi^*(h)|gh\rangle \\
-&= \sum_{h\in G}\chi^*(g^{-1}h)|g g^{-1}h\rangle \\
-&= \sum_{h\in G}\chi^*(g^{-1})\chi(h)|h\rangle \\
-&= \chi(g)\cdot\sum_{h\in G}\chi(h)|h\rangle \\
+L_g|\varphi\rangle &= L_g\sum_{h\in G}\chi(h)^*|h\rangle \\
+&= \frac{1}{\sqrt{|G|}}\sum_{h\in G}\chi(h)^*|gh\rangle \\
+&= \frac{1}{\sqrt{|G|}}\sum_{h\in G}\chi(g^{-1}h)^*|g g^{-1}h\rangle \\
+&= \frac{1}{\sqrt{|G|}}\sum_{h\in G}\chi(g^{-1})^*\chi(h)^*|h\rangle \\
+&= \frac{1}{\sqrt{|G|}}\chi(g)\cdot\sum_{h\in G}\chi(h)^*|h\rangle \\
 &= \chi(g)|\varphi\rangle
 \end{align*}
 $$
 
 _q.e.d_
+
+</div>
+</details>
 
 We can use this result to simultaneously diagonalize the shift operators $L_g$.
 
@@ -642,12 +710,13 @@ D_g: \mathbb{C}[\hat{G}] &\rightarrow \mathbb{C}[\hat{G}] \\
 $$
 
 {: #clm:unitary-diag }
-> **Claim (Diagonalization).** Let $U$ be the linear transformation defined by:
+> **Claim (Diagonalization).** Let $G$ be a finite abelian group and 
+> let $U$ be the linear transformation of $\mathbb{C}[G]$ defined by:
 >
 > $$
 > \begin{align*}
 > U : \mathbb{C}[\hat{G}] &\rightarrow \mathbb{C}[G] \\
-> |\chi\rangle &\mapsto \frac{1}{\sqrt{|G|}}\sum_{g\in G}\bar{\chi(g)}|g\rangle
+> |\chi\rangle &\mapsto \frac{1}{\sqrt{|G|}}\sum_{g\in G}\chi(g)^*|g\rangle
 > \end{align*}
 > $$
 >
@@ -660,7 +729,13 @@ $$
 In other words, $U$ is a [unitary transformation](https://en.wikipedia.org/wiki/Unitary_transformation) that simultaneously diagonalizes
 $L_g$ for all $g\in G$.
 
-_Proof._ By [Abelian Character Group](#clm:abelian-character-group), $\mathbb{C}[\hat{G}]$
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+By [Abelian Character Group](#clm:abelian-character-group), $\mathbb{C}[\hat{G}]$
 and $\mathbb{C}[G]$ have the same dimension. Therefore, it suffices to show that $U$
 maps basis vectors $|\chi\rangle\in\mathbb{C}[G]$ to orthogonal unit eigenvectors of $L_g$.
 
@@ -669,12 +744,12 @@ Since $\chi_1\neq\chi_2$, there must be some $g\in G$ such that $\chi_1(g)\neq\c
 By claim [Eigenvectors From Characters](#clm:eig-from-char), this implies that $U|\chi_1\rangle$
 and $U|\chi_2\rangle$ are eigenvectors of $L_g$ with different eigenvalues. Since $L_g$ is a permutation
 transformation, [it follows](https://en.wikipedia.org/wiki/Permutation_matrix#Linear-algebraic_properties)
-that is [normal](https://en.wikipedia.org/wiki/Normal_matrix). Eigenvectors of a normal transformation
-with distinct eigenvalues are orthogonal which implies that $U|\chi_1\rangle$ and $U|\chi_s\rangle$
+that it is [normal](https://en.wikipedia.org/wiki/Normal_matrix). Eigenvectors of a normal transformation
+with distinct eigenvalues are orthogonal which implies that $U|\chi_1\rangle$ and $U|\chi_2\rangle$
 are orthogonal.
 
 It remains to show that $U|\chi\rangle$ has unit length for all $\chi\in\hat{G}$.
-Recall that by [Character Properties](#clm:character-properties), $\bar{\chi}(g)=\chi^{-1}(g)$ for all
+Recall that by [Character Properties](#clm:character-properties), $\chi(g)$ is a root of unity for all
 $g\in G$ which implies that $\|\chi^*(g)\|^2 = 1$. Therefore:
 
 $$
@@ -683,12 +758,15 @@ $$
 
 _q.e.d_
 
-We will define the _Quantum Fourier Transform_ of $G$ to be complex conjugate of $U$:
+</div>
+</details>
+
+We will define the _quantum Fourier transform_ of $G$ to be the complex conjugate of $U$:
 
 {: #defn:quantum-fourier-transform }
 
 > **Definition (Quantum Fourier Transform).** Let $G$ be a finite abelian group.
-> The Quantum Fourier Transform (QFT) on $G$ is defined by:
+> The _quantum Fourier transform_ (QFT) of $G$ is defined by:
 >
 > $$
 > \begin{align*}
@@ -708,14 +786,23 @@ The following claim is a direct consequence of [Diagonalization](#clm:unitary-di
 > L_g = \mathrm{QFT}_G^* \circ D_g \circ \mathrm{QFT}_G
 > $$
 
-_Proof._ This follows immediately from [Diagonalization](#clm:unitary-diag) and the fact that
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+This follows immediately from [Diagonalization](#clm:unitary-diag) and the fact that
 $\mathrm{QFT} = U^*$
 
 _q.e.d_
 
+</div>
+</details>
+
 It is common to construct groups as products of smaller groups. Suppose that $G$ and $H$
-are finite abelian groups and that we know $\mathrm{QFT}_G$ and $\mathrm{QFT}_H$. What can we say about
-$\mathrm{QFT}_{G\times H}$, the QFT on the product $G\times H$?
+are finite abelian groups and that we know $\mathrm{QFT}\_G$ and $\mathrm{QFT}\_H$. What can we say about
+$\mathrm{QFT}_{G\times H}$, the QFT of the product $G\times H$?
 
 First of all, note that $\mathbb{C}[G\times H]$ is isomorphic to $\mathbb{C}[G]\otimes\mathbb{C}[H]$
 with the isomorphism given by:
@@ -723,7 +810,7 @@ with the isomorphism given by:
 $$
 \begin{align*}
 \mathbb{C}[G]\otimes\mathbb{C}[H] &\rightarrow \mathbb{C}[G\times H] \\
-|g\rangle \otimes |h\rangle &\mapsto |(g,h)\rangle
+|g\rangle \otimes |h\rangle &\mapsto |g,h\rangle
 \end{align*}
 $$
 
@@ -733,13 +820,19 @@ $\mathrm{QFT}\_{G\times H}$ to $\mathrm{QFT}\_{G}$ and $\mathrm{QFT}\_{H}$
 
 {: #clm:qft-product }
 
-> **Claim (QFT Product).** Let $G$ and $H be finite abelian groups. Then:
+> **Claim (QFT Product).** Let $G$ and $H$ be finite abelian groups. Then:
 >
 > $$
 > \mathrm{QFT}_{G\times H} = \mathrm{QFT}_G \otimes \mathrm{QFT}_H
 > $$
 
-_Proof._ First, let's see how the characters on $G\times $H relate to the characters on
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+First, let's see how the characters on $G\times $H relate to the characters on
 $G$ and $H$. Suppose that $\chi\in\hat{G}$ is a character on $G$ and $\lambda\in\hat{H}$
 is a character on $H$. It is easy to see that the function $(\chi,\lambda)$ defined by: 
 
@@ -779,6 +872,8 @@ $$
 
 _q.e.d_
 
+</div>
+</details>
 
 ## Coset States
 
