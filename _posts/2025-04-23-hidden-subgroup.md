@@ -1125,7 +1125,7 @@ By [definition](#defn:quantum-fourier-transform), this implies that the QFT on t
 
 $$
 \mathrm{QFT}_{(\mathbf{Z}/2)^N}(|\mathbf{x}\rangle) = 
-\frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
+\frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}\chi_\mathbf{y}(\mathbf{x})|\mathbf{y}\rangle
 $$
 
 Note that in this sum, we are representing the character basis elements $\|\chi_\mathbf{y}\rangle$ by
@@ -1133,7 +1133,7 @@ the bit-string $\|\mathbf{y}\rangle$.
 
 ## The Standard Method
 
-We now use the [standard method](#the-standard-method) together with
+We'll now use the [standard method](#the-standard-method) together with
 $\mathrm{QFT}_{(\mathbf{Z}/2)^N}$ so solve Simon's problem.
 
 First, [recall](#simons-problem) that in this case the hidden subgroup $H$ is 
