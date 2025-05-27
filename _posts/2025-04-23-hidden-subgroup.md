@@ -29,8 +29,8 @@ Furthermore, Shor's algorithms can be generalized to an efficient quantum
 algorithm for the HSP whenever the group in question is
 [commutative](https://en.wikipedia.org/wiki/Abelian_group).
 
-Furthermore, [almost all](https://en.wikipedia.org/wiki/Hidden_subgroup_problem#Instances)
-problems that we know of with significant quantum speedups are
+Conversely, [almost all](https://en.wikipedia.org/wiki/Hidden_subgroup_problem#Instances)
+known problems with significant quantum speedups are
 instances of the HSP for commutative groups.
 
 In this post we'll introduce the hidden subgroup problem and the quantum 
@@ -119,7 +119,8 @@ Simon's problem is defined as follow:
 > $$
 >
 > from $(\mathbb{Z}/2)^N$ to a set $A$. In addition, we are promised
-> that there is a secret bit-string $\mathbf{s}\in (\mathbb{Z}/2)^N$ such that
+> that there is a secret bit-string $\mathbf{s}\in (\mathbb{Z}/2)^N$ such that for all
+> $\mathbf{x},\mathbf{x}'\in(\mathbb{Z}/2)^N$,
 > $f(\mathbf{x}) = f(\mathbf{x}')$ if and only if $\mathbf{x}' = \mathbf{x}$ or
 > $\mathbf{x}' = \mathbf{x} \oplus \mathbf{s}$. The challenge is to find $\mathbf{s}$
 > with as few calls as possible to the black box for $f$.
@@ -207,7 +208,7 @@ f: G &\rightarrow \mathbb{Z}_p^\times \\
 \end{align*}
 $$
 
-We claim that finding $s$, the discrete logarithm of $x$, can be reduced so solving the
+We claim that finding $s$, the discrete logarithm of $x$, can be reduced to solving the
 HSP for the group $G$ with the function $f$.
 
 First, note that $f$ is a group homomorphism. Furthermore, an element $(a,b)$ is in
@@ -332,7 +333,7 @@ $\mathbb{C}[G]$:
 
 > **Definition (Shift Operator).** Let $G$ be a finite group and $g\in G$ an
 > element of $G$. The _shift operator_ $L_g$ is the linear transformation
-> of $\mathbb{C}[G]$ defined on the basis elements $|g'\rangle$ by:
+> of $\mathbb{C}[G]$ defined on a basis element $|g'\rangle$ by:
 >
 > $$
 > L_g|g'\rangle := |gg'\rangle
@@ -531,7 +532,7 @@ constituent factors.
 >
 > 1. For all $0 \leq k < N$ the function $\chi_k$ is a character on $\mathbb{Z}/N$
 > 1. The following function is a group isomorphism between the cyclic group $\mathbb{Z}/N$
-> and it's group of characters:
+> and its group of characters:
 >
 > $$
 > \begin{align*}
@@ -659,10 +660,10 @@ In the previous section we saw that the eigenvalues of $L_g$ are given by charac
 on $G$. Interestingly, given a character $\chi\in\hat{G}$, it is easy to construct
 a simultaneous eigenvector for $L_g$ whose eigenvalues are given by $\chi$:
 
-{: #clm:eig-from-char }
+{: #clm:eigenvectors-from-characters }
 
 > **Claim (Eigenvectors From Characters).** Let $G$ be a finite group and let
-> $\chi: G \rightarrow \mathbb{C}$ be a character on $G$. Define
+> $\chi: G \rightarrow \mathbb{C}^\times$ be a character on $G$. Define
 > $|\varphi\rangle\in\mathbb{C}[G]$ by:
 >
 > $$
@@ -711,7 +712,7 @@ $$
 
 {: #clm:unitary-diag }
 > **Claim (Diagonalization).** Let $G$ be a finite abelian group and 
-> let $U$ be the linear transformation of $\mathbb{C}[G]$ defined by:
+> let $U$ be the linear transformation defined by:
 >
 > $$
 > \begin{align*}
@@ -735,9 +736,14 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
+By [Eigenvectors From Characters](#clm:eigenvectors-from-characters), $U$ maps basis
+vectors of $\mathbb{C}[\hat{G}]$ to simultaneous eigenvectors of $L_g$. Therefore,
+it suffices to show that $U$ is unitary.
+
 By [Abelian Character Group](#clm:abelian-character-group), $\mathbb{C}[\hat{G}]$
-and $\mathbb{C}[G]$ have the same dimension. Therefore, it suffices to show that $U$
-maps basis vectors $|\chi\rangle\in\mathbb{C}[G]$ to orthogonal unit eigenvectors of $L_g$.
+and $\mathbb{C}[G]$ have the same dimension. Therefore, to prove that $U$ is unitary it
+is sufficient to show that it
+maps basis vectors $|\chi\rangle\in\mathbb{C}[\hat{G}]$ to orthonormal vectors in $\mathbb{C}[G]$.
 
 We'll start by showing orthogonality. Let $\chi_1\neq\chi_2\in\hat{G}$ be different characters on $G$.
 Since $\chi_1\neq\chi_2$, there must be some $g\in G$ such that $\chi_1(g)\neq\chi_2(g)$.
@@ -832,7 +838,7 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
-First, let's see how the characters on $G\times $H relate to the characters on
+First, let's see how the characters on $G\times H$ relate to the characters on
 $G$ and $H$. Suppose that $\chi\in\hat{G}$ is a character on $G$ and $\lambda\in\hat{H}$
 is a character on $H$. It is easy to see that the function $(\chi,\lambda)$ defined by: 
 
@@ -863,10 +869,10 @@ of $\mathrm{QFT}_{G\times H}$:
 
 $$
 \begin{align*}
-\mathrm{QFT}_{G\times H}|(g,h)\rangle &= \frac{1}{\sqrt{|G\times H|}}\sum_{\chi\in \widehat{G\times H}}\chi((g,h))|\chi\rangle \\
+\mathrm{QFT}_{G\times H}|g,h\rangle &= \frac{1}{\sqrt{|G\times H|}}\sum_{\mu\in \widehat{G\times H}}\mu(g,h)|\mu\rangle \\
 &= \frac{1}{\sqrt{|G|\cdot| H|}}\sum_{\chi\in \hat{G},\,\lambda\in\hat{H}}\chi(g)\lambda(h)|\chi\rangle|\lambda\rangle \\
 &= \left(\frac{1}{\sqrt{|G|}}\sum_{\chi\in \hat{G}}\chi(g)|\chi\rangle\right) \otimes \left(\frac{1}{\sqrt{|H|}}\sum_{\lambda\in \hat{H}}\lambda(h)|\lambda\rangle\right) \\
-&= \mathrm{QFT}_G(g) \otimes \mathrm{QFT}_H(h) 
+&= \mathrm{QFT}_G|g\rangle \otimes \mathrm{QFT}_H|h\rangle
 \end{align*}
 $$
 
@@ -877,20 +883,23 @@ _q.e.d_
 
 ## Coset States
 
-We'll now see how the quantum fourier transform can be used to solve the hidden subgroup problem.
-Recall from section XXX that the first part of the _standard method_ produces a coset state:
+We'll now apply the quantum Fourier transform to the hidden subgroup problem.
+Recall from section [The Standard Method](#the-standard-method)
+that the first part of the standard method is to produce a coset state:
 
 $$
 |gH\rangle = \frac{1}{\sqrt{|H|}}\sum_{h\in H}|gh\rangle
 $$
 
-where $H$ is the hidden subgroup and $g$ is an unknown element of $G$. We'll use the QFT
-to extract information about $H$ from a coset state $|gH\rangle$.
+where $H$ is the hidden subgroup and $g$ is a uniformly random element of $G$. We'll use 
+$\mathrm{QFT}_G$
+to extract information about $H$ from the coset state $|gH\rangle$.
 
 If $\chi\in\hat{G}$ is a character on $G$ and $H\subset G$ is a subgroup of $G$
 then we will use the notation $\chi_H$ to denote the restriction of $\chi$ to $H$.
 
-Let's see what happens if we apply the QFT to $\|H\rangle$:
+As a warmup, let's see what happens if we apply $\mathrm{QFT}_G$ to the subgroup state
+$\|H\rangle$:
 
 {: #clm:qft-subgroup-state }
 
@@ -898,13 +907,19 @@ Let's see what happens if we apply the QFT to $\|H\rangle$:
 > a subgroup. Then:
 >
 > $$
-> \mathrm{QFT}(|H\rangle) = \sqrt{\frac{|H|}{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}|\chi\rangle
+> \mathrm{QFT}_G(|H\rangle) = \sqrt{\frac{|H|}{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}|\chi\rangle
 > $$
 
-In other words, applying the QFT to $|H\rangle$ gives a sum over the characters on $G$
+In other words, applying $\mathrm{QFT}_G$ to $|H\rangle$ gives a sum over the characters on $G$
 whose restriction to $H$ is trivial.
 
-_Proof._ First, note that for all $h\in H$ the state $\|H\rangle$ is invariant under
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+First, note that for all $h\in H$ the state $\|H\rangle$ is invariant under
 a shift by $h$:
 
 $$
@@ -913,17 +928,17 @@ L_h|H\rangle = |H\rangle
 \end{equation}
 $$
 
-By [QFT Diagonalization](#clm:qft-diagonalization), $\mathrm{QFT}$ is unitary and:
+By [QFT Diagonalization](#clm:qft-diagonalization), $\mathrm{QFT}_G$ is unitary and:
 
 $$
-L_h = \mathrm{QFT}^* \circ D_h \circ \mathrm{QFT}
+L_h = \mathrm{QFT}_G^* \circ D_h \circ \mathrm{QFT}_G
 $$
 
-Applying this to \ref{eq:subgroup-state-shift} gives and multiplying both sides
-by $\mathrm{QFT}$ gives:
+Applying this to \ref{eq:subgroup-state-shift} and multiplying both sides
+by $\mathrm{QFT}_G$ gives:
 
 $$
-\mathrm{QFT}|H\rangle = D_h\mathrm{QFT}|H\rangle 
+\mathrm{QFT}_G|H\rangle = D_h\mathrm{QFT}_G|H\rangle 
 $$
 
 Taking the inner product of both sides with a character $\chi\in\hat{G}$ and
@@ -931,54 +946,64 @@ using the definition of $D_h$:
 
 $$
 \begin{align*}
-\langle\chi|\mathrm{QFT}|H\rangle &= \langle\chi|D_h\mathrm{QFT}|H\rangle \\
-&= \chi(h)\langle\chi|\mathrm{QFT}|H\rangle
+\langle\chi|\mathrm{QFT}_G|H\rangle &= \langle\chi|D_h\mathrm{QFT}_G|H\rangle \\
+&= \chi(h)\langle\chi|\mathrm{QFT}_G|H\rangle
 \end{align*}
 $$
 
-Therefore, either $\langle\chi\|\mathrm{QFT}\|H\rangle=0$ or $\chi(h)=1$ for all $h\in H$.
+Therefore, either $\langle\chi\|\mathrm{QFT}_G\|H\rangle=0$ or $\chi_H=1$.
 
 Suppose that $\chi_H=1$. Then:
 
 $$
 \begin{align*}
-\langle\chi|\mathrm{QFT}|H\rangle &= \frac{1}{\sqrt{|G|}\sqrt{|H|}}\sum_{h\in H}\chi(h)|\chi\rangle \\
-&= \frac{|H|}{\sqrt{|G|}\sqrt{|H|}}\sum_{h\in H}|\chi\rangle \\
-&= \sqrt{\frac{|H|}{|G|}}|\chi\rangle
+\langle\chi|\mathrm{QFT}_G|H\rangle &= \frac{1}{\sqrt{|G|}\sqrt{|H|}}\sum_{h\in H}\chi(h) \\
+&= \frac{1}{\sqrt{|G|}\sqrt{|H|}}\sum_{h\in H}1 \\
+&= \sqrt{\frac{|H|}{|G|}}
 \end{align*}
 $$
 
 _q.e.d_
 
+</div>
+</details>
+
 We can use this claim together with another application of [QFT Diagonalization](#clm:qft-diagonalization) to determine what
-happens when we apply the QFT to a coset state:
+happens when we apply $\mathrm{QFT}_G$ to a coset state:
 
 {: #clm:qft-coset-state }
 
-> **Claim (QFT Coset State).** Let $G$ be a finite abelian group and let $H\subset G$ be
-> a subgroup and $g\in G$ and element of $G$. Then:
+> **Claim (QFT Coset State).** Let $G$ be a finite abelian group, $H\subset G$ be
+> a subgroup and $g\in G$ an element of $G$. Then:
 >
 > $$
-> \mathrm{QFT}(|gH\rangle) = \sqrt{\frac{|H|}{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}\chi(g)|\chi\rangle
+> \mathrm{QFT}_G(|gH\rangle) = \sqrt{\frac{|H|}{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}\chi(g)|\chi\rangle
 > $$
 
-_Proof._ We can rewrite the coset state as:
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+We can rewrite the coset state as:
 
 $$
 |gH\rangle = L_g|H\rangle
 $$
 
-By [QFT Diagonalization](#clm:qft-diagonalization), $L_g = \mathrm{QFT}^*\circ D_g\circ \mathrm{QFT}$ and so:
+By [QFT Diagonalization](#clm:qft-diagonalization), $L_g = \mathrm{QFT}_G^*\circ D_g\circ \mathrm{QFT}_G$
+and so:
 
 $$
-\mathrm{QFT}|gH\rangle = (D_g\circ\mathrm{QFT})|H\rangle
+\mathrm{QFT}_G|gH\rangle = (D_g\circ\mathrm{QFT}_G)|H\rangle
 $$
 
 Applying [QFT Subgroup State](#clm:qft-subgroup-state) gives:
 
 $$
 \begin{align*}
-\mathrm{QFT}|gH\rangle &= D_g \frac{\sqrt{|H|}}{\sqrt{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}|\chi\rangle \\
+\mathrm{QFT}_G|gH\rangle &= D_g \frac{\sqrt{|H|}}{\sqrt{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}|\chi\rangle \\
 &= \frac{\sqrt{|H|}}{\sqrt{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}D_g|\chi\rangle \\
 &= \frac{\sqrt{|H|}}{\sqrt{|G|}}\sum_{\chi\in\hat{G},\,\chi_H=1}\chi(g)|\chi\rangle 
 \end{align*}
@@ -986,8 +1011,13 @@ $$
 
 _q.e.d_
 
+
+</div>
+</details>
+
 This gives us a strategy for extracting information about $H$ from an arbitrary coset state $|gH\rangle$.
-According to [QFT Coset State](#clm:qft-coset-state), if we apply the QFT to $|gH\rangle$ and measure in
+According to [QFT Coset State](#clm:qft-coset-state), if we apply $\mathrm{QFT}_G$
+to $|gH\rangle$ and measure in
 the standard basis of $\mathbb{C}[\hat{G}]$ then we are guaranteed to measure a character $\chi$
 whose restriction to $H$ is trivial. As we will see in the following sections, this essentially imposes
 a linear constraint on the generators of $H$. Repeating the process $\mathcal{O}(\log\|H\|)$ times will determine
@@ -1005,16 +1035,23 @@ As a first step, by the
 and claim [QFT Product](#clm:qft-product), it is sufficient to efficiently implement
 the QFT on the cyclic groups $\mathbb{Z}/N$ for an arbitrary integer $N$.
 
-Deriving an efficient circuit for $\mathrm{QFT}_{\mathbb{Z}/N}$ is outside the scope of this
+In the next [section](#qft-implementation-1) we'll see how to do this in the case where $N=2$.
+Deriving an efficient circuit for an arbitrary $N$ is outside the scope of this
 post, but a good reference is chapter 4 of 
 [Andrew Childs' Lecture Notes](https://www.cs.umd.edu/~amchilds/qa).
 
 
 # Simon's Algorithm
 
-In section XXX we introduced Simon's problem and saw that it is a special case of
-the hidden subgroup problem with $G = (\mathbb{Z}/2)^N$ and function $f:G\rightarrow A$ 
-that hides a subgroup $H$ of order $2$.
+In section [Simon's Problem](#simons-problem) we introduced Simon's problem and 
+saw that it is a special case of
+the hidden subgroup problem with
+
+$$
+G = (\mathbb{Z}/2)^N
+$$
+
+and function $f:G\rightarrow A$ that hides a subgroup $H\subset G$ of order $2$.
 
 In this section we'll apply the theory from section [The Quantum Fourier Transform](#the-quantum-fourier-transform)
 to this group and recover Simon's original solution to the problem.
@@ -1022,16 +1059,40 @@ to this group and recover Simon's original solution to the problem.
 We'll represent elements of $(\mathbb{Z}/2)^N$ as bit-strings 
 
 $$
-\mathbf{x} = x_1,\dots,x_n
+\mathbf{x} = (x_1,\dots,x_n)
 $$
 
 where $x_i\in\{0,1\}$. The group operation on $(\mathbb{Z}/2)^N$ is bitwise addition modulo $2$
 which we will denote by $\oplus$.
 
 ## Characters
-
-In order to construct the Quantum Fourier Transform we need to
+ 
+In order to construct the quantum Fourier transform we need to
 find the characters on $(\mathbb{Z}/2)^N$.
+
+We'll start by finding the characters on $\mathbb{Z}/2$. 
+By claim [Cyclic Character Group](#clm:cyclic-character-group), the only
+characters on $\mathbb{Z}/2$ are $\chi_0$ and $\chi_1$ defined by:
+
+$$
+\begin{align*}
+\chi_0(x) &= 1 \\
+\chi_1(x) &= (-1)^x
+\end{align*}
+$$
+
+where $x\in\mathbb{Z}/2$.
+
+Therefore, by [Product Character Group](#clm:product-character-group)
+it follows that all of the characters on $(\mathbb{Z}/2)^N$ are of the form:
+
+$$
+\begin{equation}\label{eq:bitstring-char}
+\chi(\mathbf{x}) = \prod_{i=1}^N\chi_{y_i}(x_i)
+\end{equation}
+$$
+
+for some $y_1,\dots,y_N\in\{0,1\}$.
 
 To facilitate notation, we will introduce the bitwise dot product on elements of
 $(\mathbb{Z}/2)^N$:
@@ -1050,26 +1111,20 @@ $$
 \end{align*}
 $$
 
-To check that $\chi_\mathbf{y}$ is a character, let $\mathbf{x},\mathbf{x}'\in (\mathbb{Z}/2)^N$
-be to bit-strings. Then indeed:
+Note that if $\mathbf{y}=(y_1,\dots,y_N)$ then we can rewrite equation \ref{eq:bitstring-char}
+as:
 
 $$
-\begin{align*}
-\chi_{\mathbf{y}}(\mathbf{x}\oplus\mathbf{x}') &= (-1)^{(\mathbf{x}\oplus\mathbf{x}')\cdot\mathbf{y}} \\
-&= (-1)^{(\mathbf{x}\cdot\mathbf{y})\oplus(\mathbf{x}'\cdot\mathbf{y})} \\
-&= (-1)^{(\mathbf{x}\cdot\mathbf{y})}\cdot (-1)^{(\mathbf{x}'\cdot\mathbf{y})} \\
-&= \chi_\mathbf{y}(\mathbf{x})\cdot\chi_\mathbf{y}(\mathbf{x}')
-\end{align*}
+\prod_{i=1}^N\chi_{y_i}(x_i) = \chi_\mathbf{y}(\mathbf{x})
 $$
 
-By [Abelian Character Group](#clm:abelian-character-group), there are $2^N$ characters on
-$(\mathbb{Z}/2)^N$ which means that all of the characters on $(\mathbb{Z}/2)^N$ are of the form
-$\chi_\mathbf{y}$ for some $\mathbf{y}\in (\mathbb{Z}/2)^N$.
+It therefore follows that the characters on $(\mathbb{Z}/2)^N$
+are all of the form $\chi_\mathbf{y}$ for some $\mathbf{y}\in(\mathbf{Z}/2)^N$.
 
-By [definition](#defn:quantum-fourier-transform), this means that the QFT on this group is given by:
+By [definition](#defn:quantum-fourier-transform), this implies that the QFT on this group is given by:
 
 $$
-\mathrm{QFT}(|\mathbf{x}\rangle) = 
+\mathrm{QFT}_{(\mathbf{Z}/2)^N}(|\mathbf{x}\rangle) = 
 \frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
 $$
 
@@ -1078,10 +1133,11 @@ the bit-string $\|\mathbf{y}\rangle$.
 
 ## The Standard Method
 
-We now use the QFT to use the standard method from section XXX to solve Simon's problem.
+We now use the [standard method](#the-standard-method) together with
+$\mathrm{QFT}_{(\mathbf{Z}/2)^N}$ so solve Simon's problem.
 
-First, recall in this case the hidden subgroup $H$ is guaranteed to be of order $2$.
-So we'll write it as:
+First, [recall](#simons-problem) that in this case the hidden subgroup $H$ is 
+guaranteed to be of order $2$. So we can write it as:
 
 $$
 H = \{\mathbf{0}, \mathbf{s} \}
@@ -1089,89 +1145,52 @@ $$
 
 for some hidden element $\mathbf{s}\in(\mathbb{Z}/2)^N$ that we are trying to find.
 
-As usual, the first step of the standard method is to construct the state:
-
-$$
-\frac{1}{2^{N/2}}\sum_{\mathbf{x}\in(\mathbb{Z}/2)^N}|\mathbf{x}\rangle|0\rangle
-$$
-
-Next we apply $f$ to obtain:
-
-$$
-\frac{1}{2^{N/2}}\sum_{\mathbf{x}\in(\mathbb{Z}/2)^N}|\mathbf{x}\rangle|f(\mathbf{x})\rangle
-$$
-
-Then we measure the auxiliary register and are left with a coset state:
+As usual, the first step of the standard method produces a coset state:
 
 $$
 |\mathbf{x} \oplus H\rangle = \frac{1}{\sqrt{2}}(|\mathbf{x}\rangle + |\mathbf{x}\oplus\mathbf{s}\rangle)
 $$
 
-for some unknown $mathbf{x}\in(\mathbb{Z}/2)^N$.
+for some uniformly random $\mathbf{x}\in(\mathbb{Z}/2)^N$.
 
-By [QFT Coset State](#clm:qft-coset-state), we expect that applying the QFT to 
-$|\mathbf{x} \oplus H\rangle$ should remove confounding effect of $\mathbf{x}$ and reveal information about $\mathbf{s}$.
-
-Indeed, using the explicit form for the QFT in this case from the previous section:
+By [QFT Coset State](#clm:qft-coset-state), if we apply $\mathrm{QFT}_{(\mathbf{Z}/2)^N}$
+to this coset state we will get:
 
 $$
-\begin{align*}
-\mathrm{QFT}($|\mathbf{x} \oplus H\rangle) &= 
-\frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}((-1)^{\mathbf{x}\cdot\mathbf{y}} + (-1)^{(\mathbf{x}\oplus\mathbf{s})\cdot\mathbf{y}}|\mathbf{y}\rangle \\
-&= \frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}((-1)^{\mathbf{x}\cdot\mathbf{y}}(1 + (-1)^{\mathbf{s}\cdot\mathbf{y}})|\mathbf{y}\rangle
-\end{align*}
+\mathrm{QFT}_{(\mathbb{Z}/2)^N}(|\mathbf{x} \oplus H\rangle) =
+\frac{1}{2^{(N-1)/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N,\ \chi_\mathbf{y}(\mathbf{s})=1}\chi_\mathbf{y}(\mathbf{x})|\mathbf{y}\rangle
 $$
 
-Note that the coefficient of $|\chi_\mathbf{y}\rangle$ is either equal to $0$ or $2$:
+
+This means that if we measure $\mathrm{QFT}_{(\mathbb{Z}/2)^N}(|\mathbf{x} \oplus H\rangle)$ in the standard basis
+we'll get an element $\mathbf{y}\in(\mathbb{Z}/2)^N$ satisfying
 
 $$
-1 + (-1)^{\mathbf{s}\cdot\mathbf{y}} = \begin{cases}
-2 & \mathbf{s}\cdot\mathbf{y} = 0 \\
-0 & \mathrm{else}
+\chi_\mathbf{y}(\mathbf{s}) = 1
 $$
 
-Therefore:
+By the definition of $\chi_\mathbf{y}$ this is equivalent to:
 
 $$
-\mathrm{QFT}($|\mathbf{x} \oplus H\rangle) =
-\frac{1}{2^{(N-1)/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N,\,\mathbf{s}\cdot\mathbf{y}=0}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
+\mathbf{y}\cdot\mathbf{s} = 0
 $$
 
-as predicted by claim [QFT Coset State](#clm:qft-coset-state).
-
-This means that if we measure $\mathrm{QFT}($|\mathbf{x} \oplus H\rangle)$ in the standard basis
-we get an element $\mathbf{y}\in(\mathbb{Z}/2)^N$ satisfying
-
-$$
-\mathbf{s}\cdot\mathbf{y} = \sum_{i=1}^N s_iy_i = 0 \mathrm{(mod 2)}$.
-$$
-
-In other words, after measuring $\mathrm{QFT}(|\mathbf{x} \oplus H\rangle)$ we will get one linear
-constraint on the hidden vector $\mathbf{s}$. If we repeat the process $\mathcal{O}(N)$ times, we have a high
+In other words, after measuring $\mathrm{QFT}_{(\mathbb{Z}/2)^N}(|\mathbf{x} \oplus H\rangle)$
+we will get one linear constraint on the hidden vector $\mathbf{s}$.
+If we repeat the process $\mathcal{O}(N)$ times, we have a high
 chance of finding $N$ independent linear constraints on the length $N$ vector $\mathbf{s}$ which
 is sufficient to recover $\mathbf{s}$ and solve Simon's problem.
-
-In conclusion, we can use the QFT to solve Simon's problem in only $\mathcal{O}(N)$ invocations of $f$.
-In the next section we'll show how to efficiently implement the QFT in this case.
 
 ## QFT Implementation
 
 In this section we'll show how to efficiently implement the QFT on $(\mathbb{Z}/2)^N$.
-By _efficiently_ we mean that the quantum circuit for the QFT should consist of $\mathcal{O}(N)$ gates,
-where each gate operates on no more than two bits.
+By _efficiently_ we mean that the quantum circuit for the QFT should consist of $\mathcal{O}(N)$ 
+[quantum gates](https://en.wikipedia.org/wiki/Quantum_logic_gate).
 
-Recall that the QFT on $(\mathbb{Z}/2)^N$ is given by:
+Specifically, we will implement $\mathrm{QFT}_{(\mathbb{Z}/2)^N}$ using $N$ 
+[Hadamard gates](https://en.wikipedia.org/wiki/Quantum_logic_gate#Hadamard_gate).
 
-$$
-\mathrm{QFT}_{(\mathbb{Z}/2)^N}(|\mathbf{x}\rangle) = 
-\frac{1}{2^{N/2}}\sum_{\mathbf{y}\in(\mathbb{Z}/2)^N}(-1)^{\mathbf{x}\cdot\mathbf{y}}|\mathbf{y}\rangle
-$$
-
-Since there are $2^N$ terms in the sum, a naive implementation that computes the QFT term by term would
-be too slow.
-
-Instead, we will implement the QFT using [Hadamard Gates](https://en.wikipedia.org/wiki/Quantum_logic_gate#Hadamard_gate).
-Recall that a Hadamard gate $H$ on a single qubit is defined by:
+Recall that a Hadamard gate $H$ on a qubit is defined by:
 
 $$
 \begin{align*}
@@ -1186,8 +1205,7 @@ $$
 H|x\rangle = \frac{1}{\sqrt{2}}(|0\rangle + (-1)^x|1\rangle)
 $$
 
-where $x\in\mathbb{Z}/2$. But note that this is equal to the QFT on $\mathbb{Z}/2$.
-In other words:
+where $x\in\mathbb{Z}/2$. But note that this is equal to the QFT on $\mathbb{Z}/2$:
 
 $$
 \mathrm{QFT}_{\mathbb{Z}/2} = H
@@ -1204,8 +1222,8 @@ The following claim follows immediately from this observation and [QFT Product](
 
 # Shor's Algorithm
 
-In section XXX we saw that computing [discrete logarithms](https://en.wikipedia.org/wiki/Discrete_logarithm)
-can be reduced to solving the hidden subgroup problem on the group 
+In section [Discrete Logarithms](#discrete-logarithms) we saw that 
+computing discrete logarithms can be reduced to solving the hidden subgroup problem on the group 
 
 $$
 G=\mathbb{Z}/N\times\mathbb{Z}/N
@@ -1213,7 +1231,7 @@ $$
 
 for an integer $N$.
 
-Similarly to section [Simon's Algorithm](#simons-algorithm), in this section we'll
+In this section we'll
 compute the QFT for $\mathbb{Z}/N \times \mathbb{Z}/N$ and use it to derive Shor's algorithm for the
 discrete logarithm. 
 
@@ -1251,36 +1269,32 @@ $$
 
 ## The Standard Method
 
-In this section we'll use the QFT on $\mathbb{Z}/{p-1}\times\mathbb{Z}/{p-1}$ to apply
-the standard method to the hidden subgroup problem on $\mathbb{Z}/{p-1}\times\mathbb{Z}/{p-1}$ and derive
-Shor's algorithm for the discrete logarithm.
-
-In section [XXX] we saw that finding the discrete logarithm of $x$ can be reduced
-to solving the hidden subgroup
-problem on $\mathbb{Z}/{p-1}\times\mathbb{Z}/{p-1}$ for a subgroup of the form:
+In section [Discrete Logarithms](#discrete-logarithms) we saw that finding the 
+discrete logarithm of $x$ can be reduced to solving the hidden subgroup
+problem on $\mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)$ for a subgroup of the form:
 
 $$
-H = \langle (s, 1) \rangle \subset \mathbb{Z}/{p-1}\times\mathbb{Z}/{p-1}
+H = \langle (s, 1) \rangle \subset \mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)
 $$
 
-for some secret $s\in\mathbb{Z}/{p-1}$.
+for some secret $s\in\mathbb{Z}/(p-1)$.
 
-By following the [standard method XXX](XXX), we can produce a coset state
+By following the standard method, we can produce a coset state
 
 $$
-|(a, 0) + H\rangle = \sum_{b\in\mathbb{Z}/{p-1}}|(a+bs, b)\rangle
+|(a, 0) + H\rangle = \sum_{b\in\mathbb{Z}/(p-1)}|(a+bs, b)\rangle
 $$
 
-For some $a\in\mathbb{Z}/{p-1}$.
-The problem is now reduced to determining $s\in\mathbb{Z}/{p-1}$ based on states of this form.
+For some $a\in\mathbb{Z}/(p-1)$.
+The problem is now reduced to determining $s\in\mathbb{Z}/(p-1)$ based on states of this form.
 
-By [QFT Coset State](#clm:qft-coset-state) and our description of the characters of
+By [QFT Coset State](#clm:qft-coset-state) and our description of the characters on
 $\mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)$ in the previous section, if we apply 
 $\mathrm{QFT}\_{\mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)}$ to the coset state $|(a, 0) + H\rangle$
 and measure in the standard basis we will get some pair
 
 $$
-(k_1,k_2)\in\mathbb{Z}/{p-1}\times\mathbb{Z}/{p-1}
+(k_1,k_2)\in\mathbb{Z}/(p-1)\times\mathbb{Z}/(p-1)
 $$
 
 such that the restriction of $\chi_{k_1,k_2}$ to $H$ is trivial. Since $H$
@@ -1293,7 +1307,7 @@ $$
 which in turn implies that $(k_1,k_2)$ must satisfy:
 
 $$
-k_1\cdot s + k_2 = 0 \mathrm{(mod p-1)}
+k_1\cdot s + k_2 = 0\ (\mathrm{mod}\ p-1)
 $$
 
 If $k_1$ is coprime to $p-1$, then it has a multiplicative inverse modulo $p-1$ and
