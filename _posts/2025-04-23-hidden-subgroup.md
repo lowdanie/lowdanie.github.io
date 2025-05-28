@@ -1145,7 +1145,7 @@ $$
 
 for some hidden element $\mathbf{s}\in(\mathbb{Z}/2)^N$ that we are trying to find.
 
-As usual, the first step of the standard method produces a coset state:
+The first step of the standard method produces a coset state:
 
 $$
 |\mathbf{x} \oplus H\rangle = \frac{1}{\sqrt{2}}(|\mathbf{x}\rangle + |\mathbf{x}\oplus\mathbf{s}\rangle)
