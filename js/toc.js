@@ -14,27 +14,27 @@ let STATE = {
 };
 
 let pageHeader = document.querySelector(".page-header");
-let hamburger = document.querySelector(".hamburger");
+// let hamburger = document.querySelector(".hamburger");
 let sidebar = document.querySelector(".sidebar");
 
 let currentActiveIndex = -1;
 
-function toggleSidebar() {
-    if (window.getComputedStyle(hamburger).display == 'none') {
-        return;
-    }
+// function toggleSidebar() {
+//     if (window.getComputedStyle(hamburger).display == 'none') {
+//         return;
+//     }
 
-    hamburger.classList.toggle("is-active");
+//     hamburger.classList.toggle("is-active");
 
-    if (hamburger.classList.contains("is-active")) {
-        sidebar.style.top = `${pageHeader.clientHeight}px`;
-        sidebar.classList.remove("hidden");
-        document.body.classList.add("noscroll");
-    } else {
-        sidebar.classList.add("hidden");
-        document.body.classList.remove("noscroll");
-    }
-}
+//     if (hamburger.classList.contains("is-active")) {
+//         sidebar.style.top = `${pageHeader.clientHeight}px`;
+//         sidebar.classList.remove("hidden");
+//         document.body.classList.add("noscroll");
+//     } else {
+//         sidebar.classList.add("hidden");
+//         document.body.classList.remove("noscroll");
+//     }
+// }
 
 function loadTableOfContents(state) {
     let primaryContentsList = document.querySelector(".primary-contents-list");
@@ -45,7 +45,7 @@ function loadTableOfContents(state) {
         let headerId = linkElem.getAttribute('href');
         let headerElem = document.querySelector(headerId);
 
-        linkElem.addEventListener("click", toggleSidebar);
+        // linkElem.addEventListener("click", toggleSidebar);
         state.tocListElements.primary.push(elem);
         state.headers.primary.push(headerElem);
 
@@ -63,7 +63,7 @@ function loadTableOfContents(state) {
             headerId = linkElem.getAttribute('href');
             headerElem = document.querySelector(headerId);
 
-            linkElem.addEventListener("click", toggleSidebar);
+            // linkElem.addEventListener("click", toggleSidebar);
             state.tocListElements.secondary.at(-1).push(elem);
             state.headers.secondary.at(-1).push(headerElem);
         }
@@ -178,11 +178,11 @@ window.addEventListener('scroll', throttle(() => {
     update(STATE);
 }, 100));
 
-hamburger.addEventListener("click", toggleSidebar);
+// hamburger.addEventListener("click", toggleSidebar);
 
-const mql = window.matchMedia("(min-width: 1000px)");
-mql.onchange = (e) => {
-    if (e.matches) {
-        sidebar.style.top = '0'
-    }
-}
+// const mql = window.matchMedia("(min-width: 1000px)");
+// mql.onchange = (e) => {
+//     if (e.matches) {
+//         sidebar.style.top = '0'
+//     }
+// }

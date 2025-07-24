@@ -2,10 +2,6 @@ html {
     font-family: sans-serif;
 }
 
-html,
-body {
-    height: 100%;
-}
 
 :root {
     --heading-color: #000000;
@@ -26,38 +22,17 @@ body {
 
 /* Small Screen */
 @media (max-width: 1000px) {
-    body.noscroll {
-        overflow: hidden;
-    }
-
-    .page-header {
-        position: sticky;
-        /* height: 60px; */
-        top: 0;
-        left: 0;
-        right: 0;
-        background-color: white;
-        z-index: 1;
-    }
-
     .sidebar {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: white;
-        padding-left: 25px;
-        z-index: 1;
-        overflow-y: auto;
-    }
-
-    .sidebar.hidden {
         display: none;
     }
 
     .main-content h1,
     .main-content h2 {
         scroll-margin-top: 5rem;
+    }
+
+    .page-wrapper {
+        padding-bottom: 150px;
     }
 }
 
@@ -85,10 +60,6 @@ body {
     .main-content {
         flex: 3;
         min-width: 0;
-    }
-
-    .hamburger {
-        display: none;
     }
 }
 
@@ -217,7 +188,7 @@ table {
     font-size: 1.2rem;
     gap: 1rem;
     margin-top: 2rem;
-    margin-bottom: 2rem;
+    padding-bottom: 20px;
 }
 
 .posts-heading {
