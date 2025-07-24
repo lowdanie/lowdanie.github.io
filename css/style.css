@@ -30,10 +30,6 @@ html {
     .main-content h2 {
         scroll-margin-top: 5rem;
     }
-
-    .page-wrapper {
-        padding-bottom: 150px;
-    }
 }
 
 /* Large Screen */
