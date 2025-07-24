@@ -1,7 +1,16 @@
 html {
     font-family: sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
+body {
+    min-height: 100vh;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
 
 :root {
     --heading-color: #000000;
