@@ -7,7 +7,11 @@
 
 	<link rel="stylesheet" href="/css/rouge.css">
 	<link rel="stylesheet" href="/css/style.css">
+
+	{% if layout.toc %}
 	<script defer src="/js/toc.js"></script>
+	{% endif %}
+
 	{% include analytics.html %}
 	{% include mathjax.html %}
 </head>
