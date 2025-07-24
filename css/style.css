@@ -5,6 +5,7 @@ html {
 body {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: none;
+    overflow-y: scroll;
 }
 
 :root {
@@ -194,29 +195,49 @@ table {
     padding-bottom: 20px;
 }
 
-.posts-heading {
+.posts-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
     max-width: fit-content;
-    padding-left: 1rem;
-    margin: 0;
+    margin: auto;
 }
 
-table.posts-table {
-    display: block;
-    border: none;
+.post-item-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 10px;
+    align-items: baseline;
 }
 
-td.post-title {
-    border: none;
-}
-
-.post-date {
+.post-date-grid {
+    grid-column: 1;
+    text-align: right;
+    padding-right: 10px;
     color: var(--body-text-color);
 }
 
-td.post-date {
-    border: none;
-    text-align: right;
+.post-title-grid {
+    grid-column: 2;
 }
+
+.post-title-grid a {
+    color: var(--body-link-color);
+    text-decoration: none;
+}
+
+.post-title-grid a:hover {
+    text-decoration: underline;
+    /* Add underline on hover */
+}
+
+.posts-heading {
+    max-width: fit-content;
+    /* padding-left: 1rem; */
+    margin: auto;
+}
+
 
 details summary {
     cursor: pointer;
