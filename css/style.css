@@ -10,6 +10,7 @@ body {
     padding-bottom: 0;
     overflow-y: scroll;
     overflow-x: hidden;
+    overscroll-behavior: none;
 }
 
 :root {
