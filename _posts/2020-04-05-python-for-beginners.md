@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Python for Beginners"
-date: 2020-02-08
+date: 2020-04-05
 mathjax: false
 utterance-issue: 8
 ---
