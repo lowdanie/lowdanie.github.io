@@ -171,13 +171,9 @@ Here are some simple properties of one dimensional overlaps:
 >
 > Then:
 >
-> $$
-> \begin{align}
-> (x - A)\Omega_i &= \Omega_{i+1} \\
-> \frac{\partial}{\partial A}\Omega_i &= 2a\Omega_{i+1} - i\Omega_{i-1} \\
-> \frac{\partial}{\partial B}\Omega_i &= 2b\Omega_{i+1} + 2b(A-B) \Omega_i
-> \end{align}
-> $$
+> 1. $(x - A)\Omega_i = \Omega_{i+1}$
+> 2. $\frac{\partial}{\partial A}\Omega_i = 2a\Omega_{i+1} - i\Omega_{i-1}$
+> 3. $\frac{\partial}{\partial B}\Omega_i = 2b\Omega_{i+1} + 2b(A-B) \Omega_i$
 
 # Hermite Gaussians
 
@@ -193,8 +189,28 @@ another way to generate products of polynomials and exponentials:
 > \Lambda_t(x, a, A) := \frac{\partial^t}{\partial A}e^{-a(x-A)^2}
 > $$
 
-> **Definition (Cartesian Overlap To Hermite).** Let $i\in\mathbb{N}$ be a non-negative
-> integer, $a,b\in\mathbb{R}_{>}$ positive real numbers and $A,B\in\mathbb{R}$.
+> **Lemma (Differentiation Product Bracket).** For every positive
+> $t\in\mathbb{Z}$:
+>
+> $$
+> [\frac{\partial^t}{\partial x^t}, x] = t \frac{\partial^{t-1}}{\partial x^{t-1}}
+> $$
+
+> **Claim (Hermite Gaussian Properties).** Let $t\in\mathbb{N}$ be a non-negative integer, $p\in\mathbb{R}_{>}$
+> a positive real number and $P\in\mathbb{R}$. Define:
+>
+> $$
+> \Lambda_t := \Lambda_t(x, p, P)
+> $$
+>
+> Then:
+>
+> 1. $(x - P)\Lambda_t = \frac{1}{2p}\Lambda_{t+1} + t\Lambda_{t-1}$
+> 2. $\frac{\partial}{\partial P}\Lambda_t = \Lambda_{t+1}$
+
+> **Definition (Cartesian Overlap To Hermite).**
+> Let $i\in\mathbb{Z}$ be a non-negative
+> integer, $a,b\in\mathbb{R}$ positive real numbers and $A,B\in\mathbb{R}$.
 > Then, the coefficients $E^i_t(a, b, A, B)\in\mathbb{R}$ are defined to satisfy:
 >
 > $$
@@ -212,23 +228,105 @@ another way to generate products of polynomials and exponentials:
 >
 > Furthermore, we define $E^i_t(a, b, A, B) = 0$ for all $t < 0$ or $ t > i$.
 
-> **Claim (Hermite Gaussian Properties).** Let $t\in\mathbb{N}$ be a non-negative integer, $p\in\mathbb{R}_{>}$
-> a positive real number and $P\in\mathbb{R}$. Define:
+> **Claim (Cartesian Overlap To Hermite Recurrence).**
+> Let $i\in\mathbb{Z}$ be a non-negative integer, 
+> $a,b\in\mathbb{R}$ positive real numbers and $A,B\in\mathbb{R}$. Let $p=a+b$
+> and $P=\frac{a}{p}A + \frac{b}{p}B$. Define:
 >
 > $$
-> \Lambda_t := \Lambda_t(x, p, P)
+> E^i_t := E^i_t(a, b, A, B)
 > $$
 >
 > Then:
 >
-> $$
-> \begin{align}
-> (x - P)\Lambda_t &= \frac{1}{2p}\Lambda_{t+1} + t\Lambda_{t-1} \\
-> \frac{\partial}{\partial P}\Lambda_t &= \Lambda_{t+1}
-> \end{align}
-> $$
+> 1. $$
+>    E^{i+1}_t = \frac{1}{2p}E^i_{t-1} + (P-A)E^i_t + \frac{i}{2p}E^{i-1}_t
+>    $$
+>
+> 2. $$
+>    E^i_{t+1} = \frac{i}{2p(t+1)}E^{i-1}_t
+>    $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+Let's define:
+
+$$
+\begin{align*}
+\Omega_i &:= \Omega_i(x, a, b, A, B) \\
+\Lambda_t &:= \Lambda_t(x, p, P)
+\end{align*}
+$$
+
+By the definition of $E^i_t$:
+
+$$
+\begin{equation}\label{eq:cartesian-to-hermite}
+\Omega_i = \sum_{t=0}^i E^i_t\Lambda_t
+\end{equation}
+$$
+
+First we'll multiply both side of equation \ref{eq:cartesian-to-hermite} by $(x-A)$.
+Starting with the left side, by claim [Overlap Properties](#clm:overlap-properties)
+and the definition of $E^i_t$:
+
+$$
+\begin{equation}\label{eq:overlap-by-x-a}
+\begin{aligned}
+(x-A)\Omega_i &= \Omega_{i+1} \\
+&= \sum_{t=0}^{i+1} E^i_t\Lambda_t
+\end{aligned}
+\end{equation}
+$$
+
+For the right hand side, by claim 
+[Hermite Gaussian Properties](#clm:hermite-gaussian-properties)
+and the identity $(x-A) = (x-P) + (P-A)$:
+
+$$
+(x-A)\Lambda_t = \frac{1}{2p}\Lambda_{t+1} + (P-A)\Lambda_t +t\Lambda_{t-1}
+$$
+
+Inserting this into the right hand side of \ref{eq:cartesian-to-hermite} gives:
+
+$$
+\begin{equation}\label{eq:hermite-by-x-a}
+\begin{aligned}
+(x-A)\sum_{t=0}^i E^i_t\Lambda_t &= \sum_{t=0}^i E^i_t(x-A)\Lambda_t \\
+&= \sum_{t=0}^i \frac{1}{2p}E^i_t\Lambda_{t+1} + 
+   \sum_{t=0}^i (P-A)E^i_t\Lambda_t +
+   \sum_{t=0}^i tE^i_t\Lambda_{t-1} \\
+&= \sum_{t=0}^{i+1} \frac{1}{2p}E^i_{t-1}\Lambda_t + 
+   \sum_{t=0}^{i+1} (P-A)E^i_t\Lambda_t +
+   \sum_{t=0}^{i+1} (t+1)E^i_{t+1}\Lambda_t \\
+&= \sum_{t=0}^{i+1} \left(\frac{1}{2p}E^i_{t-1} + (P-A)E^i_t + (t+1)E^i_{t+1}\right)\Lambda_t
+\end{aligned}
+\end{equation}
+$$
+
+Note that to get from the second line to the third line we reindex $t$ and used the
+fact that by definition $E^i_t=0$ for $t<0$ and $t>i$.
+
+Equating \ref{eq:overlap-by-x-a} and \ref{eq:hermite-by-x-a} give the following
+recurrence:
+
+$$
+\begin{equation}\label{eq:hermite-gaussian-rr-1}
+E^{i+1}_t = \frac{1}{2p}E^i_{t-1} + (P-A)E^i_t + (t+1)E^i_{t+1}
+\end{equation}
+$$
+
+_q.e.d_
+</div>
+</details>
+
 
 # Overlap Integrals
+
+
 
 The simplest type of electron integral is the _overlap integral_:
 
