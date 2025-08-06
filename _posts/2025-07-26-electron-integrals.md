@@ -175,6 +175,55 @@ Here are some simple properties of one dimensional overlaps:
 > 2. $\frac{\partial}{\partial A}\Omega_i = 2a\Omega_{i+1} - i\Omega_{i-1}$
 > 3. $\frac{\partial}{\partial B}\Omega_i = 2b\Omega_{i+1} + 2b(A-B) \Omega_i$
 
+{: #def:overlap-transform }
+> **Definition (Overlap Transform).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers and let $p=a+b$.
+> The overlap transform is the linear transformation 
+> $T_{ab}:\mathbb{R}^2\rightarrow\mathbb{R}^2$
+> defined by the matrix:
+>
+> $$
+> T_{ab} =
+> \left[\begin{matrix} \frac{a}{p} & \frac{b}{p} \\ 1 & -1 \end{matrix}\right]
+> $$
+
+{: #def:overlap-transform-inverse }
+> **Lemma (Overlap Transform Inverse)**
+> Let $a,b\in\mathbb{R}$ be positive real numbers. Then, the overlap transform 
+> $T_{ab}$ is invertible with the inverse:
+>
+> $$
+> T_{ab}^{-1} =
+> \left[\begin{matrix} 1 & \frac{b}{p} \\ 1 & -\frac{a}{p} \end{matrix}\right]
+> $$
+
+{: #def:overlap-transform-transform }
+> **Claim (Overlap Transform Derivatives).** 
+> Let $a,b\in\mathbb{R}$ be positive real numbers and let $p=a+b$. Consider the change of
+> coordinates from $(A,B)\in\mathbb{R}^2$ to $(P,Q)\in\mathbb{R}^2$ defined by
+> the overlap transform $T_{ab}$:
+>
+> $$
+> \begin{bmatrix}P \\ Q \end{bmatrix} = T_{ab} \begin{bmatrix}A \\ B \end{bmatrix}
+> = \begin{bmatrix}\frac{a}{p}A + \frac{b}{p}B \\ A - B \end{bmatrix}
+> $$
+>
+> Let $f:\mathbb{R}^2\rightarrow\mathbb{R}$ be a function defined in coordinates
+> $(A, B)$. We can use $T_{ab}^{-1}$ to define $f$ in terms of the coordinates $(P,Q)$:
+>
+> $$
+> f(P, Q) := f(T_{ab}^{-1}(A, B))
+> $$
+>
+> Then, the partial derivatives of $f$ in the $(P, Q)$ coordinates are:
+>
+> $$
+> \begin{align*}
+> \frac{\partial}{\partial P}f &= \frac{\partial}{\partial A}f + \frac{\partial}{\partial B}f \\
+> \frac{\partial}{\partial Q}f &= \frac{b}{p}\frac{\partial}{\partial A}f - \frac{a}{p}\frac{\partial}{\partial A}B \\
+> \end{align*}
+> $$
+
 # Hermite Gaussians
 
 The Cartesian Gaussian $G_i(x, a, A) = (x - A)^ie^{-a(x-A)^2}$ is the product of
@@ -240,10 +289,14 @@ another way to generate products of polynomials and exponentials:
 > Then:
 >
 > 1. $$
+>    E^0_0 = K(a, b, A, B)
+>    $$
+>
+> 1. $$
 >    E^{i+1}_t = \frac{1}{2p}E^i_{t-1} + (P-A)E^i_t + \frac{i}{2p}E^{i-1}_t
 >    $$
 >
-> 2. $$
+> 1. $$
 >    E^i_{t+1} = \frac{i}{2p(t+1)}E^{i-1}_t
 >    $$
 
@@ -252,7 +305,10 @@ another way to generate products of polynomials and exponentials:
 Proof [click to expand]
 </summary>
 <div class="details-content">
-Let's define:
+The base case of $E^0_0$ follows immediately from the
+[Gaussian Product Rule](#clm:one-dimensional-gaussian-product-rule).
+
+To prove the recurrence relations, let's define:
 
 $$
 \begin{align*}
@@ -270,6 +326,7 @@ $$
 $$
 
 First we'll multiply both side of equation \ref{eq:cartesian-to-hermite} by $(x-A)$.
+
 Starting with the left side, by claim [Overlap Properties](#clm:overlap-properties)
 and the definition of $E^i_t$:
 
@@ -314,10 +371,99 @@ Equating \ref{eq:overlap-by-x-a} and \ref{eq:hermite-by-x-a} give the following
 recurrence:
 
 $$
-\begin{equation}\label{eq:hermite-gaussian-rr-1}
+\begin{equation}\label{eq:cartesian-to-hermite-1}
 E^{i+1}_t = \frac{1}{2p}E^i_{t-1} + (P-A)E^i_t + (t+1)E^i_{t+1}
 \end{equation}
 $$
+
+Next we'll differentiate both sides of \ref{eq:cartesian-to-hermite} by $P$ using
+claim [Overlap Transform Derivatives](#clm:overlap-transform-derivatives) 
+
+Starting on the left side, note that by claim
+[Overlap Transform Derivatives](#clm:overlap-transform-derivatives):
+
+$$
+\frac{\partial}{\partial P} = \frac{\partial}{\partial A} + 
+\frac{\partial}{\partial B} 
+$$
+
+Therefore, by claim [Overlap Properties](#clm:overlap-properties):
+
+$$
+\begin{align}
+\frac{\partial}{\partial P}\Omega_i &= 
+2a\Omega_{i+1} -i\Omega_{i-1} + 2b\Omega_{i+1} + 2b(A-B)\Omega_i \\
+&= 2p\Omega_{i+1} + 2b(A-B)\Omega_i - i\Omega_{i-1}
+\end{align}
+$$
+
+Note that:
+
+$$
+2b(A-B) = -p(P-A)
+$$
+
+By the definition of $E^i_t$ it then follows that:
+
+$$
+\begin{equation}\label{eq:overlap-diff-p}
+\begin{aligned}
+\frac{\partial}{\partial P}\Omega_i &=
+\sum_{t=0}^{i+1}2pE^{i+1}_t\Lambda_t - \sum_{t=0}^i 2p(P-A)E^i_t\Lambda_t -
+\sum_{t=0}^{i-1}iE^{i-1}_t\Lambda_t \\
+&= \sum_{t=0}^{i+1}\left(2pE^{i+1}_t - 2p(P-A)E^i_t - iE^{i-1}_t\right)\Lambda_t
+\end{aligned}
+\end{equation}
+$$
+
+Now we'll differentiate the right hand side of \ref{eq:cartesian-to-hermite} by $P$.
+
+We claim that for all $i$ and $t$
+
+$$
+\frac{\partial}{\partial P}E^i_t(a, b, A, B) = 0
+$$
+
+To see this, we'll use the [overlap transform](#def:overlap-transform) to make a
+change of coordinates from $(A,B)$ to $(P, Q)$ defined by:
+
+$$
+\begin{bmatrix}P \\ Q \end{bmatrix} = T_{ab} \begin{bmatrix}A \\ B \end{bmatrix}
+= \begin{bmatrix}\frac{a}{p}A + \frac{b}{p}B \\ A - B \end{bmatrix}
+$$
+
+We'll now see that in the $(P, Q)$ coordinates, $E^i_t(a, b, P, Q)$ is a function of
+$Q$ only. For the base case, note that:
+
+$$
+E^0_0 = K(a,b,A,B) = e^{-\frac{ab}{a + b} Q^2}
+$$
+
+Finally, note that the recurrence relation \ref{eq:cartesian-to-hermite-1}
+depends only on:
+
+$$
+P - A = -\frac{b}{p}Q
+$$
+
+Since both $E^0_0$ and the recurrence \ref{eq:cartesian-to-hermite-1} depend only
+on $Q$, so does $E^i_t$ for all $i$ and $t$.
+
+We can now differentiate the right hand side of \ref{eq:cartesian-to-hermite} by $P$:
+
+$$
+\begin{equation}\label{hermite-diff-p}
+\begin{aligned}
+\frac{\partial}{\partial P}\sum_{t=0}^iE^i_t\Lambda_t &=
+\sum_{t=0}^iE^i_t\frac{\partial}{\partial P}\Lambda_t \\
+&= \sum_{t=0}^iE^i_t\Lambda_{t+1} \\
+&= \sum_{t=0}^{i+1}E^i_{t-1}\Lambda_t
+\end{aligned}
+\end{equation}
+$$
+
+Comparing the terms in
+
 
 _q.e.d_
 </div>
