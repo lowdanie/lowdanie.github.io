@@ -452,7 +452,7 @@ on $Q$, so does $E^i_t$ for all $i$ and $t$.
 We can now differentiate the right hand side of \ref{eq:cartesian-to-hermite} by $P$:
 
 $$
-\begin{equation}\label{hermite-diff-p}
+\begin{equation}\label{eq:hermite-diff-p}
 \begin{aligned}
 \frac{\partial}{\partial P}\sum_{t=0}^iE^i_t\Lambda_t &=
 \sum_{t=0}^iE^i_t\frac{\partial}{\partial P}\Lambda_t \\
@@ -462,8 +462,23 @@ $$
 \end{equation}
 $$
 
-Comparing the terms in
+Comparing the terms in equations \ref{eq:overlap-diff-p} and \ref{eq:hermite-diff-p}
+we get:
 
+$$
+E^i_{t-1} = 2pE^{i+1}_t - 2p(P-A)E^i_t - iE^{i-1}_t
+$$
+
+which implies the second recurrence in the claim:
+
+$$
+\begin{equation}\label{eq:cartesian-to-hermite-2}
+E^{i+1}_t = \frac{1}{2p}E^i_{t-1} + (P-A)E^i_t + \frac{i}{2p}E^{i-1}_t
+\end{equation}
+$$
+
+The third recurrence in the claim follows by subtracting equations \ref{eq:cartesian-to-hermite-1}
+and \ref{eq:cartesian-to-hermite-1}.
 
 _q.e.d_
 </div>
@@ -495,171 +510,41 @@ S_{\boldsymbol{\alpha}\boldsymbol{\beta}}(a,b,\mathbf{A},\mathbf{B}) =
 \int_{\mathbb{R}^3} \Omega_{\boldsymbol{\alpha}\boldsymbol{\beta}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B}) d\mathbf{r}
 $$
 
-We can analogously define the one dimensional integrals:
+The goal of this section is to prove the following set of recurrence relations which
+determine $S_{\boldsymbol{\alpha}\boldsymbol{\beta}}$ for all multi-indices
+$\boldsymbol{\alpha}$ and $\boldsymbol{\alpha}$.
 
-$$
-S_{\alpha\beta}(x, a, b, A, B) := \int_\mathbb{R} \Omega_{\alpha\beta}(x,a,b,A,B)dx
-$$
-
-Based on XXX:
-
-$$
-S_{\boldsymbol{\alpha}\boldsymbol{\beta}}(a,b,\mathbf{A},\mathbf{B}) = 
-S_{\alpha_x\beta_x}(x, a, b, A_x, B_x)
-S_{\alpha_y\beta_y}(x, a, b, A_y, B_y)
-S_{\alpha_z\beta_z}(x, a, b, A_z, B_z)
-$$
-
-> **Claim (Overlap Recurrence Relations).** The overlap integrals
-> $S_{\boldsymbol{\alpha}\boldsymbol{\beta}}(a, b, \mathbf{A}, \mathbf{B})$ satisfy:
+> **Claim (Overlap Integral Base Case).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers, $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$.
+> Then:
 >
-> 1. Base case:
->    
->    $$
->    S_{\mathbf{0}\mathbf{0}} =
->    \left(\frac{\pi}{p}\right)^{3/2}K(a,b,\mathbf{A},\mathbf{B})
->    $$
+> $$
+> S_{\mathbf{0}\mathbf{0}}(a,b,\mathbf{A},\mathbf{B}) 
+> = \left(\frac{\pi}{p}\right)^{3/2} K(a,b,\mathbf{A},\mathbf{B}) 
+> $$
+
+> **Claim (Overlap Integral Recurrence).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers, $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$
+> and $i,\alpha_y,\alpha_z,j,\beta_y,\beta_z\in\mathbb{Z}$ non-negative integers.
 >
-> 2. Obara-Saika:
->    
->    $$
->    S_{\boldsymbol{\alpha} + \mathbf{e}_x,\mathbf{0}} = 
->    (P_x-A_x)S_{\boldsymbol{\alpha}\mathbf{0}} + 
->    \frac{\alpha_x}{2p} S_{\boldsymbol{\alpha} - \mathbf{e}_x\mathbf{0}}
->    $$
+> Define:
 >
-> 3. Horizontal transfer
+> $$
+> S_{ij} := S_{(i,\alpha_y,\alpha_z),(j,\beta_y,\beta_z)}(a, b, \mathbf{A},\mathbf{B})
+> $$
 >
->    $$
->    S_{\boldsymbol{\alpha},\boldsymbol{\beta} + \mathbf{e}_x} = 
->    (A_x - B_x)S_{\boldsymbol{\alpha}\boldsymbol{\beta}} + 
->    S_{\boldsymbol{\alpha} + \mathbf{e}_x,\boldsymbol{\beta}}
->    $$
-
-The base case follows from [Gaussian product rule](#clm:gaussian-product-rule)
-and the [formula](#clm:gaussian-integral) for an integral of a Gaussian.
-
-Now let's calculate the effect of incrementing $\boldsymbol{\alpha}$ in the $x$ index.
-
-First, note that $S_{\boldsymbol{\alpha}\boldsymbol{\beta}}$
-is invariant to translations of $\mathbb{R}^3$. In particular, it is invariant to
-uniform translations of $A_x$ and $B_x$ which implies that: 
-
-$$
-\frac{\partial S_{\boldsymbol{\alpha}\boldsymbol{\beta}}}{\partial A_x} +
-\frac{\partial S_{\boldsymbol{\alpha}\boldsymbol{\beta}}}{\partial B_x} = 0
-$$
-
-By the definition of the overlap integral and [Overlap Properties](#clm:overlap-properties):
-
-$$
-\begin{align*}
-\frac{\partial S_{\boldsymbol{\alpha}\boldsymbol{\beta}}}{\partial A_x} &= 
-\int_\mathbb{R}^3 \frac{\partial \Omega_{\boldsymbol{\alpha}\boldsymbol{\beta}}}{\partial A_x} d\mathbf{r} \\
-&= \int_\mathbb{R}^3 2a\Omega_{\boldsymbol{\alpha} + \mathbf{e}_x,\boldsymbol{\beta}} -
-\alpha_x \Omega_{\boldsymbol{\alpha} - \mathbf{e}_x,\boldsymbol{\beta}} d\mathbf{r} \\
-&= 2a S_{\boldsymbol{\alpha} + \mathbf{e}_x,\boldsymbol{\beta}} -
-\alpha_x S_{\boldsymbol{\alpha} - \mathbf{e}_x, \boldsymbol{\beta}}
-\end{align*}
-$$
-
-And similarly:
-
-$$
-\frac{\partial S_{\boldsymbol{\alpha}\boldsymbol{\beta}}}{\partial B_x} =
-2b S_{\boldsymbol{\alpha},\boldsymbol{\beta} + \mathbf{e}_x} -
-\beta_x S_{\boldsymbol{\alpha}, \boldsymbol{\beta} - \mathbf{e}_x}
-$$
-
-Substituting $\boldsymbol{\beta} = \mathbf{0}$ gives:
-
-$$
-2a S_{\boldsymbol{\alpha} + \mathbf{e}_x,\mathbf{0}} -
-\alpha_x S_{\boldsymbol{\alpha} - \mathbf{e}_x, \mathbf{0}} + 
-2b S_{\boldsymbol{\alpha},\mathbf{e}_x}  = 0
-$$
-
-We can remove the non-zero $\boldsymbol{\beta}$ in the last term by noting that by
-[Overlap Properties](#clm:overlap-properties):
-
-$$
-S_{\boldsymbol{\alpha},\mathbf{e}_x} = 
-S_{\boldsymbol{\alpha} + \mathbf{e}_x, \mathbf{0}} + 
-(A_x - B_x)S_{\boldsymbol{\alpha},\mathbf{0}}   
-$$
-
-Plugging this into the previous equation gives:
-
-$$
-2a S_{\boldsymbol{\alpha} + \mathbf{e}_x,\mathbf{0}} -
-\alpha_x S_{\boldsymbol{\alpha} - \mathbf{e}_x, \mathbf{0}} + 
-2b (S_{\boldsymbol{\alpha} + \mathbf{e}_x, \mathbf{0}} + 
-(A_x - B_x)S_{\boldsymbol{\alpha},\mathbf{0}}) = 0
-$$
-
-Rearranging the terms:
-
-$$
-2(a + b)S_{\boldsymbol{\alpha} + \mathbf{e}_x,\mathbf{0}} = 
-\alpha_x S_{\boldsymbol{\alpha} - \mathbf{e}_x, \mathbf{0}} - 
-2b (A_x - B_x)S_{\boldsymbol{\alpha},\mathbf{0}}
-$$
-
-Finally, recall that by definition $p = a+b$ and note that by simple algebra:
-
-$$
-P_x - A_x = -\frac{b}{a + b}(A_x - B_x)
-$$
-
-Therefore, dividing the previous equation by $2(a + b)$ results in the Obara-Saika relation:
-
-$$
-S_{\boldsymbol{\alpha} + \mathbf{e}_x,\mathbf{0}} = 
-(P_x - A_x)S_{\boldsymbol{\alpha},\mathbf{0}} +
-\frac{\alpha_x}{2p} S_{\boldsymbol{\alpha} - \mathbf{e}_x, \mathbf{0}} 
-$$
-
-Finally, the horizontal transfer property follows from integrating the corresponding
-[Overlap Property](#clm:overlap-properties)
-
-_q.e.d_
-
-The recurrence relations are sufficient in order to compute
-$S_{\boldsymbol{\alpha}\boldsymbol{\beta}}(a, b, \mathbf{A}, \mathbf{B})$
-for all $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$ with coefficients in some range
-of integers $[0, L)$.
-
-To be concrete, we first use the Obara-Saika relation to compute 
-$S_{\boldsymbol{\alpha}\mathbf{0}}$ for all $\boldsymbol{\alpha} \in [0, L+1)^3$:
-
-1. Use the base case and the Obara-Saika relation $L$ times on $\alpha_x$ to compute 
-   $S_{(\alpha_x,0,0),\mathbf{0}}$ for all $0\leq \alpha_x \leq L$.
-
-1. Use the Obara-Saika relation $L(L+1)$ times on $\alpha_y$ to compute 
-   $S_{(\alpha_x,\alpha_y,0),\mathbf{0}}$ for all $0\leq \alpha_x,\alpha_y \leq L$
-
-1. Similarly, use the Obara-Saika relation $L(L+1)^2$ times on $\alpha_z$ to compute 
-   $S_{(\alpha_x,\alpha_y,\alpha_z),\mathbf{0}}$ 
-   for all $0\leq \alpha_x,\alpha_y,\alpha_z \leq L$.
-
-Next we use the horizontal transfer property to fill in the $\boldsymbol{\beta}$
-coefficients for all
-$(\boldsymbol{\alpha},\boldsymbol{\beta})\in [0,L+1)^3 \times [0, L)^3$:
-
-1. Use the horizontal transfer relation $L(L+1)^3$ times on $\beta_x$ to compute
-   $S_{\boldsymbol{\alpha},(\beta_x,0,0)}$ for all 
-   $(\boldsymbol{\alpha},\beta_x) \in [0, L+1)^3 \times [0, L)$
-
-1. Use the horizontal transfer relation $L^2(L+1)^3$ times on $\beta_y$ to compute
-   $S_{\boldsymbol{\alpha},(\beta_x,\beta_y,0)}$ for all 
-   $(\boldsymbol{\alpha},(\beta_x,\beta_y)) \in [0, L+1)^3 \times [0, L)^2$
-
-1. Use the horizontal transfer relation $L^3(L+1)^3$ times on $\beta_z$ to compute
-   $S_{\boldsymbol{\alpha},(\beta_x,\beta_y,\beta_z)}$ for all 
-   $(\boldsymbol{\alpha},\boldsymbol{\beta}) \in [0, L+1)^3 \times [0, L)^3$
-
-
-
-
-
-
+> Then:
+>
+> 1. Vertical Transfer:
+>
+> $$
+> S_{i+1, 0} = (P_x-A_x)S_{i,0} + \frac{i}{2p}S_{i-1, 0}
+> $$
+>
+> 1. Horizontal Transfer:
+>
+> $$
+> S_{i, j+1} = (A_x - B_x)S_{ij} + S_{i+1,j}
+> $$
+>
+> And the analogous identities hold in the $y$ and $z$ coordinates.
