@@ -158,8 +158,8 @@ factorization XXX
 
 Here are some simple properties of one dimensional overlaps:
 
-{: #clm:overlap-properties }
-> **Claim (Overlap Properties).** Let $\Omega_i$ be the one dimensional overlap
+{: #clm:overlap-vertical-transfer }
+> **Claim (Overlap Vertical Transfer).** Let $\Omega_i$ be the one dimensional overlap
 > defined as
 >
 > $$
@@ -174,6 +174,22 @@ Here are some simple properties of one dimensional overlaps:
 > 1. $(x - A)\Omega_i = \Omega_{i+1}$
 > 2. $\frac{\partial}{\partial A}\Omega_i = 2a\Omega_{i+1} - i\Omega_{i-1}$
 > 3. $\frac{\partial}{\partial B}\Omega_i = 2b\Omega_{i+1} + 2b(A-B) \Omega_i$
+
+{: #clm:overlap-horizontal-transfer }
+> **Claim (Overlap Horizontal Transfer).**
+> Let $A,B\in\mathbb{R}$ be two positions,
+> $a,b\in\mathbb{R}$ positive real numbers and $i,j\in\mathbb{Z}$ non-negative
+> integers. Define:
+>
+> $$
+> \Omega_{ij} := \Omega_{ij}(x, a, b, A, B)
+> $$
+>
+> Then:
+>
+> $$
+> \Omega_{i,j+1} = \Omega_{i+1,j} + (A - B)\Omega_{ij}
+> $$
 
 {: #def:overlap-transform }
 > **Definition (Overlap Transform).**
@@ -327,7 +343,7 @@ $$
 
 First we'll multiply both side of equation \ref{eq:cartesian-to-hermite} by $(x-A)$.
 
-Starting with the left side, by claim [Overlap Properties](#clm:overlap-properties)
+Starting with the left side, by claim [Overlap Properties](#clm:overlap-vertical-transfer)
 and the definition of $E^i_t$:
 
 $$
@@ -387,7 +403,7 @@ $$
 \frac{\partial}{\partial B} 
 $$
 
-Therefore, by claim [Overlap Properties](#clm:overlap-properties):
+Therefore, by claim [Overlap Properties](#clm:overlap-vertical-transfer):
 
 $$
 \begin{align}
@@ -487,8 +503,6 @@ _q.e.d_
 
 # Overlap Integrals
 
-
-
 The simplest type of electron integral is the _overlap integral_:
 
 > **Definition (Overlap Integral).** The overlap integral between the 
@@ -512,7 +526,7 @@ $$
 
 The goal of this section is to prove the following set of recurrence relations which
 determine $S_{\boldsymbol{\alpha}\boldsymbol{\beta}}$ for all multi-indices
-$\boldsymbol{\alpha}$ and $\boldsymbol{\alpha}$.
+$\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$.
 
 > **Claim (Overlap Integral Base Case).**
 > Let $a,b\in\mathbb{R}$ be positive real numbers, $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$.
@@ -525,9 +539,10 @@ $\boldsymbol{\alpha}$ and $\boldsymbol{\alpha}$.
 
 > **Claim (Overlap Integral Recurrence).**
 > Let $a,b\in\mathbb{R}$ be positive real numbers, $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$
-> and $i,\alpha_y,\alpha_z,j,\beta_y,\beta_z\in\mathbb{Z}$ non-negative integers.
+> and $\alpha_y,\alpha_z,\beta_y,\beta_z\in\mathbb{Z}$ non-negative integers.
+> Let $p=a+b$ and $\mathbf{P}=\frac{a}{p}\mathbf{A} + \frac{b}{p}\mathbf{B}$.
 >
-> Define:
+> For non-negative integers $i,j\in\mathbb{Z}$ Define:
 >
 > $$
 > S_{ij} := S_{(i,\alpha_y,\alpha_z),(j,\beta_y,\beta_z)}(a, b, \mathbf{A},\mathbf{B})
@@ -537,14 +552,103 @@ $\boldsymbol{\alpha}$ and $\boldsymbol{\alpha}$.
 >
 > 1. Vertical Transfer:
 >
-> $$
-> S_{i+1, 0} = (P_x-A_x)S_{i,0} + \frac{i}{2p}S_{i-1, 0}
-> $$
+>    $$
+>    S_{i+1, 0} = (P_x-A_x)S_{i,0} + \frac{i}{2p}S_{i-1, 0}
+>    $$
 >
 > 1. Horizontal Transfer:
 >
-> $$
-> S_{i, j+1} = (A_x - B_x)S_{ij} + S_{i+1,j}
-> $$
+>    $$
+>    S_{i, j+1} = (A_x - B_x)S_{ij} + S_{i+1,j}
+>    $$
 >
 > And the analogous identities hold in the $y$ and $z$ coordinates.
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+First we'll prove the vertical transfer relation.
+
+To facilitate notation, we'll define the Cartesian Overlaps:
+
+$$
+\begin{align*}
+\Omega_i(x) &:= \Omega_{i,0}(x, a, b, A_x, B_x) \\
+\Omega_{\alpha_y,\alpha_z}(y,z) &:=
+\Omega_{\alpha_y,0}(y, a, b, A_y, B_y)\Omega_{\alpha_z,0}(z, a, b, A_z, B_z)
+\end{align*}
+$$
+
+Hermite Gaussians:
+
+$$
+\begin{align*}
+\Lambda^i_t(x) &:= \Lambda^i_t(x, p, P_x) \\
+\Lambda_{uv}(y,z) &:= \Lambda^{\alpha_y}_t(y, p, P_y)\Lambda^{\alpha_z}_t(z, p, P_z)
+\end{align*}
+$$
+
+and Cartesian to Hermite expansion coefficients:
+
+$$
+\begin{align*}
+E^i_t &:= E^i_t(a, b, A_x, B_x) \\
+E_{uv} &:= E^{\alpha_y}_u(a, b, A_y, B_y)E^{\alpha_z}_u(a, b, A_z, B_z)
+\end{align*}
+$$
+
+By definitions [Cartesian Gaussian Overlap](#defn:cartesian-gaussian-overlap)
+and [Cartesian Overlap To Hermite](#defn:cartesian-overlap-to-hermite):
+
+$$
+\begin{equation}\label{eq:overlap-integral-expansion}
+\begin{aligned}
+S_{i,0} &= 
+\int_{\mathbb{R}^3} \Omega_{(i,\alpha_y,\alpha_z),\mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B}) d\mathbf{r} \\
+&= \int_{\mathbb{R}^3} \Omega_i(x)\Omega_{\alpha_y,\alpha_z}(y,z) d\mathbf{r} \\
+&= \sum_{t,u,v=0}^{i,\alpha_y,\alpha_z}E^i_t E_{uv}\int_{\mathbb{R}^3}\Lambda_t(x)\Lambda_{uv}(y,z)d\mathbf{r} \\
+&=  \sum_{t,u,v=0}^{i,\alpha_y,\alpha_z}E^i_t E_{uv}
+\left(\frac{\partial}{\partial P_x}\right)^t\left(\frac{\partial}{\partial P_y}\right)^u\left(\frac{\partial}{\partial P_z}\right)^v 
+\int_{\mathbb{R}^3} G_\mathbf{0}(\mathbf{r}, p, P)d\mathbf{r}
+\end{aligned}
+\end{equation}
+$$
+
+By [Gaussian Integral](#clm:gaussian-integral):
+
+$$
+\int_{\mathbb{R}^3} G_\mathbf{0}(\mathbf{r}, p, P)d\mathbf{r} =  \left(\frac{\pi}{p}\right)^{3/2}
+$$
+
+Note that $\left(\frac{\pi}{p}\right)^{3/2}$ is independent of $\mathbf{P}$ which means
+that all of the non-zero derivatives in equation \ref{eq:overlap-integral-expansion} vanish
+and so:
+
+$$
+\begin{equation}\label{eq:overlap-integral-t-0}
+S_{i,0} =  E^i_0 E_{0,0} \left(\frac{\pi}{p}\right)^{3/2}
+\end{equation}
+$$
+
+We can now use
+[Cartesian Overlap To Hermite Recurrence](#clm:cartesian-overlap-to-hermite-recurrence)
+to derive a recurrence for $S_{i,0}$.
+
+Specifically, note that by part 2 of that claim:
+
+$$
+E^{i+1}_0 = (P_x - A_x)E^i_0 + \frac{i}{2p}E^{i-1}_0
+$$
+
+Inserting this into equation \ref{eq:overlap-integral-t-0}
+gives the vertical transfer relation.
+
+The horizontal transfer relation follows immediately from
+[Overlap Horizontal Transfer](#clm:overlap-horizontal-transfer).
+
+_q.e.d_
+</div>
+</details>
