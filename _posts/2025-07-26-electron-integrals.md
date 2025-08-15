@@ -652,3 +652,57 @@ The horizontal transfer relation follows immediately from
 _q.e.d_
 </div>
 </details>
+
+# One Electron Coulomb Integrals
+
+> **Definition (One Electron Coulomb Integral).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> $\mathbf{A},\mathbf{B},\mathbf{C}\in\mathbb{R}^3$
+> and $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ multi-indexes.
+> The one-electron integral between the Cartesian Gaussians
+> $G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A})$ and
+> $G_\boldsymbol{\beta}(\mathbf{r}, b, \mathbf{B})$ with center $\mathbf{C}$ is defined by:
+>
+> $$
+> I_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A}, \mathbf{B}) :=
+> \int_{\mathbb{R}^3}\frac{G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A})
+> G_\boldsymbol{\beta}(\mathbf{r}, b, \mathbf{B})}{||\mathbf{r} - \mathbf{C}||}d\mathbf{r}
+> $$
+
+The goal of this section is to find recurrence relations for the one electron
+integral $I_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A}, \mathbf{B})$
+as we vary the multi-indicies $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$.
+
+
+First we'll assume that $\boldsymbol{\beta}=\mathbf{0}$ and focus on finding recuurence
+relations for $\boldsymbol{\alpha}$.
+
+As usual, set $p=a+b$ and $\mathbf{P} = \frac{a}{p}\mathbf{A} + \frac{b}{p}\mathbf{B}$.
+
+By definitions [Cartesian Gaussian Overlap](#defn:cartesian-gaussian-overlap)
+and [Cartesian Overlap To Hermite](#defn:cartesian-overlap-to-hermite):
+
+$$
+\begin{align*}
+I_{\boldsymbol{\alpha},\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}) &=
+\int_{\mathbb{R}^3}\frac{\Omega_{\boldsymbol{\alpha},\mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r} \\
+&= \sum_{t,u,v=0}^{\boldsymbol{\alpha}}E^{\boldsymbol{\alpha}}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
+\int_{\mathbb{R}^3}\frac{\Lambda_{tuv}(\mathbf{r},p,\mathbf{P})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r} \\
+&= \sum_{t,u,v=0}^{\boldsymbol{\alpha}}E^{\boldsymbol{\alpha}}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
+\left(\frac{\partial}{\partial P_x}\right)^t
+\left(\frac{\partial}{\partial P_y}\right)^u
+\left(\frac{\partial}{\partial P_z}\right)^v
+\int_{\mathbb{R}^3}\frac{G_\mathbf{0}(\mathbf{r},p,\mathbf{P})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r}
+\end{align*}
+$$
+
+The point of this reformulation is that integrand no longer contains the 
+multi-index $\boldsymbol{\alpha}$ and can be solved in close form using the
+[Boys function](https://molssi.github.io/MIRP/boys_function.html).
+
+> **Definition (Boys Function).**
+> Let $m\in\mathbb{Z}$ be a non-negative integer. The $n$-th Boys function is defined by:
+>
+> $$
+> F_n(t) := \int_0^1x^{2n}e^{-tx^2}dx
+> $$
