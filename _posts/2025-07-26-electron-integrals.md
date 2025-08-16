@@ -254,13 +254,15 @@ another way to generate products of polynomials and exponentials:
 > \Lambda_t(x, a, A) := \frac{\partial^t}{\partial A}e^{-a(x-A)^2}
 > $$
 
-> **Lemma (Differentiation Product Bracket).** For every positive
+{: #clm:differentiation-product-bracket }
+> **Claim (Differentiation Product Bracket).** For every positive
 > $t\in\mathbb{Z}$:
 >
 > $$
 > [\frac{\partial^t}{\partial x^t}, x] = t \frac{\partial^{t-1}}{\partial x^{t-1}}
 > $$
 
+{: #clm:hermite-gaussian-properties }
 > **Claim (Hermite Gaussian Properties).** Let $t\in\mathbb{N}$ be a non-negative integer, $p\in\mathbb{R}_{>}$
 > a positive real number and $P\in\mathbb{R}$. Define:
 >
@@ -273,6 +275,7 @@ another way to generate products of polynomials and exponentials:
 > 1. $(x - P)\Lambda_t = \frac{1}{2p}\Lambda_{t+1} + t\Lambda_{t-1}$
 > 2. $\frac{\partial}{\partial P}\Lambda_t = \Lambda_{t+1}$
 
+{: #defn:cartesian-overlap-to-hermite }
 > **Definition (Cartesian Overlap To Hermite).**
 > Let $i\in\mathbb{Z}$ be a non-negative
 > integer, $a,b\in\mathbb{R}$ positive real numbers and $A,B\in\mathbb{R}$.
@@ -293,6 +296,7 @@ another way to generate products of polynomials and exponentials:
 >
 > Furthermore, we define $E^i_t(a, b, A, B) = 0$ for all $t < 0$ or $ t > i$.
 
+{: #clm:cartesian-overlap-to-hermite-recurrence }
 > **Claim (Cartesian Overlap To Hermite Recurrence).**
 > Let $i\in\mathbb{Z}$ be a non-negative integer, 
 > $a,b\in\mathbb{R}$ positive real numbers and $A,B\in\mathbb{R}$. Let $p=a+b$
@@ -659,12 +663,13 @@ _q.e.d_
 > Let $a,b\in\mathbb{R}$ be positive real numbers,
 > $\mathbf{A},\mathbf{B},\mathbf{C}\in\mathbb{R}^3$
 > and $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ multi-indexes.
+>
 > The one-electron integral between the Cartesian Gaussians
 > $G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A})$ and
 > $G_\boldsymbol{\beta}(\mathbf{r}, b, \mathbf{B})$ with center $\mathbf{C}$ is defined by:
 >
 > $$
-> I_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A}, \mathbf{B}) :=
+> I_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A}, \mathbf{B}, \mathbf{C}) :=
 > \int_{\mathbb{R}^3}\frac{G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A})
 > G_\boldsymbol{\beta}(\mathbf{r}, b, \mathbf{B})}{||\mathbf{r} - \mathbf{C}||}d\mathbf{r}
 > $$
@@ -683,8 +688,9 @@ By definitions [Cartesian Gaussian Overlap](#defn:cartesian-gaussian-overlap)
 and [Cartesian Overlap To Hermite](#defn:cartesian-overlap-to-hermite):
 
 $$
-\begin{align*}
-I_{\boldsymbol{\alpha},\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}) &=
+\begin{equation}\label{eq:one-electron-expansion}
+\begin{aligned}
+I_{\boldsymbol{\alpha},\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}, , \mathbf{C}) &=
 \int_{\mathbb{R}^3}\frac{\Omega_{\boldsymbol{\alpha},\mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r} \\
 &= \sum_{t,u,v=0}^{\boldsymbol{\alpha}}E^{\boldsymbol{\alpha}}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
 \int_{\mathbb{R}^3}\frac{\Lambda_{tuv}(\mathbf{r},p,\mathbf{P})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r} \\
@@ -693,16 +699,193 @@ I_{\boldsymbol{\alpha},\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}) &=
 \left(\frac{\partial}{\partial P_y}\right)^u
 \left(\frac{\partial}{\partial P_z}\right)^v
 \int_{\mathbb{R}^3}\frac{G_\mathbf{0}(\mathbf{r},p,\mathbf{P})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r}
-\end{align*}
+\end{aligned}
+\end{equation}
 $$
 
 The point of this reformulation is that integrand no longer contains the 
 multi-index $\boldsymbol{\alpha}$ and can be solved in close form using the
 [Boys function](https://molssi.github.io/MIRP/boys_function.html).
 
+{: #defn:boys-function }
 > **Definition (Boys Function).**
-> Let $m\in\mathbb{Z}$ be a non-negative integer. The $n$-th Boys function is defined by:
+> Let $n\in\mathbb{Z}$ be a non-negative integer 
+> and $x\in\mathbb{R}$ a non-negative real number.
+> The $n$-th Boys function is defined by:
 >
 > $$
-> F_n(t) := \int_0^1x^{2n}e^{-tx^2}dx
+> F_n(x) := \int_0^1 t^{2n}e^{-xt^2} dt
 > $$
+
+{: #clm:boys-derivative }
+> **Claim (Boys Derivative).**
+> Let $n\in\mathbb{Z}$ be a non-negative integer. Then
+>
+> $$
+> \frac{d}{dx}F_n(x) = -F_{n+1}(x)
+> $$
+
+{: #clm:spherical-coulomb-integral }
+> **Claim (Spherical Coulomb Integral).**
+> Let $a\in\mathbb{R}$ be a positive integer and
+> $\mathbf{A},\mathbf{C}\in\mathbb{R}^3$. Then:
+>
+> $$
+> \int_{\mathbb{R}^3} \frac{G_\mathbf{0}(\mathbf{r}, a, \mathbf{A})}{||\mathbf{r} - \mathbf{C}||}d\mathbf{r}
+> = \frac{2\pi}{a}F_0(a||\mathbf{A} - \mathbf{C}|| ^2)
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+We need to compute:
+
+$$
+\begin{equation}\label{eq:spherical-gaussian}
+I := \int_{\mathbb{R}^3}\frac{e^{-a||\mathbf{r} - \mathbf{A}||^2}}{||\mathbf{r} - \mathbf{C}||}d\mathbf{r}
+\end{equation}
+$$
+
+The main difficulty is that the denominator prevents us from factoring the integrand
+into the three Cartesian coordinates as we could in the case of a regular
+[Gaussian Integral](#clm:gaussian-integral).
+
+We can work around this by expressing a fraction of the form $\frac{1}{x}$ in terms
+of an integral of Gaussians.
+
+Specifically, by the standard
+[One Dimensional Gaussian Integral](#clm:one-dimensional-gaussian-integral),
+for all positive $x\in\mathbb{R}$ we have:
+
+$$
+\int_{-\infty}^{\infty}e^{-x t^2}dt = \sqrt{\frac{\pi}{x}}
+$$
+
+Plugging in $x^2$ gives:
+
+$$
+\int_{-\infty}^{\infty}e^{-x^2t^2}dt = \sqrt{\frac{\pi}{x^2}} = \frac{\sqrt{\pi}}{x}
+$$
+
+Which implies:
+
+$$
+\begin{equation}\label{eq:reciprocal-to-exp}
+\frac{1}{x} = \frac{1}{\sqrt{\pi}}\int_{-\infty}^{\infty}e^{-x^2t^2}dt
+\end{equation}
+$$
+
+Setting $x = ||\mathbf{r} - \mathbf{C}||$ and applying equation \ref{eq:reciprocal-to-exp} to
+equation \ref{eq:spherical-gaussian}:
+
+$$
+I = \frac{1}{\sqrt{\pi}}\int_{\mathbb{R}^3}\int_{-\infty}^{\infty}
+e^{-a||\mathbf{r} - \mathbf{A}||^2}
+e^{-t^2||\mathbf{r}-\mathbf{C}||^2}
+dt d\mathbf{r}
+$$
+
+By applying the [Gaussian Product Rule](#clm:gaussian-product-rule)
+to $G(\mathbf{r}, a, \mathbf{A})$ and $G(\mathbf{r}, t^2, \mathbf{C})$:
+
+$$
+I = \frac{1}{\sqrt{\pi}}\int_{\mathbb{R}^3}\int_{-\infty}^{\infty}
+e^{-\frac{at^2}{a + t^2}||\mathbf{A} - \mathbf{C}||^2}
+e^{-(a + t^2)||\mathbf{r} - \mathbf{S}||^2}
+dt d\mathbf{r}
+$$
+
+where:
+
+$$
+\mathbf{S} = \frac{1}{a + t^2}(a\mathbf{A} + t^2\mathbf{C})
+$$
+
+Integrating over $\mathbf{r}$ and applying [Gaussian Integral](#clm:gaussian-integral):
+
+$$
+\begin{align*}
+I &= \pi \int_{-\infty}^{\infty}
+(a + t^2)^{-3/2} e^{-\frac{at^2}{a + t^2}||\mathbf{A} - \mathbf{C}||^2} dt \\
+&= 2\pi \int_{0}^{\infty}
+(a + t^2)^{-3/2} e^{-\frac{at^2}{a + t^2}||\mathbf{A} - \mathbf{C}||^2} dt
+\end{align*}
+$$
+
+We now use the variable substitution:
+
+$$
+\begin{align*}
+u^2 &= \frac{t^2}{a + t^2} \\
+du &= a(a + t^2)^{-3/2}dt
+\end{align*}
+$$
+
+and get:
+
+$$
+\begin{align*}
+I &= \frac{2\pi}{a}\int_0^1 e^{-a||\mathbf{A} - \mathbf{C}||^2u^2}du \\
+&= \frac{2\pi}{a} F_0(a||\mathbf{A} - \mathbf{C}||^2)
+\end{align*}
+$$
+
+_q.e.d_
+
+</div>
+</details>
+
+We'll collect the partial derivatives of the Boys function in equation \ref{eq:one-electron-expansion}
+into a function that we can analyze independently:
+
+> **Definition (Boys Partial Derivatives).**
+> Let $p\in\mathbb{R}$ be a positive real number,
+> $\mathbf{P},\mathbf{C}\in\mathbb{R}^3$ and 
+> $t,u,v,n\in\mathbb{Z}$ non-negative integers. Define:
+>
+> $$
+> R_{tuv}^n(p, \mathbf{P}, \mathbf{C}) := (-2p)^n 
+> \left(\frac{\partial}{\partial P_x}\right)^t
+> \left(\frac{\partial}{\partial P_y}\right)^u
+> \left(\frac{\partial}{\partial P_z}\right)^v
+> F_n(p||\mathbf{P} - \mathbf{C}||^2)
+> $$
+
+We'll also define a generalization of equation \ref{eq:one-electron-expansion}
+that will simplify the form of the recurrence relations and also be applicable to
+the 2-electron case:
+
+> **Definition ($n$-th Order Coulomb Integral$).**
+> Let $a,b,p\in\mathbb{R}$ be positive real numbers,
+> $\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{P}\in\mathbb{R}^3$
+> and $i,j,k,n\in\mathbb{Z}$ non-negative integers. Define:
+>
+> $$
+> V_{ijk}^n(a,b,p,\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{P}) :=
+> (-2p)^{-n}
+> \sum_{t,u,v=0}^{ijk}E^{ijk}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
+> R_{tuv}(p, \mathbf{P}, \mathbf{C})
+> $$
+
+Note that if we set
+$p=a+b$ and $\mathbf{P} = \frac{a}{p}\mathbf{A} + \frac{b}{p}\mathbf{B}$
+then we can rewrite equation \ref{eq:one-electron-expansion} as
+
+$$
+\begin{equation}\label{eq:one-electron-expansion-2}
+I_{(i,j,k),\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}, \mathbf{C}) =
+\frac{2\pi}{p} V_{ijk}^0(a, b, p, \mathbf{A}, \mathbf{B}, \mathbf{C}, \mathbf{P})
+\end{equation}
+$$
+
+We'll now find recurrence relations for the $n$-th order Coulomb Integrals $V_{ijk}^n$
+in two steps. First we'll use [Boys Derivative](#clm:boys-derivative) to find recurrence
+relations for the [Boys Partial Derivatives](#defn:boys-partial-derivatives) $R_{tuv}^n$.
+Next we'll use the
+[Cartesian Overlap To Hermite Recurrence](#clm:cartesian-overlap-to-hermite-recurrence)
+on the $E_{tuv}^{ijk}$ coefficients to derive recurrence relations for  $V_{ijk}^n$.
+
+> **Claim (Boys Partial Derivative Recurrence).
