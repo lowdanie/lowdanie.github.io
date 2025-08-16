@@ -690,7 +690,7 @@ and [Cartesian Overlap To Hermite](#defn:cartesian-overlap-to-hermite):
 $$
 \begin{equation}\label{eq:one-electron-expansion}
 \begin{aligned}
-I_{\boldsymbol{\alpha},\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}, , \mathbf{C}) &=
+I_{\boldsymbol{\alpha},\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}, \mathbf{C}) &=
 \int_{\mathbb{R}^3}\frac{\Omega_{\boldsymbol{\alpha},\mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r} \\
 &= \sum_{t,u,v=0}^{\boldsymbol{\alpha}}E^{\boldsymbol{\alpha}}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
 \int_{\mathbb{R}^3}\frac{\Lambda_{tuv}(\mathbf{r},p,\mathbf{P})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r} \\
@@ -843,11 +843,11 @@ into a function that we can analyze independently:
 
 > **Definition (Boys Partial Derivatives).**
 > Let $p\in\mathbb{R}$ be a positive real number,
-> $\mathbf{P},\mathbf{C}\in\mathbb{R}^3$ and 
-> $t,u,v,n\in\mathbb{Z}$ non-negative integers. Define:
+> $\mathbf{C},\mathbf{P}\in\mathbb{R}^3$.
+> For all non-negative integers $t,u,v,n\in\mathbb{Z}$ define:
 >
 > $$
-> R_{tuv}^n(p, \mathbf{P}, \mathbf{C}) := (-2p)^n 
+> R_{tuv}^n(p, \mathbf{C}, \mathbf{P}) := (-2p)^n 
 > \left(\frac{\partial}{\partial P_x}\right)^t
 > \left(\frac{\partial}{\partial P_y}\right)^u
 > \left(\frac{\partial}{\partial P_z}\right)^v
@@ -858,16 +858,19 @@ We'll also define a generalization of equation \ref{eq:one-electron-expansion}
 that will simplify the form of the recurrence relations and also be applicable to
 the 2-electron case:
 
-> **Definition ($n$-th Order Coulomb Integral$).**
+NEED TO REPLACE p BY s SINCE p IS DEFINED IN TERMS OF a AND B IN THE E_t^i
+RECURRENCE 
+
+> **Definition ($n$-th Order Coulomb Integral).**
 > Let $a,b,p\in\mathbb{R}$ be positive real numbers,
-> $\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{P}\in\mathbb{R}^3$
-> and $i,j,k,n\in\mathbb{Z}$ non-negative integers. Define:
+> $\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{P}\in\mathbb{R}^3$.
+> For all non-negative integers $i,j,k,n\in\mathbb{Z}$ define:
 >
 > $$
 > V_{ijk}^n(a,b,p,\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{P}) :=
 > (-2p)^{-n}
 > \sum_{t,u,v=0}^{ijk}E^{ijk}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
-> R_{tuv}(p, \mathbf{P}, \mathbf{C})
+> R_{tuv}(p, \mathbf{C}, \mathbf{P})
 > $$
 
 Note that if we set
@@ -888,4 +891,387 @@ Next we'll use the
 [Cartesian Overlap To Hermite Recurrence](#clm:cartesian-overlap-to-hermite-recurrence)
 on the $E_{tuv}^{ijk}$ coefficients to derive recurrence relations for  $V_{ijk}^n$.
 
-> **Claim (Boys Partial Derivative Recurrence).
+> **Claim (Boys Partial Derivative Recurrence).**
+> Let $p\in\mathbb{R}$ be a positive real number,
+> $\mathbf{C},\mathbf{P}\in\mathbb{R}^3$.
+> For all non-negative integers $t,u,v,n\in\mathbb{Z}$ define:
+>
+> $$
+> R_{tuv}^n := R^n_{tuv}(p, \mathbf{C}, \mathbf{P})
+> $$
+>
+> Then:
+>
+> 1. Base Case:
+> 
+>    $$
+>    R_{000}^n = (-2p)^nF_n(p||\mathbf{P} - \mathbf{C}||)
+>    $$
+>
+> 2. Vertical Transfer ($x$ coordinate):
+>
+>    $$
+>    R^n_{t+1,u,v} = (P_x - C_x)R^{n+1}_{tuv} + t R^{n+1}_{t-1,u,v}
+>    $$
+>
+> And the analogous vertical transfer relation holds for the $y$ and $z$
+> coordinates.
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+The base case follows immediately from the definition.
+
+The proof of the vertical transfer relation follows by direct calculation. 
+First, by definition:
+
+$$
+\begin{align*}
+R^n_{t+1,u,v} &= (-2p)^n
+\left(\frac{\partial}{\partial P_x}\right)^{t+1}
+\left(\frac{\partial}{\partial P_y}\right)^u
+\left(\frac{\partial}{\partial P_z}\right)^v
+F_n(p||\mathbf{P} - \mathbf{C}||^2) \\
+&= (-2p)^n
+\left(\frac{\partial}{\partial P_x}\right)^t
+\left(\frac{\partial}{\partial P_y}\right)^u
+\left(\frac{\partial}{\partial P_z}\right)^v
+\frac{\partial}{\partial P_x}
+F_n(p||\mathbf{P} - \mathbf{C}||^2)
+\end{align*}
+$$
+
+Applying [Boys Derivative](#clm:boys-derivative) gives:
+
+$$
+R^n_{t+1,u,v} = (-2p)^n
+\left(\frac{\partial}{\partial P_x}\right)^t
+\left(\frac{\partial}{\partial P_y}\right)^u
+\left(\frac{\partial}{\partial P_z}\right)^v
+(-2p)(P_x - C_x)
+F_n(p||\mathbf{P} - \mathbf{C}||^2) 
+$$
+
+We now use [Differentiation Product Bracket](#clm:differentiation-product-bracket)
+to move the $(-2p)(P_x - C_x)$ term to the front:
+
+$$
+\begin{align*}
+R^n_{t+1,u,v} &= (-2p)^{n+1}(P_x - C_x)
+\left(\frac{\partial}{\partial P_x}\right)^t
+\left(\frac{\partial}{\partial P_y}\right)^u
+\left(\frac{\partial}{\partial P_z}\right)^v
+F_n(p||\mathbf{P} - \mathbf{C}||^2) \\
+&+ t(-2p)^{n+1}
+\left(\frac{\partial}{\partial P_x}\right)^{t-1}
+\left(\frac{\partial}{\partial P_y}\right)^u
+\left(\frac{\partial}{\partial P_z}\right)^v
+F_n(p||\mathbf{P} - \mathbf{C}||^2)  \\
+&= (P_x - C_x)R^{n+1}_{tuv} + t R^{n+1}_{t-1,u,v}
+\end{align*}
+$$
+
+_q.e.d_
+</div>
+</details>
+
+We can now combine this result with the
+[Cartesian Overlap To Hermite Recurrence](#clm:cartesian-overlap-to-hermite-recurrence)
+ to derive recurrence relations for  $V_{ijk}^n$.
+
+NEED TO REPLACE p BY s SINCE p IS DEFINED IN TERMS OF a AND B IN THE E_t^i
+RECURRENCE 
+
+{: #clm:nth-order-coulomb-recurrence }
+> **Claim ($n$-th Order Coulomb Recurrence)**
+> Let $a,b,p\in\mathbb{R}$ be positive real numbers,
+> $\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{P}\in\mathbb{R}^3$.
+> For all non-negative integers $i,j,k,n\in\mathbb{Z}$ define:
+>
+> $$
+> V_{ijk}^n := V_{ijk}^n(a,b,p,\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{P})
+> $$
+>
+> Then:
+>
+> 1. Base case:
+>    
+>    $$
+>    V_{000}^n = K(a,b,\mathbf{A},\mathbf{B})F_n(p||\mathbf{P} - \mathbf{C}||)
+>    $$
+>
+> 2. Vertical Transfer ($x$ coordinate):
+>
+>    $$
+>    V_{i+1,j,k}^n = (P_x - A_x)V_{ijk}^n - (P_x - C_x)V_{ijk}^{n+1} 
+>    + \frac{i}{2p}(V_{i-1,j,k}^n - V_{i-1,j,k}^{n+1})
+>    $$
+>
+> And the analogous vertical transfer relation holds for the $y$ and $z$
+> coordinates.
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+The base case follows from the definition and the base case of 
+[Cartesian Overlap To Hermite Recurrence](#clm:cartesian-overlap-to-hermite-recurrence).
+
+We'll now prove the vertical transfer relation. To facilitate notation, we'll
+define:
+
+$$
+\begin{align*}
+E_t^i &:= E_t^i(a, b, A_x, B_x) \\
+E_{uv}^{jk} &:= E_u^j(a, b, A_y, B_y)E_v^k(a, b, A_z, B_z)
+\end{align*}
+$$
+
+and:
+
+$$
+R_{tuv}^n := R_{tuv}^n(p, \mathbf{C}, \mathbf{P})
+$$
+
+By the definition of $V_{ijk}^n$:
+
+$$
+\begin{equation}\label{eq:nth-order-coulomb-rr-1}
+V_{i+1,jk}^n = (-2p)^{-n}\sum_{tuv}^{i+1,jk}E_t^{i+1}E_{uv}^{jk}R_{tuv}^n
+\end{equation}
+$$
+
+By
+[Cartesian Overlap To Hermite Recurrence](#clm:cartesian-overlap-to-hermite-recurrence):
+
+$$
+E^{i+1}_t = \frac{1}{2p}E^i_{t-1} + (P_x-A_x)E^i_t + \frac{i}{2p}E^{i-1}_t
+$$
+
+Inserting this into equation \ref{eq:nth-order-coulomb-rr-1}:
+
+$$
+\begin{align*}
+V_{i+1,jk}^n &= 
+(-2p)^{-n}\sum_{tuv}^{i+1,jk}\frac{1}{2p}E_{t-1}^iE_{uv}^{jk}R_{tuv}^n \\
+&+
+(-2p)^{-n}\sum_{tuv}^{i+1,jk}(P_x-A_x)E_t^iE_{uv}^{jk}R_{tuv}^n \\
+&+
+(-2p)^{-n}\sum_{tuv}^{i+1,jk}\frac{i}{2p}E_t^{i-1}E_{uv}^{jk}R_{tuv}^n
+\end{align*}
+$$
+
+Using the fact that $E_t^i = 0$ when $t<0$ or $t>i$ we can rewrite this as:
+
+$$
+\begin{equation}\label{eq:nth-order-coulomb-rr-2}
+\begin{aligned}
+V_{i+1,jk}^n &= 
+(-2p)^{-n}\sum_{tuv}^{ijk}\frac{1}{2p}E_t^iE_{uv}^{jk}R_{t+1,uv}^n \\
+&+
+(-2p)^{-n}\sum_{tuv}^{ijk}(P_x-A_x)E_t^iE_{uv}^{jk}R_{tuv}^n \\
+&+
+(-2p)^{-n}\sum_{tuv}^{ijk}\frac{i}{2p}E_t^{i-1}E_{uv}^{jk}R_{tuv}^n
+\end{aligned}
+\end{equation}
+$$
+
+The second two terms on the right hand side of equation \ref{eq:nth-order-coulomb-rr-2}
+are equal to $(P_x - A_x)V_{ijk}^n$ and $\frac{i}{2p}V_{ijk}^n$ respectively.
+
+To handle the first term, we'll use the
+[Boys Partial Derivative Recurrence](clm:boys-partial-derivative-recurrence):
+
+$$
+R_{t+1,uv}^n = (P_x - C_x)R_{tuv}^{n+1} + t R_{t-1,u,v}^{n+1}
+$$
+
+Inserting this into the first term of equation \ref{eq:nth-order-coulomb-rr-2}:
+
+$$
+\begin{align*}
+\sum_{tuv}^{ijk}\frac{1}{2p}E_t^iE_{uv}^{jk}R_{t+1,uv}^n &=
+\sum_{tuv}^{ijk}\frac{1}{2p}(P_x - C_x)E_t^iE_{uv}^{jk}R_{tuv}^{n+1} \\
+&+ \sum_{tuv}^{ijk}\frac{t}{2p}E_t^iE_{uv}^{jk}R_{t-1,uv}^{n+1}
+\end{align*}
+$$
+
+Re-indexing $t$ in the second term:
+
+$$
+\begin{align*}
+\sum_{tuv}^{ijk}\frac{1}{2p}E_t^iE_{uv}^{jk}R_{t+1,uv}^n
+&= \sum_{tuv}^{ijk}\frac{1}{2p}(P_x - C_x)E_t^iE_{uv}^{jk}R_{tuv}^{n+1} \\
+&+ \sum_{tuv}^{i-1,jk}\frac{t+1}{2p}E_{t+1}^iE_{uv}^{jk}R_{t,uv}^{n+1}
+\end{align*}
+$$
+
+According to part 3 of
+[Cartesian Overlap To Hermite Recurrence](#clm:cartesian-overlap-to-hermite-recurrence):
+
+$$
+(t+1)E_{t+1}^i = \frac{i}{2p}E_t^{i-1}
+$$
+
+Therefore:
+
+$$
+\begin{align*}
+\sum_{tuv}^{ijk}\frac{1}{2p}E_t^iE_{uv}^{jk}R_{t+1,uv}^n
+&= \sum_{tuv}^{ijk}\frac{1}{2p}(P_x - C_x)E_t^iE_{uv}^{jk}R_{tuv}^{n+1} \\
+&+ \sum_{tuv}^{i-1,jk}\frac{i}{(2p)^2}E_t^{i-1}E_{uv}^{jk}R_{tuv}^{n+1}
+\end{align*}
+$$
+
+Inserting this back into equation \ref{eq:nth-order-coulomb-rr-2}:
+
+$$
+\begin{align*}
+V_{i+1,jk}^n &= 
+-(P_x-C_x)(-2p)^{-(n+1)}\sum_{tuv}^{ijk}E_t^iE_{uv}^{jk}R_{tuv}^{n+1} \\
+&- 
+\frac{i}{2p}(-2p)^{-{n+1}}\sum_{tuv}^{i-1,jk}E_t^{i-1}E_{uv}^{jk}R_{tuv}^{n+1} \\
+&+
+(P_x-A_x)(-2p)^{-n}\sum_{tuv}^{ijk}E_t^iE_{uv}^{jk}R_{tuv}^n \\
+&+
+\frac{i}{2p}(-2p)^{-n}\sum_{tuv}^{i-1,jk}E_t^{i-1}E_{uv}^{jk}R_{tuv}^n
+\end{align*}
+$$
+
+By the definition of $V_{ijk}^n$ we can rewrite this as:
+
+$$
+V_{i+1,jk}^n = -(P_x - C_x)V_{ijk}^{n+1} - \frac{i}{2p}V_{i-1,jk}^{n+1} +
+(P_x - A_x)V_{ijk}^n + \frac{i}{2p}V_{i-1,jk}^n
+$$
+
+_q.e.d_
+
+</div>
+</details>
+
+The [$n$-th Order Coulomb Recurrence](#clm:nth-order-coulomb-recurrence) can be used to
+compute $V_{ijk}^n(a,b,p,\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{P})$ for all
+non-negative $i,j,k,n\in\mathbb{Z}$. We'll conclude this section by showing
+how to use the $n$-th order Coulomb integral to compute the
+[One Electron Coulomb Integral](#defn:one-electron-coulomb-integral)
+
+> **Claim (One Electron Coulomb Recurrence).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers and
+> $\mathbf{A},\mathbf{B},\mathbf{C}\in\mathbb{R}^3$.
+>
+> Let $p=a+b$ and $\mathbf{P}=\frac{a}{p}\mathbf{A} + \frac{b}{p}\mathbf{B}$.
+>
+> For all multi-indices $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$
+> define:
+>
+> $$
+> I_{\boldsymbol{\alpha},\boldsymbol{\beta}} := 
+> I_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A},\mathbf{B},\mathbf{C})
+> $$
+>
+> Then:
+>
+> 1. $$
+>    I_{\boldsymbol{\alpha},\mathbf{0}} 
+>    = \frac{2\pi}{p}V_\boldsymbol{\alpha}^0(a, b, p, \mathbf{A},\mathbf{B},\mathbf{C}, \mathbf{P})
+>    $$
+>
+> 1. Horizontal Transfer ($x$-coordinate):
+>
+>    $$
+>    I_{(\alpha_x+1,\alpha_y\alpha_z),\boldsymbol{\beta}} = 
+>    (A_x - B_x)I_{\boldsymbol{\alpha},(\beta_x + 1,\beta_y\beta_z)}
+>    $$
+>
+> And the analogous horizontal transfer relation holds for the $y$ and $z$ coordinates.
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Part 1. follows from equation \ref{eq:one-electron-expansion-2} and part 2. follows
+from [Overlap Horizontal Transfer](#clm:overlap-horizontal-transfer).
+
+_q.e.d_
+</div>
+</details>
+
+# Two Electron Coulomb Integrals
+
+> **Definition (Two Electron Coulomb Integral).**
+> Let $a,b,c,d\in\mathbb{R}$ be positive real numbers,
+> $\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{D}\in\mathbb{R}^3$
+> and 
+> $\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma}\boldsymbol{\delta}\in\mathbb{Z}^3$
+> multi-indexes.
+>
+> The two-electron integral is defined as:
+>
+> $$
+> J_{\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\boldsymbol{\delta}}
+> (a, b, c, d, \mathbf{A}, \mathbf{B}, \mathbf{C}, \mathbf{D}) :=
+> \int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
+> \frac{
+> G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A})
+> G_\boldsymbol{\beta}(\mathbf{r}, b, \mathbf{B})
+> G_\boldsymbol{\gamma}(\mathbf{r}, c, \mathbf{C})
+> G_\boldsymbol{\delta}(\mathbf{r}, d, \mathbf{D})
+> }{||\mathbf{r}_1 - \mathbf{r}_2||}
+> d\mathbf{r}_1d\mathbf{r}_2
+> $$
+
+Despite looking more formidable than the one-electron integral, 
+when $\boldsymbol{\beta}=\boldsymbol{\gamma}=\boldsymbol{\delta}=\mathbf{0}$, 
+the two-electron integral can also be expressed in terms of the
+[$n$-th order Coulomb integral](defn:nth-order-coulomb-integral).
+We can then use an analog of the one-electron horizontal transfer recurrence
+and a new _electron transfer_ recurrence to extend to the general case.
+
+We'll start by analyzing the case where
+$\boldsymbol{\beta}=\boldsymbol{\gamma}=\boldsymbol{\delta}=\mathbf{0}$.
+A key result relating the two-electron integral to the Boys function is:
+
+> **Claim (Spherical Two Electron Coulomb Integral).**
+> Let $p,q\in\mathbb{R}$ be positive real numbers and
+> $\mathbf{P},\mathbf{Q}\in\mathbb{R}^3$. 
+>
+> Let $s = \frac{pq}{p+q}$. Then:
+>
+> $$
+> \int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
+> \frac{
+> G_\mathbf{0}(\mathbf{r}_1, p, \mathbf{P})
+> G_\mathbf{0}(\mathbf{r}_1, q, \mathbf{R})
+> }{||\mathbf{r}_1 - \mathbf{r}_2||}
+> d\mathbf{r}_1d\mathbf{r}_2 = 
+> \frac{2\pi^{5/2}}{pq\sqrt{p+q}}F_0(s ||\mathbf{P}-\mathbf{Q}||^2)
+> $$
+
+We can now prove the reduction from the two-electron integral to the
+$n$-th order Coulomb Integral:
+
+> **Claim (Two Electron Coulomb Base Case).**
+> Let $a,b,c,d\in\mathbb{R}$ be positive real numbers and
+> $\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{D}\in\mathbb{R}^3$.
+>
+> Let $p=a+b$, $q=c+d$, 
+> $\mathbf{P}=\frac{a}{p}\mathbf{A}+\frac{b}{p}\mathbf{B}$,
+> $\mathbf{Q}=\frac{c}{q}\mathbf{C}+\frac{d}{q}\mathbf{D}$ and
+> $s = \frac{pq}{p+q}$.
+>
+> Then:
+>
+> $$
+> J_{\boldsymbol{\alpha},\mathbf{0},\mathbf{0},\mathbf{0}}
+> (a, b, c, d, \mathbf{A}, \mathbf{B}, \mathbf{C}, \mathbf{D}) =
+> \frac{2\pi^{5/2}}{pq\sqrt{p+q}}K(c, d, \mathbf{C}, \mathbf{D})
+> V_\boldsymbol{\alpha}^0(a, b, s, \mathbf{A}, \mathbf{B}, \mathbf{P}, \mathbf{Q})
+> $$
