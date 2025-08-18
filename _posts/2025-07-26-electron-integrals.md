@@ -516,8 +516,8 @@ The simplest type of electron integral is the _overlap integral_:
 > $$
 > \begin{align*}
 > S_{\boldsymbol{\alpha}\boldsymbol{\beta}}(a,b,\mathbf{A},\mathbf{B}) :&=
-> \langle G_{\boldsymbol{\alpha}}(\mathbf{r}, a, \mathbf{A}) | G_{\boldsymbol{\beta}}(\mathbf{r}, a, \mathbf{A}) \rangle \\
-> &= \int_{\mathbb{R}^3} G_{\boldsymbol{\alpha}}(\mathbf{r}, a, \mathbf{A}) G_{\boldsymbol{\beta}}(\mathbf{r}, a, \mathbf{A}) d\mathbf{r}
+> \langle G_{\boldsymbol{\alpha}}(\mathbf{r}, a, \mathbf{A}) | G_{\boldsymbol{\beta}}(\mathbf{r}, b, \mathbf{B}) \rangle \\
+> &= \int_{\mathbb{R}^3} G_{\boldsymbol{\alpha}}(\mathbf{r}, a, \mathbf{A}) G_{\boldsymbol{\beta}}(\mathbf{r}, b, \mathbf{B}) d\mathbf{r}
 > \end{align*}
 > $$
 
@@ -659,7 +659,75 @@ _q.e.d_
 
 # Kinetic Energy Integrals
 
+Recall that the [Laplace operator](https://en.wikipedia.org/wiki/Laplace_operator) 
+$\nabla^2$ is defined by:
 
+$$
+\nabla^2 := \frac{\partial^2}{\partial x^2} + \frac{\partial^2}{\partial y^2} + 
+\frac{\partial^2}{\partial z^2}
+$$
+
+> **Definition (Kinetic Energy Integral).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$ and
+> $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ be multi-indices.
+>
+> The kinetic energy integral is defined by:
+>
+> $$
+> T_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A},\mathbf{B}) :=
+> \int_{\mathbb{R}^3} 
+> G_{\boldsymbol{\alpha}}(\mathbf{r}, a, \mathbf{A}) 
+> \nabla^2
+> G_{\boldsymbol{\beta}}(\mathbf{r}, b, \mathbf{B}) 
+> d\mathbf{r}
+> $$
+
+Similarly to overlap integrals, we can decompose this integral over $\mathbb{R}^3$
+into simpler one-dimensional integrals over $\mathbb{R}$.
+
+We'll start by defining the one-dimensional kinetic energy integral.
+
+> **Definition (1d Kinetic Energy Integral).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> $A,B\in\mathbb{R}$ and
+> $i,j\in\mathbb{Z}$ non-negative integers.
+>
+> The one dimensional kinetic energy integral is defined by:
+>
+> $$
+> T_{ij}(a, b, A, B) :=
+> \int_0^\infty
+> G_i(x, a, A) 
+> \frac{\partial^2}{\partial^2 x}
+> G_j(x, b, \mathbf{B}) 
+> d\mathbf{r}
+> $$
+
+> **Claim (Kinetic Energy Integral Reduction).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$ and
+> $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ be multi-indices.
+>
+> Then:
+>
+> $$
+> T_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A},\mathbf{B}) =
+> T_{\alpha_x\beta_x}S_{\alpha_y\beta_y}S_{\alpha_z\beta_z} +
+> S_{\alpha_x\beta_x}T_{\alpha_y\beta_y}S_{\alpha_z\beta_z} +
+> S_{\alpha_x\beta_x}S_{\alpha_y\beta_y}T_{\alpha_z\beta_z}
+> $$
+
+The next claim shows how to compute the one-dimensional kinetic energy integrals
+in terms of one-dimensional overlap integrals.
+
+> **Claim (Kinetic Energy From Overlaps).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> $A,B\in\mathbb{R}$.
+>
+> For all non-negative integers $i,j\in\mathbb{Z}$:
+>
+>  
 # One Electron Coulomb Integrals
 
 > **Definition (One Electron Coulomb Integral).**
@@ -1616,7 +1684,7 @@ By the [standard](https://en.wikipedia.org/wiki/Directional_derivative#For_diffe
 relationship between directional derivatives and the gradient, this implies that:
 
 $$
-\mathbf{e} \dot \nabla J_{ij}(A_x,B_x,C_x,D_x) = 0
+\mathbf{e} \cdot \nabla J_{ij}(A_x,B_x,C_x,D_x) = 0
 $$
 
 By the definition of the gradient this implies:
