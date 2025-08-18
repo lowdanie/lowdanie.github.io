@@ -657,6 +657,9 @@ _q.e.d_
 </div>
 </details>
 
+# Kinetic Energy Integrals
+
+
 # One Electron Coulomb Integrals
 
 > **Definition (One Electron Coulomb Integral).**
@@ -1169,12 +1172,34 @@ non-negative $i,j,k,n\in\mathbb{Z}$. We'll conclude this section by showing
 how to use the $n$-th order Coulomb integral to compute the
 [One Electron Coulomb Integral](#defn:one-electron-coulomb-integral)
 
-> **Claim (One Electron Coulomb Recurrence).**
-> Let $a,b\in\mathbb{R}$ be positive real numbers and
+> **Claim (One Electron Coulomb Base Case).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> $\mathbf{A},\mathbf{B},\mathbf{C}\in\mathbb{R}^3$ and
+> $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ multi-indices. Then:
+>
+> $$
+> I_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A},\mathbf{B},\mathbf{C}) =
+> \frac{2\pi}{a+b}V_\boldsymbol{\alpha}^0(a, b, a+b, \mathbf{A},\mathbf{B},\mathbf{C})
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+The claim follows directly from equation \ref{eq:one-electron-expansion-2}.
+
+_q.e.d_
+</div>
+</details>
+
+> **Claim (One Electron Coulomb Horizontal Transfer).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
 > $\mathbf{A},\mathbf{B},\mathbf{C}\in\mathbb{R}^3$.
 >
-> For all multi-indices $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$
-> define:
+> For all multi-indices
+> $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ define:
 >
 > $$
 > I_{\boldsymbol{\alpha},\boldsymbol{\beta}} := 
@@ -1183,19 +1208,13 @@ how to use the $n$-th order Coulomb integral to compute the
 >
 > Then:
 >
-> 1. $$
->    I_{\boldsymbol{\alpha},\mathbf{0}} 
->    = \frac{2\pi}{a+b}V_\boldsymbol{\alpha}^0(a, b, a+b, \mathbf{A},\mathbf{B},\mathbf{C})
->    $$
+> $$
+> I_{\boldsymbol{\alpha},(\beta_x+1,\beta_y,\beta_z)} = 
+> (A_x - B_x)I_{\boldsymbol{\alpha},\boldsymbol{\beta}} +
+> I_{(\alpha_x+1,\alpha_y,\alpha_z),\boldsymbol{\beta}}
+> $$
 >
-> 1. Horizontal Transfer ($x$-coordinate):
->
->    $$
->    I_{(\alpha_x+1,\alpha_y\alpha_z),\boldsymbol{\beta}} = 
->    (A_x - B_x)I_{\boldsymbol{\alpha},(\beta_x + 1,\beta_y\beta_z)}
->    $$
->
-> And the analogous horizontal transfer relation holds for the $y$ and $z$ coordinates.
+> And the analogous relation holds for the $y$ and $z$ coordinates.
 
 <details>
 <summary>
@@ -1203,8 +1222,9 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
-Part 1. follows from equation \ref{eq:one-electron-expansion-2} and part 2. follows
-from [Overlap Horizontal Transfer](#clm:overlap-horizontal-transfer).
+The claim follows from the definition of the
+[One Electron Coulomb Integral](#defn:one-electron-coulomb-integral) and
+[Overlap Horizontal Transfer](#clm:overlap-horizontal-transfer).
 
 _q.e.d_
 </div>
@@ -1216,8 +1236,8 @@ _q.e.d_
 > Let $a,b,c,d\in\mathbb{R}$ be positive real numbers,
 > $\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{D}\in\mathbb{R}^3$
 > and 
-> $\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma}\boldsymbol{\delta}\in\mathbb{Z}^3$
-> multi-indexes.
+> $\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\boldsymbol{\delta}\in\mathbb{Z}^3$
+> multi-indices.
 >
 > The two-electron integral is defined as:
 >
@@ -1495,5 +1515,135 @@ The claim now follows from the definition of the
 [$n$-th order Coulomb intergal](#defn:nth-order-coulomb-integral).
 
 _q.e.d_
+</div>
+</details>
+
+{: #clm:two-electron-coulomb-horizontal-transfer }
+> **Claim (Two Electron Coulomb Horizontal Transfer).**
+> Let $a,b,c,d\in\mathbb{R}$ be positive real numbers and
+> $\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{D}\in\mathbb{R}^3$.
+>
+> For all multi-indices
+> $\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\boldsymbol{\delta}\in\mathbb{Z}^3$
+> define:
+>
+> $$
+> J_{\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\boldsymbol{\delta}} :=
+> J_{\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\boldsymbol{\delta}}
+> (a, b, c, d, \mathbf{A}, \mathbf{B}, \mathbf{C}, \mathbf{D})
+> $$
+>
+> Then, the following relations hold:
+>
+> 1. $$
+>    J_{\boldsymbol{\alpha},(\beta_x+1,\beta_y\beta_z),\boldsymbol{\gamma},\boldsymbol{\delta}} =
+>    (A_x - B_x) J_{\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\boldsymbol{\delta}} +
+>    J_{(\alpha_x+1,\alpha_y\alpha_z),\boldsymbol{\beta},\boldsymbol{\gamma},\boldsymbol{\delta}}
+>    $$
+>
+> 2. $$
+>    J_{\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},(\delta_x+1,\delta_y\delta_z)} =
+>    (C_x - D_x) J_{\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\boldsymbol{\delta}} +
+>    J_{\boldsymbol{\alpha},\boldsymbol{\beta},(\gamma_x+1,\gamma_y\gamma_z),\boldsymbol{\delta}}
+>    $$
+>
+> And the analogous relations hold in the $y$ and $z$ coordinates.
+
+{: #clm:two-electron-coulomb-electron-transfer }
+> **Claim (Two Electron Coulomb Electron Transfer).**
+> Let $a,b,c,d\in\mathbb{R}$ be positive real numbers and
+> $\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{D}\in\mathbb{R}^3$.
+>
+> Let $p=a+b$ and $q=c+d$.
+>
+> For all non-negative integers 
+> $i,j,\alpha_y,\alpha_z,\gamma_y,\gamma_z\in\mathbb{Z}$
+> define:
+>
+> $$
+> J_{ij} :=
+> J_{(i,\alpha_y,\alpha_z),\mathbf{0},(j,\gamma_y,\gamma_z),\mathbf{0}}
+> (a, b, c, d, \mathbf{A}, \mathbf{B}, \mathbf{C}, \mathbf{D})
+> $$
+>
+> Then:
+>
+> $$
+> J_{i,j+1} =
+> -\frac{1}{q}(b(A_x - B_x) + d(C_x - D_x))J_{i,j} +
+> \frac{i}{2q}J_{i-1,j} +\frac{j}{2q}J_{i,j-1} - \frac{p}{q}J_{i+1,j}
+> $$
+>
+> And the analogous relations hold in the $y$ and $z$ coordinates.
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Consider the quantity $J_{ij}$ as a function of the $x$-coordinates
+$A_x,B_x,C_x,D_x\in\mathbb{R}$ where the $y$ and $z$ coordinates of
+$\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{D}\in\mathbb{R}^3$ are held fixed:
+
+$$
+J_{ij}(A_x,B_x,C_x,D_x) :=
+J_{(i,\alpha_y,\alpha_z),\mathbf{0},(j,\gamma_y,\gamma_z),\mathbf{0}}
+(a, b, c, d, (A_x,A_y,A_z), (B_x,B_y,B_z), (C_x,C_y,C_z), (D_x,D_y,D_z))
+$$
+
+Since the
+[Two Electron Coulomb Integral](#defn:two-electron-coulomb-integral) is defined as an
+integral over all of space,
+$J_{ij}(A_x,B_x,C_x,D_x)$
+is invariant to translations of the $x$-axis $\mathbb{R}$. More precisely, for any scalar
+$v\in\mathbb{R}^3$:
+
+$$
+J_{ij}(A_x+v,B_x+v,C_x+v,D_x+v) =
+J_{ij}(A_x,B_x,C_x,D_x)
+$$
+
+This implies that, for all $v\in\mathbb{R}$,
+the directional derivative of $J_{ij}(A_x,B_x,C_x,D_x)$ in the direction 
+$\mathbf{e} := (1, 1, 1, 1) \in \mathbb{R}^4$ is zero:
+
+$$
+\nabla_\mathbf{e}J_{ij}(A_x,B_x,C_x,D_x) = 0
+$$
+
+By the [standard](https://en.wikipedia.org/wiki/Directional_derivative#For_differentiable_functions)
+relationship between directional derivatives and the gradient, this implies that:
+
+$$
+\mathbf{e} \dot \nabla J_{ij}(A_x,B_x,C_x,D_x) = 0
+$$
+
+By the definition of the gradient this implies:
+
+$$
+(\frac{\partial}{\partial A_x} + 
+ \frac{\partial}{\partial B_x} + 
+ \frac{\partial}{\partial C_x} + 
+ \frac{\partial}{\partial D_x})
+ J_{ij}(A_x,B_x,C_x,D_x) = 0
+$$
+
+By using the definition of the [Two Electron Coulomb Integral](#defn:two-electron-coulomb-integral)
+and [Two Electron Coulomb Electron Transfer](#clm:two-electron-coulomb-electron-transfer):
+
+$$
+\begin{align*}
+\frac{\partial}{\partial A_x}J_{ij} &= 2a J_{i+1,j} - iJ_{i-1,j} \\
+\frac{\partial}{\partial B_x}J_{ij} &= 2b(A_x - B_x)J_{i,j} + 2bJ_{i+1,j} \\
+\frac{\partial}{\partial C_x}J_{ij} &= 2c J_{i,j+1} - jJ_{i,j-1}\\
+\frac{\partial}{\partial D_x}J_{ij} &= 2d(C_x - D_x)J_{i,j} + 2dJ_{i,j+1} \\
+\end{align*}
+$$
+
+Equating the sum of these terms to zero and rearranging the gives the desired result.
+
+_q.e.d_
+
 </div>
 </details>
