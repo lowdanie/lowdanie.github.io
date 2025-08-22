@@ -6,8 +6,7 @@ mathjax: true
 utterance-issue: 13
 ---
 
-# Gaussian Type Orbitals
-
+# Cartesian Gaussians
 
 We will denote the Cartesian coordinates of a point $\mathbf{A}\in\mathbb{R}^3$ by:
 
@@ -22,51 +21,135 @@ $$
 \boldsymbol{\alpha} = (\alpha_x,\alpha_y,\alpha_z)\in \mathbb{N}^3$:
 $$
 
-> **Definition (Primitive Cartesian Gaussian).** Let $\boldsymbol{\alpha}\in\mathbb{N}$ be indices,
-> $\mathbf{A}\in\mathbb{R}^3$ and $a\in\mathbb{R}\_>$ a positive real number.
-> The primitive Cartesian Gaussian with _Cartesian quantum numbers_ $\boldsymbol{\alpha}$,
-> _center_ $\mathbf{A}$ and _exponent_ $a$ is defined at position $\mathbf{r}=(x,y,z)\in\mathbb{R}^3$
-> by:
+{: #def:cartesian-gaussian }
+> **Definition (Cartesian Gaussian).** 
+> Let $\boldsymbol{\alpha}\in\mathbb{N}$ be a multi-index,
+> $a\in\mathbb{R}$ a positive real number and
+> $\mathbf{A}\in\mathbb{R}^3$.
+>
+> The Cartesian Gaussian is defined by
 >
 > $$
 > G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A}) := (x - A_x)^{\alpha_x}(y - A_y)^{\alpha_y}(z - A_z)^{\alpha_z} e^{-a ||\mathbf{r} - \mathbf{A}||^2}
 > $$
 
 An important property of Cartesian Gaussians is that they can be factorized along the Cartesian 
-coordinates into one dimensional Gaussians
+coordinates into one dimensional Cartesian Gaussians. Specifically, define:
 
-$$
-G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A}) = G_{\alpha_x}(x, a, A_x)G_{\alpha_y}(y, a, A_y)G_{\alpha_z}(z, a, A_z)
-$$
-
-Where the one dimensional Gaussian with quantum number $\alpha\in\mathbb{N}$, 
-center $A\in\mathbb{R}$ and exponent $a\in\mathbb{R}$ is defined as:
-
-$$
-G_\alpha(x, a, A) := (x - A)^\alpha e^{-a(x - A)^2}
-$$
-
-A classic fact about Gaussians is:
-
-$$
-\int_\mathbb{R}G_0(x, a, A)dx = \sqrt{\frac{\pi}{a}}
-$$
-
-which does not depend on the center $A$. It follows from the above factorization that:
-
-{: #clm:gaussian-integral }
-> **Claim (Gaussian Integral).**
+{: #def:1d-cartesian-gaussian }
+> **Definition (1d Cartesian Gaussian).**
+> Let $i\in\mathbb{Z}$ be a non-negative integer, $a\in\mathbb{R}$ a positive
+> real number and $A\in\mathbb{R}$.
+>
+> The one dimensional Cartesian Gaussian is defined by:
 >
 > $$
-> \int_\mathbb{R}G_\mathbf{0}(\mathbf{r}, a, \mathbf{A}) = \left(\frac{\pi}{a}\right)^{3/2}
+> G_i(x, a, A) := (x - A)^ie^{-a(x - A)^2}
+> $$
+
+We can now factor a Cartesian Gaussian as:
+
+{: #clm:cartesian-gaussian-factorization }
+> **Definition (Cartesian Gaussian Factorization).** 
+> Let $\boldsymbol{\alpha}\in\mathbb{N}$ be a multi-index,
+> $a\in\mathbb{R}$ a positive real number and
+> $\mathbf{A}\in\mathbb{R}^3$.
+>
+> Then:
+>
+>  $$
+>  G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A}) = 
+>  G_{\alpha_x}(x, a, A_x)G_{\alpha_y}(y, a, A_y)G_{\alpha_z}(z, a, A_z)
+>  $$
+
+In the special case where the multi-index $\boldsymbol{\alpha}$ is equal to zero,
+$G_\mathbf{0}(\mathbf{r}, a, \mathbf{A})$ has spherical symmetry and we'll call it
+a _spherical Gaussian_ and drop the subscript.
+
+{: #def:spherical-gaussian }
+> **Definition (Spherical Gaussian).** 
+> Let $a\in\mathbb{R}$ a positive real number and
+> $\mathbf{A}\in\mathbb{R}^3$.
+>
+> The spherical Gaussian is defined by
+>
+> $$
+> G(\mathbf{r}, a, \mathbf{A}) := e^{-a ||\mathbf{r} - \mathbf{A}||^2}
+> $$
+
+The one dimensional spherical Gaussian is defined similarly.
+
+{: #def:1d-spherical-gaussian-integral }
+> **Definition (1d Spherical Gaussian).**
+> Let $a\in\mathbb{R}$ a positive real number and $A\in\mathbb{R}$.
+>
+> The one dimensional spherical Gaussian is defined by:
+>
+> $$
+> G(x, a, A) := e^{-a(x - A)^2}
+> $$
+
+We'll make heavy use of the classic
+[Gaussian integral](https://en.wikipedia.org/wiki/Gaussian_integral):
+
+{: #clm:1d-spherical-gaussian-integral }
+> **Claim (1d Spherical Gaussian Integral).**
+> Let $a\in\mathbb{R}$ a positive real number and $A\in\mathbb{R}$.
+>
+> Then:
+>
+> $$
+> \int_{-\infty}^{\infty} G(x, a, A) dx = \sqrt{\frac{\pi}{a}}
+> $$
+
+Note that the integral does not depend on $A$.
+
+It follows from
+[Cartesian Gaussian Factorization](#clm:cartesian-gaussian-factorization) that:
+
+{: #clm:spherical-gaussian-integral }
+> **Claim (Spherical Gaussian Integral).**
+> Let $a\in\mathbb{R}$ a positive real number and
+> $\mathbf{A}\in\mathbb{R}^3$.
+>
+> Then:
+>
+> $$
+> \int_\mathbb{R}G(\mathbf{r}, a, \mathbf{A}) = \left(\frac{\pi}{a}\right)^{3/2}
+> $$
+
+We'll also record the following derivatives of one-dimensional Cartesian Gaussians
+which are easy to compute using the product and chain rules:
+
+{: #clm:1d-spherical-gaussian-derivatives }
+> **Claim (1d Cartesian Gaussian Derivatives).**
+> Let $i\in\mathbb{Z}$ be a non-negative integer,
+> $a\in\mathbb{R}$ a positive real number and $A\in\mathbb{R}$.
+>
+> Define:
+>
+> $$
+> G_i := G_i(x, a, A)
+> $$
+>
+> Then:
+>
+> $$
+> \begin{align*}
+> \frac{d}{dx} G_i &= iG_{i-1} - 2aG_{i+1} \\
+> \frac{d^2}{dx^2} G_i &= i(i-1)G_{i-2} - 2a(2i+1)G_i + 4a^2G_{i+2}
+> \end{align*}
 > $$
 
 # Gaussian Overlaps
 
-> **Definition (Cartesian Gaussian Overlap)**. The _overlap_ of two Cartesian
-> Gaussians $G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A})$ and
-> $G_\boldsymbol{\beta}(\mathbf{r}, b, \mathbf{B})$
-> is defined by:
+{: #def:cartesian-gaussian-overlap }
+> **Definition (Cartesian Gaussian Overlap)**. 
+> Let $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ be multi-indices,
+> $a,b\in\mathbb{R}$ positive real numbers and
+> $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$.
+>
+> The Cartesian Gaussian overlap is defined by:
 >
 > $$
 > \Omega_{\boldsymbol{\alpha}\boldsymbol{\beta}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B}) :=
@@ -74,27 +157,46 @@ which does not depend on the center $A$. It follows from the above factorization
 > $$
 
 Similarly to the Cartesian Gaussians, the overlaps also factorize along the
-Cartesian coordinates into a product of one-dimensional overlaps:
+Cartesian coordinates into a product of one-dimensional overlaps.
 
-$$
-\Omega_{\boldsymbol{\alpha}\boldsymbol{\beta}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B}) =
-\Omega_{\alpha_x\beta_x}(x, a, b, A_x, B_x)
-\Omega_{\alpha_y\beta_y}(y, a, b, A_y, B_y)
-\Omega_{\alpha_z\beta_z}(z, a, b, A_z, B_z)
-$$
+{: #def:1d-cartesian-gaussian-overlap }
+> **Definition (1d Cartesian Gaussian Overlap).**
+> Let $i,j\in\mathbb{Z}$ be non-negative integers,
+> $a,b\in\mathbb{R}$ positive real numbers and
+> $A,B\in\mathbb{R}$.
+>
+> The one dimensional Cartesian Gaussian overlap is defined by:
+>
+> $$
+> \Omega_{ij}(x, a, b, A, B) := G_i(x, a, A)G_j(x, b, B)
+> $$
 
-where the one-dimensional overlap is defined as:
+We can now factor the Cartesian Gaussian Overlap as:
 
-$$
-\Omega_{\alpha\beta}(x, a, b, A, B) = G_\alpha(x, a, A)G_\beta(x, b, B)
-$$
+{: #clm:cartesian-gaussian-overlap-factorization }
+> **Claim (Cartesian Gaussian Overlap Factorization)**.
+> Let $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}$ be multi-indices,
+> $a,b\in\mathbb{R}$ positive real numbers and
+> $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$.
+>
+> Then:
+>
+> $$
+> \Omega_{\boldsymbol{\alpha}\boldsymbol{\beta}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B}) =
+> \Omega_{\alpha_x\beta_x}(x, a, b, A_x, B_x)
+> \Omega_{\alpha_y\beta_y}(y, a, b, A_y, B_y)
+> \Omega_{\alpha_z\beta_z}(z, a, b, A_z, B_z)
+> $$
 
-One key reason that electron integrals of Cartesian Gaussians are easy to evaluate is that the
-product of two Gaussians is another Gaussian:
+One key reason that electron integrals of Cartesian Gaussians are easy to evaluate 
+is that the product of two Gaussians is another Gaussian:
 
-{: #clm:one-dimensional-gaussian-product-rule }
-> **Claim (One-Dimensional Gaussian Product Rule).** Let $A,B\in\mathbb{R}$ be two centers and
-> $a,b\in\mathbb{R}$ be two exponents. Then:
+{: #clm:1d-gaussian-product-rule }
+> **Claim (1d Gaussian Product Rule).** 
+> Let $a,b\in\mathbb{R}$ be positive real numbers and
+> $A,B\in\mathbb{R}$.
+>
+> Then:
 >
 > $$
 > G(x, a, A)G(x, b, B) = K(a,b,A,B)G(x, p, P)
@@ -115,27 +217,24 @@ product of two Gaussians is another Gaussian:
 > K(a,b,A,B) = e^{-\frac{ab}{a + b} (A - B)^2}
 > $$
 
-According to the product rule, the one-dimensional Cartesian Gaussian Overlap is
-given by:
-
-$$
-\Omega_{\alpha\beta}(x, a, b, A, B) = K(a,b,A,B)(x-A)^\alpha(x-B)^\beta G(x, p, P)
-$$
-
 The three-dimensional Cartesian Gaussian product rule follows immediately from
-the [one dimensional](#clm:one-dimensional-gaussian-product-rule) version and the
-factorization XXX
+the [1d Gaussian Product Rule](#clm:1d-gaussian-product-rule)
+and
+[Cartesian Gaussian Overlap Factorization](#clm:cartesian-gaussian-overlap-factorization).
 
 {: #clm:gaussian-product-rule }
-> **Claim (Gaussian Product Rule).** Let $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$ be two centers and
-> $a,b\in\mathbb{R}$ be two exponents. Then:
+> **Claim (Gaussian Product Rule).** 
+> Let $a,b\in\mathbb{R}$ be positive real numbers and
+> $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$.
+>
+> Then:
 >
 > $$
 > G(\mathbf{r}, a, \mathbf{A})G(\mathbf{r}, b, \mathbf{B}) 
 > = \mathbf{K}(a,b,\mathbf{A},\mathbf{B}) G(\mathbf{r}, p, \mathbf{P})
 > $$
 >
-> Where the _total exponent_ $p$ and _reduced exponent_ $\mu$ are defined by:
+> Where $p$ and $\mu$ are defined by:
 >
 > $$
 > \begin{align*}
@@ -159,14 +258,13 @@ factorization XXX
 Here are some simple properties of one dimensional overlaps:
 
 {: #clm:overlap-vertical-transfer }
-> **Claim (Overlap Vertical Transfer).** Let $\Omega_i$ be the one dimensional overlap
-> defined as
+> **Claim (Overlap Vertical Transfer).** 
+> Let $a,b\in\mathbb{R}$ be positive integers and $A,B\in\mathbb{R}$.
+>
+> For all non-negative $i\in\mathbb{Z}$ define:
 >
 > $$
-> \begin{align*}
-> \Omega_i :&= \Omega_{i,0}(\mathbf{r}, a, b, A, B) \\
-> &= (x-A)^ie^{-a(x-A)^2}e^{-b(x-B)^2}
-> \end{align*}
+> \Omega_i := \Omega_{i,0}(x, a, b, A, B)
 > $$
 >
 > Then:
@@ -177,9 +275,9 @@ Here are some simple properties of one dimensional overlaps:
 
 {: #clm:overlap-horizontal-transfer }
 > **Claim (Overlap Horizontal Transfer).**
-> Let $A,B\in\mathbb{R}$ be two positions,
-> $a,b\in\mathbb{R}$ positive real numbers and $i,j\in\mathbb{Z}$ non-negative
-> integers. Define:
+> Let $a,b\in\mathbb{R}$ positive real numbers and $A,B\in\mathbb{R}$.
+>
+> For all non-negative integers $i,j\in\mathbb{Z}$ define:
 >
 > $$
 > \Omega_{ij} := \Omega_{ij}(x, a, b, A, B)
@@ -242,29 +340,66 @@ Here are some simple properties of one dimensional overlaps:
 
 # Hermite Gaussians
 
-The Cartesian Gaussian $G_i(x, a, A) = (x - A)^ie^{-a(x-A)^2}$ is the product of
-a degree $i$ polynomial in $x$ and an exponential function. Hermite Gaussians are
-another way to generate products of polynomials and exponentials:
+The Cartesian Gaussian $G_\boldsymbol{\alpha}(x, a, \mathbf{A})$
+is the product of a polynomial in $x,y,z$ and an exponential function.
+Hermite Gaussians are another way to generate products of polynomials and exponentials:
 
-> **Definition (Hermite Gaussian)** Let $t\in\mathbb{N}$ be a non-negative integer, $a\in\mathbb{R}_{>}$
-> a positive real number and $A\in\mathbb{R}$. 
-> The Hermite Gaussian with index $t$, exponent $a$ and center $A$ is defined by:
+{: #def:hermite-gaussian }
+> **Definition (Hermite Gaussian)** 
+>Let $t,u,v\in\mathbb{N}$ be non-negative integers,
+> $p\in\mathbb{R}$ a positive real number and $\mathbf{P}\in\mathbb{R}^3$. 
+>
+> The Hermite Gaussian is defined by:
 >
 > $$
-> \Lambda_t(x, a, A) := \frac{\partial^t}{\partial A}e^{-a(x-A)^2}
+> \Lambda_{tuv}(\mathbf{r}, p, \mathbf{P}) := 
+> \left(\frac{\partial}{\partial P_x}\right)^t
+> \left(\frac{\partial}{\partial P_y}\right)^u
+> \left(\frac{\partial}{\partial P_z}\right)^v
+> G(\mathbf{r}, p, \mathbf{P})
+> $$
+
+Similarly to Cartesian Gaussians, they can be factorized as 
+one-dimensional Hermite Gaussians.
+
+{: #def:1d-hermite-gaussian }
+> **Definition (1d Hermite Gaussian)** 
+>Let $t\in\mathbb{N}$ be a non-negative integer,
+> $p\in\mathbb{R}$ a positive real number and $P\in\mathbb{R}$. 
+>
+> The one-dimensional Hermite Gaussian is defined by:
+>
+> $$
+> \Lambda_t(x, p, P) := \left(\frac{\partial}{\partial P}\right)^t G(x, p, P)
+> $$
+
+{: #clm:hermite-gaussian-factorization }
+> **Claim (Hermite Gaussian Factorization).**
+> Let $t,u,v\in\mathbb{N}$ be non-negative integers,
+> $p\in\mathbb{R}$ a positive real number and $\mathbf{P}\in\mathbb{R}^3$. 
+>
+> Then:
+>
+> $$
+> \Lambda_{tuv}(\mathbf{r}, p, \mathbf{P}) = 
+> \Lambda_t(x, p, P_x)
+> \Lambda_u(y, p, P_y)
+> \Lambda_v(z, p, P_z)
 > $$
 
 {: #clm:differentiation-product-bracket }
-> **Claim (Differentiation Product Bracket).** For every positive
-> $t\in\mathbb{Z}$:
+> **Claim (Differentiation Product Bracket).** 
+> For every positive $t\in\mathbb{Z}$:
 >
 > $$
 > [\frac{\partial^t}{\partial x^t}, x] = t \frac{\partial^{t-1}}{\partial x^{t-1}}
 > $$
 
-{: #clm:hermite-gaussian-properties }
-> **Claim (Hermite Gaussian Properties).** Let $t\in\mathbb{N}$ be a non-negative integer, $p\in\mathbb{R}_{>}$
-> a positive real number and $P\in\mathbb{R}$. Define:
+{: #clm:1d-hermite-gaussian-properties }
+> **Claim (1d Hermite Gaussian Properties).**
+> Let $p\in\mathbb{R}$ be a positive real number and $P\in\mathbb{R}$.
+>
+> For all non-negative integers $t\in\mathbb{Z}$ define:
 >
 > $$
 > \Lambda_t := \Lambda_t(x, p, P)
@@ -275,23 +410,31 @@ another way to generate products of polynomials and exponentials:
 > 1. $(x - P)\Lambda_t = \frac{1}{2p}\Lambda_{t+1} + t\Lambda_{t-1}$
 > 2. $\frac{\partial}{\partial P}\Lambda_t = \Lambda_{t+1}$
 
-{: #defn:cartesian-overlap-to-hermite }
-> **Definition (Cartesian Overlap To Hermite).**
+Note that by the 
+[1d Gaussian Product Rule](#clm:1d-gaussian-product-rule)
+the one-dimensional overlap $\Omega_{i,0}(x, a, b, A, B)$ is the
+product of a degree $i$ polynomial in $x$ with $G(x, p, P)$ where
+$p=a+b$ and $P = \frac{a}{p}A + \frac{b}{p}B$.
+
+Similarly, $\Lambda_t(x, p, P)$ is the product of a degree $t$ polynomial in $x$
+with $G(x, p, P)$. Therefore, it is possible to express $\Omega_{i,0}(x, a, b, A, B)$
+as a linear combination of $\Lambda_0(x, p, P),\dots,\Lambda_i(x, p, P)$.
+
+This is formalized in the following definition.
+The coefficients of the linear combination will be determined recursively in the
+following claim.
+
+{: #def:1d-cartesian-overlap-to-hermite }
+> **Definition (1d Cartesian Overlap To Hermite).**
 > Let $i\in\mathbb{Z}$ be a non-negative
 > integer, $a,b\in\mathbb{R}$ positive real numbers and $A,B\in\mathbb{R}$.
-> Then, the coefficients $E^i_t(a, b, A, B)\in\mathbb{R}$ are defined to satisfy:
+>
+> Let $p=a+b$ and $P = \frac{a}{p}A + \frac{b}{p}B$.
+>
+> The coefficients $E^i_t(a, b, A, B)\in\mathbb{R}$ are defined to satisfy:
 >
 > $$
-> \Omega_i(x, a, b, A, B) = \sum_{t=0}^i E^i_t(a, b, A, B)\Lambda_t(x, p, P)
-> $$
->
-> Where, as above:
->
-> $$
-> \begin{align*}
-> p &= a + b \\
-> P &= \frac{a}{p}A + \frac{a}{p}B
-> \end{align*}
+> \Omega_{i,0}(x, a, b, A, B) = \sum_{t=0}^i E^i_t(a, b, A, B)\Lambda_t(x, p, P)
 > $$
 >
 > Furthermore, we define $E^i_t(a, b, A, B) = 0$ for all $t < 0$ or $ t > i$.
@@ -299,8 +442,11 @@ another way to generate products of polynomials and exponentials:
 {: #clm:cartesian-overlap-to-hermite-recurrence }
 > **Claim (Cartesian Overlap To Hermite Recurrence).**
 > Let $i\in\mathbb{Z}$ be a non-negative integer, 
-> $a,b\in\mathbb{R}$ positive real numbers and $A,B\in\mathbb{R}$. Let $p=a+b$
-> and $P=\frac{a}{p}A + \frac{b}{p}B$. Define:
+> $a,b\in\mathbb{R}$ positive real numbers and $A,B\in\mathbb{R}$.
+>
+> Let $p=a+b$ and $P=\frac{a}{p}A + \frac{b}{p}B$.
+>
+> Define:
 >
 > $$
 > E^i_t := E^i_t(a, b, A, B)
@@ -360,7 +506,7 @@ $$
 $$
 
 For the right hand side, by claim 
-[Hermite Gaussian Properties](#clm:hermite-gaussian-properties)
+[One Dimensional Hermite Gaussian Properties](#clm:one-dimensional-hermite-gaussian-properties)
 and the identity $(x-A) = (x-P) + (P-A)$:
 
 $$
@@ -504,52 +650,127 @@ _q.e.d_
 </div>
 </details>
 
+Since Cartesian Gaussian Overlaps and Hermite Gaussians can be factored into their
+one-dimensional analogs, we can extend
+[1d Cartesian Overlap To Hermite](#def:1d-cartesian-overlap-to-hermite)
+to three dimensions.
+
+{: #def:cartesian-overlap-to-hermite }
+> **Definition (Cartesian Overlap To Hermite).**
+> Let $i,j,k,t,u,v\in\mathbb{Z}$ be non-negative integers,
+> $a,b\in\mathbb{R}$ positive real numbers and $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$.
+>
+> The coefficients $E_{tuv}^{ijk}(a, b, \mathbf{A}, \mathbf{B})\in\mathbb{R}$ are defined by:
+>
+> $$
+> E_{tuv}^{ijk}(a, b, \mathbf{A}, \mathbf{B}) :=
+> E_t^i(a, b, A_x, B_x)
+> E_u^j(a, b, A_y, B_y)
+> E_v^k(a, b, A_z, B_z)
+> $$
+
+{: #clm:cartesian-overlap-to-hermite }
+> **Claim (Cartesian Overlap To Hermite).**
+> Let $i,j,k,t,u,v\in\mathbb{Z}$ be non-negative integers,
+> $a,b\in\mathbb{R}$ positive real numbers and $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$.
+>
+> Let $p=a+b$ and $\mathbf{P}=\frac{a}{p}\mathbf{A} + \frac{b}{p}\mathbf{B}$.
+>
+> Then:
+>
+> $$
+> \Omega_{(ijk),\mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B}) =
+> \sum_{tuv=0}^{ijk}E_{tuv}^{ijk}(a, b, \mathbf{A}, \mathbf{B})
+> \Lambda_{tuv}^{ijk}(\mathbf{r}, p \mathbf{P})
+> $$
+
 
 # Overlap Integrals
 
 The simplest type of electron integral is the _overlap integral_:
 
-> **Definition (Overlap Integral).** The overlap integral between the 
-> Cartesian Gaussians $G_{\boldsymbol{\alpha}}(\mathbf{r}, a, \mathbf{A})$ and
-> $G_{\boldsymbol{\beta}}(\mathbf{r}, a, \mathbf{A})$ is:
+> **Definition (Overlap Integral).** 
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$ and
+> $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ multi-indices.
+>
+> The overlap integral is defined as:
 >
 > $$
-> \begin{align*}
-> S_{\boldsymbol{\alpha}\boldsymbol{\beta}}(a,b,\mathbf{A},\mathbf{B}) :&=
-> \langle G_{\boldsymbol{\alpha}}(\mathbf{r}, a, \mathbf{A}) | G_{\boldsymbol{\beta}}(\mathbf{r}, b, \mathbf{B}) \rangle \\
-> &= \int_{\mathbb{R}^3} G_{\boldsymbol{\alpha}}(\mathbf{r}, a, \mathbf{A}) G_{\boldsymbol{\beta}}(\mathbf{r}, b, \mathbf{B}) d\mathbf{r}
-> \end{align*}
+> S_{\boldsymbol{\alpha}\boldsymbol{\beta}}(a,b,\mathbf{A},\mathbf{B}) 
+> = \int_{\mathbb{R}^3} G_{\boldsymbol{\alpha}}(\mathbf{r}, a, \mathbf{A}) G_{\boldsymbol{\beta}}(\mathbf{r}, b, \mathbf{B}) d\mathbf{r}
 > $$
 
-Using our notation for overlaps:
+By [Cartesian Gaussian Factorization](#clm:cartesian-gaussian-factorization),
+Cartesian Gaussians can be factorized into one-dimensional Cartesian Gaussians.
+Therefore, the overlap integral can be factorized as well.
 
-$$
-S_{\boldsymbol{\alpha}\boldsymbol{\beta}}(a,b,\mathbf{A},\mathbf{B}) = 
-\int_{\mathbb{R}^3} \Omega_{\boldsymbol{\alpha}\boldsymbol{\beta}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B}) d\mathbf{r}
-$$
+> **Definition (1d Overlap Integral).** 
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> $A,B\in\mathbb{R}$ and
+> $i,j\in\mathbb{Z}$ non-negative integers.
+>
+> The one-dimensional overlap integral is defined as:
+>
+> $$
+> S_{ij}(a,b,A,B) 
+> = \int_{-\infty}^{\infty} 
+> G_{i}(x, a, A) G_{j}(x, b, B) dx
+> $$
 
-The goal of this section is to prove the following set of recurrence relations which
-determine $S_{\boldsymbol{\alpha}\boldsymbol{\beta}}$ for all multi-indices
-$\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$.
-
-> **Claim (Overlap Integral Base Case).**
-> Let $a,b\in\mathbb{R}$ be positive real numbers, $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$.
+> **Claim (Overlap Integral Factorization).** 
+> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$ and
+> $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ multi-indices.
+>
 > Then:
 >
 > $$
-> S_{\mathbf{0}\mathbf{0}}(a,b,\mathbf{A},\mathbf{B}) 
-> = \left(\frac{\pi}{p}\right)^{3/2} K(a,b,\mathbf{A},\mathbf{B}) 
+> S_{\boldsymbol{\alpha}\boldsymbol{\beta}}(a,b,\mathbf{A},\mathbf{B}) =
+> S_{\alpha_x\beta_x}(a, b, A_x, B_x)
+> S_{\alpha_y\beta_y}(a, b, A_y, B_y)
+> S_{\alpha_z\beta_z}(a, b, A_z, B_z)
 > $$
 
-> **Claim (Overlap Integral Recurrence).**
-> Let $a,b\in\mathbb{R}$ be positive real numbers, $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$
-> and $\alpha_y,\alpha_z,\beta_y,\beta_z\in\mathbb{Z}$ non-negative integers.
-> Let $p=a+b$ and $\mathbf{P}=\frac{a}{p}\mathbf{A} + \frac{b}{p}\mathbf{B}$.
+Therefore, it suffices to develop a method for computing one-dimensional overlap
+integrals.
+
+The goal of this section is to prove the following set of recurrence relations which
+determine $S_{ij}(a, b, A, B)$ for all non-negative $i,j\in\mathbb{Z}$
+
+> **Claim (Overlap Integral Base Case).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers and
+> $A,B\in\mathbb{R}$.
 >
-> For non-negative integers $i,j\in\mathbb{Z}$ Define:
+> Then:
 >
 > $$
-> S_{ij} := S_{(i,\alpha_y,\alpha_z),(j,\beta_y,\beta_z)}(a, b, \mathbf{A},\mathbf{B})
+> S_{0,0}(a,b,A,B) 
+> = \sqrt{\frac{\pi}{p}} K(a,b,A,B) 
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+This follows from the [1d Gaussian Product Rule](#clm:1d-gaussian-product-rule)
+and [1-d Spherical Gaussian Integral](#clm:1d-spherical-gaussian-integral).
+
+_q.e.d_
+</div>
+</details>
+
+> **Claim (Overlap Integral Recurrence).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers and
+> $A,B\in\mathbb{R}$.
+>
+> Let $p=a+b$ and $P=\frac{a}{p}A + \frac{b}{p}B$.
+>
+> For non-negative integers $i,j\in\mathbb{Z}$ define:
+>
+> $$
+> S_{ij} := S_{ij}(a, b, A, B)
 > $$
 >
 > Then:
@@ -604,8 +825,8 @@ E_{uv} &:= E^{\alpha_y}_u(a, b, A_y, B_y)E^{\alpha_z}_u(a, b, A_z, B_z)
 \end{align*}
 $$
 
-By definitions [Cartesian Gaussian Overlap](#defn:cartesian-gaussian-overlap)
-and [Cartesian Overlap To Hermite](#defn:cartesian-overlap-to-hermite):
+By definitions [Cartesian Gaussian Overlap](#def:cartesian-gaussian-overlap)
+and [Cartesian Overlap To Hermite](#def:cartesian-overlap-to-hermite):
 
 $$
 \begin{equation}\label{eq:overlap-integral-expansion}
@@ -621,7 +842,7 @@ S_{i,0} &=
 \end{equation}
 $$
 
-By [Gaussian Integral](#clm:gaussian-integral):
+By [Spherical Gaussian Integral](#clm:spherical-gaussian-integral):
 
 $$
 \int_{\mathbb{R}^3} G_\mathbf{0}(\mathbf{r}, p, P)d\mathbf{r} =  \left(\frac{\pi}{p}\right)^{3/2}
@@ -638,7 +859,7 @@ S_{i,0} =  E^i_0 E_{0,0} \left(\frac{\pi}{p}\right)^{3/2}
 $$
 
 We can now use
-[Cartesian Overlap To Hermite Recurrence](#clm:cartesian-overlap-to-hermite-recurrence)
+[One Dimensional Cartesian Overlap To Hermite Recurrence](#clm:one-dimensional-cartesian-overlap-to-hermite-recurrence)
 to derive a recurrence for $S_{i,0}$.
 
 Specifically, note that by part 2 of that claim:
@@ -688,6 +909,7 @@ into simpler one-dimensional integrals over $\mathbb{R}$.
 
 We'll start by defining the one-dimensional kinetic energy integral.
 
+{: #def:1d-kinetic-energy-integral }
 > **Definition (1d Kinetic Energy Integral).**
 > Let $a,b\in\mathbb{R}$ be positive real numbers,
 > $A,B\in\mathbb{R}$ and
@@ -700,14 +922,24 @@ We'll start by defining the one-dimensional kinetic energy integral.
 > \int_0^\infty
 > G_i(x, a, A) 
 > \frac{\partial^2}{\partial^2 x}
-> G_j(x, b, \mathbf{B}) 
-> d\mathbf{r}
+> G_j(x, b, B) 
+> dx
 > $$
 
 > **Claim (Kinetic Energy Integral Reduction).**
 > Let $a,b\in\mathbb{R}$ be positive real numbers,
 > $\mathbf{A},\mathbf{B}\in\mathbb{R}^3$ and
 > $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ be multi-indices.
+>
+> Define the following one-dimensional overlap and kinetic energy integrals:
+>
+> $$
+> \begin{alignat*}{2}
+> S_{\alpha_x\beta_x} &:= S_{\alpha_x\beta_x}(a, b, A_x, B_x) &\qquad&  T_{\alpha_x\beta_x} &:= T_{\alpha_x\beta_x}(a, b, A_x, B_x) \\
+> S_{\alpha_y\beta_y} &:= S_{\alpha_y\beta_y}(a, b, A_y, B_y) &\qquad& T_{\alpha_y\beta_y} &:= T_{\alpha_y\beta_y}(a, b, A_y, B_y) \\
+> S_{\alpha_z\beta_z} &:= S_{\alpha_z\beta_z}(a, b, A_z, B_z) &\qquad& T_{\alpha_z\beta_z} &:= T_{\alpha_z\beta_z}(a, b, A_z, B_z)
+> \end{alignat*}
+> $$
 >
 > Then:
 >
@@ -721,13 +953,37 @@ We'll start by defining the one-dimensional kinetic energy integral.
 The next claim shows how to compute the one-dimensional kinetic energy integrals
 in terms of one-dimensional overlap integrals.
 
-> **Claim (Kinetic Energy From Overlaps).**
-> Let $a,b\in\mathbb{R}$ be positive real numbers,
+> **Claim (1d Kinetic Energy From Overlaps).**
+> Let $a,b\in\mathbb{R}$ be positive real numbers and
 > $A,B\in\mathbb{R}$.
 >
-> For all non-negative integers $i,j\in\mathbb{Z}$:
+> For all non-negative integers $i,j\in\mathbb{Z}$ define:
 >
->  
+> $$
+> S_{ij} = S_{ij}(a, b, A, B)
+> $$
+>
+> Then:
+>
+> $$
+> T_{ij}(a, b, A, B) =
+> j(j-1)S_{i,j-2} - 
+> 2b(2j + 1)S_{ij} +
+> 4b^2 S_{i,j+2}
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+The claim follows immediately from the definition of the kinetic energy
+integral and
+[1d Cartesian Gaussian Derivatives](#clm:1d-cartesian-gaussian-derivatives)
+</div>
+</details>
+
 # One Electron Coulomb Integrals
 
 > **Definition (One Electron Coulomb Integral).**
@@ -750,22 +1006,22 @@ integral $I_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A}, \mathbf{B
 as we vary the multi-indicies $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$.
 
 
-First we'll assume that $\boldsymbol{\beta}=\mathbf{0}$ and focus on finding recuurence
-relations for $\boldsymbol{\alpha}$.
+First we'll assume that $\boldsymbol{\beta}=\mathbf{0}$ and focus on finding recurrence
+relations for $\boldsymbol{\alpha}=(i,j,k)$.
 
 As usual, set $p=a+b$ and $\mathbf{P} = \frac{a}{p}\mathbf{A} + \frac{b}{p}\mathbf{B}$.
 
-By definitions [Cartesian Gaussian Overlap](#defn:cartesian-gaussian-overlap)
-and [Cartesian Overlap To Hermite](#defn:cartesian-overlap-to-hermite):
+By definitions [Cartesian Gaussian Overlap](#def:cartesian-gaussian-overlap)
+and [Cartesian Overlap To Hermite](#def:cartesian-overlap-to-hermite):
 
 $$
 \begin{equation}\label{eq:one-electron-expansion}
 \begin{aligned}
-I_{\boldsymbol{\alpha},\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}, \mathbf{C}) &=
-\int_{\mathbb{R}^3}\frac{\Omega_{\boldsymbol{\alpha},\mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r} \\
-&= \sum_{t,u,v=0}^{\boldsymbol{\alpha}}E^{\boldsymbol{\alpha}}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
+I_{(i,j,k),\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}, \mathbf{C}) &=
+\int_{\mathbb{R}^3}\frac{\Omega_{(i,j,k),\mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r} \\
+&= \sum_{t,u,v=0}^{ijk}E^{ijk}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
 \int_{\mathbb{R}^3}\frac{\Lambda_{tuv}(\mathbf{r},p,\mathbf{P})}{||\mathbf{r}-\mathbf{C}||}d\mathbf{r} \\
-&= \sum_{t,u,v=0}^{\boldsymbol{\alpha}}E^{\boldsymbol{\alpha}}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
+&= \sum_{t,u,v=0}^{ijk}E^{ijk}_{tuv}(a, b, \mathbf{A}, \mathbf{B})
 \left(\frac{\partial}{\partial P_x}\right)^t
 \left(\frac{\partial}{\partial P_y}\right)^u
 \left(\frac{\partial}{\partial P_z}\right)^v
@@ -775,10 +1031,10 @@ I_{\boldsymbol{\alpha},\mathbf{0}}(a, b, \mathbf{A}, \mathbf{B}, \mathbf{C}) &=
 $$
 
 The point of this reformulation is that integrand no longer contains the 
-multi-index $\boldsymbol{\alpha}$ and can be solved in close form using the
+multi-index $\boldsymbol{\alpha}=(i,j,k)$ and can be solved in closed form using the
 [Boys function](https://molssi.github.io/MIRP/boys_function.html).
 
-{: #defn:boys-function }
+{: #def:boys-function }
 > **Definition (Boys Function).**
 > Let $n\in\mathbb{Z}$ be a non-negative integer 
 > and $x\in\mathbb{R}$ a non-negative real number.
@@ -822,7 +1078,7 @@ $$
 
 The main difficulty is that the denominator prevents us from factoring the integrand
 into the three Cartesian coordinates as we could in the case of a regular
-[Gaussian Integral](#clm:gaussian-integral).
+[Spherical Gaussian Integral](#clm:spherical-gaussian-integral).
 
 We can work around this by expressing a fraction of the form $\frac{1}{x}$ in terms
 of an integral of Gaussians.
@@ -875,7 +1131,8 @@ $$
 \mathbf{S} = \frac{1}{a + t^2}(a\mathbf{A} + t^2\mathbf{C})
 $$
 
-Integrating over $\mathbf{r}$ and applying [Gaussian Integral](#clm:gaussian-integral):
+Integrating over $\mathbf{r}$ and applying
+[Spherical Gaussian Integral](#clm:spherical-gaussian-integral):
 
 $$
 \begin{align*}
@@ -912,7 +1169,7 @@ _q.e.d_
 We'll collect the partial derivatives of the Boys function in equation \ref{eq:one-electron-expansion}
 into a function that we can analyze independently:
 
-{: #defn:boys-partial-derivatives }
+{: #def:boys-partial-derivatives }
 > **Definition (Boys Partial Derivatives).**
 > Let $s\in\mathbb{R}$ be a positive real number,
 > $\mathbf{C},\mathbf{P}\in\mathbb{R}^3$.
@@ -930,7 +1187,7 @@ We'll also define a generalization of equation \ref{eq:one-electron-expansion}
 that will simplify the form of the recurrence relations and also be applicable to
 the 2-electron case:
 
-{: #defn:nth-order-coulomb-integral }
+{: #def:nth-order-coulomb-integral }
 > **Definition ($n$-th Order Coulomb Integral).**
 > Let $a,b,s\in\mathbb{R}$ be positive real numbers,
 > $\mathbf{A},\mathbf{B},\mathbf{C}\in\mathbb{R}^3$.
@@ -957,7 +1214,7 @@ $$
 
 We'll now find recurrence relations for the $n$-th order Coulomb Integrals $V_{ijk}^n$
 in two steps. First we'll use [Boys Derivative](#clm:boys-derivative) to find recurrence
-relations for the [Boys Partial Derivatives](#defn:boys-partial-derivatives) $R_{tuv}^n$.
+relations for the [Boys Partial Derivatives](#def:boys-partial-derivatives) $R_{tuv}^n$.
 Next we'll use the
 [Cartesian Overlap To Hermite Recurrence](#clm:cartesian-overlap-to-hermite-recurrence)
 on the $E_{tuv}^{ijk}$ coefficients to derive recurrence relations for  $V_{ijk}^n$.
@@ -1238,16 +1495,16 @@ The [$n$-th Order Coulomb Recurrence](#clm:nth-order-coulomb-recurrence) can be 
 compute $V_{ijk}^n(a,b,s,\mathbf{A},\mathbf{B},\mathbf{C})$ for all
 non-negative $i,j,k,n\in\mathbb{Z}$. We'll conclude this section by showing
 how to use the $n$-th order Coulomb integral to compute the
-[One Electron Coulomb Integral](#defn:one-electron-coulomb-integral)
+[One Electron Coulomb Integral](#def:one-electron-coulomb-integral)
 
 > **Claim (One Electron Coulomb Base Case).**
 > Let $a,b\in\mathbb{R}$ be positive real numbers,
 > $\mathbf{A},\mathbf{B},\mathbf{C}\in\mathbb{R}^3$ and
-> $\boldsymbol{\alpha},\boldsymbol{\beta}\in\mathbb{Z}^3$ multi-indices. Then:
+> $i,j,k\in\mathbb{Z}$ non-negative integers. Then:
 >
 > $$
-> I_{\boldsymbol{\alpha},\boldsymbol{\beta}}(a, b, \mathbf{A},\mathbf{B},\mathbf{C}) =
-> \frac{2\pi}{a+b}V_\boldsymbol{\alpha}^0(a, b, a+b, \mathbf{A},\mathbf{B},\mathbf{C})
+> I_{(i,j,k), \mathbf{0}}(a, b, \mathbf{A},\mathbf{B},\mathbf{C}) =
+> \frac{2\pi}{a+b}V_{ijk}^0(a, b, a+b, \mathbf{A},\mathbf{B},\mathbf{C})
 > $$
 
 <details>
@@ -1291,7 +1548,7 @@ Proof [click to expand]
 <div class="details-content">
 
 The claim follows from the definition of the
-[One Electron Coulomb Integral](#defn:one-electron-coulomb-integral) and
+[One Electron Coulomb Integral](#def:one-electron-coulomb-integral) and
 [Overlap Horizontal Transfer](#clm:overlap-horizontal-transfer).
 
 _q.e.d_
@@ -1314,10 +1571,10 @@ _q.e.d_
 > (a, b, c, d, \mathbf{A}, \mathbf{B}, \mathbf{C}, \mathbf{D}) :=
 > \int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
 > \frac{
-> G_\boldsymbol{\alpha}(\mathbf{r}, a, \mathbf{A})
-> G_\boldsymbol{\beta}(\mathbf{r}, b, \mathbf{B})
-> G_\boldsymbol{\gamma}(\mathbf{r}, c, \mathbf{C})
-> G_\boldsymbol{\delta}(\mathbf{r}, d, \mathbf{D})
+> G_\boldsymbol{\alpha}(\mathbf{r}_1, a, \mathbf{A})
+> G_\boldsymbol{\beta}(\mathbf{r}_1, b, \mathbf{B})
+> G_\boldsymbol{\gamma}(\mathbf{r}_2, c, \mathbf{C})
+> G_\boldsymbol{\delta}(\mathbf{r}_2, d, \mathbf{D})
 > }{||\mathbf{r}_1 - \mathbf{r}_2||}
 > d\mathbf{r}_1d\mathbf{r}_2
 > $$
@@ -1386,7 +1643,7 @@ G_\mathbf{0}(\mathbf{r}_2, q, \mathbf{Q})
 d\mathbf{r}_2
 $$
 
-Substituting the definition of the [Boys Function](#defn:boys-function) gives:
+Substituting the definition of the [Boys Function](#def:boys-function) gives:
 
 $$
 \frac{2\pi}{p}
@@ -1421,7 +1678,7 @@ K(pt^2, q, \mathbf{P}, \mathbf{Q}) &= e^{-\frac{pqt^2}{pt^2 + q}||\mathbf{P}-\ma
 $$
 
 We now evaluate the integral over $\mathbf{r}_2$ using
-[Gaussian Integral](#clm:gaussian-integral):
+[Spherical Gaussian Integral](#clm:spherical-gaussian-integral):
 
 $$
 \frac{2\pi}{p} \pi^{3/2}
@@ -1452,7 +1709,7 @@ e^{-\frac{pq}{p+q} u^2||\mathbf{P}-\mathbf{Q}||^2}
 du
 $$
 
-which, by the definition of the [Boys Function](#defn:boys-function), is equal to:
+which, by the definition of the [Boys Function](#def:boys-function), is equal to:
 
 $$
 \frac{2\pi^{5/2}}{pq\sqrt{p+q}}F_0(\frac{pq}{p+q}||\mathbf{P}-\mathbf{Q}||^2)
@@ -1498,8 +1755,8 @@ Proof [click to expand]
 To facilitate notation, we'll define:
 
 $$
-J_{\boldsymbol{\alpha}} := 
-J_{\boldsymbol{\alpha},\mathbf{0},\mathbf{0},\mathbf{0}}
+J_{ijk} := 
+J_{(i,j,k),\mathbf{0},\mathbf{0},\mathbf{0}}
 (a, b, c, d, \mathbf{A}, \mathbf{B}, \mathbf{C}, \mathbf{D})
 $$
 
@@ -1512,54 +1769,54 @@ K(c, d, \mathbf{C}, \mathbf{D})G_\mathbf{0}(\mathbf{r}, q, \mathbf{Q})
 $$
 
 By the definition of the
-[Cartesian Gaussian Overlap](#defn:cartesian-gaussian-overlap)
+[Cartesian Gaussian Overlap](#def:cartesian-gaussian-overlap)
 we can rewrite the two-electron integral as:
 
 $$
-J_{\boldsymbol{\alpha}} = 
+J_{ijk} = 
 K(c, d, \mathbf{C}, \mathbf{D})
 \int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
 \frac{
-\Omega_{\boldsymbol{\alpha}, \mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B})
-G_\mathrm{0}(\mathbf{r}, q, \mathbf{Q})
+\Omega_{(i,j,k), \mathbf{0}}(\mathbf{r}_1, a, b, \mathbf{A}, \mathbf{B})
+G_\mathrm{0}(\mathbf{r}_2, q, \mathbf{Q})
 }{||\mathbf{r}_1 - \mathbf{r}_2||}
 d\mathbf{r}_1d\mathbf{r}_2
 $$
 
 We'll now use 
-[Cartesian Overlap To Hermite](#defn:cartesian-overlap-to-hermite)
+[Cartesian Overlap To Hermite](#def:cartesian-overlap-to-hermite)
 to expand 
-$\Omega_{\boldsymbol{\alpha}, \mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B})$
+$\Omega_{(i,j,k), \mathbf{0}}(\mathbf{r}, a, b, \mathbf{A}, \mathbf{B})$
 in terms of Hermite Gaussians:
 
 $$
-J_{\boldsymbol{\alpha}} = 
+J_{ijk} = 
 K(c, d, \mathbf{C}, \mathbf{D})
-\sum_{tuv}^\boldsymbol{\alpha}
-E_{tuv}^\boldsymbol{\alpha}(a, b, \mathbf{A}, \mathbf{B})
+\sum_{tuv}^{ijk}
+E_{tuv}^{ijk}(a, b, \mathbf{A}, \mathbf{B})
 \int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
 \frac{
-\Lambda_{tuv}(\mathbf{r}, p, \mathbf{P})
-G_\mathrm{0}(\mathbf{r}, q, \mathbf{Q})
+\Lambda_{tuv}(\mathbf{r}_1, p, \mathbf{P})
+G_\mathrm{0}(\mathbf{r}_2, q, \mathbf{Q})
 }{||\mathbf{r}_1 - \mathbf{r}_2||}
 d\mathbf{r}_1d\mathbf{r}_2
 $$
 
 By the definition of
-[Hermite Gaussians](#defn:hermite-gaussian):
+[Hermite Gaussians](#def:hermite-gaussian):
 
 $$
-J_{\boldsymbol{\alpha}} = 
+J_{ijk} = 
 K(c, d, \mathbf{C}, \mathbf{D})
-\sum_{tuv}^\boldsymbol{\alpha}
-E_{tuv}^\boldsymbol{\alpha}(a, b, \mathbf{A}, \mathbf{B})
+\sum_{tuv}^{ijk}
+E_{tuv}^{ijk}(a, b, \mathbf{A}, \mathbf{B})
 \left(\frac{\partial}{\partial P_x}\right)^t
 \left(\frac{\partial}{\partial P_y}\right)^u
 \left(\frac{\partial}{\partial P_z}\right)^v
 \int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
 \frac{
-G_\mathbf{0}(\mathbf{r}, p, \mathbf{P})
-G_\mathbf{0}(\mathbf{r}, q, \mathbf{Q})
+G_\mathbf{0}(\mathbf{r}_1, p, \mathbf{P})
+G_\mathbf{0}(\mathbf{r}_2, q, \mathbf{Q})
 }{||\mathbf{r}_1 - \mathbf{r}_2||}
 d\mathbf{r}_1d\mathbf{r}_2
 $$
@@ -1568,11 +1825,11 @@ Applying the
 [Spherical Two Electron Coulomb Integral](#clm:spherical-two-electron-coulomb-integral):
 
 $$
-J_{\boldsymbol{\alpha}} = 
+J_{ijk} = 
 \frac{2\pi^{5/2}}{pq\sqrt{p+q}}
 K(c, d, \mathbf{C}, \mathbf{D})
-\sum_{tuv}^\boldsymbol{\alpha}
-E_{tuv}^\boldsymbol{\alpha}(a, b, \mathbf{A}, \mathbf{B})
+\sum_{tuv}^{ijk}
+E_{tuv}^{ijk}(a, b, \mathbf{A}, \mathbf{B})
 \left(\frac{\partial}{\partial P_x}\right)^t
 \left(\frac{\partial}{\partial P_y}\right)^u
 \left(\frac{\partial}{\partial P_z}\right)^v
@@ -1580,7 +1837,7 @@ F_0(s||\mathbf{P} - \mathbf{Q}||^2)
 $$
 
 The claim now follows from the definition of the
-[$n$-th order Coulomb intergal](#defn:nth-order-coulomb-integral).
+[$n$-th order Coulomb intergal](#def:nth-order-coulomb-integral).
 
 _q.e.d_
 </div>
@@ -1616,6 +1873,25 @@ _q.e.d_
 >    $$
 >
 > And the analogous relations hold in the $y$ and $z$ coordinates.
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+This follows from applying 
+[Cartesian Gaussian Overlap Factorization](#clm:cartesian-gaussian-overlap-factorization)
+and
+[Overlap Horizontal Transfer](#clm:overlap-horizontal-transfer)
+to the first two and second two pairs of Cartesian Gaussians in the definition
+of the
+[Two Electron Coulomb Integral](#def:two-electron-coulomb-integral).
+
+_q.e.d_
+
+</div>
+</details>
 
 {: #clm:two-electron-coulomb-electron-transfer }
 > **Claim (Two Electron Coulomb Electron Transfer).**
@@ -1661,7 +1937,7 @@ J_{(i,\alpha_y,\alpha_z),\mathbf{0},(j,\gamma_y,\gamma_z),\mathbf{0}}
 $$
 
 Since the
-[Two Electron Coulomb Integral](#defn:two-electron-coulomb-integral) is defined as an
+[Two Electron Coulomb Integral](#def:two-electron-coulomb-integral) is defined as an
 integral over all of space,
 $J_{ij}(A_x,B_x,C_x,D_x)$
 is invariant to translations of the $x$-axis $\mathbb{R}$. More precisely, for any scalar
@@ -1690,15 +1966,18 @@ $$
 By the definition of the gradient this implies:
 
 $$
-(\frac{\partial}{\partial A_x} + 
+\left(\frac{\partial}{\partial A_x} + 
  \frac{\partial}{\partial B_x} + 
  \frac{\partial}{\partial C_x} + 
- \frac{\partial}{\partial D_x})
+ \frac{\partial}{\partial D_x}\right)
  J_{ij}(A_x,B_x,C_x,D_x) = 0
 $$
 
-By using the definition of the [Two Electron Coulomb Integral](#defn:two-electron-coulomb-integral)
-and [Two Electron Coulomb Electron Transfer](#clm:two-electron-coulomb-electron-transfer):
+By using the definition of the 
+[Two Electron Coulomb Integral](#def:two-electron-coulomb-integral),
+[1d Cartesian Gaussian Derivatives](#clm:1d-cartesian-gaussian-derivatives)
+and
+[Two Electron Coulomb Electron Transfer](#clm:two-electron-coulomb-electron-transfer):
 
 $$
 \begin{align*}
