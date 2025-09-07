@@ -1329,7 +1329,7 @@ We can now combine this result with the
 > 1. Base case:
 >    
 >    $$
->    V_{000}^n = K(a,b,\mathbf{A},\mathbf{B})F_n(p||\mathbf{P} - \mathbf{C}||)
+>    V_{000}^n = K(a,b,\mathbf{A},\mathbf{B})F_n(s||\mathbf{P} - \mathbf{C}||)
 >    $$
 >
 > 2. Vertical Transfer ($x$ coordinate):
