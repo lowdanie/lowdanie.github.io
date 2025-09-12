@@ -6,6 +6,104 @@ mathjax: true
 utterance-issue: 13
 ---
 
+# The Electronic Hamiltonian 
+
+The goal of this post is to determine the ground state of a molecule from first 
+principles.
+
+In this section we'll formalize our notion of the state space of a molecule. 
+We'll then parameterize a subset of the state space using Slater determinants. 
+Finally, we'll apply the
+[variational method](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
+to derive a function of the parameters which has a minimum at the 
+Slater determinant that best approximates the ground state.
+
+## Molecular Orbitals
+
+Consider the [hydrogen](https://en.wikipedia.org/wiki/Hydrogen#Atomic_hydrogen) atom $H$.
+The nucleus of $H$ has one proton which means that its
+[atomic number](https://en.wikipedia.org/wiki/Atomic_number) is 1.
+In addition to the proton, $H$ has one electron.
+
+The most common form of hydrogen is the
+[hydrogen molecule](https://en.wikipedia.org/wiki/Hydrogen#Dihydrogen) $H_2$,
+also known as _dihydrogen_.
+This molecule has two nuclei, each with one proton, and two electrons.
+
+Let $\mathbf{r}_1,\mathbf{r}_2\in\mathbb{R}^3$ denote the positions of the two
+electrons and $\mathbf{R}_1,\mathbf{R}_2\in\mathbb{R}^3$ denote the positions of
+the nuclei.
+
+A molecular orbital of $H_2$ is defined to be a real valued function
+$\Psi(\mathbf{r}_1,\mathbf{r}_2,\mathbf{R}_1,\mathbf{R}_2)$ of the electron
+and proton positions. In quantum mechanics, the state space of $H_2$ is the set of
+molecular orbitals.
+
+In general, the molecular orbital of a molecule with $M$ electrons and $N$ nuclei
+is a real valued function
+$\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M,\mathbf{R}_1,\dots,\mathbf{R}_N)$
+where $\mathbf{r}_i$ is the position of the $i$-th electron and $\mathbf{R}_i$
+is the position of the $i$-th neutron.
+
+We'll define the inner product of  two orbitals $\Phi$ and $\Psi$ as the integral
+of their product over all coordinates:
+
+$$
+\langle \Phi | \Psi \rangle := 
+\int_{\mathbb{R}^{3M}\times\mathbb{R}^{3N}} 
+\Phi \cdot \Psi 
+d\mathbf{r}_1 \dots d\mathbf{r}_M
+d\mathbf{R}_1 \dots d\mathbf{R}_N
+$$
+
+The state space of a molecule is defined as the set of orbitals with unit length. I.e,
+the orbitals $\Psi$ that satisfy:
+
+$$
+\langle \Psi | \Psi \rangle = 1
+$$
+
+The [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
+of $H_2$ is an operator on the molecular orbitals. In other words,
+it is a function $\mathcal{H}$ that takes a molecular orbital as input and 
+returns a new orbital.
+
+The value of the Hamiltonian on a molecular orbital corresponds to the orbitals 
+total energy. In the case of $H_2$ is given by:
+
+$$
+\begin{align*}
+\mathcal{H} &= -\frac{1}{2}(\nabla_{\mathbf{r}_1}^2 + \nabla_{\mathbf{r}_2}^2)
+-\frac{1}{2}(\nabla_{\mathbf{R}_1}^2 + \nabla_{\mathbf{R}_2}^2) \\ 
+&-\sum_{i=1}^2\sum_{j=1}^2 \frac{1}{||\mathbf{r}_i - \mathbf{R}_j||} \\
+&+ \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}
++ \frac{1}{||\mathbf{R}_1 - \mathbf{R}_2||}
+\end{align*}
+$$
+
+In this equation, $\nabla_{\mathbf{r}_i}^2$ denotes the
+[Laplace operator](https://en.wikipedia.org/wiki/Laplace_operator) in the
+$\mathbf{r}\_i$ coordinates and $\nabla\_{\mathbf{R}_i}^2$ denotes the Laplace 
+operator in the $\mathbf{R}_i$ coordinates.
+
+For example, if $\mathbf{r}_1 = (x_1,y_1,z_1)$ then:
+
+$$
+\nabla_{\mathbf{r}_1}^2 \cdot \Psi =
+\frac{\partial^2}{\partial x_1^2}\Psi +
+\frac{\partial^2}{\partial y_1^2}\Psi +
+\frac{\partial^2}{\partial z_1^2}\Psi
+$$
+
+The remaining terms operate on $\Psi$ by multiplication. For example:
+
+$$
+\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \cdot \Psi = 
+\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \Psi
+$$
+
+
+
 # Cartesian Gaussians
 
 We will denote the Cartesian coordinates of a point $\mathbf{A}\in\mathbb{R}^3$ by:
