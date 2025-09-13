@@ -34,10 +34,9 @@ Let $\mathbf{r}_1,\mathbf{r}_2\in\mathbb{R}^3$ denote the positions of the two
 electrons and $\mathbf{R}_1,\mathbf{R}_2\in\mathbb{R}^3$ denote the positions of
 the nuclei.
 
-A molecular orbital of $H_2$ is defined to be a real valued function
+A molecular orbital of $H_2$ is defined to be a complex valued function
 $\Psi(\mathbf{r}_1,\mathbf{r}_2,\mathbf{R}_1,\mathbf{R}_2)$ of the electron
-and proton positions. In quantum mechanics, the state space of $H_2$ is the set of
-molecular orbitals.
+and proton positions.
 
 In general, the molecular orbital of a molecule with $M$ electrons and $N$ nuclei
 is a real valued function
@@ -45,8 +44,11 @@ $\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M,\mathbf{R}_1,\dots,\mathbf{R}_N)$
 where $\mathbf{r}_i$ is the position of the $i$-th electron and $\mathbf{R}_i$
 is the position of the $i$-th neutron.
 
-We'll define the inner product of  two orbitals $\Phi$ and $\Psi$ as the integral
-of their product over all coordinates:
+Following the standard bra-ket notation, we'll denote the molecule state corresponding
+to the orbital $\Psi$ by $|\Psi\rangle$.
+
+We'll define the inner product of  two states $|\Phi\rangle$ and $|\Psi\rangle$
+as the integral of their product over all coordinates:
 
 $$
 \langle \Phi | \Psi \rangle := 
@@ -56,53 +58,158 @@ d\mathbf{r}_1 \dots d\mathbf{r}_M
 d\mathbf{R}_1 \dots d\mathbf{R}_N
 $$
 
-The state space of a molecule is defined as the set of orbitals with unit length. I.e,
-the orbitals $\Psi$ that satisfy:
+In quantum mechanics, the state space of a molecule is the set of
+molecular orbitals for which the integral of their norm over all coordinates is finite.
+I.e, the orbitals $\Psi$ that satisfy:
 
 $$
-\langle \Psi | \Psi \rangle = 1
+\langle \Psi | \Psi \rangle < \infty
 $$
 
+## The Schrodinger Equation
 The [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
-of $H_2$ is an operator on the molecular orbitals. In other words,
-it is a function $\mathcal{H}$ that takes a molecular orbital as input and 
-returns a new orbital.
+of $H_2$ is an operator on the molecule states. In other words,
+it is a function $\mathcal{H}$ that takes a state $|\Psi\rangle$ as input and 
+returns a new orbital $\mathcal{H}|\Psi\rangle$.
 
 The value of the Hamiltonian on a molecular orbital corresponds to the orbitals 
-total energy. In the case of $H_2$ is given by:
+total energy. Since electrons have negative charge and nuclei have positive charge, the total energy 
+can be expressed as a sum of the kinetic energies of the electrons
+and nuclei, the potential energies of the electron-electron and nuclei-nuclei repulsions,
+and the potential energies of the electron-nuclei attractions.
+
+Since nuclei are orders of magnitude heavier than electrons, it's common in quantum chemistry
+to use the
+[Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
+which assumes that the nuclei are stationary. In terms of the Hamiltonian this means that the
+kinetic energy of the nuclei are equal to zero.
+
+The kinetic energy of the electrons is equal to:
 
 $$
-\begin{align*}
-\mathcal{H} &= -\frac{1}{2}(\nabla_{\mathbf{r}_1}^2 + \nabla_{\mathbf{r}_2}^2)
--\frac{1}{2}(\nabla_{\mathbf{R}_1}^2 + \nabla_{\mathbf{R}_2}^2) \\ 
-&-\sum_{i=1}^2\sum_{j=1}^2 \frac{1}{||\mathbf{r}_i - \mathbf{R}_j||} \\
-&+ \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}
-+ \frac{1}{||\mathbf{R}_1 - \mathbf{R}_2||}
-\end{align*}
+\mathcal{H}_\mathrm{kinetic} = -\frac{1}{2}\sum_{i=1}^M\nabla_{\mathbf{r}_i}^2
 $$
 
 In this equation, $\nabla_{\mathbf{r}_i}^2$ denotes the
 [Laplace operator](https://en.wikipedia.org/wiki/Laplace_operator) in the
-$\mathbf{r}\_i$ coordinates and $\nabla\_{\mathbf{R}_i}^2$ denotes the Laplace 
-operator in the $\mathbf{R}_i$ coordinates.
+$\mathbf{r}\_i$ coordinates.
 
 For example, if $\mathbf{r}_1 = (x_1,y_1,z_1)$ then:
 
 $$
-\nabla_{\mathbf{r}_1}^2 \cdot \Psi =
-\frac{\partial^2}{\partial x_1^2}\Psi +
-\frac{\partial^2}{\partial y_1^2}\Psi +
-\frac{\partial^2}{\partial z_1^2}\Psi
+\nabla_{\mathbf{r}_1}^2|\Psi\rangle =
+|\frac{\partial^2}{\partial x_1^2}\Psi\rangle +
+|\frac{\partial^2}{\partial y_1^2}\Psi\rangle +
+|\frac{\partial^2}{\partial z_1^2}\Psi\rangle
 $$
 
-The remaining terms operate on $\Psi$ by multiplication. For example:
+By [Coulombs law](https://en.wikipedia.org/wiki/Coulomb%27s_law),
+the potential energy of the electron-electron repulsions is given by:
 
 $$
-\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \cdot \Psi = 
-\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \Psi
+\mathcal{H}_\mathrm{elec} = \sum_{i=1}^M\sum_{j>i}^M \frac{1}{||\mathbf{r}_i - \mathbf{r}_j||}
 $$
 
+The terms in $\mathcal{H}_\mathrm{elec}$ operate on a state $|\Psi\rangle$ by multiplication.
+For example:
 
+$$
+\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} |\Psi\rangle = 
+|\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \cdot \Psi\rangle
+$$
+
+Similarly the nuclear repulsions are given by:
+
+$$
+\mathcal{H}_\mathrm{nuc} = \sum_{i=1}^N\sum_{j>i}^N \frac{1}{||\mathbf{R}_i - \mathbf{R}_j||}
+$$
+
+Finally, the electron-nuclear attraction potential is given by:
+
+$$
+\mathcal{H}_\mathrm{elec-nuc} = -\sum_{i=1}^M\sum_{j=1}^N \frac{1}{||\mathbf{r}_i - \mathbf{R}_j||}
+$$
+
+The total Hamiltonian is equal to the sum of these terms:
+
+$$
+\mathcal{H} = 
+\mathcal{H}_\mathrm{kinetic} + 
+\mathcal{H}_\mathrm{elec} +
+\mathcal{H}_\mathrm{nuc} +
+\mathcal{H}_\mathrm{elec-nuc}
+$$
+
+The [time-independent Schrodinger equation](https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation#Time-independent_equation)
+determines the allowed
+[stationary states](https://en.wikipedia.org/wiki/Stationary_state)
+of a system with Hamiltonian $\mathcal{H}$.
+Specifically, it says that if $|\Psi\rangle$ is a stationary state with energy 
+$\mathcal{E}\in\mathbb{R}$ then $|\Psi$ is an eigenvector of $\mathcal{H}$
+with eigenvalue $\mathcal{E}$:
+
+$$
+\mathcal{H}|\Psi\rangle = \mathcal{E}|\Psi\rangle
+$$
+
+In particular, the ground state of the system is given by the eigenvector of $\mathcal{H}$
+with the smallest eigenvalue.
+
+In theory, all we need to do to determine the ground state of a molecule is to
+diagonalize its Hamiltonian and find the eigenvector with the smallest eigenvalue.
+In practice this is infeasible for all but the simplest systems.
+
+To see why,
+recall that the state space of a molecule is given by the set of all integrable
+functions on the coordinates $\mathbb{R}^{3M}$ where $M$ is equal to the number of
+electrons. The set of such functions is infinite which means that we cannot directly
+express $\mathcal{H}$ as a matrix. 
+
+One idea could be to discretize $\mathbb{R}$ into a finite set of
+points and express an orbital $\Psi$ in terms of the vector of its values on each point.
+However, even with a conservative discretization of only $100$ points, the state space of
+a system with with $M$ electrons has $100^{3M}$ dimensions which means that the Hamiltonian
+is a $10^{6M}\times 10^{6M}$ matrix. Diagonalizing $\mathcal{H}$ clearly is not possible even for
+small values of $M$.
+
+Rather than finding the exact ground state, we'll instead use the
+[Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
+to approximate it.
+
+## The Variational Principle
+
+In quantum mechanics, the expected value of a molecule with orbital $\Psi$ is
+given by the inner product of $|\Psi\rangle$ with $\mathcal{H}|\Psi\rangle$:
+
+$$
+\langle \Psi | \mathcal{H} | \Psi \rangle 
+$$
+
+The [Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
+states that for any molecule state $|\Psi\rangle$ with unit norm,
+the expected energy of $|\Psi\rangle$ is an upper bound on the energy of the ground state
+$E_0$:
+
+$$
+\langle \Psi | \mathcal{H} | \Psi \rangle >= E_0
+$$
+
+Our strategy for approximating the ground state will be to first parameterize 
+a subset of the state space in terms of some parameters $\mathbf{C}\in\mathbb{R}^K$ 
+where $K$ is polynomial in the number of electrons.
+Let's denote the state with parameter $\mathbf{C}$ and nuclear positions 
+$\mathbf{R}_1,\dots,\mathbf{R}_N$ by:
+
+$$
+|\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M\,;\,\mathbf{R}_1,\dots,\mathbf{R}_N,\mathbf{C})\rangle
+$$
+
+We'll then apply the variational principle and search for the parameter and nuclear coordinates that minimize
+the expected energy of $|\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M\,;\,\mathbf{R}_1,\dots,\mathbf{R}_N,\mathbf{C})\rangle$
+
+## The Pauli Exclusion Principle
+
+## Slater determinants
 
 # Cartesian Gaussians
 
