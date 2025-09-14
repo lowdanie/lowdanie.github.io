@@ -39,7 +39,7 @@ $\Psi(\mathbf{r}_1,\mathbf{r}_2,\mathbf{R}_1,\mathbf{R}_2)$ of the electron
 and proton positions.
 
 In general, the molecular orbital of a molecule with $M$ electrons and $N$ nuclei
-is a real valued function
+is a complex valued function
 $\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M,\mathbf{R}_1,\dots,\mathbf{R}_N)$
 where $\mathbf{r}_i$ is the position of the $i$-th electron and $\mathbf{R}_i$
 is the position of the $i$-th neutron.
@@ -48,12 +48,12 @@ Following the standard bra-ket notation, we'll denote the molecule state corresp
 to the orbital $\Psi$ by $|\Psi\rangle$.
 
 We'll define the inner product of  two states $|\Phi\rangle$ and $|\Psi\rangle$
-as the integral of their product over all coordinates:
+as the following integral over all coordinates:
 
 $$
 \langle \Phi | \Psi \rangle := 
 \int_{\mathbb{R}^{3M}\times\mathbb{R}^{3N}} 
-\Phi \cdot \Psi 
+\Phi^* \cdot \Psi 
 d\mathbf{r}_1 \dots d\mathbf{r}_M
 d\mathbf{R}_1 \dots d\mathbf{R}_N
 $$
@@ -68,9 +68,16 @@ $$
 
 ## The Schrodinger Equation
 The [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
-of $H_2$ is an operator on the molecule states. In other words,
-it is a function $\mathcal{H}$ that takes a state $|\Psi\rangle$ as input and 
-returns a new orbital $\mathcal{H}|\Psi\rangle$.
+is a linear operator on the molecule states. In other words,
+it is a function $\hat{H}$ that takes a state $|\Psi\rangle$ as input and 
+returns a new orbital $\hat{H}|\Psi\rangle$. Linearity means that for all states
+$\|\Psi_1\rangle,\|\Psi_2\rangle$ and constants $c_1,\c_2\in\mathbb{R}$:
+
+$$
+\hat{H}(c_1|\Psi_1\rangle + c_2|\Psi_2\rangle) = 
+c_1\hat{H}(|\Psi_1\rangle) +
+c_2\hat{H}(|\Psi_2\rangle)
+$$
 
 The value of the Hamiltonian on a molecular orbital corresponds to the orbitals 
 total energy. Since electrons have negative charge and nuclei have positive charge, the total energy 
@@ -87,7 +94,7 @@ kinetic energy of the nuclei are equal to zero.
 The kinetic energy of the electrons is equal to:
 
 $$
-\mathcal{H}_\mathrm{kinetic} = -\frac{1}{2}\sum_{i=1}^M\nabla_{\mathbf{r}_i}^2
+\hat{T} = -\frac{1}{2}\sum_{i=1}^M\nabla_{\mathbf{r}_i}^2
 $$
 
 In this equation, $\nabla_{\mathbf{r}_i}^2$ denotes the
@@ -107,7 +114,7 @@ By [Coulombs law](https://en.wikipedia.org/wiki/Coulomb%27s_law),
 the potential energy of the electron-electron repulsions is given by:
 
 $$
-\mathcal{H}_\mathrm{elec} = \sum_{i=1}^M\sum_{j>i}^M \frac{1}{||\mathbf{r}_i - \mathbf{r}_j||}
+\hat{V}_\mathrm{elec} = \sum_{i=1}^M\sum_{j>i}^M \frac{1}{||\mathbf{r}_i - \mathbf{r}_j||}
 $$
 
 The terms in $\mathcal{H}_\mathrm{elec}$ operate on a state $|\Psi\rangle$ by multiplication.
@@ -121,38 +128,38 @@ $$
 Similarly the nuclear repulsions are given by:
 
 $$
-\mathcal{H}_\mathrm{nuc} = \sum_{i=1}^N\sum_{j>i}^N \frac{1}{||\mathbf{R}_i - \mathbf{R}_j||}
+\hat{V}_\mathrm{nuc} = \sum_{i=1}^N\sum_{j>i}^N \frac{1}{||\mathbf{R}_i - \mathbf{R}_j||}
 $$
 
 Finally, the electron-nuclear attraction potential is given by:
 
 $$
-\mathcal{H}_\mathrm{elec-nuc} = -\sum_{i=1}^M\sum_{j=1}^N \frac{1}{||\mathbf{r}_i - \mathbf{R}_j||}
+\hat{V}_\mathrm{elec-nuc} = -\sum_{i=1}^M\sum_{j=1}^N \frac{1}{||\mathbf{r}_i - \mathbf{R}_j||}
 $$
 
 The total Hamiltonian is equal to the sum of these terms:
 
 $$
-\mathcal{H} = 
-\mathcal{H}_\mathrm{kinetic} + 
-\mathcal{H}_\mathrm{elec} +
-\mathcal{H}_\mathrm{nuc} +
-\mathcal{H}_\mathrm{elec-nuc}
+\hat{H} = 
+\hat{T} + 
+\hat{V}_\mathrm{elec} + 
+\hat{V}_\mathrm{nuc} +
+\hat{V}_\mathrm{elec-nuc}
 $$
 
 The [time-independent Schrodinger equation](https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation#Time-independent_equation)
 determines the allowed
 [stationary states](https://en.wikipedia.org/wiki/Stationary_state)
-of a system with Hamiltonian $\mathcal{H}$.
+of a system with Hamiltonian $\hat{H}$.
 Specifically, it says that if $|\Psi\rangle$ is a stationary state with energy 
-$\mathcal{E}\in\mathbb{R}$ then $|\Psi$ is an eigenvector of $\mathcal{H}$
-with eigenvalue $\mathcal{E}$:
+$E\in\mathbb{R}$ then $|\Psi$ is an eigenvector of $\hat{H}$
+with eigenvalue $E$:
 
 $$
-\mathcal{H}|\Psi\rangle = \mathcal{E}|\Psi\rangle
+\hat{H}|\Psi\rangle = E|\Psi\rangle
 $$
 
-In particular, the ground state of the system is given by the eigenvector of $\mathcal{H}$
+In particular, the ground state of the system is given by the eigenvector of $\hat{H}$
 with the smallest eigenvalue.
 
 In theory, all we need to do to determine the ground state of a molecule is to
@@ -163,13 +170,13 @@ To see why,
 recall that the state space of a molecule is given by the set of all integrable
 functions on the coordinates $\mathbb{R}^{3M}$ where $M$ is equal to the number of
 electrons. The set of such functions is infinite which means that we cannot directly
-express $\mathcal{H}$ as a matrix. 
+express $\hat{H}$ as a matrix. 
 
 One idea could be to discretize $\mathbb{R}$ into a finite set of
 points and express an orbital $\Psi$ in terms of the vector of its values on each point.
 However, even with a conservative discretization of only $100$ points, the state space of
 a system with with $M$ electrons has $100^{3M}$ dimensions which means that the Hamiltonian
-is a $10^{6M}\times 10^{6M}$ matrix. Diagonalizing $\mathcal{H}$ clearly is not possible even for
+is a $10^{6M}\times 10^{6M}$ matrix. Diagonalizing $\hat{H}$ clearly is not possible even for
 small values of $M$.
 
 Rather than finding the exact ground state, we'll instead use the
@@ -179,10 +186,10 @@ to approximate it.
 ## The Variational Principle
 
 In quantum mechanics, the expected value of a molecule with orbital $\Psi$ is
-given by the inner product of $|\Psi\rangle$ with $\mathcal{H}|\Psi\rangle$:
+given by the inner product of $|\Psi\rangle$ with $\hat{H}|\Psi\rangle$:
 
 $$
-\langle \Psi | \mathcal{H} | \Psi \rangle 
+\langle \Psi | \hat{H} | \Psi \rangle 
 $$
 
 The [Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
@@ -191,7 +198,7 @@ the expected energy of $|\Psi\rangle$ is an upper bound on the energy of the gro
 $E_0$:
 
 $$
-\langle \Psi | \mathcal{H} | \Psi \rangle >= E_0
+\langle \Psi | \hat{H} | \Psi \rangle >= E_0
 $$
 
 Our strategy for approximating the ground state will be to first parameterize 
@@ -209,7 +216,329 @@ the expected energy of $|\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M\,;\,\mathbf{R}_1,\
 
 ## The Pauli Exclusion Principle
 
+The molecular orbitals we've considered so far are functions of the positions 
+of the electrons $\mathbf{r}_1,\dots,\mathbf{r}_M$. However, in addition to position
+electrons also have a quantum analog of angular momentum called
+[spin](https://en.wikipedia.org/wiki/Spin_(physics)).
+The spin of an electron can take one of two values which are typically called "spin up" and
+"spin down".
+
+In order to incorporate spin into the electron coordinates, its common in 
+quantum chemistry to introduce a new coordinate $\omega$ and define the
+_spin coordinates_, denoted by $\mathbf{x}$, to be the combination of the
+positional coordinates  $\mathbf{r}\in\mathbb{R}^3$ and $\omega$:
+
+$$
+\mathbf{x} = (\mathbf{r}, \omega)
+$$
+
+In order to distinguish between spin up and spin down we also introduce two orthonormal 
+functions on $\omega$, $\alpha(\omega)$ and $\beta(\omega)$.
+Formally, orthonormality means that:
+
+$$
+\begin{align*}
+\langle \alpha | \alpha \rangle &= \int \alpha^*(\omega)\alpha(\omega)d\omega = 1 \\
+\langle \beta | \beta \rangle &= \int \beta^*(\omega)\beta(\omega)d\omega = 1 \\
+\langle \alpha | \beta \rangle &= \int \alpha^*(\omega)\beta(\omega)d\omega = 0 \\
+\langle \beta | \alpha \rangle &= \int \beta^*(\omega)\alpha(\omega)d\omega = 0
+\end{align*}
+$$
+
+For example, an electron with a positional state of $\|\psi(\mathbf{r})\rangle$
+and with spin up can be written in spin coordinates as
+
+$$
+|\chi(\mathbf{x})\rangle = |\psi(\mathbf{r})\alpha(\omega)\rangle
+$$
+
+More generally, we'll extend our molecular orbitals 
+$\Psi(\mathbf{r}_1,\dots,\mathbf{r}_N)$ on the positional coordinates to
+to _molecular spin orbitals_ $\Psi(\mathbf{x}_1,\dots,\mathbf{x}_N)$
+on the spin coordinates.
+
+Since the molecular Hamiltonian $\mathcal{H}$ does not involve the spin coordinates
+$\omega_i$, the time-independent Schrodinger equation does not impose any restrictions
+on the electron spins. However, in addition to the Schrodinger equation, quantum states must also
+satisfy the
+[Pauli exclusion principle](https://en.wikipedia.org/wiki/Pauli_exclusion_principle)
+which states that exchanging two electrons is equivalent negating the state. In
+other words, for all $1 \leq i < j \leq M$:
+
+$$
+|\Psi(\mathbf{x}_1,\dots,\mathbf{x}_i,\dots,\mathbf{x}_j,\dots,\mathbf{x}_M\rangle = 
+-|\Psi(\mathbf{x}_1,\dots,\mathbf{x}_j,\dots,\mathbf{x}_i,\dots,\mathbf{x}_M\rangle
+$$
+
+Therefore, when applying the variational principle we must minimize over only the
+states
+
+$$
+|\Psi(\mathbf{x}_1,\dots,\mathbf{x}_M\,;\,\mathbf{R}_1,\dots,\mathbf{R}_N,\mathbf{C})\rangle
+$$
+
+that satisfy the Pauli exclusion principle.
+
 ## Slater determinants
+
+In the previous section we saw that molecular wave functions 
+
+$$
+\Psi(\mathbf{x}_1,\dots,\mathbf{x}_N)
+$$
+
+must satisfy the Pauli exclusion principle.
+[Slater determinants](https://en.wikipedia.org/wiki/Slater_determinant) are a
+method for constructing molecular wave functions that satisfy the exclusion principle automatically.
+
+First consider a molecule with just two electrons. Let $\chi_1(\mathbf{x})$ and
+$\chi_2(\mathbf{x})$ be two electron wave functions. We can try to multiply them to produce a
+molecular wave function
+
+$$
+\Psi(\mathbf{x}_1,\mathbf{x}_2) := \chi_1(\mathbf{x}_1)\cdot\chi_2(\mathbf{x}_2)
+$$
+
+However, $\Psi$ will not in general satisfy the exclusion principle because:
+
+$$
+\Psi(\mathbf{x}_2,\mathbf{x}_1) = \chi_1(\mathbf{x}_2)\cdot\chi_2(\mathbf{x}_1)
+$$
+
+and for general $\chi_1$ and $\chi_2$:
+
+$$
+\chi_1(\mathbf{x}_1)\chi_2(\mathbf{x}_2) \neq -\chi_1(\mathbf{x}_2)\chi_2(\mathbf{x}_1)
+$$
+
+We can fix this problem be updating $\Psi\rangle$ to include both permutations of
+$\mathbf{x}_1$ and $\mathbf{x}_2$:
+
+$$
+\Psi(\mathbf{x}_1,\mathbf{x}_2) := 
+\chi_1(\mathbf{x}_1)\cdot\chi_2(\mathbf{x}_2) - \chi_1(\mathbf{x}_2)\cdot\chi_2(\mathbf{x}_1)
+$$
+
+It's easy to see that now:
+
+$$
+\Psi(\mathbf{x}_1,\mathbf{x}_2) = \Psi(\mathbf{x}_2,\mathbf{x}_1)
+$$
+
+which means that it is a valid molecular state.
+
+Note that $\Psi$ can also be expressed as a determinant:
+
+$$
+\Psi(\mathbf{x}_1,\mathbf{x}_2) = 
+\begin{vmatrix}
+\chi_1(\mathbf{x}_1) & \chi_2(\mathbf{x}_1) \\
+\chi_1(\mathbf{x}_2) & \chi_2(\mathbf{x}_2)
+\end{vmatrix}
+$$
+
+[Slater determinants](https://en.wikipedia.org/wiki/Slater_determinant)
+extend this construction to the general case of $N$ electrons.
+
+Specifically, given $N$ electron wave functions 
+$\chi_1(\mathbf{x}),\dots,\chi_N(\mathbf{x})$,
+the corresponding Slater determinant wave function, is defined to be:
+
+$$
+\Psi(\mathbf{x}_1,\dots,\mathbf{x}_2) = 
+\frac{1}{\sqrt{N!}}
+\begin{vmatrix}
+\chi_1(\mathbf{x}_1) & \dots & \chi_N(\mathbf{x}_1) \\
+\vdots & \ddots & \vdots \\
+\chi_1(\mathbf{x}_M) & \dots & \chi_N(\mathbf{x}_N)
+\end{vmatrix}
+$$
+
+The Slater determinant, denoted $\|\chi_1\dots\chi_N\rangle$, is the associated state:
+
+$$
+|\chi_1\dots\chi_M\rangle := |\Psi\rangle
+$$
+
+
+## Electron Integrals
+
+In the previous section we saw how to construct a molecular state 
+$|\chi_1\dots\chi_N\rangle$
+from the single electron wave functions 
+$\chi_1(\mathbf{x}),\dots,\chi_N(\mathbf{x})$.
+
+In order to apply the variational principle, we must be able to compute the expected
+energy of the Slater determinant:
+
+$$
+\langle \chi_1\dots\chi_N | \hat{H} | \chi_1\dots\chi_N \rangle
+$$
+
+Where $\hat{H}$ is the Hamiltonian of the molecule:
+
+$$
+\hat{H} = 
+\hat{T} + \hat{V}_\mathrm{elec} + 
+\hat{V}_\mathrm{elec-nuc} + \hat{V}_\mathrm{nuc} 
+$$
+
+To simplify the computation, we'll assume that the electron wave functions
+$\chi_1(\mathbf{x}),\dots,\chi_N(\mathbf{x})$
+are orthonormal.
+
+By linearity, it is sufficient to compute the expected kinetic energy and each of the
+potential energies.
+
+Note that by XXX, $\hat{T}$ and $\hat{V}_\mathrm{nuc}$ are sums of operators that
+affect only one electron. In contrast, $\hat{V}_{elec-nuc}$ is a sum of operators
+that affect only two electrons.
+
+First we'll formalize the notion of an operator that affects only one electron.
+We'll then derive a general formula for a sum of such operators and apply it to
+$T$ and $\hat{V}_\mathrm{nuc}$. We'll then use an analogous strategy to compute 
+$\hat{V}_{elec-nuc}$.
+
+In the following definitions, we'll use the hat notation to omit an element from
+a sequence. For example, if $\mathbf{x}_1,\dots,\mathbf{x}_N\in\mathbb{R}^3$ is
+a sequence of points then
+
+$$
+$\mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots\mathbf{x}_N
+$$
+
+denotes the sequence with the $i$-th point omitted.
+
+> **Definition (Single To $N$ Electron Operator Extension).**
+> Let $N\in\mathbb{Z}$ be a positive integer and $1 \leq i \leq N$ and integer.
+> Let $\hat{O}$ be a linear operator on the space of one-electron wave functions, 
+> $L^2(\mathbb{R}^3)$.
+>
+> We can extend $\hat{O}$ to an operator $\hat{O}_i$ on the space of $N$-electron
+> wave functions, $L^2(\mathbb{R}^{3N})$ by applying $\hat{O}$ to the $i$-th electron.
+>
+> Specifically, let $\Phi(\mathbf{x}_1,\dots,\mathbf{x}_N)\in L^2(\mathbb{R}^{3N})$
+> be an $N$-electron wave function.
+>
+> For each sequence of $N-1$ points
+> 
+> $$
+> \mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots\mathbf{x}_N \in \mathbb{R}^3
+> $$
+>
+> define a one electron wave function
+> $\chi_{\mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots\mathbf{x}_N}$ by: 
+>
+> $$
+> \chi_{\mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots\mathbf{x}_N}(\mathbf{x}) := 
+> \Psi(\mathbf{x}_1,\dots,\mathbf{x}_{i-1}, \mathbf{x}, \mathbf{x}_{i+1},\dots,\mathbf{x})
+> $$
+>
+> We can now define the action of $\hat{O}_i$ on $\Psi$ by:
+>
+> $$
+> (\hat{O}_i\Psi)(\mathbf{x}_1,\dots,\mathbf{x}_N) :=
+> (\hat{O}\chi_{\mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots,\mathbf{x}_N})(\mathbf{x}_i)
+> $$
+
+We'll now show to to compute the expected value of a sum of one-electron operators 
+on an $N$-electron Slater determinant.
+
+> **Claim (Single Electron Slater Expectation).**
+> Let $N\in\mathbb{Z}$ be a positive integer and let $\hat{a}$
+> be an operator on $L^2(\mathbb{R}^3)$
+>
+> Let $\chi_1,\dots,\chi_N\in L^2(\mathbb{R}^3)$ be one-electron wave functions
+> and $|\chi_1\dots\chi_N\rangle\in L^2(\mathbb{R}^{3N})$ the associated Slater
+> determinant.
+>
+> For each $1 \leq i \leq N$ let $\hat{a}_i$ denote the extension of $\hat{a}$
+> to an operator on $L^2(\mathbb{R}^{3N})$. Define $\hat{A}$ to be their sum:
+>
+> $$
+> \hat{A} := \sum_{i=1}^N \hat{a}_i
+> $$
+>
+> Then:
+>
+> $$
+> \langle \chi_1\dots\chi_N | \hat{A} | \chi_1\dots\chi_N \rangle =
+> \sum_{i=1}^N \langle \chi_i | \hat{a} | \chi_i \rangle
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+We'll prove the claim in the case where $i=1$.
+
+Let $S_n$ denote the set of permutations of the indices $\{1,\dots,N\}$. Let
+$\mathrm{sgn}(\sigma)$ denote the 
+[sign](https://en.wikipedia.org/wiki/Parity_of_a_permutation)
+of a permutation $\sigma\in S_n$.
+
+By the [definition](https://en.wikipedia.org/wiki/Determinant#n_%C3%97_n_matrices)
+of the determinant, the Slater determinant $|\chi_1\dots\chi_n\rangle$ is given by:
+
+$$
+|\chi_1\dots\chi_n\rangle(\mathbf{x}_1,\dots,\mathbf{x}_N) =
+\frac{1}{\sqrt{N!}}
+\sum_{\sigma\in S_n}
+ (-1)^{\mathrm{sgn}(\sigma)}
+ \chi_{\sigma(1)}(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma(N)}(\mathbf{x}_N)
+$$
+
+By the definition of $\hat{a}_1$ its easy to see that if
+
+$$
+\Phi(\mathbf{x}_1,\dots,\mathbf{x}_N) := 
+\chi_{\sigma(1)}(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma(N)}(\mathbf{x}_N)
+$$
+
+Then:
+
+$$
+(\hat{a}_1 \Phi)(\mathbf{x}_1,\dots,\mathbf{x}_N) =
+(\hat{a}\chi_{\sigma(1)})(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma(N)}(\mathbf{x}_N)
+$$
+
+Therefore, 
+
+$$
+\begin{align*}
+\langle \chi_1\dots\chi_n | \hat{a}_1 | \chi_1\dots\chi_n \rangle &=
+\frac{1}{N!}
+\sum_{\sigma,\sigma'\in S_n}
+  (-1)^{\mathrm{sgn}(\sigma) + \mathrm{sgn}(\sigma')}
+  \int 
+     \chi_{\sigma(1)}^*(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma(N)}^*(\mathbf{x}_N)
+     \hat{a}_1
+     \chi_{\sigma'(1)}(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma'(N)}(\mathbf{x}_N)
+   d\mathbf{x}_1\dots d\mathbf{x}_N \\
+&= \sum_{i=1}^N \sum_{\sigma,\sigma'\in S_n}
+  (-1)^{\mathrm{sgn}(\sigma) + \mathrm{sgn}(\sigma')}
+  \int 
+     \chi_{\sigma(1)}^*(\mathbf{x}_1) \hat{a}_1 \chi_{\sigma(1)}(\mathbf{x}_1)
+   d\mathbf{x}_1
+   \int 
+     \chi_{\sigma(2)}\cdot\dots\cdot\chi_{\sigma(N)}^*(\mathbf{x}_N)
+     \hat{a}_1
+     \chi_{\sigma'(2)}(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma'(N)}(\mathbf{x}_N)
+   d\mathbf{x}_2\dots d\mathbf{x}_N
+\end{align*}
+$$
+
+Since $\chi_1,\dots,\chi_N$ are orthonormal, the second integral vanishes if $\sigma\neq\sigma'$.
+
+
+
+</div>
+</details>
+
+
+
 
 # Cartesian Gaussians
 
