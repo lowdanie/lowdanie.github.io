@@ -216,13 +216,66 @@ the expected energy of $|\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M\,;\,\mathbf{R}_1,\
 
 ## The Pauli Exclusion Principle
 
-The molecular orbitals we've considered so far are functions of the positions 
-of the electrons $\mathbf{r}_1,\dots,\mathbf{r}_M$. However, in addition to position
-electrons also have a quantum analog of angular momentum called
+PROBABLY THIS SHOULD ALL JUST GO IN THE THE MOLECULAR ORBITAL SECTION
+
+The state of a single electron has two components, one related to position in space
+and the other a quantum analog of angular momentum called
 [spin](https://en.wikipedia.org/wiki/Spin_(physics)).
+
+The position is characterized by a [wave function](https://en.wikipedia.org/wiki/Wave_function)
+ which is a complex valued
+[square integrable](https://en.wikipedia.org/wiki/Square-integrable_function)
+function:
+
+$$
+\Psi(\mathbf{r}) \in L^2(\mathbb{R}^3)
+$$
+
 The spin of an electron can take one of two values which are typically called "spin up" and
 "spin down".
 
+In order to account for spin, we'll define the Hilbert space of an electron as
+a tensor product of $L^2(\mathbb{R}^3)$ and $\mathbb{C}^2$:
+
+$$
+\mathcal{H} := L^2(\mathbb{R}^3)\otimes\mathbb{C}^2
+$$
+
+In order to extend this to $N$ electrons, we'll first need to define
+the notion of an
+[anti-symmetric tensor](https://en.wikipedia.org/wiki/Exterior_algebra#Alternating_tensor_algebra).
+
+Let $N\in\mathbb{Z}$ be an integer and $V$ a vector space. For each permutation
+$\sigma\in S_N$, we'll define $P_{\sigma}$ to be the linear transformation of
+$V^{\otimes N}$ that permutes the coordinates according to $\sigma$:
+
+$$
+P_\sigma(|v_1\dots v_N\rangle) = |v_{\sigma(1)}\dots v_{\sigma(N)}\rangle
+$$
+
+Furthermore, let $\mathrm{sgn}(\sigma)$ denote the 
+[sign](https://en.wikipedia.org/wiki/Parity_of_a_permutation) of $\sigma$.
+
+A tensor $|\psi\rangle\in V^{\otimes N}$ is defined to be _anti-symmetric_ if, for all
+$\sigma\in S_n$:
+
+$$
+P_\sigma |\psi\rangle = \mathrm{sgn}(\sigma)|\psi\rangle
+$$
+
+We'll denote the subspace of alternating tensors in $V^{\otimes N}$ by
+
+$$
+\Lambda^N V \subset V^{\otimes N}
+$$
+
+According to the
+[Pauli exclusion principle](https://en.wikipedia.org/wiki/Pauli_exclusion_principle),
+the Hilbert space of a collection of $N$ electrons is equal to $\Lambda^N\mathcal{H}$.
+I.e, an $N$ electron state is an anti-symmetric tensor of $N$ single electron states.
+
+In order to 
+PROBABLY DELETE THE REST OF THIS SECTION
 In order to incorporate spin into the electron coordinates, its common in 
 quantum chemistry to introduce a new coordinate $\omega$ and define the
 _spin coordinates_, denoted by $\mathbf{x}$, to be the combination of the
@@ -279,7 +332,7 @@ $$
 
 that satisfy the Pauli exclusion principle.
 
-## Slater determinants
+## Slater Determinants
 
 In the previous section we saw that molecular wave functions 
 
@@ -291,7 +344,7 @@ must satisfy the Pauli exclusion principle.
 [Slater determinants](https://en.wikipedia.org/wiki/Slater_determinant) are a
 method for constructing molecular wave functions that satisfy the exclusion principle automatically.
 
-First consider a molecule with just two electrons. Let $\chi_1(\mathbf{x})$ and
+First consider a molecule with just two electrons. Let $\chi_1(\mathbf{x}),\chi_1(\mathbf{x}\in\mathcal{H}$ and
 $\chi_2(\mathbf{x})$ be two electron wave functions. We can try to multiply them to produce a
 molecular wave function
 
@@ -445,25 +498,21 @@ We'll now show to to compute the expected value of a sum of one-electron operato
 on an $N$-electron Slater determinant.
 
 > **Claim (Single Electron Slater Expectation).**
-> Let $N\in\mathbb{Z}$ be a positive integer and let $\hat{a}$
-> be an operator on $L^2(\mathbb{R}^3)$
+> Let $N\in\mathbb{Z}$ be a positive integer and $1 \leq i \leq N$. 
+> Let $\hat{a}$ be an operator on $L^2(\mathbb{R}^3)$ and $\hat{a}_i$ its
+> extension to an operator on $L^2(\mathbb{R}^{3N})$ which acts on the $i$-th
+> electron.
 >
-> Let $\chi_1,\dots,\chi_N\in L^2(\mathbb{R}^3)$ be one-electron wave functions
+> Let $\chi_1,\dots,\chi_N\in L^2(\mathbb{R}^3)$ be orthonormal
+> one-electron wave functions
 > and $|\chi_1\dots\chi_N\rangle\in L^2(\mathbb{R}^{3N})$ the associated Slater
 > determinant.
->
-> For each $1 \leq i \leq N$ let $\hat{a}_i$ denote the extension of $\hat{a}$
-> to an operator on $L^2(\mathbb{R}^{3N})$. Define $\hat{A}$ to be their sum:
->
-> $$
-> \hat{A} := \sum_{i=1}^N \hat{a}_i
-> $$
 >
 > Then:
 >
 > $$
-> \langle \chi_1\dots\chi_N | \hat{A} | \chi_1\dots\chi_N \rangle =
-> \sum_{i=1}^N \langle \chi_i | \hat{a} | \chi_i \rangle
+> \langle \chi_1\dots\chi_N | \hat{a}_i | \chi_1\dots\chi_N \rangle =
+> \frac{1}{N}\sum_{i=1}^N \langle \chi_i | \hat{a}_i | \chi_i \rangle
 > $$
 
 <details>
@@ -473,64 +522,91 @@ Proof [click to expand]
 <div class="details-content">
 
 We'll prove the claim in the case where $i=1$.
+The remaining cases are identical.
 
-Let $S_n$ denote the set of permutations of the indices $\{1,\dots,N\}$. Let
+Let $S_N$ denote the set of permutations of the indices $\{1,\dots,N\}$. Let
 $\mathrm{sgn}(\sigma)$ denote the 
 [sign](https://en.wikipedia.org/wiki/Parity_of_a_permutation)
-of a permutation $\sigma\in S_n$.
+of a permutation $\sigma\in S_N$.
+
+For a given permutation $\sigma\in S_N$ define we'll define the following $N$
+electron wave function:
+
+$$
+\Phi_\sigma(\mathbf{x}_1,\dots,\mathbf{x}_N) :=
+\chi_{\sigma(1)}(\mathbf{x}_1)\cdot\ldots\cdot\chi_{\sigma(N)}(\mathbf{x}_N)
+$$
 
 By the [definition](https://en.wikipedia.org/wiki/Determinant#n_%C3%97_n_matrices)
-of the determinant, the Slater determinant $|\chi_1\dots\chi_n\rangle$ is given by:
+of the determinant, the Slater determinant $|\chi_1\dots\chi_N\rangle$ is given by:
 
 $$
-|\chi_1\dots\chi_n\rangle(\mathbf{x}_1,\dots,\mathbf{x}_N) =
+|\chi_1\dots\chi_n\rangle =
 \frac{1}{\sqrt{N!}}
 \sum_{\sigma\in S_n}
- (-1)^{\mathrm{sgn}(\sigma)}
- \chi_{\sigma(1)}(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma(N)}(\mathbf{x}_N)
-$$
+ (-1)^{\mathrm{sgn}(\sigma)} |\Phi_\sigma\rangle
+$$ 
 
-By the definition of $\hat{a}_1$ its easy to see that if
-
-$$
-\Phi(\mathbf{x}_1,\dots,\mathbf{x}_N) := 
-\chi_{\sigma(1)}(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma(N)}(\mathbf{x}_N)
-$$
-
-Then:
+By the definition of $\hat{a}_1$ its easy to see that
 
 $$
-(\hat{a}_1 \Phi)(\mathbf{x}_1,\dots,\mathbf{x}_N) =
-(\hat{a}\chi_{\sigma(1)})(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma(N)}(\mathbf{x}_N)
+(\hat{a}_1 \Phi_\sigma)(\mathbf{x}_1,\dots,\mathbf{x}_N) =
+(\hat{a}\chi_{\sigma(1)})(\mathbf{x}_1)
+\prod_{i=2}^N\chi_{\sigma(i)}(\mathbf{x}_i)
 $$
 
 Therefore, 
 
 $$
+\langle \Phi_\sigma | \hat{a}_1 | \Phi_{\sigma'} \rangle =
+\langle \chi_{\sigma(1)} | \hat{a} | \chi_{\sigma'(1)} \rangle
+\prod_{i=2}^N \langle \chi_{\sigma(i)} |\chi_{\sigma'(i)} \rangle
+$$
+
+Since $\chi_1,\dots,\chi_N$ are orthonormal, the product vanishes if $\sigma\neq\sigma'$
+and is equal to $1$ if $\sigma=\sigma'$. This implies:
+
+$$
+\langle \Phi_\sigma | \hat{a}_1 | \Phi_{\sigma'} \rangle =
+\begin{cases}
+\langle \chi_{\sigma(1)} | \hat{a} | \chi_{\sigma'(1)} \rangle & \mathrm{if}\,\sigma=\sigma' \\
+0 & \mathrm{else}
+\end{cases}
+$$
+
+Plugging this into XXX:
+
+$$
 \begin{align*}
-\langle \chi_1\dots\chi_n | \hat{a}_1 | \chi_1\dots\chi_n \rangle &=
+\langle \chi_1\dots\chi_n | \hat{a}_1 | \chi_1\dots\chi_n \rangle =
 \frac{1}{N!}
 \sum_{\sigma,\sigma'\in S_n}
-  (-1)^{\mathrm{sgn}(\sigma) + \mathrm{sgn}(\sigma')}
-  \int 
-     \chi_{\sigma(1)}^*(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma(N)}^*(\mathbf{x}_N)
-     \hat{a}_1
-     \chi_{\sigma'(1)}(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma'(N)}(\mathbf{x}_N)
-   d\mathbf{x}_1\dots d\mathbf{x}_N \\
-&= \sum_{i=1}^N \sum_{\sigma,\sigma'\in S_n}
-  (-1)^{\mathrm{sgn}(\sigma) + \mathrm{sgn}(\sigma')}
-  \int 
-     \chi_{\sigma(1)}^*(\mathbf{x}_1) \hat{a}_1 \chi_{\sigma(1)}(\mathbf{x}_1)
-   d\mathbf{x}_1
-   \int 
-     \chi_{\sigma(2)}\cdot\dots\cdot\chi_{\sigma(N)}^*(\mathbf{x}_N)
-     \hat{a}_1
-     \chi_{\sigma'(2)}(\mathbf{x}_1)\cdot\dots\cdot\chi_{\sigma'(N)}(\mathbf{x}_N)
-   d\mathbf{x}_2\dots d\mathbf{x}_N
+  \mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
+  \langle \Phi_\sigma | \hat{a}_i | \Phi_{\sigma'} \rangle \\
+&= \frac{1}{N!}
+\sum_{\sigma}
+\mathrm{sgn}(\sigma)^2
 \end{align*}
 $$
 
-Since $\chi_1,\dots,\chi_N$ are orthonormal, the second integral vanishes if $\sigma\neq\sigma'$.
+
+This implies that we can rewrite the sum as:
+
+$$
+\begin{align*}
+\langle \chi_1\dots\chi_n | \hat{a}_1 | \chi_1\dots\chi_n \rangle &=
+\frac{1}{N!}
+\sum_{\sigma\in S_n}
+  \mathrm{sgn}(\sigma)^2
+  \langle \chi_{\sigma(1)} | \hat{a} | \chi_{\sigma(1)} \rangle \\
+&= \frac{1}{N!}
+\sum_{i=1}^N
+\sum_{\sigma\in S_{N-1}}
+\langle \chi_i | \hat{a} | \chi_i \rangle \\
+&= \frac{1}{N}\sum_{i=1}^N \langle \chi_i | \hat{a} | \chi_i \rangle
+\end{align*}
+$$
+
 
 
 
