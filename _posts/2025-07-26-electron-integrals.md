@@ -225,17 +225,18 @@ and the other a quantum analog of angular momentum called
 The position is characterized by a [wave function](https://en.wikipedia.org/wiki/Wave_function)
  which is a complex valued
 [square integrable](https://en.wikipedia.org/wiki/Square-integrable_function)
-function:
+function on $\mathbb{R}^3$:
 
 $$
 \Psi(\mathbf{r}) \in L^2(\mathbb{R}^3)
 $$
 
-The spin of an electron can take one of two values which are typically called "spin up" and
-"spin down".
+The spin of an electron is a complex linear combination of two states called
+_spin up_ and _spin down_. The spin component of the electron state can therefore be
+identified with $\mathbb{C}^2$.
 
-In order to account for spin, we'll define the Hilbert space of an electron as
-a tensor product of $L^2(\mathbb{R}^3)$ and $\mathbb{C}^2$:
+Combining position and spin, the Hilbert space of an electron is equal to the
+tensor product:
 
 $$
 \mathcal{H} := L^2(\mathbb{R}^3)\otimes\mathbb{C}^2
@@ -263,7 +264,7 @@ $$
 P_\sigma |\psi\rangle = \mathrm{sgn}(\sigma)|\psi\rangle
 $$
 
-We'll denote the subspace of alternating tensors in $V^{\otimes N}$ by
+We'll denote the subspace of anti-symmetric tensors in $V^{\otimes N}$ by
 
 $$
 \Lambda^N V \subset V^{\otimes N}
@@ -334,98 +335,111 @@ that satisfy the Pauli exclusion principle.
 
 ## Slater Determinants
 
-In the previous section we saw that molecular wave functions 
+In the previous section we saw that the joint state space of $N$ electrons is equal
+to the space of alternating tensors
+$\Lambda^N\mathcal{H} \subset \mathcal{H}^{\otimes N}$.
+
+The goal of this section is to show how to construct an alternating tensor in
+$\Lambda^N\mathcal{H}$ given $N$ electron states
 
 $$
-\Psi(\mathbf{x}_1,\dots,\mathbf{x}_N)
+|\chi_1\rangle,\dots,|\chi_N\rangle\in\mathcal{H}
 $$
 
-must satisfy the Pauli exclusion principle.
-[Slater determinants](https://en.wikipedia.org/wiki/Slater_determinant) are a
-method for constructing molecular wave functions that satisfy the exclusion principle automatically.
-
-First consider a molecule with just two electrons. Let $\chi_1(\mathbf{x}),\chi_1(\mathbf{x}\in\mathcal{H}$ and
-$\chi_2(\mathbf{x})$ be two electron wave functions. We can try to multiply them to produce a
-molecular wave function
+First we'll consider the case where $N=2$. We can start by tensoring
+$|\chi_1\rangle$
+and 
+$|\chi_2\rangle$ to obtain the state:
 
 $$
-\Psi(\mathbf{x}_1,\mathbf{x}_2) := \chi_1(\mathbf{x}_1)\cdot\chi_2(\mathbf{x}_2)
+|\chi_1\chi_2\rangle \in \mathcal{H}^{\otimes 2}
 $$
 
-However, $\Psi$ will not in general satisfy the exclusion principle because:
+However, $\|\chi_1\chi_2\rangle$ is not in general anti-symmetric. To see why,
+let $\sigma\in S_2$ be the permutation that exchanges $1$ and $2$. Then
 
 $$
-\Psi(\mathbf{x}_2,\mathbf{x}_1) = \chi_1(\mathbf{x}_2)\cdot\chi_2(\mathbf{x}_1)
+P_\sigma |\chi_1\chi_2\rangle = |\chi_2\chi_1\rangle
 $$
 
-and for general $\chi_1$ and $\chi_2$:
+Furthermore, $\mathrm{sgn}(\sigma) = -1$ and so
 
 $$
-\chi_1(\mathbf{x}_1)\chi_2(\mathbf{x}_2) \neq -\chi_1(\mathbf{x}_2)\chi_2(\mathbf{x}_1)
+\mathrm{sgn}(\sigma)|\chi_1\chi_2\rangle = -|\chi_1\chi_2\rangle
 $$
 
-We can fix this problem be updating $\Psi\rangle$ to include both permutations of
-$\mathbf{x}_1$ and $\mathbf{x}_2$:
+Therefore, in general:
 
 $$
-\Psi(\mathbf{x}_1,\mathbf{x}_2) := 
-\chi_1(\mathbf{x}_1)\cdot\chi_2(\mathbf{x}_2) - \chi_1(\mathbf{x}_2)\cdot\chi_2(\mathbf{x}_1)
+P_\sigma |\chi_1\chi_2\rangle \neq \mathrm{sgn}(\sigma)|\chi_2\chi_1\rangle
 $$
 
-It's easy to see that now:
+We can fix this by adding the missing term $-\|\chi_2\chi_1\rangle$ to our state
+and defining:
 
 $$
-\Psi(\mathbf{x}_1,\mathbf{x}_2) = \Psi(\mathbf{x}_2,\mathbf{x}_1)
+|\Psi\rangle = |\chi_1\chi_2\rangle - |\chi_2\chi_1\rangle
 $$
 
-which means that it is a valid molecular state.
-
-Note that $\Psi$ can also be expressed as a determinant:
+Now when we apply $P_\sigma$ we get:
 
 $$
-\Psi(\mathbf{x}_1,\mathbf{x}_2) = 
-\begin{vmatrix}
-\chi_1(\mathbf{x}_1) & \chi_2(\mathbf{x}_1) \\
-\chi_1(\mathbf{x}_2) & \chi_2(\mathbf{x}_2)
-\end{vmatrix}
+\begin{align*}
+P_\sigma(|\Psi\rangle) &= P_\sigma |\chi_1\chi_2\rangle - P_\sigma |\chi_2\chi_1\rangle \\
+&= |\chi_2\chi_1\rangle - |\chi_1\chi_2\rangle \\
+&= -|\Psi\rangle
+\end{align*}
 $$
+
+This implies that $|\Psi\rangle$ is an anti-symmetric tensor and is therefore a valid
+$2$-electron state.
 
 [Slater determinants](https://en.wikipedia.org/wiki/Slater_determinant)
 extend this construction to the general case of $N$ electrons.
 
-Specifically, given $N$ electron wave functions 
-$\chi_1(\mathbf{x}),\dots,\chi_N(\mathbf{x})$,
-the corresponding Slater determinant wave function, is defined to be:
+Specifically, the Slater determinant of the $N$ single-electron states 
 
 $$
-\Psi(\mathbf{x}_1,\dots,\mathbf{x}_2) = 
-\frac{1}{\sqrt{N!}}
-\begin{vmatrix}
-\chi_1(\mathbf{x}_1) & \dots & \chi_N(\mathbf{x}_1) \\
-\vdots & \ddots & \vdots \\
-\chi_1(\mathbf{x}_M) & \dots & \chi_N(\mathbf{x}_N)
-\end{vmatrix}
+|\chi_1\rangle,\dots,|\chi_N\rangle\in\mathcal{H}
 $$
 
-The Slater determinant, denoted $\|\chi_1\dots\chi_N\rangle$, is the associated state:
+is defined to be the anti-symmetric tensor:
 
 $$
-|\chi_1\dots\chi_M\rangle := |\Psi\rangle
+|\Psi\rangle = \frac{1}{\sqrt{N!}}
+\sum_{\sigma\in S_N}
+\mathrm{sgn}(\sigma)|\chi_{\sigma(1)}\dots\chi_{\sigma(N)}\rangle
 $$
+
+The Slater determinant is commonly denoted by $\|\chi_1,\dots,\chi_N\rangle$ where the
+commas distinguish it from the simple tensor product $\|\chi_1\dots\chi_N\rangle$.
+
+If $\mathcal{B}\subset\mathcal{H}$ is an orthonormal basis of $\mathcal{H}$,
+then the Slater determinants of all length $N$ subsets of $\mathcal{B}$ form a 
+basis for $\Lambda^N\mathcal{H}$.
+This means that any $N$-electron state can be written as a linear combination of
+Slater determinants of orthonormal single-electron states.
 
 
 ## Electron Integrals
 
-In the previous section we saw how to construct a molecular state 
-$|\chi_1\dots\chi_N\rangle$
-from the single electron wave functions 
-$\chi_1(\mathbf{x}),\dots,\chi_N(\mathbf{x})$.
-
-In order to apply the variational principle, we must be able to compute the expected
-energy of the Slater determinant:
+In section XXX we saw that the joint state space of $N$ electrons is spanned by
+Slater determinants
 
 $$
-\langle \chi_1\dots\chi_N | \hat{H} | \chi_1\dots\chi_N \rangle
+|\chi_1,\dots,\chi_N\rangle \in \Lambda^N\mathcal{H}
+$$
+
+where
+$|\chi_1\rangle,\dots,|\chi_N\rangle\in\mathcal{H}$
+are orthonormal single-electron states.
+
+Following the variational principle, our strategy for approximating the ground state 
+of an $N$-electron molecule is to find the Slater determinant
+$|\chi_1,\dots,\chi_N\rangle$ with the smallest expected energy
+
+$$
+\langle \chi_1,\dots,\chi_N | \hat{H} | \chi_1,\dots,\chi_N \rangle
 $$
 
 Where $\hat{H}$ is the Hamiltonian of the molecule:
@@ -436,83 +450,41 @@ $$
 \hat{V}_\mathrm{elec-nuc} + \hat{V}_\mathrm{nuc} 
 $$
 
-To simplify the computation, we'll assume that the electron wave functions
-$\chi_1(\mathbf{x}),\dots,\chi_N(\mathbf{x})$
-are orthonormal.
+The goal of this section is to express the expected energy XXX in terms of the
+constituent orthonormal single-electron states $\|\chi_i\rangle\in\mathcal{H}$.
 
 By linearity, it is sufficient to compute the expected kinetic energy and each of the
 potential energies.
 
-Note that by XXX, $\hat{T}$ and $\hat{V}_\mathrm{nuc}$ are sums of operators that
-affect only one electron. In contrast, $\hat{V}_{elec-nuc}$ is a sum of operators
-that affect only two electrons.
+Note that by XXX, $\hat{T}$ and 
+$\hat{V}_\mathrm{nuc}$
+are sums of operators that affect only one electron. In contrast, 
+$\hat{V}_{elec-nuc}$
+is a sum of operators that affect only two electrons.
 
-First we'll formalize the notion of an operator that affects only one electron.
-We'll then derive a general formula for a sum of such operators and apply it to
-$T$ and $\hat{V}_\mathrm{nuc}$. We'll then use an analogous strategy to compute 
-$\hat{V}_{elec-nuc}$.
-
-In the following definitions, we'll use the hat notation to omit an element from
-a sequence. For example, if $\mathbf{x}_1,\dots,\mathbf{x}_N\in\mathbb{R}^3$ is
-a sequence of points then
-
-$$
-$\mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots\mathbf{x}_N
-$$
-
-denotes the sequence with the $i$-th point omitted.
-
-> **Definition (Single To $N$ Electron Operator Extension).**
-> Let $N\in\mathbb{Z}$ be a positive integer and $1 \leq i \leq N$ and integer.
-> Let $\hat{O}$ be a linear operator on the space of one-electron wave functions, 
-> $L^2(\mathbb{R}^3)$.
->
-> We can extend $\hat{O}$ to an operator $\hat{O}_i$ on the space of $N$-electron
-> wave functions, $L^2(\mathbb{R}^{3N})$ by applying $\hat{O}$ to the $i$-th electron.
->
-> Specifically, let $\Phi(\mathbf{x}_1,\dots,\mathbf{x}_N)\in L^2(\mathbb{R}^{3N})$
-> be an $N$-electron wave function.
->
-> For each sequence of $N-1$ points
-> 
-> $$
-> \mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots\mathbf{x}_N \in \mathbb{R}^3
-> $$
->
-> define a one electron wave function
-> $\chi_{\mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots\mathbf{x}_N}$ by: 
->
-> $$
-> \chi_{\mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots\mathbf{x}_N}(\mathbf{x}) := 
-> \Psi(\mathbf{x}_1,\dots,\mathbf{x}_{i-1}, \mathbf{x}, \mathbf{x}_{i+1},\dots,\mathbf{x})
-> $$
->
-> We can now define the action of $\hat{O}_i$ on $\Psi$ by:
->
-> $$
-> (\hat{O}_i\Psi)(\mathbf{x}_1,\dots,\mathbf{x}_N) :=
-> (\hat{O}\chi_{\mathbf{x}_1,\dots,\hat{\mathbf{x}}_i,\dots,\mathbf{x}_N})(\mathbf{x}_i)
-> $$
-
-We'll now show to to compute the expected value of a sum of one-electron operators 
+We'll start by showing how to compute the expected value of a one-electron operator
 on an $N$-electron Slater determinant.
 
 > **Claim (Single Electron Slater Expectation).**
 > Let $N\in\mathbb{Z}$ be a positive integer and $1 \leq i \leq N$. 
-> Let $\hat{a}$ be an operator on $L^2(\mathbb{R}^3)$ and $\hat{a}_i$ its
-> extension to an operator on $L^2(\mathbb{R}^{3N})$ which acts on the $i$-th
-> electron.
+> Let $\hat{a}$ be an operator on $\mathcal{H}$ and $\hat{a}_i$ the corresponding
+> operator on $\mathcal{H}^{\otimes N}$ which acts on the $i$-factor.
 >
-> Let $\chi_1,\dots,\chi_N\in L^2(\mathbb{R}^3)$ be orthonormal
-> one-electron wave functions
-> and $|\chi_1\dots\chi_N\rangle\in L^2(\mathbb{R}^{3N})$ the associated Slater
-> determinant.
+> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
+> one-electron states
+> and
+>
+> $$
+> |\chi_1,\dots,\chi_N\rangle\in \Lambda^N\mathcal{H}\subset\mathcal{H}^{\otimes N}
+> $$
+>
+> the associated Slater determinant.
 >
 > Then:
 >
 > $$
-> \langle \chi_1\dots\chi_N | \hat{a}_i | \chi_1\dots\chi_N \rangle =
-> \frac{1}{N}\sum_{i=1}^N \langle \chi_i | \hat{a}_i | \chi_i \rangle
+> \langle \chi_1,\dots,\chi_N | \hat{a}_i | \chi_1,\dots,\chi_N \rangle =
+> \frac{1}{N}\sum_{i=j}^N \langle \chi_j | \hat{a} | \chi_j \rangle
 > $$
 
 <details>
@@ -524,91 +496,49 @@ Proof [click to expand]
 We'll prove the claim in the case where $i=1$.
 The remaining cases are identical.
 
-Let $S_N$ denote the set of permutations of the indices $\{1,\dots,N\}$. Let
-$\mathrm{sgn}(\sigma)$ denote the 
-[sign](https://en.wikipedia.org/wiki/Parity_of_a_permutation)
-of a permutation $\sigma\in S_N$.
-
-For a given permutation $\sigma\in S_N$ define we'll define the following $N$
-electron wave function:
+By the definition of the Slater determinant:
 
 $$
-\Phi_\sigma(\mathbf{x}_1,\dots,\mathbf{x}_N) :=
-\chi_{\sigma(1)}(\mathbf{x}_1)\cdot\ldots\cdot\chi_{\sigma(N)}(\mathbf{x}_N)
+|\chi_1,\dots,\chi_N \rangle = 
+\sum_{\sigma\in S_N}\mathrm{sgn}(\sigma)P_\sigma|\chi_1\dots\chi_N\rangle
 $$
 
-By the [definition](https://en.wikipedia.org/wiki/Determinant#n_%C3%97_n_matrices)
-of the determinant, the Slater determinant $|\chi_1\dots\chi_N\rangle$ is given by:
+First note that:
 
 $$
-|\chi_1\dots\chi_n\rangle =
-\frac{1}{\sqrt{N!}}
-\sum_{\sigma\in S_n}
- (-1)^{\mathrm{sgn}(\sigma)} |\Phi_\sigma\rangle
-$$ 
-
-By the definition of $\hat{a}_1$ its easy to see that
-
-$$
-(\hat{a}_1 \Phi_\sigma)(\mathbf{x}_1,\dots,\mathbf{x}_N) =
-(\hat{a}\chi_{\sigma(1)})(\mathbf{x}_1)
-\prod_{i=2}^N\chi_{\sigma(i)}(\mathbf{x}_i)
+\hat{a}_1 P_\sigma|\chi_1\dots\chi_N\rangle =
+\hat{a}|\chi_{\sigma(1)}\rangle|\chi_{\sigma(2)}\dots\chi_{\sigma(N)}\rangle
 $$
 
-Therefore, 
+By the orthonormality of 
+$\|\chi_1\rangle,\dots,\|\chi_N\rangle$, it's easy to see that for all 
+$\sigma,\sigma'\in S_N$:
 
 $$
-\langle \Phi_\sigma | \hat{a}_1 | \Phi_{\sigma'} \rangle =
-\langle \chi_{\sigma(1)} | \hat{a} | \chi_{\sigma'(1)} \rangle
-\prod_{i=2}^N \langle \chi_{\sigma(i)} |\chi_{\sigma'(i)} \rangle
-$$
-
-Since $\chi_1,\dots,\chi_N$ are orthonormal, the product vanishes if $\sigma\neq\sigma'$
-and is equal to $1$ if $\sigma=\sigma'$. This implies:
-
-$$
-\langle \Phi_\sigma | \hat{a}_1 | \Phi_{\sigma'} \rangle =
+\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_1 | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle =
 \begin{cases}
 \langle \chi_{\sigma(1)} | \hat{a} | \chi_{\sigma'(1)} \rangle & \mathrm{if}\,\sigma=\sigma' \\
 0 & \mathrm{else}
 \end{cases}
 $$
 
-Plugging this into XXX:
+Therefore:
 
 $$
 \begin{align*}
-\langle \chi_1\dots\chi_n | \hat{a}_1 | \chi_1\dots\chi_n \rangle =
+\langle \chi_1,\dots,\chi_N | \hat{a}_i | \chi_1,\dots,\chi_N \rangle &=
 \frac{1}{N!}
-\sum_{\sigma,\sigma'\in S_n}
-  \mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
-  \langle \Phi_\sigma | \hat{a}_i | \Phi_{\sigma'} \rangle \\
+\sum_{\sigma,\sigma'\in S_N}
+\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
+\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_1 | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle \\
 &= \frac{1}{N!}
-\sum_{\sigma}
+\sum_{\sigma\in S_N}
 \mathrm{sgn}(\sigma)^2
+\langle \chi_{\sigma(1)} | \hat{a} | \chi_{\sigma(1)} \rangle \\
+&= \frac{(N-1)!}{N!}\sum_{i=1}^N \langle \chi_{i} | \hat{a} | \chi_{i} \rangle \\
+&= \frac{1}{N}\sum_{i=1}^N \langle \chi_{i} | \hat{a} | \chi_{i} \rangle
 \end{align*}
 $$
-
-
-This implies that we can rewrite the sum as:
-
-$$
-\begin{align*}
-\langle \chi_1\dots\chi_n | \hat{a}_1 | \chi_1\dots\chi_n \rangle &=
-\frac{1}{N!}
-\sum_{\sigma\in S_n}
-  \mathrm{sgn}(\sigma)^2
-  \langle \chi_{\sigma(1)} | \hat{a} | \chi_{\sigma(1)} \rangle \\
-&= \frac{1}{N!}
-\sum_{i=1}^N
-\sum_{\sigma\in S_{N-1}}
-\langle \chi_i | \hat{a} | \chi_i \rangle \\
-&= \frac{1}{N}\sum_{i=1}^N \langle \chi_i | \hat{a} | \chi_i \rangle
-\end{align*}
-$$
-
-
-
 
 </div>
 </details>
