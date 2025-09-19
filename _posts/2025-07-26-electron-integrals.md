@@ -457,9 +457,9 @@ By linearity, it is sufficient to compute the expected kinetic energy and each o
 potential energies.
 
 Note that by XXX, $\hat{T}$ and 
-$\hat{V}_\mathrm{nuc}$
+$\hat{V}\_\mathrm{nuc}$
 are sums of operators that affect only one electron. In contrast, 
-$\hat{V}_{elec-nuc}$
+$\hat{V}\_{elec-nuc}$
 is a sum of operators that affect only two electrons.
 
 We'll start by showing how to compute the expected value of a one-electron operator
@@ -468,11 +468,10 @@ on an $N$-electron Slater determinant.
 > **Claim (Single Electron Slater Expectation).**
 > Let $N\in\mathbb{Z}$ be a positive integer and $1 \leq i \leq N$. 
 > Let $\hat{a}$ be an operator on $\mathcal{H}$ and $\hat{a}_i$ the corresponding
-> operator on $\mathcal{H}^{\otimes N}$ which acts on the $i$-factor.
+> operator on $\Lambda^N\mathcal{H}$ which acts on the $i$-factor.
 >
 > Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
-> one-electron states
-> and
+> one-electron states and
 >
 > $$
 > |\chi_1,\dots,\chi_N\rangle\in \Lambda^N\mathcal{H}\subset\mathcal{H}^{\otimes N}
@@ -484,7 +483,7 @@ on an $N$-electron Slater determinant.
 >
 > $$
 > \langle \chi_1,\dots,\chi_N | \hat{a}_i | \chi_1,\dots,\chi_N \rangle =
-> \frac{1}{N}\sum_{i=j}^N \langle \chi_j | \hat{a} | \chi_j \rangle
+> \frac{1}{N}\sum_{j=1}^N \langle \chi_j | \hat{a} | \chi_j \rangle
 > $$
 
 <details>
@@ -526,7 +525,7 @@ Therefore:
 
 $$
 \begin{align*}
-\langle \chi_1,\dots,\chi_N | \hat{a}_i | \chi_1,\dots,\chi_N \rangle &=
+\langle \chi_1,\dots,\chi_N | \hat{a}_1 | \chi_1,\dots,\chi_N \rangle &=
 \frac{1}{N!}
 \sum_{\sigma,\sigma'\in S_N}
 \mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
@@ -543,7 +542,159 @@ $$
 </div>
 </details>
 
+The expected value of a two-electron operator on a Slater determinant is similar:
 
+> **Claim (Two Electron Slater Expectation).**
+> Let $N\in\mathbb{Z}$ be a positive integer and $1 \leq i \leq N$. 
+> Let $\hat{a}$ be an operator on $\Lambda^2\mathcal{H}$ and $\hat{a}_{ij}$ 
+> the corresponding
+> operator on $\Lambda^N\mathcal{H}$ which acts on factors $i$ and $j$.
+>
+> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
+> one-electron states and
+>
+> $$
+> |\chi_1,\dots,\chi_N\rangle\in \Lambda^N\mathcal{H}
+> $$
+>
+> the associated Slater determinant.
+>
+> Then:
+>
+> $$
+> \langle \chi_1,\dots,\chi_N | \hat{a}_{12} | \chi_1,\dots,\chi_N \rangle =
+> \frac{2}{N(N-1)}\sum_{i=1}^N\sum_{j>i}^N\left(
+> \langle \chi_i\chi_j | \hat{a} | \chi_i\chi_j \rangle -
+> \langle \chi_i\chi_j | \hat{a} | \chi_j\chi_i \rangle
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+We'll prove the claim in the case where $i=1$ and $j=2$.
+The remaining cases are identical.
+
+By the definition of the Slater determinant:
+
+$$
+|\chi_1,\dots,\chi_N \rangle = 
+\sum_{\sigma\in S_N}\mathrm{sgn}(\sigma)P_\sigma|\chi_1\dots\chi_N\rangle
+$$
+
+First note that:
+
+$$
+\hat{a}_{12} P_\sigma|\chi_1\dots\chi_N\rangle =
+\hat{a}|\chi_{\sigma(1)}\chi_{\sigma(2)}\rangle|\chi_{\sigma(3)}\dots\chi_{\sigma(N)}\rangle
+$$
+
+Therefore, for all permutations $\sigma,\sigma'\in S_N$:
+
+$$
+\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_{12} | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle =
+\langle \chi_{\sigma(1)}\chi_{\sigma(2)} | \hat{a} | \chi_{\sigma'(1)}\chi_{\sigma'(2)} \rangle
+\langle \chi_{\sigma(3)}\dots\chi_{\sigma(N)} | \chi_{\sigma'(3)}\dots\chi_{\sigma'(N)} \rangle
+$$
+
+If there is some $i>2$ such that
+$\sigma(i)\neq\sigma'(i)$ then, by the orthonormality of 
+$\|\chi_1\rangle,\dots,\|\chi_N\rangle$:
+
+$$
+\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_{12} | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle = 0
+$$
+
+On the other hand, suppose that $\sigma(i) = \sigma'(i)$ for all $i > 2$. This means
+that there is some transposition $\tau\in S_{\{1,2\}}$ such that
+
+$$
+\sigma'(i) = 
+\begin{cases}
+\sigma\tau(i) & 1 \leq i \leq 2 \\
+\sigma(i) & i > 2
+\end{cases}
+$$
+
+Plugging this into XXX and using the orthonormality of $\|\chi_1\rangle,\dots,\|\chi_N\rangle$
+we can see that in this case:
+
+$$
+\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_{12} | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle =
+\langle \chi_{\sigma(1)}\chi_{\sigma(2)} | \hat{a}_{12} | \chi_{\sigma\tau(1)}\chi_{\sigma\tau(2)} \rangle
+$$
+
+Therefore:
+
+$$
+\begin{align*}
+\langle \chi_1,\dots,\chi_N | \hat{a}_{12} | \chi_1,\dots,\chi_N \rangle &=
+\frac{1}{N!}
+\sum_{\sigma,\sigma'\in S_N}
+\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
+\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_1 | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle \\
+&= \frac{1}{N!}
+\sum_{\sigma\in S_N}\sum_{\tau\in S_{\{1,2\}}}
+\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma\tau)
+\langle \chi_{\sigma(1)}\chi_{\sigma(2)} | \hat{a} | \chi_{\sigma\tau(1)}\chi_{\sigma\tau(2)} \rangle \\
+&= \frac{(N-2)!}{N!}\sum_{i=1}^N\sum_{j>i}^N\sum_{\tau \in S_{\{i,j\}}}
+\mathrm{sgn}(\tau)
+\langle \chi_{i}\chi_{j} | \hat{a} | \chi_{\tau(i)}\chi_{\tau(j)} \rangle \\
+&= \frac{2}{N(N-1)}\sum_{i=1}^N\sum_{j>i}^N\left(
+\langle \chi_{i}\chi_{j} | \hat{a} | \chi_{i}\chi_{j}\rangle - 
+\langle \chi_{i}\chi_{j} | \hat{a} | \chi_{j}\chi_{i}\rangle
+\right)
+\end{align*}
+$$
+
+</div>
+</details>
+
+We'll now use these claims to derive the expected values of the components of the Hamiltonian $\hat{H}$.
+
+> **Claim (Kinetic Energy Expectation).**
+>
+> Let $N\in\mathbb{Z}$ be a positive integer and let $\hat{T}$ be the $N$-electron
+> kinetic energy operator on $\Lambda^N\mathcal{H}$.
+>
+> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
+> one-electron states and
+>
+> $$
+> |\chi_1,\dots,\chi_N\rangle\in \Lambda^N\mathcal{H}
+> $$
+>
+> the associated Slater determinant.
+>
+> Then:
+>
+> $$
+> \langle \chi_1,\dots,\chi_N | \hat{T} | \chi_1,\dots,\chi_N \rangle =
+> -\frac{1}{2} \sum_{i=1}^N \langle \chi_i | \Nabla^2 | \chi_i \rangle
+> $$
+
+> **Claim (Electron Repulsion Expectation).**
+>
+> Let $N\in\mathbb{Z}$ be a positive integer and let $\hat{V}_{\mathrm{elec}}$ 
+> be the electron-electron repulsion operator on $\Lambda^N\mathcal{H}$.
+>
+> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
+> one-electron states and
+>
+> $$
+> |\chi_1,\dots,\chi_N\rangle\in \Lambda^N\mathcal{H}
+> $$
+>
+> the associated Slater determinant.
+>
+> Then:
+>
+> $$
+> \langle \chi_1,\dots,\chi_N | \hat{T} | \chi_1,\dots,\chi_N \rangle =
+> -\frac{1}{2} \sum_{i=1}^N \langle \chi_i | \Nabla^2 | \chi_i \rangle
+> $$
 
 
 # Cartesian Gaussians
