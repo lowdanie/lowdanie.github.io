@@ -20,51 +20,154 @@ Slater determinant that best approximates the ground state.
 
 ## Molecular Orbitals
 
-Consider the [hydrogen](https://en.wikipedia.org/wiki/Hydrogen#Atomic_hydrogen) atom $H$.
-The nucleus of $H$ has one proton which means that its
-[atomic number](https://en.wikipedia.org/wiki/Atomic_number) is 1.
-In addition to the proton, $H$ has one electron.
+The state of a single electron has two components, one related to position in space
+and the other a quantum analog of angular momentum called
+[spin](https://en.wikipedia.org/wiki/Spin_(physics)).
 
-The most common form of hydrogen is the
-[hydrogen molecule](https://en.wikipedia.org/wiki/Hydrogen#Dihydrogen) $H_2$,
-also known as _dihydrogen_.
-This molecule has two nuclei, each with one proton, and two electrons.
-
-Let $\mathbf{r}_1,\mathbf{r}_2\in\mathbb{R}^3$ denote the positions of the two
-electrons and $\mathbf{R}_1,\mathbf{R}_2\in\mathbb{R}^3$ denote the positions of
-the nuclei.
-
-A molecular orbital of $H_2$ is defined to be a complex valued function
-$\Psi(\mathbf{r}_1,\mathbf{r}_2,\mathbf{R}_1,\mathbf{R}_2)$ of the electron
-and proton positions.
-
-In general, the molecular orbital of a molecule with $M$ electrons and $N$ nuclei
-is a complex valued function
-$\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M,\mathbf{R}_1,\dots,\mathbf{R}_N)$
-where $\mathbf{r}_i$ is the position of the $i$-th electron and $\mathbf{R}_i$
-is the position of the $i$-th neutron.
-
-Following the standard bra-ket notation, we'll denote the molecule state corresponding
-to the orbital $\Psi$ by $|\Psi\rangle$.
-
-We'll define the inner product of  two states $|\Phi\rangle$ and $|\Psi\rangle$
-as the following integral over all coordinates:
+The position is characterized by a [wave function](https://en.wikipedia.org/wiki/Wave_function)
+ which is a complex valued
+[square integrable](https://en.wikipedia.org/wiki/Square-integrable_function)
+function on $\mathbb{R}^3$:
 
 $$
-\langle \Phi | \Psi \rangle := 
-\int_{\mathbb{R}^{3M}\times\mathbb{R}^{3N}} 
-\Phi^* \cdot \Psi 
-d\mathbf{r}_1 \dots d\mathbf{r}_M
-d\mathbf{R}_1 \dots d\mathbf{R}_N
+\Psi(\mathbf{r}) \in L^2(\mathbb{R}^3)
 $$
 
-In quantum mechanics, the state space of a molecule is the set of
-molecular orbitals for which the integral of their norm over all coordinates is finite.
-I.e, the orbitals $\Psi$ that satisfy:
+The space of [square integrable](https://en.wikipedia.org/wiki/Square-integrable_function)
+complex valued functions on $\mathbb{R}^3$, $L^2(\mathbb{R}^3)$, is a 
+[Hilbert space](https://en.wikipedia.org/wiki/Hilbert_space)
+where the inner product of two functions $\phi,\psi\in L^2(\mathbb{R}^3)$ is defined
+by:
 
 $$
-\langle \Psi | \Psi \rangle < \infty
+\langle \phi | \psi \rangle := 
+\int_{\mathbb{R}^3}\phi^*(\mathbf{r})\psi(\mathbf{r})d\mathbf{r}
 $$
+
+The spin of an electron is a complex linear combination of two states called
+_spin up_ and _spin down_. The spin component of the electron state can therefore be
+identified with the vector space $\mathbb{C}^2$.
+
+Combining position and spin, 
+the state space of an electron, denoted $\mathcal{H}$, is equal to the tensor product:
+
+$$
+\mathcal{H} := L^2(\mathbb{R}^3)\otimes\mathbb{C}^2
+$$
+
+The space $\mathcal{H}$ is also a Hilbert space since its a tensor product of 
+two Hilbert spaces. Following standard quantum mechanics terminology, we'll use the
+terms _state space_ and _Hilbert space_ interchangeably.
+
+In order to extend this to $N$ electrons, we'll first need to define
+the notion of an
+[anti-symmetric tensor](https://en.wikipedia.org/wiki/Exterior_algebra#Alternating_tensor_algebra).
+
+Let $N\in\mathbb{Z}$ be an integer and $V$ a vector space. 
+
+> **Definition (Symmetric Group Action).**
+> Let $V$ be a vector space and $N\in\mathbb{Z}$ a positive integer.
+> Let $S_N$ denote the symmetric group on $N$ elements.
+>
+> For each permutation $\sigma\in S_N$, define 
+> $P_\sigma\in\mathrm{Aut}(V^{\otimes N})$
+> to be the linear automorphism of $V^{\otimes N}$ defined by:
+>
+> $$
+> \begin{align*}
+> P_\sigma: V^{\otimes N} &\rightarrow V^{\otimes N} \\
+> |v_1\dots v_N\rangle &\mapsto |v_{\sigma(1)}\dots v_{\sigma(N)}\rangle
+> \end{align*}
+> $$
+
+We'll use the notation $\mathrm{sgn}(\sigma)$ denote the 
+[sign](https://en.wikipedia.org/wiki/Parity_of_a_permutation) of a permutation
+$\sigma\in\S_N$.
+
+> **Definition (Anti-symmetric Tensor).**
+> Let $V$ be a vector space and $N\in\mathbb{Z}$ a positive integer.
+>
+> A tensor $|\phi\rangle\in V^{\otimes N}$ is defined to be _anti-symmetric_ if, 
+> for all $\sigma\in S_N$:
+> $$
+> P_\sigma |\psi\rangle = \mathrm{sgn}(\sigma)|\psi\rangle
+> $$
+
+Since $P_\sigma$ is a linear transformation of $V^{\otimes N}$ for all $\sigma\in S_N$,
+it follows that the set of anti-symmetric tensors is a subspace of $V^{\otimes N}$.
+This subspace is called the _exterior product_ as formalized in the following definition.
+
+> **Definition (Exterior Product).**
+> Let $V$ be a vector space and $N\in\mathbb{Z}$ a positive integer.
+>
+> The _$N$-th exterior product_ of $V$, denoted $\Lambda^N V \subset V^{\otimes N}$
+> is defined to be the subspace of anti-symmetric tensors in $ V^{\otimes N}$.
+
+According to the
+[Pauli exclusion principle](https://en.wikipedia.org/wiki/Pauli_exclusion_principle),
+the Hilbert space of a collection of $N$ electrons is equal to $\Lambda^N\mathcal{H}$
+I.e, an $N$ electron state is an anti-symmetric tensor of $N$ single electron states.
+
+Now consider a molecule with $N$ electrons and $M$ nuclei.
+Since nuclei are orders of magnitude heavier than electrons, 
+it's common in quantum chemistry to use the
+[Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
+which assumes that the nuclei are stationary point masses.
+
+This means that quantum state of the molecule is equal to the Hilbert space of its
+$N$ electrons. In quantum chemistry, elements of $\Lambda^N\mathcal{H}$
+are referred to as
+[molecular orbitals](https://en.wikipedia.org/wiki/Molecular_orbital).
+
+## Molecular Operators
+
+In quantum mechanics, [observables](https://en.wikipedia.org/wiki/Observable), including
+energy, correspond to [self-adjoint operators](https://en.wikipedia.org/wiki/Self-adjoint_operators)
+of Hilbert space. In other words, they correspond to linear transformations of Hilbert space that
+preserve the inner-product. 
+In this post we'll sometimes refer to self-adjoint operators simply as "operators".
+
+In particular, the energy of an $N$-electron molecule corresponds to an operator
+on $\Lambda^N\mathcal{H}$.
+
+Let $V$ be a Hilbert space. In this section we'll show how to construct operators on
+$\Lambda^N V$ from operators on $V$ and $V\otimes V$.
+
+We'll start with the case of an operator on $V$.
+
+> **Definition (Single Electron Operator).**
+> Let $V$ be a Hilbert space and $N\in\mathbb{Z}$ a positive integer.
+>
+> Let $T\in\mathrm{Aut}(V)$ be a linear transformation of $V$.
+> Define $T^N\in\mathrm{Aut}(V^{\otimes N})$ to be the linear transformation
+> defined on basis elements of $V^{\otimes N}$ by:
+>
+> $$
+> T^N(|v_1\dots v_N\rangle) := 
+> \sum_{i=1}^N |v_1\dots v_{i-1}\rangle T|v_i\rangle |v_{i+1}\dots v_N\rangle
+> $$ 
+
+We claim that $T^N$ sends anti-symmetric tensors to anti-symmetric tensors which
+means that it restricts to a linear transformation of $\Lambda^N V$.
+The key to this claim is the following lemma.
+
+> **Lemma.**
+> Let $V$ be a Hilbert space and $N\in\mathbb{Z}$ a positive integer 
+> and $T\in\mathrm{Aut}(V)$ a linear transformation of $V$.
+>
+> Then, the transformation $T^N\mathrm{Aut}(V^{\otimes N})$ commutes with 
+> $P_\sigma\in\mathrm{Aut}(V^{\otimes N})$ for all $\sigma\in S_N$.
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Since the permutation group $S_N$ is generatred
+</div>
+</details>
+
 
 ## The Schrodinger Equation
 The [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
@@ -213,125 +316,6 @@ $$
 
 We'll then apply the variational principle and search for the parameter and nuclear coordinates that minimize
 the expected energy of $|\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M\,;\,\mathbf{R}_1,\dots,\mathbf{R}_N,\mathbf{C})\rangle$
-
-## The Pauli Exclusion Principle
-
-PROBABLY THIS SHOULD ALL JUST GO IN THE THE MOLECULAR ORBITAL SECTION
-
-The state of a single electron has two components, one related to position in space
-and the other a quantum analog of angular momentum called
-[spin](https://en.wikipedia.org/wiki/Spin_(physics)).
-
-The position is characterized by a [wave function](https://en.wikipedia.org/wiki/Wave_function)
- which is a complex valued
-[square integrable](https://en.wikipedia.org/wiki/Square-integrable_function)
-function on $\mathbb{R}^3$:
-
-$$
-\Psi(\mathbf{r}) \in L^2(\mathbb{R}^3)
-$$
-
-The spin of an electron is a complex linear combination of two states called
-_spin up_ and _spin down_. The spin component of the electron state can therefore be
-identified with $\mathbb{C}^2$.
-
-Combining position and spin, the Hilbert space of an electron is equal to the
-tensor product:
-
-$$
-\mathcal{H} := L^2(\mathbb{R}^3)\otimes\mathbb{C}^2
-$$
-
-In order to extend this to $N$ electrons, we'll first need to define
-the notion of an
-[anti-symmetric tensor](https://en.wikipedia.org/wiki/Exterior_algebra#Alternating_tensor_algebra).
-
-Let $N\in\mathbb{Z}$ be an integer and $V$ a vector space. For each permutation
-$\sigma\in S_N$, we'll define $P_{\sigma}$ to be the linear transformation of
-$V^{\otimes N}$ that permutes the coordinates according to $\sigma$:
-
-$$
-P_\sigma(|v_1\dots v_N\rangle) = |v_{\sigma(1)}\dots v_{\sigma(N)}\rangle
-$$
-
-Furthermore, let $\mathrm{sgn}(\sigma)$ denote the 
-[sign](https://en.wikipedia.org/wiki/Parity_of_a_permutation) of $\sigma$.
-
-A tensor $|\psi\rangle\in V^{\otimes N}$ is defined to be _anti-symmetric_ if, for all
-$\sigma\in S_n$:
-
-$$
-P_\sigma |\psi\rangle = \mathrm{sgn}(\sigma)|\psi\rangle
-$$
-
-We'll denote the subspace of anti-symmetric tensors in $V^{\otimes N}$ by
-
-$$
-\Lambda^N V \subset V^{\otimes N}
-$$
-
-According to the
-[Pauli exclusion principle](https://en.wikipedia.org/wiki/Pauli_exclusion_principle),
-the Hilbert space of a collection of $N$ electrons is equal to $\Lambda^N\mathcal{H}$.
-I.e, an $N$ electron state is an anti-symmetric tensor of $N$ single electron states.
-
-In order to 
-PROBABLY DELETE THE REST OF THIS SECTION
-In order to incorporate spin into the electron coordinates, its common in 
-quantum chemistry to introduce a new coordinate $\omega$ and define the
-_spin coordinates_, denoted by $\mathbf{x}$, to be the combination of the
-positional coordinates  $\mathbf{r}\in\mathbb{R}^3$ and $\omega$:
-
-$$
-\mathbf{x} = (\mathbf{r}, \omega)
-$$
-
-In order to distinguish between spin up and spin down we also introduce two orthonormal 
-functions on $\omega$, $\alpha(\omega)$ and $\beta(\omega)$.
-Formally, orthonormality means that:
-
-$$
-\begin{align*}
-\langle \alpha | \alpha \rangle &= \int \alpha^*(\omega)\alpha(\omega)d\omega = 1 \\
-\langle \beta | \beta \rangle &= \int \beta^*(\omega)\beta(\omega)d\omega = 1 \\
-\langle \alpha | \beta \rangle &= \int \alpha^*(\omega)\beta(\omega)d\omega = 0 \\
-\langle \beta | \alpha \rangle &= \int \beta^*(\omega)\alpha(\omega)d\omega = 0
-\end{align*}
-$$
-
-For example, an electron with a positional state of $\|\psi(\mathbf{r})\rangle$
-and with spin up can be written in spin coordinates as
-
-$$
-|\chi(\mathbf{x})\rangle = |\psi(\mathbf{r})\alpha(\omega)\rangle
-$$
-
-More generally, we'll extend our molecular orbitals 
-$\Psi(\mathbf{r}_1,\dots,\mathbf{r}_N)$ on the positional coordinates to
-to _molecular spin orbitals_ $\Psi(\mathbf{x}_1,\dots,\mathbf{x}_N)$
-on the spin coordinates.
-
-Since the molecular Hamiltonian $\mathcal{H}$ does not involve the spin coordinates
-$\omega_i$, the time-independent Schrodinger equation does not impose any restrictions
-on the electron spins. However, in addition to the Schrodinger equation, quantum states must also
-satisfy the
-[Pauli exclusion principle](https://en.wikipedia.org/wiki/Pauli_exclusion_principle)
-which states that exchanging two electrons is equivalent negating the state. In
-other words, for all $1 \leq i < j \leq M$:
-
-$$
-|\Psi(\mathbf{x}_1,\dots,\mathbf{x}_i,\dots,\mathbf{x}_j,\dots,\mathbf{x}_M\rangle = 
--|\Psi(\mathbf{x}_1,\dots,\mathbf{x}_j,\dots,\mathbf{x}_i,\dots,\mathbf{x}_M\rangle
-$$
-
-Therefore, when applying the variational principle we must minimize over only the
-states
-
-$$
-|\Psi(\mathbf{x}_1,\dots,\mathbf{x}_M\,;\,\mathbf{R}_1,\dots,\mathbf{R}_N,\mathbf{C})\rangle
-$$
-
-that satisfy the Pauli exclusion principle.
 
 ## Slater Determinants
 
@@ -692,7 +676,7 @@ We'll now use these claims to derive the expected values of the components of th
 > Then:
 >
 > $$
-> \langle \chi_1,\dots,\chi_N | \hat{T} | \chi_1,\dots,\chi_N \rangle =
+> \langle \chi_1,\dots,\chi_N | \hat{V}_{\mathrm{elec}} | \chi_1,\dots,\chi_N \rangle =
 > -\frac{1}{2} \sum_{i=1}^N \langle \chi_i | \Nabla^2 | \chi_i \rangle
 > $$
 
