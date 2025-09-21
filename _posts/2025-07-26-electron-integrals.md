@@ -333,32 +333,103 @@ The Laplace operator
 [is self-adjoint](https://en.wikipedia.org/wiki/Self-adjoint_operator#Boundary_conditions)
 under the assumption that $\phi(\mathbf{r})$ goes to $0$ as $||\mathbf{r}||$ goes to infinity.
 
-The kinetic energy of $n$-electrons is defined to be the [symmetric extension](XXX) of
-$T^1$ from $\mathcal{H}$ to $\Lambda^n\mathcal{H}$.
+The kinetic energy of $n$-electrons, denoted by $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$,
+is defined to be the [symmetric extension](XXX) of
+$T^1$ from $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
 
-### Electron Nuclear Repulsion
+### Electron Nuclear Attraction
 
-We'll now consider the potential energy operator corresponding to electron-nuclei repulsion.
+We'll now consider the potential energy operator corresponding to the 
+[Coulombs](https://en.wikipedia.org/wiki/Coulomb%27s_law) attraction
+between electrons and nuclei.
+
+Suppose there are $m$ nuclei with positions $\mathbf{R}_1,\dots,\mathbf{R}_m\in\mathbb{R}^3$ and
+[atomic numbers](https://en.wikipedia.org/wiki/Atomic_number) $Z_1,\dots,Z_m\in\\mathbb{Z}$.
+
+The nuclei attraction operator for a single electron is an operator
+$V^1_{\mathrm{en}}\in\mathrm{End}(\mathcal{H})$.
+As usual, $\mathcal{H} = L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$.
+
+$V^1_{\mathrm{en}}$ acts on the $L^2(\mathbb{R}^3)$ component by multiplication
+by
 
 $$
-\hat{T} = -\frac{1}{2}\sum_{i=1}^M\nabla_{\mathbf{r}_i}^2
+\phi_{\mathrm{en}}(\mathbf{r}) := \sum_{i=1}^m \frac{Z_i}{||\mathbf{R}_i - \mathbf{r}||}
 $$
 
-In this equation, $\nabla_{\mathbf{r}_i}^2$ denotes the
-[Laplace operator](https://en.wikipedia.org/wiki/Laplace_operator) in the
-$\mathbf{r}\_i$ coordinates.
+and acts trivially on the spin component. Specifically, 
+let $\psi(\mathbf{r})\in L^2(\mathbb{R}^3)$ be a function 
+and $\alpha\in\mathbb{C}^2$ be a spin vector.
 
-For example, if $\mathbf{r}_1 = (x_1,y_1,z_1)$ then:
+Then, $V^1_{\mathrm{en}}$ is defined by:
 
 $$
-\nabla_{\mathbf{r}_1}^2|\Psi\rangle =
-|\frac{\partial^2}{\partial x_1^2}\Psi\rangle +
-|\frac{\partial^2}{\partial y_1^2}\Psi\rangle +
-|\frac{\partial^2}{\partial z_1^2}\Psi\rangle
+V^1_{\mathrm{en}}|\psi\rangle|\alpha\rangle :=
+|(\phi_{\mathrm{en}}\cdot\psi)\rangle|\alpha\rangle
 $$
 
-By [Coulombs law](https://en.wikipedia.org/wiki/Coulomb%27s_law),
-the potential energy of the electron-electron repulsions is given by:
+Since $V^1\_{\mathrm{en}}$ acts on the $L^2(\mathbb{R}^3)$ component by multiplication
+by the constant $\phi_{\mathrm{en}}$, it is self-adjoint.
+
+The operator corresponding to the attraction between $n$ electons and the $m$
+nuclei, denoted by $V_{\mathrm{en}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ 
+is defined to be the symmetric extension of $V_{\mathrm{en}}^1$ from
+$\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
+
+### Nuclear Repulsion
+
+
+### Electron Repulsion
+
+We'll now consider the potential energy corresponding to the Coulomb repulsion
+between two electrons.
+
+The Coulomb repulsion potential for a pair of electrons corresponds to an operator
+$V_{\mathrm{e}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
+
+We'll start by defining $V_{\mathrm{e}}^2$ as a symmetric operator on 
+$\mathcal{H}\otimes\mathcal{H}$
+and use XXX to restrict it to an operator on $\Lambda^2\mathcal{H}$.
+
+In order to define $V_{\mathrm{e}}^2$ on $\mathcal{H}\otimes\mathcal{H}$,
+we'll use the canonical isomorphism between $L^2(\mathbb{R}^3)\otimes L^2(\mathbb{R}^3)$
+and $L^2(\mathbb{R}^3\times\mathbb{R}^3)$:
+
+$$
+\begin{align*}
+F: L^2(\mathbb{R}^3)\otimes L^2(\mathbb{R}^3) &\rightarrow L^2(\mathbb{R}^3\times\mathbb{R}^3) \\
+(f(\mathbf{r}), g(\mathbf{r})) &\mapsto f(\mathbf{r}_1)\cdot g(\mathbf{r}_2)
+\end{align*}
+$$
+
+See [wikipedia](https://en.wikipedia.org/wiki/Tensor_product_of_Hilbert_spaces#Examples_and_applications)
+for more information about the canonical isomorphism.
+
+The operator $V_{\mathrm{e}}^2$ is defined on 
+$L^2(\mathbb{R}^2\times\mathbb{R}^3)$ by multiplication by
+$\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}$:
+
+$$
+V_{\mathrm{e}}^2(\psi(\mathbf{r}_1,\mathbf{r}_2)) :=
+\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \cdot \psi(\mathbf{r}_1,\mathbf{r}_2)
+$$
+
+Clearly $V_{\mathrm{e}}^2$ commutes with the transposition of the coordinates
+$\mathbf{r}\_1$ and $\mathbf{r}\_2$. Therefore, under the canonical isomorphism
+$V_{\mathrm{e}}^2$ is a symmetric operator on
+$L^2(\mathbb{R}^3)^{\otimes 2}$. We can extend $V_{\mathrm{e}}^2$ to a symmetric operator on 
+$\mathcal{H}^{\otimes 2}$
+by defining it to act trivially on the spin factors $\mathbb{C}^2$. 
+
+By XXX, $V_{\mathrm{e}}^2$ can then be restricted to an operator on $\Lambda^2\mathcal{H}$.
+
+Finally, the Coulomb repulsion operator for $n$-electrons, denoted
+$V_{\mathrm{elec}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$, is defined as the
+symmetric extension of $V_{\mathrm{e}}^2$ from
+$\mathrm{End}(\Lambda^2\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$. 
+
+
+$\psi(\mathbf{r}_1,\mathbf{r}_2)\in L^2(\mathbb{R}^2\times\mathbb{R}^3)
 
 $$
 \hat{V}_\mathrm{elec} = \sum_{i=1}^M\sum_{j>i}^M \frac{1}{||\mathbf{r}_i - \mathbf{r}_j||}
