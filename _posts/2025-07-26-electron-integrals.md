@@ -113,7 +113,7 @@ Now consider a molecule with $N$ electrons and $M$ nuclei.
 Since nuclei are orders of magnitude heavier than electrons, 
 it's common in quantum chemistry to use the
 [Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
-which assumes that the nuclei are stationary point masses.
+approximation which assumes that the nuclei are stationary point masses.
 
 This means that quantum state of the molecule is equal to the Hilbert space of its
 $N$ electrons. In quantum chemistry, elements of $\Lambda^N\mathcal{H}$
@@ -288,23 +288,33 @@ that it is self-adjoint.
 </details>
 
 
-## The Hamiltonian
-The $n$-electron [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
-is a self-adjoint operator on the $n$-electron state space $\Lambda^n\mathcal{H}$ that 
-corresponds to the total energy of the system.
+## The Electronic Hamiltonian
 
 Since electrons have negative charge and nuclei have positive charge, the total energy 
-of a molecule can be expressed as a sum of the kinetic energies of the electrons,
+of a molecule can be expressed as a sum of the kinetic energies of the electrons
+and nuclei,
 the potential energies of the electron-electron and nuclei-nuclei repulsions,
 and the potential energies of the electron-nuclei attractions.
 
-Note that since we are using the
+Since we are using the
 [Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
-approximation, the kinetic energy of the nuclei are not included.
+approximation, the kinetic energies of the nuclei are assumed to be zero.
+Furthermore, since in this approximation the nuclei are assumed to be point masses,
+the nuclei-nuclei attraction potential can be computed classically using
+[Coulombs law](https://en.wikipedia.org/wiki/Coulomb%27s_law).
 
-In this section we'll use XXX to define self-adjoint operators on $\Lambda^n\mathcal{H}$
-corresponding to each of kinetic and potential energy types.
-The total Hamiltonian will then be defined to be their sum.
+In this section we'll focus on calculating the ground state energy of the 
+electrons in a molecule.
+
+The electronic [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
+is a self-adjoint operator on the $n$-electron state space $\Lambda^n\mathcal{H}$ that 
+corresponds to the total energy of the electrons.
+
+In this section we'll define self-adjoint operators on 
+$\Lambda^n\mathcal{H}$
+corresponding to the electron kinetic energy, the nuclei-electron attraction potential 
+the and electron-electron repulsion potential.
+The total electronic Hamiltonian will then be defined to be their sum.
 
 ### Kinetic Energy
 
@@ -354,7 +364,7 @@ $V^1_{\mathrm{en}}$ acts on the $L^2(\mathbb{R}^3)$ component by multiplication
 by
 
 $$
-\phi_{\mathrm{en}}(\mathbf{r}) := \sum_{i=1}^m \frac{Z_i}{||\mathbf{R}_i - \mathbf{r}||}
+\phi_{\mathrm{en}}(\mathbf{r}) := -\sum_{i=1}^m \frac{Z_i}{||\mathbf{R}_i - \mathbf{r}||}
 $$
 
 and acts trivially on the spin component. Specifically, 
@@ -376,22 +386,19 @@ nuclei, denoted by $V_{\mathrm{en}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$
 is defined to be the symmetric extension of $V_{\mathrm{en}}^1$ from
 $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
 
-### Nuclear Repulsion
-
-
 ### Electron Repulsion
 
 We'll now consider the potential energy corresponding to the Coulomb repulsion
 between two electrons.
 
 The Coulomb repulsion potential for a pair of electrons corresponds to an operator
-$V_{\mathrm{e}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
+$V_{\mathrm{ee}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
 
-We'll start by defining $V_{\mathrm{e}}^2$ as a symmetric operator on 
+We'll start by defining $V_{\mathrm{ee}}^2$ as a symmetric operator on 
 $\mathcal{H}\otimes\mathcal{H}$
 and use XXX to restrict it to an operator on $\Lambda^2\mathcal{H}$.
 
-In order to define $V_{\mathrm{e}}^2$ on $\mathcal{H}\otimes\mathcal{H}$,
+In order to define $V_{\mathrm{ee}}^2$ on $\mathcal{H}\otimes\mathcal{H}$,
 we'll use the canonical isomorphism between $L^2(\mathbb{R}^3)\otimes L^2(\mathbb{R}^3)$
 and $L^2(\mathbb{R}^3\times\mathbb{R}^3)$:
 
@@ -402,85 +409,65 @@ F: L^2(\mathbb{R}^3)\otimes L^2(\mathbb{R}^3) &\rightarrow L^2(\mathbb{R}^3\time
 \end{align*}
 $$
 
-See [wikipedia](https://en.wikipedia.org/wiki/Tensor_product_of_Hilbert_spaces#Examples_and_applications)
+See
+[wikipedia](https://en.wikipedia.org/wiki/Tensor_product_of_Hilbert_spaces#Examples_and_applications)
 for more information about the canonical isomorphism.
 
-The operator $V_{\mathrm{e}}^2$ is defined on 
+The operator $V_{\mathrm{ee}}^2$ is defined on 
 $L^2(\mathbb{R}^2\times\mathbb{R}^3)$ by multiplication by
 $\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}$:
 
 $$
-V_{\mathrm{e}}^2(\psi(\mathbf{r}_1,\mathbf{r}_2)) :=
+V_{\mathrm{ee}}^2(\psi(\mathbf{r}_1,\mathbf{r}_2)) :=
 \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \cdot \psi(\mathbf{r}_1,\mathbf{r}_2)
 $$
 
-Clearly $V_{\mathrm{e}}^2$ commutes with the transposition of the coordinates
+Clearly $V_{\mathrm{ee}}^2$ commutes with the transposition of the coordinates
 $\mathbf{r}\_1$ and $\mathbf{r}\_2$. Therefore, under the canonical isomorphism
-$V_{\mathrm{e}}^2$ is a symmetric operator on
-$L^2(\mathbb{R}^3)^{\otimes 2}$. We can extend $V_{\mathrm{e}}^2$ to a symmetric operator on 
+$V_{\mathrm{ee}}^2$ is a symmetric operator on
+$L^2(\mathbb{R}^3)^{\otimes 2}$. We can extend $V_{\mathrm{ee}}^2$ to a symmetric operator on 
 $\mathcal{H}^{\otimes 2}$
 by defining it to act trivially on the spin factors $\mathbb{C}^2$. 
 
-By XXX, $V_{\mathrm{e}}^2$ can then be restricted to an operator on $\Lambda^2\mathcal{H}$.
+By XXX, $V_{\mathrm{ee}}^2$ can then be restricted to an operator on $\Lambda^2\mathcal{H}$.
 
 Finally, the Coulomb repulsion operator for $n$-electrons, denoted
-$V_{\mathrm{elec}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$, is defined as the
-symmetric extension of $V_{\mathrm{e}}^2$ from
+$V_{\mathrm{ee}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$, is defined as the
+symmetric extension of $V_{\mathrm{ee}}^2$ from
 $\mathrm{End}(\Lambda^2\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$. 
 
+### Total Hamiltonian
 
-$\psi(\mathbf{r}_1,\mathbf{r}_2)\in L^2(\mathbb{R}^2\times\mathbb{R}^3)
-
-$$
-\hat{V}_\mathrm{elec} = \sum_{i=1}^M\sum_{j>i}^M \frac{1}{||\mathbf{r}_i - \mathbf{r}_j||}
-$$
-
-The terms in $\mathcal{H}_\mathrm{elec}$ operate on a state $|\Psi\rangle$ by multiplication.
-For example:
+The total electronic Hamiltonian on a molecule with $n$ electrons,
+denoted $H^n \in \mathrm{End}(\Lambda^n\mathcal{H})$,
+is defined to be the sum of the kinetic, electron-nuclei attraction and
+electron-electron repulsion operators: 
 
 $$
-\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} |\Psi\rangle = 
-|\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \cdot \Psi\rangle
+H^n := T^n + V_{\mathrm{en}}^n + V_{\mathrm{ee}}^n
 $$
 
-Similarly the nuclear repulsions are given by:
+## The Schrodinger Equation
 
-$$
-\hat{V}_\mathrm{nuc} = \sum_{i=1}^N\sum_{j>i}^N \frac{1}{||\mathbf{R}_i - \mathbf{R}_j||}
-$$
-
-Finally, the electron-nuclear attraction potential is given by:
-
-$$
-\hat{V}_\mathrm{elec-nuc} = -\sum_{i=1}^M\sum_{j=1}^N \frac{1}{||\mathbf{r}_i - \mathbf{R}_j||}
-$$
-
-The total Hamiltonian is equal to the sum of these terms:
-
-$$
-\hat{H} = 
-\hat{T} + 
-\hat{V}_\mathrm{elec} + 
-\hat{V}_\mathrm{nuc} +
-\hat{V}_\mathrm{elec-nuc}
-$$
-
-The [time-independent Schrodinger equation](https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation#Time-independent_equation)
+The 
+[time-independent Schrodinger equation](https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation#Time-independent_equation)
 determines the allowed
 [stationary states](https://en.wikipedia.org/wiki/Stationary_state)
-of a system with Hamiltonian $\hat{H}$.
-Specifically, it says that if $|\Psi\rangle$ is a stationary state with energy 
-$E\in\mathbb{R}$ then $|\Psi$ is an eigenvector of $\hat{H}$
+of a system of $n$ electrons with Hamiltonian $H^n\in\mathrm{End}(\Lambda^n\mathcal{H})$.
+
+Specifically, it says that if $|\Psi\rangle\in\Lambda^n\mathcal{H}$
+is a stationary state with energy 
+$E\in\mathbb{R}$, then $|\Psi\rangle$ is an eigenvector of $H$
 with eigenvalue $E$:
 
 $$
-\hat{H}|\Psi\rangle = E|\Psi\rangle
+H|\Psi\rangle = E|\Psi\rangle
 $$
 
-In particular, the ground state of the system is given by the eigenvector of $\hat{H}$
+In particular, the ground state of the system is given by the eigenvector of $H^n$
 with the smallest eigenvalue.
 
-In theory, all we need to do to determine the ground state of a molecule is to
+In theory, all we need to do to determine the electronic ground state of a molecule is to
 diagonalize its Hamiltonian and find the eigenvector with the smallest eigenvalue.
 In practice this is infeasible for all but the simplest systems.
 
