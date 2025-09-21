@@ -76,21 +76,22 @@ Let $N\in\mathbb{Z}$ be an integer and $V$ a vector space.
 > $$
 > \begin{align*}
 > P_\sigma: V^{\otimes N} &\rightarrow V^{\otimes N} \\
-> |v_1\dots v_N\rangle &\mapsto |v_{\sigma(1)}\dots v_{\sigma(N)}\rangle
+> |v_1\dots v_N\rangle &\mapsto |v_{\sigma^{-1}(1)}\dots v_{\sigma^{-1}(N)}\rangle
 > \end{align*}
 > $$
 
 We'll use the notation $\mathrm{sgn}(\sigma)$ denote the 
 [sign](https://en.wikipedia.org/wiki/Parity_of_a_permutation) of a permutation
-$\sigma\in\S_N$.
+$\sigma\in S_N$.
 
 > **Definition (Anti-symmetric Tensor).**
 > Let $V$ be a vector space and $N\in\mathbb{Z}$ a positive integer.
 >
-> A tensor $|\phi\rangle\in V^{\otimes N}$ is defined to be _anti-symmetric_ if, 
+> A tensor $|\Psi\rangle\in V^{\otimes N}$ is defined to be _anti-symmetric_ if, 
 > for all $\sigma\in S_N$:
+>
 > $$
-> P_\sigma |\psi\rangle = \mathrm{sgn}(\sigma)|\psi\rangle
+> P_\sigma |\Psi\rangle = \mathrm{sgn}(\sigma)|\Psi\rangle
 > $$
 
 Since $P_\sigma$ is a linear transformation of $V^{\otimes N}$ for all $\sigma\in S_N$,
@@ -123,40 +124,83 @@ are referred to as
 
 In quantum mechanics, [observables](https://en.wikipedia.org/wiki/Observable), including
 energy, correspond to [self-adjoint operators](https://en.wikipedia.org/wiki/Self-adjoint_operators)
-of Hilbert space. In other words, they correspond to linear transformations of Hilbert space that
-preserve the inner-product. 
-In this post we'll sometimes refer to self-adjoint operators simply as "operators".
+of Hilbert space. We'll be using the terms _operator_ and _linear transformation_
+interchangeably.
 
-In particular, the energy of an $N$-electron molecule corresponds to an operator
-on $\Lambda^N\mathcal{H}$.
+In particular, the energy of an $n$-electron molecule corresponds to a self-adjoint operator
+on $\Lambda^n\mathcal{H}$.
 
-Let $V$ be a Hilbert space. In this section we'll show how to construct operators on
-$\Lambda^N V$ from operators on $V$ and $V\otimes V$.
+Let $V$ be a Hilbert space. In this section we'll show how to construct
+self-adjoint operators on $\Lambda^n V$ from self-adjoint operators on $V$ and $\Lambda^2 V$.
 
-We'll start with the case of an operator on $V$.
+Rather than directly constructing linear transformations on $\Lambda^n V$, we'll
+instead construct linear transformations of $V^{\otimes n}$ that are invariant
+under the action of $S_n$.
 
-> **Definition (Single Electron Operator).**
-> Let $V$ be a Hilbert space and $N\in\mathbb{Z}$ a positive integer.
+> **Definition (Symmetric Operator).**
+> Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
+> An operator $T\in\mathrm{End}(V^{\otimes n})$ is defined to be _symmetric_ if it commutes
+> with the $S_n$ action on $V^{\otimes n}$.
 >
-> Let $T\in\mathrm{Aut}(V)$ be a linear transformation of $V$.
-> Define $T^N\in\mathrm{Aut}(V^{\otimes N})$ to be the linear transformation
-> defined on basis elements of $V^{\otimes N}$ by:
+> In other words, $T$ is symmetric if for all $\sigma\in S_n$:
 >
 > $$
-> T^N(|v_1\dots v_N\rangle) := 
-> \sum_{i=1}^N |v_1\dots v_{i-1}\rangle T|v_i\rangle |v_{i+1}\dots v_N\rangle
-> $$ 
+> P_\sigma T = T P_\sigma
+> $$
 
-We claim that $T^N$ sends anti-symmetric tensors to anti-symmetric tensors which
-means that it restricts to a linear transformation of $\Lambda^N V$.
-The key to this claim is the following lemma.
-
-> **Lemma.**
-> Let $V$ be a Hilbert space and $N\in\mathbb{Z}$ a positive integer 
-> and $T\in\mathrm{Aut}(V)$ a linear transformation of $V$.
+> **Claim (Symmetric Restriction).**
+> Let $V$ be a vector space, $n\in\mathbb{Z}$ a positive integer
+> and $T\in\mathrm{End}(V^{\otimes n})$ a symmetric operator on $V^{\otimes n}$.
 >
-> Then, the transformation $T^N\mathrm{Aut}(V^{\otimes N})$ commutes with 
-> $P_\sigma\in\mathrm{Aut}(V^{\otimes N})$ for all $\sigma\in S_N$.
+> Then, for any anti-symmetric tensor $|\Psi\rangle\in V^{\otimes n}$,
+> $T|\Psi\rangle$ is also anti-symmetric. In particular, $T$ can be restricted
+> to an operator on $\Lambda^n V$.
+
+By claim XXX, in order to construct an operator on $\Lambda^n V$ it's sufficient to
+construct a symmetric operator on $V^{\otimes n}$.
+
+We'll now see how to build symmetric operators on $V^{\otimes n}$ 
+from symmetric operators on $V^{\otimes k}$ where $k < n$.
+
+> **Claim (Symmetric Extension).**
+> Let $V$ be a Hilbert space, $k < n\in\mathbb{Z}$ positive integers
+> and $T^k\in\mathrm{End}(V^{\otimes k})$
+> a symmetric operator on $V^{\otimes k}$.
+>
+> For each subset $I\subset\\{1,\dots,n\\}$ of size $k$, define
+> $T_I^n\in\mathrm{End}(V^{\otimes n})$ to be the operator on $V^{\otimes n}$
+> that acts as $T^k$ on the $k$ tensor factors of $V^{\otimes n}$ indexed by $I$
+> and as the identity on the remaining $n-k$ factors.
+>
+> More precisely, consider the special case of the subset $K:=\\{1,\dots,k\\}$.
+> We can define $T_K^n$ to act on
+> a basis vector $|v_1\dots v_N\rangle\in V^{\otimes N}$ by:
+>
+> $$
+> T_K^n|v_1\dots v_N\rangle := 
+> (T^k|v_1\dots v_k\rangle)|v_{k+1}\dots v_n\rangle
+> $$
+>
+> For an arbitrary subset $I$, let $\sigma_I\in S_N$
+> be any permutation that sends $I$ to $K$.
+> We'll then define:
+>
+> $$
+> T_I^n := P_{\sigma_I^{-1}} T_K^n P_{\sigma_I}
+> $$
+>
+> Note that this definition of $T_I^n$ is independent of the choice of $\sigma_I$
+> since $T^k$ is symmetric.
+>
+> Define the _symmetric extension_ of $T^k$, $T^n\in\mathrm{End}(V^{\otimes n})$,
+> to be the sum of the operators $T_I^n$ over all subsets $I$ of size $k$:
+>
+> $$
+> T^n := \sum_{I\subset\{1,\dots,n\},\,|I|=k}T_I^n
+> $$ 
+>
+> Then, $T^n$ is a symmetric operator on $V^{\otimes n}$. In addition, if $T^k$
+> is self-adjoint then $T^n$ is self-adjoint.
 
 <details>
 <summary>
@@ -164,37 +208,137 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
-Since the permutation group $S_N$ is generatred
+The key to this claim is to show that for all permutations $\sigma\in S_n$ and 
+order $k$ subsets $I\subset\\{1,\dots,n\\}$:
+
+$$
+P_{\sigma^{-1}} T_I^n P_{\sigma} = T_{\sigma^{-1}(I)}^n
+$$
+
+As in the claim, let $K$ denote the subset $\\{1,\dots,k\\}$ and 
+let $\sigma_I\in S_n$ be some permutation satisfying
+
+$$
+\sigma_I(I) = K
+$$
+
+By the definition of $T_I^n$:
+
+$$
+T_I^n = P_{\sigma_I^{-1}}T_K^n P_{\sigma_I}
+$$
+
+Therefore:
+
+$$
+\begin{align*}
+P_{\sigma^{-1}} T_I^n P_{\sigma}
+&= P_{\sigma^{-1}} P_{\sigma_I^{-1}}T_K^n P_{\sigma_I} P_{\sigma} \\
+&= P_{(\sigma_I\sigma)^{-1}}T_K^n P_{\sigma_I\sigma}
+\end{align*}
+$$
+
+Now note that:
+
+$$
+\sigma_I\sigma (\sigma^{-1}(I)) = \sigma_I(I) = K
+$$
+
+Therefore, by the definition of $T_{\sigma^{-1}(I)}^n$:
+
+$$
+T_{\sigma^{-1}(I)}^n = P_{(\sigma_I\sigma)^{-1}}T_K^n P_{\sigma_I\sigma}
+$$
+
+which concludes the proof of XXX.
+
+We can now prove that $T^n\in\mathrm{End}(V^{\otimes n})$ is symmetric.
+Let $\sigma\in S_n$ be a permutation. Then:
+
+$$
+\begin{align*}
+P_{\sigma^{-1}}T^n P_\sigma
+&= \sum_{I\subset\{1,\dots,n\},\,|I|=k} P_{\sigma^{-1}} T_I^n P_\sigma \\
+&= \sum_{I\subset\{1,\dots,n\},\,|I|=k} T_{\sigma^{-1}(I)}^n \\
+&= T^n
+\end{align*}
+$$
+
+Where the last equality follows from the fact that $\sigma^{-1}$ is an automorphism
+of size $k$ subsets of $\\{1,\dots,n\\}$.
+
+Now suppose that $T^k$ is self adjoint, i.e, $(T^k)^* = T^k$. It's easy to see
+that $T_K^n$ is self adjoint at well. In addition, $P_\sigma$ is unitary for all
+permutations $\sigma\in S_n$ which implies that for all subsets $I$:
+
+$$
+\begin{align*}
+(T_I^n)^*
+&= (P_{\sigma^{-1}} T_K^n P_\sigma)^* \\
+&= P_\sigma^* (T_K^n)^* P_{\sigma^{-1}}^* \\
+&= P_{\sigma^{-1}} T_K^n P_\sigma \\
+&= T_I^n
+\end{align*}
+$$
+
+This means that by definition $T^n$ is a sum of self-adjoint operators which implies
+that it is self-adjoint.
+
 </div>
 </details>
 
 
-## The Schrodinger Equation
-The [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
-is a linear operator on the molecule states. In other words,
-it is a function $\hat{H}$ that takes a state $|\Psi\rangle$ as input and 
-returns a new orbital $\hat{H}|\Psi\rangle$. Linearity means that for all states
-$\|\Psi_1\rangle,\|\Psi_2\rangle$ and constants $c_1,\c_2\in\mathbb{R}$:
+## The Hamiltonian
+The $n$-electron [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
+is a self-adjoint operator on the $n$-electron state space $\Lambda^n\mathcal{H}$ that 
+corresponds to the total energy of the system.
 
-$$
-\hat{H}(c_1|\Psi_1\rangle + c_2|\Psi_2\rangle) = 
-c_1\hat{H}(|\Psi_1\rangle) +
-c_2\hat{H}(|\Psi_2\rangle)
-$$
-
-The value of the Hamiltonian on a molecular orbital corresponds to the orbitals 
-total energy. Since electrons have negative charge and nuclei have positive charge, the total energy 
-can be expressed as a sum of the kinetic energies of the electrons
-and nuclei, the potential energies of the electron-electron and nuclei-nuclei repulsions,
+Since electrons have negative charge and nuclei have positive charge, the total energy 
+of a molecule can be expressed as a sum of the kinetic energies of the electrons,
+the potential energies of the electron-electron and nuclei-nuclei repulsions,
 and the potential energies of the electron-nuclei attractions.
 
-Since nuclei are orders of magnitude heavier than electrons, it's common in quantum chemistry
-to use the
+Note that since we are using the
 [Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
-which assumes that the nuclei are stationary. In terms of the Hamiltonian this means that the
-kinetic energy of the nuclei are equal to zero.
+approximation, the kinetic energy of the nuclei are not included.
 
-The kinetic energy of the electrons is equal to:
+In this section we'll use XXX to define self-adjoint operators on $\Lambda^n\mathcal{H}$
+corresponding to each of kinetic and potential energy types.
+The total Hamiltonian will then be defined to be their sum.
+
+### Kinetic Energy
+
+The kinetic energy of a single electron corresponds to an operator
+$T^1\in\mathrm{End}(\mathcal{H})$.
+Recall that by definition $\mathcal{H} = L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$.
+
+Let $\psi\in L^2(\mathbb{R}^3)$ be a function and $|\alpha\rangle\in\mathbb{C}^2$ a spin vector.
+Then $T^1$ is defined by:
+
+$$
+T^1 |\psi\rangle|\alpha\rangle := -\frac{1}{2}|\nabla^2 \psi \rangle |\alpha\rangle
+$$
+
+where $\nabla^2$ denotes the
+[Laplace operator](https://en.wikipedia.org/wiki/Laplace_operator):
+
+$$
+\nabla^2\psi =
+\frac{\partial^2}{\partial x^2}\Psi +
+\frac{\partial^2}{\partial y^2}\Psi +
+\frac{\partial^2}{\partial z^2}\Psi
+$$
+
+The Laplace operator
+[is self-adjoint](https://en.wikipedia.org/wiki/Self-adjoint_operator#Boundary_conditions)
+under the assumption that $\phi(\mathbf{r})$ goes to $0$ as $||\mathbf{r}||$ goes to infinity.
+
+The kinetic energy of $n$-electrons is defined to be the [symmetric extension](XXX) of
+$T^1$ from $\mathcal{H}$ to $\Lambda^n\mathcal{H}$.
+
+### Electron Nuclear Repulsion
+
+We'll now consider the potential energy operator corresponding to electron-nuclei repulsion.
 
 $$
 \hat{T} = -\frac{1}{2}\sum_{i=1}^M\nabla_{\mathbf{r}_i}^2
