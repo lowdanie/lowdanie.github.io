@@ -120,6 +120,137 @@ $N$ electrons. In quantum chemistry, elements of $\Lambda^N\mathcal{H}$
 are referred to as
 [molecular orbitals](https://en.wikipedia.org/wiki/Molecular_orbital).
 
+## Slater Determinants
+
+In the previous section we saw that the joint state space of $n$ electrons is equal
+to the space of alternating tensors
+$\Lambda^n\mathcal{H} \subset \mathcal{H}^{\otimes n}$.
+
+Let $V$ be a vector space.
+The goal of this section is to show how to construct an alternating tensor in
+$\Lambda^N V$ from an arbitrary tensor $|\Phi\rangle\in V^{\otimes n}$.
+
+First we'll consider the case where $n=2$. Consider the decomposable tensor:
+
+$$
+|v_1 v_2\rangle \in V^{\otimes 2}
+$$
+
+In general, $\|v_1 v_2\rangle$ is not in general anti-symmetric. To see why,
+consider the permutation $\sigma=(1,2)\in S_2$. Then
+
+$$
+P_\sigma |v_1 v_2\rangle = |v_2 v_1\rangle
+$$
+
+Furthermore, $\mathrm{sgn}(\sigma) = -1$ and so
+
+$$
+\mathrm{sgn}(\sigma)|v_1 v_2\rangle = -|v_1 v_2\rangle
+$$
+
+Therefore, in general:
+
+$$
+P_\sigma |v_1 v_2\rangle \neq \mathrm{sgn}(\sigma)|v_2 v_1\rangle
+$$
+
+We can fix this by adding the missing term $-\|v_2 v_1\rangle$ to our state
+and defining:
+
+$$
+|\Psi\rangle = |v_1 v_2\rangle - |v_2 v_1\rangle
+$$
+
+Now when we apply $P_\sigma$ we get:
+
+$$
+\begin{align*}
+P_\sigma(|\Psi\rangle) &= P_\sigma |v_1 v_2\rangle - P_\sigma |v_2 v_1\rangle \\
+&= |v_2 v_1\rangle - |v_1 v_2\rangle \\
+&= -|\Psi\rangle
+\end{align*}
+$$
+
+This implies that $\|\Psi\rangle$ is an anti-symmetric tensor.
+
+We can extend this construction to the case of $n$ electrons using the
+[antisymmetrization map](https://en.wikipedia.org/wiki/Exterior_algebra#Alternating_tensor_algebra)
+$\mathcal{A}^n$ which maps the tensor product $V^{\otimes n}$ to the space of
+alternating tensors $\Lambda^n V$.
+
+> **Definition (Antisymmetrization).**
+> Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
+>
+> The _antisymmetrization map_, denoted $\mathrm{Alt}^n$, is defined as:
+>
+> $$
+> \begin{align*}
+> \mathrm{Alt}^n: V^{\otimes n} &\rightarrow V^{\otimes n} \\
+> |\phi\rangle &\mapsto \sum_{\sigma\in S_n}\mathrm{sgn}(\sigma) P_\sigma |\phi\rangle
+> \end{align*}
+> $$
+
+> **Claim (Antisymmetrization).**
+> Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
+>
+> Then, for all tensors $\|\phi\rangle\in V^{\otimes n}$,
+> $\mathrm{Alt}^n(\|\phi\rangle)$ is an anti-symmetric tensor.
+>
+> In particular, the image of the antisymmetrization map is contained in $\Lambda^n V$:
+>
+> $$
+> \mathrm{Alt}^n : V^{\otimes n} \rightarrow \Lambda^n V
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Let  $\|\phi\rangle\in V^{\otimes n}$ be a tensor. To show that 
+$\mathrm{Alt}^n(\|\phi\rangle)$ is anti-symmetric we must show that for all $\sigma\in S_n$,
+
+$$
+P_\sigma \mathrm{Alt}^n(|\phi\rangle) = \mathrm{sgn}(\sigma)\mathrm{Alt}^n(|\phi\rangle).
+$$
+
+Let $\sigma\in S_n$ be a permutation. Then, by the definition of the antisymmetrization map:
+
+$$
+\begin{align*}
+P_\sigma \mathrm{Alt}^n(|\phi\rangle) &=
+P_\sigma \sum_{\sigma'\in S_n}\mathrm{sgn}(\sigma') P_{\sigma'} |\phi\rangle \\
+&= \sum_{\sigma'\in S_n}\mathrm{sgn}(\sigma)^2\mathrm{sgn}(\sigma') P_{\sigma\sigma'} |\phi\rangle \\
+&= \mathrm{sgn}(\sigma)\sum_{\sigma'\in S_n}\mathrm{sgn}(\sigma\sigma') P_{\sigma\sigma'} |\phi\rangle \\
+&= \mathrm{sgn}(\sigma) \mathrm{Alt}^n(|\phi\rangle)
+\end{align*}
+$$
+
+The last equality follows from the fact that composition with $\sigma$ is an automorphism
+of $S_n$.
+
+</div>
+</details>
+
+The [Slater determinant](https://en.wikipedia.org/wiki/Slater_determinant)
+is a normalized version of the antisymmetrization map.
+
+> **Definition (Slater Determinant).**
+> Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
+> 
+> The _Slater determinant_ of a decomposable tensor
+> $\|v_1\dots v_n\rangle\in V^{\otimes n}$ is denoted by
+> $\|v_1,\dots,\v_n\rangle$ (note the commas) and defined by:
+>
+> $$
+> |v_1,\dots, v_n\rangle := \frac{1}{\sqrt{n!}}\mathrm{Alt}^n(|v_1\dots v_n\rangle) \in \Lambda^n V
+> $$
+
+In practice, all anti-symmetric tensors considered in this post will be Slater determinants
+of decomposable tensors.
+
 ## Molecular Operators
 
 In quantum mechanics, [observables](https://en.wikipedia.org/wiki/Observable), including
@@ -453,7 +584,7 @@ The
 [time-independent Schrodinger equation](https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation#Time-independent_equation)
 determines the allowed
 [stationary states](https://en.wikipedia.org/wiki/Stationary_state)
-of a system of $n$ electrons with Hamiltonian $H^n\in\mathrm{End}(\Lambda^n\mathcal{H})$.
+of a system of $n$ electrons with Hamiltonian $H\in\mathrm{End}(\Lambda^n\mathcal{H})$.
 
 Specifically, it says that if $|\Psi\rangle\in\Lambda^n\mathcal{H}$
 is a stationary state with energy 
@@ -464,7 +595,7 @@ $$
 H|\Psi\rangle = E|\Psi\rangle
 $$
 
-In particular, the ground state of the system is given by the eigenvector of $H^n$
+In particular, the ground state of the system is given by the eigenvector of $H$
 with the smallest eigenvalue.
 
 In theory, all we need to do to determine the electronic ground state of a molecule is to
@@ -472,17 +603,17 @@ diagonalize its Hamiltonian and find the eigenvector with the smallest eigenvalu
 In practice this is infeasible for all but the simplest systems.
 
 To see why,
-recall that the state space of a molecule is given by the set of all integrable
-functions on the coordinates $\mathbb{R}^{3M}$ where $M$ is equal to the number of
-electrons. The set of such functions is infinite which means that we cannot directly
-express $\hat{H}$ as a matrix. 
+recall that the state space of $n$-electrons is 
+$\Lambda^n(L^2(\mathbb{R}^3)\otimes(\mathbb{C}^2)$.
+The set of integrable functions $$L^2(\mathbb{R}^3)$ 
+is infinite which means that we cannot directly express $H^n$ as a matrix. 
 
 One idea could be to discretize $\mathbb{R}$ into a finite set of
 points and express an orbital $\Psi$ in terms of the vector of its values on each point.
-However, even with a conservative discretization of only $100$ points, the state space of
-a system with with $M$ electrons has $100^{3M}$ dimensions which means that the Hamiltonian
-is a $10^{6M}\times 10^{6M}$ matrix. Diagonalizing $\hat{H}$ clearly is not possible even for
-small values of $M$.
+However, even with a conservative discretization of only $100$ points,
+$L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$ is $2 \cdot 100^3$ dimensional and so
+$\Lambda^n(L^2(\mathbb{R}^3)\otimes(\mathbb{C}^2)$ is $\binom{2 \cdot 100^3}{n}$
+is still quite large.
 
 Rather than finding the exact ground state, we'll instead use the
 [Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
@@ -490,186 +621,95 @@ to approximate it.
 
 ## The Variational Principle
 
-In quantum mechanics, the expected value of a molecule with orbital $\Psi$ is
-given by the inner product of $|\Psi\rangle$ with $\hat{H}|\Psi\rangle$:
+The expected energy of a system with state
+$\Psi\in\Lambda^n\mathcal{H}$ and Hamiltonian $H\in\mathrm{End}(\Lambda^n\mathcal{H})$
+given by the inner product of $|\Psi\rangle$ with $H|\Psi\rangle$:
 
 $$
-\langle \Psi | \hat{H} | \Psi \rangle 
+\langle \Psi | H^n | \Psi \rangle 
 $$
 
 The [Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
-states that for any molecule state $|\Psi\rangle$ with unit norm,
+states that for any state $|\Psi\rangle$ with unit norm,
 the expected energy of $|\Psi\rangle$ is an upper bound on the energy of the ground state
 $E_0$:
 
 $$
-\langle \Psi | \hat{H} | \Psi \rangle >= E_0
+\langle \Psi | H | \Psi \rangle >= E_0
 $$
 
-Our strategy for approximating the ground state will be to first parameterize 
-a subset of the state space in terms of some parameters $\mathbf{C}\in\mathbb{R}^K$ 
+Our strategy for approximating the ground state of an $n$-electron molecule
+will be to first parameterize $n$ single-electron states
+$\|\chi_1(\mathbf{c}_1)\rangle,\dots,\|\chi_n(\mathbf{c}_n)\rangle\in\mathcal{H}$,
+in terms of some parameters $\mathbf{c}_1,\dots\mathbf{c}_n\in\mathbb{R}^K$ 
 where $K$ is polynomial in the number of electrons.
-Let's denote the state with parameter $\mathbf{C}$ and nuclear positions 
-$\mathbf{R}_1,\dots,\mathbf{R}_N$ by:
+
+For any set of parameters $\mathbf{c_i}$, the Slater determinant
 
 $$
-|\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M\,;\,\mathbf{R}_1,\dots,\mathbf{R}_N,\mathbf{C})\rangle
+|\chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n)\rangle \in \Lambda^n\mathcal{H}
 $$
 
-We'll then apply the variational principle and search for the parameter and nuclear coordinates that minimize
-the expected energy of $|\Psi(\mathbf{r}_1,\dots,\mathbf{r}_M\,;\,\mathbf{R}_1,\dots,\mathbf{R}_N,\mathbf{C})\rangle$
-
-## Slater Determinants
-
-In the previous section we saw that the joint state space of $N$ electrons is equal
-to the space of alternating tensors
-$\Lambda^N\mathcal{H} \subset \mathcal{H}^{\otimes N}$.
-
-The goal of this section is to show how to construct an alternating tensor in
-$\Lambda^N\mathcal{H}$ given $N$ electron states
+is a valid $n$-electron state with expected energy 
 
 $$
-|\chi_1\rangle,\dots,|\chi_N\rangle\in\mathcal{H}
+E(\mathbf{c}_1,\dots,\mathbf{c}_n) :=
+\langle \chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n) | H^n |
+\chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n) \rangle
 $$
 
-First we'll consider the case where $N=2$. We can start by tensoring
-$|\chi_1\rangle$
-and 
-$|\chi_2\rangle$ to obtain the state:
+According to the variational principal, the minimum of
+$E(\mathbf{c}_1,\dots,\mathbf{c}_n)$ is an upper bound on the ground state energy of the
+electrons.
+
+The key to this method is to be able to efficiently compute
+$E(\mathbf{c}_1,\dots,\mathbf{c}_n)$. In the next section we'll see how to reduce
+the expected value of the Hamiltonian $H^n$ for a Slater determinant on 
+$n$ electrons to an expected value of single and double electrons.
+
+## Expected Energy
+
+In section XXX we saw how to construct an $n$-electron state out of $n$-single
+electron states $\|\chi_1\rangle,\dots\|\chi_n\rangle\in\mathcal{H}$ using 
+a Slater determinant:
 
 $$
-|\chi_1\chi_2\rangle \in \mathcal{H}^{\otimes 2}
+|\chi_1,\dots,\chi_n\rangle
 $$
 
-However, $\|\chi_1\chi_2\rangle$ is not in general anti-symmetric. To see why,
-let $\sigma\in S_2$ be the permutation that exchanges $1$ and $2$. Then
+Similarly, we constructed the total Hamiltonian of a molecule with $n$ electrons
+is given as the operator
 
 $$
-P_\sigma |\chi_1\chi_2\rangle = |\chi_2\chi_1\rangle
+H^n = T^n + V_{\mathrm{en}}^n + V_{\mathrm{e}}^n \in\mathrm{End}(\Lambda^n\mathcal{H})
 $$
 
-Furthermore, $\mathrm{sgn}(\sigma) = -1$ and so
+where the components were obtained as symmetrizations of the one electron operators
+$T^1\in\mathrm{End}(\mathcal{H})$ and $V_{\mathrm{en}}^1\in\mathrm{End}(\mathcal{H})$
+and the two electron operator $V_{\mathrm{e}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
+
+The goal of this section is to express the expected energy of the Slater determinant:
 
 $$
-\mathrm{sgn}(\sigma)|\chi_1\chi_2\rangle = -|\chi_1\chi_2\rangle
+\langle \chi_1,\dots,\chi_n | H^n | \chi_1,\dots,\chi_n \rangle
 $$
 
-Therefore, in general:
-
-$$
-P_\sigma |\chi_1\chi_2\rangle \neq \mathrm{sgn}(\sigma)|\chi_2\chi_1\rangle
-$$
-
-We can fix this by adding the missing term $-\|\chi_2\chi_1\rangle$ to our state
-and defining:
-
-$$
-|\Psi\rangle = |\chi_1\chi_2\rangle - |\chi_2\chi_1\rangle
-$$
-
-Now when we apply $P_\sigma$ we get:
-
-$$
-\begin{align*}
-P_\sigma(|\Psi\rangle) &= P_\sigma |\chi_1\chi_2\rangle - P_\sigma |\chi_2\chi_1\rangle \\
-&= |\chi_2\chi_1\rangle - |\chi_1\chi_2\rangle \\
-&= -|\Psi\rangle
-\end{align*}
-$$
-
-This implies that $|\Psi\rangle$ is an anti-symmetric tensor and is therefore a valid
-$2$-electron state.
-
-[Slater determinants](https://en.wikipedia.org/wiki/Slater_determinant)
-extend this construction to the general case of $N$ electrons.
-
-Specifically, the Slater determinant of the $N$ single-electron states 
-
-$$
-|\chi_1\rangle,\dots,|\chi_N\rangle\in\mathcal{H}
-$$
-
-is defined to be the anti-symmetric tensor:
-
-$$
-|\Psi\rangle = \frac{1}{\sqrt{N!}}
-\sum_{\sigma\in S_N}
-\mathrm{sgn}(\sigma)|\chi_{\sigma(1)}\dots\chi_{\sigma(N)}\rangle
-$$
-
-The Slater determinant is commonly denoted by $\|\chi_1,\dots,\chi_N\rangle$ where the
-commas distinguish it from the simple tensor product $\|\chi_1\dots\chi_N\rangle$.
-
-If $\mathcal{B}\subset\mathcal{H}$ is an orthonormal basis of $\mathcal{H}$,
-then the Slater determinants of all length $N$ subsets of $\mathcal{B}$ form a 
-basis for $\Lambda^N\mathcal{H}$.
-This means that any $N$-electron state can be written as a linear combination of
-Slater determinants of orthonormal single-electron states.
+in terms of expected values of the one and two electron operators above.
 
 
-## Electron Integrals
-
-In section XXX we saw that the joint state space of $N$ electrons is spanned by
-Slater determinants
-
-$$
-|\chi_1,\dots,\chi_N\rangle \in \Lambda^N\mathcal{H}
-$$
-
-where
-$|\chi_1\rangle,\dots,|\chi_N\rangle\in\mathcal{H}$
-are orthonormal single-electron states.
-
-Following the variational principle, our strategy for approximating the ground state 
-of an $N$-electron molecule is to find the Slater determinant
-$|\chi_1,\dots,\chi_N\rangle$ with the smallest expected energy
-
-$$
-\langle \chi_1,\dots,\chi_N | \hat{H} | \chi_1,\dots,\chi_N \rangle
-$$
-
-Where $\hat{H}$ is the Hamiltonian of the molecule:
-
-$$
-\hat{H} = 
-\hat{T} + \hat{V}_\mathrm{elec} + 
-\hat{V}_\mathrm{elec-nuc} + \hat{V}_\mathrm{nuc} 
-$$
-
-The goal of this section is to express the expected energy XXX in terms of the
-constituent orthonormal single-electron states $\|\chi_i\rangle\in\mathcal{H}$.
-
-By linearity, it is sufficient to compute the expected kinetic energy and each of the
-potential energies.
-
-Note that by XXX, $\hat{T}$ and 
-$\hat{V}\_\mathrm{nuc}$
-are sums of operators that affect only one electron. In contrast, 
-$\hat{V}\_{elec-nuc}$
-is a sum of operators that affect only two electrons.
-
-We'll start by showing how to compute the expected value of a one-electron operator
-on an $N$-electron Slater determinant.
-
-> **Claim (Single Electron Slater Expectation).**
-> Let $N\in\mathbb{Z}$ be a positive integer and $1 \leq i \leq N$. 
-> Let $\hat{a}$ be an operator on $\mathcal{H}$ and $\hat{a}_i$ the corresponding
-> operator on $\Lambda^N\mathcal{H}$ which acts on the $i$-factor.
+> **Claim (Slater Determinant Expectation).**
+> Let $V$ be an inner-product space and $k \leq n\in\mathbb{Z}$ positive integers.
 >
-> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
-> one-electron states and
->
-> $$
-> |\chi_1,\dots,\chi_N\rangle\in \Lambda^N\mathcal{H}\subset\mathcal{H}^{\otimes N}
-> $$
->
-> the associated Slater determinant.
+> Let $v_1,\dots,v_n\in V$ be orthonormal vectors in $V$.
+> Let $T^k\in\mathrm{End}(V^{\otimes k})$ a symmetric operator on $V^{\otimes k}$
+> and $T^n\in\mathrm{End}(V^{\otimes n})$ its symmetrization.
 >
 > Then:
 >
 > $$
-> \langle \chi_1,\dots,\chi_N | \hat{a}_i | \chi_1,\dots,\chi_N \rangle =
-> \frac{1}{N}\sum_{j=1}^N \langle \chi_j | \hat{a} | \chi_j \rangle
+> \langle v_1,\dots,v_n | T^n | v_1,\dots,v_n \rangle =
+> \sum_{\substack{ I\subset [n] \\ |I|=k }} \sum_{\sigma\in S_I}
+> \mathrm{sgn}(\sigma) \langle v_I | T^k | v_{\sigma(I)} \rangle
 > $$
 
 <details>
@@ -678,52 +718,40 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
-We'll prove the claim in the case where $i=1$.
-The remaining cases are identical.
-
-By the definition of the Slater determinant:
+By definition
 
 $$
-|\chi_1,\dots,\chi_N \rangle = 
-\sum_{\sigma\in S_N}\mathrm{sgn}(\sigma)P_\sigma|\chi_1\dots\chi_N\rangle
+T^n = \sum_{I\subset [n] }
+P_{\sigma_I^{-1}} T_{[k]}^n P_{\sigma_I}
 $$
 
-First note that:
+where, for all subsets $I\subset\{1,\dots,n\}$, $\sigma_I\in S_n$ is a permutation
+that satisfies:
 
 $$
-\hat{a}_1 P_\sigma|\chi_1\dots\chi_N\rangle =
-\hat{a}|\chi_{\sigma(1)}\rangle|\chi_{\sigma(2)}\dots\chi_{\sigma(N)}\rangle
+\sigma_I(I) = [k]
 $$
 
-By the orthonormality of 
-$\|\chi_1\rangle,\dots,\|\chi_N\rangle$, it's easy to see that for all 
-$\sigma,\sigma'\in S_N$:
+Similarly, by definition
 
 $$
-\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_1 | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle =
-\begin{cases}
-\langle \chi_{\sigma(1)} | \hat{a} | \chi_{\sigma'(1)} \rangle & \mathrm{if}\,\sigma=\sigma' \\
-0 & \mathrm{else}
-\end{cases}
+|v_1,\dots,v_n\rangle = 
+\frac{1}{\sqrt{n!}} 
+\sum_{\sigma \in S_n}\mathrm{sgn}(\sigma)
+P_{\sigma}|v_1\dots v_n\rangle
 $$
 
-Therefore:
+Therefore,
 
 $$
-\begin{align*}
-\langle \chi_1,\dots,\chi_N | \hat{a}_1 | \chi_1,\dots,\chi_N \rangle &=
-\frac{1}{N!}
-\sum_{\sigma,\sigma'\in S_N}
-\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
-\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_1 | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle \\
-&= \frac{1}{N!}
-\sum_{\sigma\in S_N}
-\mathrm{sgn}(\sigma)^2
-\langle \chi_{\sigma(1)} | \hat{a} | \chi_{\sigma(1)} \rangle \\
-&= \frac{(N-1)!}{N!}\sum_{i=1}^N \langle \chi_{i} | \hat{a} | \chi_{i} \rangle \\
-&= \frac{1}{N}\sum_{i=1}^N \langle \chi_{i} | \hat{a} | \chi_{i} \rangle
-\end{align*}
+\langle v_1,\dots,v_n | T^n | v_1,\dots,v_n\rangle =
+\frac{1}{n!}
+\sum_{\sigma,\sigma'\in S_n}\sum_{I\subset [n]}
+\langle v_1\dots v_n | 
+P_{\sigma^{-1}} P_{\sigma_I^{-1}} T_{[k]}^n P_{\sigma_I} P_{\sigma'}
+| v_1 \dots v_n \rangle
 $$
+
 
 </div>
 </details>
