@@ -708,8 +708,8 @@ in terms of expected values of the one and two electron operators above.
 >
 > $$
 > \langle v_1,\dots,v_n | T^n | v_1,\dots,v_n \rangle =
-> \sum_{\substack{ I\subset [n] \\ |I|=k }} \sum_{\sigma\in S_I}
-> \mathrm{sgn}(\sigma) \langle v_I | T^k | v_{\sigma(I)} \rangle
+> \sum_{ I\in S_{n,k} } \sum_{\sigma\in S_k}
+> \mathrm{sgn}(\sigma) \langle v_I | T^k P_\sigma | v_I \rangle
 > $$
 
 <details>
@@ -718,27 +718,30 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
-By definition
+Given a sequence of integers $J = (j_1,\dots,j_l)$ in the range $\\{1,\dots,n\\}$,
+we'll use the notation $|v_J\rangle$ to denote the tensor $|v_{j_1}\dots v_{j_l}\rangle$.
+
+By definition,
 
 $$
-T^n = \sum_{I\subset [n] }
-P_{\sigma_I^{-1}} T_{[k]}^n P_{\sigma_I}
+T^n = \sum_{ I \in S_{n,k} }
+P_{\sigma_I^{-1}} T_k^n P_{\sigma_I}
 $$
 
-where, for all subsets $I\subset\{1,\dots,n\}$, $\sigma_I\in S_n$ is a permutation
+where, for all subsequences $I \in S_{n,k}$, $\sigma_I\in S_n$ is a permutation
 that satisfies:
 
 $$
-\sigma_I(I) = [k]
+\mathrm{range}(\sigma_I(I)) = \{1,...,k\}
 $$
 
-Similarly, by definition
+In addition, by definition
 
 $$
 |v_1,\dots,v_n\rangle = 
 \frac{1}{\sqrt{n!}} 
 \sum_{\sigma \in S_n}\mathrm{sgn}(\sigma)
-P_{\sigma}|v_1\dots v_n\rangle
+P_{\sigma}|v_1 \dots v_n\rangle
 $$
 
 Therefore,
@@ -746,12 +749,90 @@ Therefore,
 $$
 \langle v_1,\dots,v_n | T^n | v_1,\dots,v_n\rangle =
 \frac{1}{n!}
-\sum_{\sigma,\sigma'\in S_n}\sum_{I\subset [n]}
+\sum_{\sigma,\sigma'\in S_n}\sum_{I \in S_{n,k} }
+\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
 \langle v_1\dots v_n | 
-P_{\sigma^{-1}} P_{\sigma_I^{-1}} T_{[k]}^n P_{\sigma_I} P_{\sigma'}
+P_{\sigma^{-1}} P_{\sigma_I^{-1}} T_k^n P_{\sigma_I} P_{\sigma'}
 | v_1 \dots v_n \rangle
 $$
 
+Now, let $\sigma,\sigma'\in S_n$ be permutations and $I\in S_{n,k}$ a subsequence.
+Let $I^c \in S_{n,n-k}$ denote the complement of $I$
+in $(1,\dots,n)$.
+
+Then, by the definition of $\sigma_I$:
+
+$$
+\mathrm{range}(\sigma_I\sigma(\sigma^{-1}(I))) =
+\mathrm{range}(\sigma_I\sigma'(\sigma'^{-1}(I))) =
+\{1,\dots,k\}
+$$
+
+Therefore:
+
+$$
+\langle v_1\dots v_n | 
+P_{\sigma^{-1}} P_{\sigma_I^{-1}} T_k^n P_{\sigma_I} P_{\sigma'}
+| v_1 \dots v_n \rangle =
+\langle v_{\sigma^{-1}(I)} | T^k | v_{\sigma'^{-1}(I)} \rangle 
+\langle v_{\sigma^{-1}(I^c)} | v_{\sigma'^{-1}(I^c)} \rangle
+$$
+
+By the orthonormality of $v_1,\dots,v_n$, 
+
+$$
+\langle v_{\sigma^{-1}(I^c)} | v_{\sigma'^{-1}(I^c)} \rangle =
+\begin{cases}
+1 & \sigma'^{-1}(I^c) = \sigma^{-1}(I^c) \\
+0 & \mathrm{else}
+\end{cases}
+$$
+
+We'll now consider the case where $\sigma'^{-1}(I^c) = \sigma^{-1}(I^c)$.
+
+First, note that
+
+$$
+\mathrm{range}(\sigma'^{-1}(I)) = \mathrm{range}(\sigma^{-1}(I))
+$$
+
+which means that there is a permutation $\alpha\in S_k$ such that:
+
+$$
+\sigma'^{-1}(I) = \alpha \sigma^{-1}(I)
+$$
+
+Since in this case $\sigma^{-1}$ and $\sigma'^{-1}$ agree on $I^c$, together this implies that
+
+$$
+\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma') = \mathrm{sgn}(\alpha)
+$$
+
+Furthermore,
+
+$$
+\langle v_{\sigma^{-1}(I)} | T^k | v_{\sigma'^{-1}(I)} \rangle 
+= \langle v_{\sigma^{-1}(I)} | T^k P_\alpha | v_{\sigma^{-1}(I)} \rangle
+$$
+
+Putting this altogether, we can rewrite the sum XXX as:
+
+$$
+\begin{align*}
+\langle v_1,\dots,v_n | T^n | v_1,\dots,v_n\rangle 
+&= \frac{1}{n!}
+\sum_{\sigma\in S_n}\sum_{\alpha\in S_k}\sum_{I \in S_{n,k} }
+\mathrm{sgn}(\alpha)
+\langle v_{\sigma^{-1}(I)} | T^k P_\alpha | v_{\sigma^{-1}(I)} \rangle \\
+&= \frac{1}{n!}
+\sum_{\sigma\in S_n}\sum_{\alpha\in S_k}\sum_{I \in S_{n,k} }
+\mathrm{sgn}(\alpha)
+\langle v_I | T^k P_\alpha | v_I \rangle \\
+&= \sum_{I \in S_{n,k} }\sum_{\alpha\in S_I}
+\mathrm{sgn}(\alpha)
+\langle v_I | T^k P_\alpha | v_I \rangle
+\end{align*}
+$$
 
 </div>
 </details>
