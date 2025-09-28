@@ -59,64 +59,62 @@ The space $\mathcal{H}$ is also a Hilbert space since its a tensor product of
 two Hilbert spaces. Following standard quantum mechanics terminology, we'll use the
 terms _state space_ and _Hilbert space_ interchangeably.
 
-In order to extend this to $N$ electrons, we'll first need to define
+In order to extend this to $n$ electrons, we'll first need to define
 the notion of an
 [anti-symmetric tensor](https://en.wikipedia.org/wiki/Exterior_algebra#Alternating_tensor_algebra).
 
-Let $N\in\mathbb{Z}$ be an integer and $V$ a vector space. 
-
 > **Definition (Symmetric Group Action).**
-> Let $V$ be a vector space and $N\in\mathbb{Z}$ a positive integer.
-> Let $S_N$ denote the symmetric group on $N$ elements.
+> Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
+> Let $S_n$ denote the symmetric group on $n$ elements.
 >
-> For each permutation $\sigma\in S_N$, define 
-> $P_\sigma\in\mathrm{Aut}(V^{\otimes N})$
-> to be the linear automorphism of $V^{\otimes N}$ defined by:
+> For each permutation $\sigma\in S_n$, define 
+> $P_\sigma\in\mathrm{Aut}(V^{\otimes n})$
+> to be the linear automorphism of $V^{\otimes n}$ defined by:
 >
 > $$
 > \begin{align*}
-> P_\sigma: V^{\otimes N} &\rightarrow V^{\otimes N} \\
-> |v_1\dots v_N\rangle &\mapsto |v_{\sigma^{-1}(1)}\dots v_{\sigma^{-1}(N)}\rangle
+> P_\sigma: V^{\otimes n} &\rightarrow V^{\otimes n} \\
+> |v_1\dots v_N\rangle &\mapsto |v_{\sigma^{-1}(1)}\dots v_{\sigma^{-1}(n)}\rangle
 > \end{align*}
 > $$
 
 We'll use the notation $\mathrm{sgn}(\sigma)$ denote the 
 [sign](https://en.wikipedia.org/wiki/Parity_of_a_permutation) of a permutation
-$\sigma\in S_N$.
+$\sigma\in S_n$.
 
 > **Definition (Anti-symmetric Tensor).**
-> Let $V$ be a vector space and $N\in\mathbb{Z}$ a positive integer.
+> Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
 >
-> A tensor $|\Psi\rangle\in V^{\otimes N}$ is defined to be _anti-symmetric_ if, 
-> for all $\sigma\in S_N$:
+> A tensor $|\Psi\rangle\in V^{\otimes n}$ is defined to be _anti-symmetric_ if, 
+> for all $\sigma\in S_n$:
 >
 > $$
 > P_\sigma |\Psi\rangle = \mathrm{sgn}(\sigma)|\Psi\rangle
 > $$
 
-Since $P_\sigma$ is a linear transformation of $V^{\otimes N}$ for all $\sigma\in S_N$,
-it follows that the set of anti-symmetric tensors is a subspace of $V^{\otimes N}$.
+Since $P_\sigma$ is a linear transformation of $V^{\otimes n}$ for all $\sigma\in S_n$,
+it follows that the set of anti-symmetric tensors is a subspace of $V^{\otimes n}$.
 This subspace is called the _exterior product_ as formalized in the following definition.
 
 > **Definition (Exterior Product).**
-> Let $V$ be a vector space and $N\in\mathbb{Z}$ a positive integer.
+> Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
 >
-> The _$N$-th exterior product_ of $V$, denoted $\Lambda^N V \subset V^{\otimes N}$
-> is defined to be the subspace of anti-symmetric tensors in $ V^{\otimes N}$.
+> The _$n$-th exterior product_ of $V$, denoted $\Lambda^n V \subset V^{\otimes n}$
+> is defined to be the subspace of anti-symmetric tensors in $ V^{\otimes n}$.
 
 According to the
 [Pauli exclusion principle](https://en.wikipedia.org/wiki/Pauli_exclusion_principle),
-the Hilbert space of a collection of $N$ electrons is equal to $\Lambda^N\mathcal{H}$
-I.e, an $N$ electron state is an anti-symmetric tensor of $N$ single electron states.
+the Hilbert space of a collection of $n$ electrons is equal to $\Lambda^n\mathcal{H}$
+I.e, an $n$ electron state is an anti-symmetric tensor of $n$ single electron states.
 
-Now consider a molecule with $N$ electrons and $M$ nuclei.
+Now consider a molecule with $n$ electrons and $M$ nuclei.
 Since nuclei are orders of magnitude heavier than electrons, 
 it's common in quantum chemistry to use the
-[Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
+[Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenhei mer_approximation)
 approximation which assumes that the nuclei are stationary point masses.
 
 This means that quantum state of the molecule is equal to the Hilbert space of its
-$N$ electrons. In quantum chemistry, elements of $\Lambda^N\mathcal{H}$
+$n$ electrons. In quantum chemistry, elements of $\Lambda^n\mathcal{H}$
 are referred to as
 [molecular orbitals](https://en.wikipedia.org/wiki/Molecular_orbital).
 
@@ -128,7 +126,7 @@ $\Lambda^n\mathcal{H} \subset \mathcal{H}^{\otimes n}$.
 
 Let $V$ be a vector space.
 The goal of this section is to show how to construct an alternating tensor in
-$\Lambda^N V$ from an arbitrary tensor $|\Phi\rangle\in V^{\otimes n}$.
+$\Lambda^n V$ from an arbitrary tensor $|\Phi\rangle\in V^{\otimes n}$.
 
 First we'll consider the case where $n=2$. Consider the decomposable tensor:
 
@@ -242,14 +240,13 @@ is a normalized version of the antisymmetrization map.
 > 
 > The _Slater determinant_ of a decomposable tensor
 > $\|v_1\dots v_n\rangle\in V^{\otimes n}$ is denoted by
-> $\|v_1,\dots,\v_n\rangle$ (note the commas) and defined by:
+> $\|v_1,\dots,v_n\rangle$ (note the commas) and defined by:
 >
 > $$
-> |v_1,\dots, v_n\rangle := \frac{1}{\sqrt{n!}}\mathrm{Alt}^n(|v_1\dots v_n\rangle) \in \Lambda^n V
+> |v_1,\dots,v_n\rangle := \frac{1}{\sqrt{n!}}\mathrm{Alt}^n(|v_1\dots v_n\rangle) \in \Lambda^n V
 > $$
 
-In practice, all anti-symmetric tensors considered in this post will be Slater determinants
-of decomposable tensors.
+In practice, all anti-symmetric tensors considered in this post will be Slater determinants.
 
 ## Molecular Operators
 
@@ -262,11 +259,12 @@ In particular, the energy of an $n$-electron molecule corresponds to a self-adjo
 on $\Lambda^n\mathcal{H}$.
 
 Let $V$ be a Hilbert space. In this section we'll show how to construct
-self-adjoint operators on $\Lambda^n V$ from self-adjoint operators on $V$ and $\Lambda^2 V$.
+self-adjoint operators on $\Lambda^n V$ from self-adjoint operators on $\Lambda^k V$
+for $1 \leq k \leq n$.
 
 Rather than directly constructing linear transformations on $\Lambda^n V$, we'll
-instead construct linear transformations of $V^{\otimes n}$ that are invariant
-under the action of $S_n$.
+instead construct linear transformations of $V^{\otimes n}$ that commute with 
+the action of $S_n$ as formalized in the following definition.
 
 > **Definition (Symmetric Operator).**
 > Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
@@ -279,6 +277,9 @@ under the action of $S_n$.
 > P_\sigma T = T P_\sigma
 > $$
 
+In our context, the significance of symmetric operators on $V^{\otimes n}$
+is that they can be restricted to operators on $\Lambda^n V$.
+
 > **Claim (Symmetric Restriction).**
 > Let $V$ be a vector space, $n\in\mathbb{Z}$ a positive integer
 > and $T\in\mathrm{End}(V^{\otimes n})$ a symmetric operator on $V^{\otimes n}$.
@@ -289,48 +290,58 @@ under the action of $S_n$.
 
 By claim XXX, in order to construct an operator on $\Lambda^n V$ it's sufficient to
 construct a symmetric operator on $V^{\otimes n}$.
-
 We'll now see how to build symmetric operators on $V^{\otimes n}$ 
-from symmetric operators on $V^{\otimes k}$ where $k < n$.
+from symmetric operators on $V^{\otimes k}$ where $k \leq n$.
 
-> **Claim (Symmetric Extension).**
-> Let $V$ be a Hilbert space, $k < n\in\mathbb{Z}$ positive integers
-> and $T^k\in\mathrm{End}(V^{\otimes k})$
-> a symmetric operator on $V^{\otimes k}$.
+First let's introduce some convenient notation for dealing with sequences of integers.
+For a given integer $n$, we'll use the standard notation:
+
+$$
+[n] := \{1,\dots,n\}
+$$
+
+Given another integer $k$, we'll denote the set of length $k$ sequences
+of integers in $[n]$ by $[n]^k$ and denote the set of _monotonically increasing_
+length $k$ sequences of integers in $[n]$ by
+
+$$
+\binom{[n]}{k} \subset [n]^k
+$$
+
+Now let $v_1,\dots,v_n\in V$ be vectors and 
+$I = (i_1,\dots,i_k) \in [n]^k$ a length $k$ sequence.
+We'll define:
+
+$$
+|v_I\rangle := |v_{i_1}\dots v_{i_k}\rangle \in V^{\otimes k}
+$$
+
+> **Definition (Symmetric Extension).**
+> Let $V$ be a vector space, $k \leq n\in\mathbb{Z}$ positive integers
+> and $T^k\in\mathrm{End}(V^{\otimes k})$ an operator on $V^{\otimes k}$.
 >
-> For each subset $I\subset\\{1,\dots,n\\}$ of size $k$, define
-> $T_I^n\in\mathrm{End}(V^{\otimes n})$ to be the operator on $V^{\otimes n}$
-> that acts as $T^k$ on the $k$ tensor factors of $V^{\otimes n}$ indexed by $I$
-> and as the identity on the remaining $n-k$ factors.
->
-> More precisely, consider the special case of the subset $K:=\\{1,\dots,k\\}$.
-> We can define $T_K^n$ to act on
-> a basis vector $|v_1\dots v_N\rangle\in V^{\otimes N}$ by:
+> Define the operator $T_k^n\in\mathrm{End}(V^{\otimes n})$ to act as $T^k$
+> on the first $k$ factors of $V^{\otimes n}$ and as the identity on the remaining
+> factors:
 >
 > $$
-> T_K^n|v_1\dots v_N\rangle := 
+> T_k^n|v_1\dots v_n\rangle := 
 > (T^k|v_1\dots v_k\rangle)|v_{k+1}\dots v_n\rangle
 > $$
 >
-> For an arbitrary subset $I$, let $\sigma_I\in S_N$
-> be any permutation that sends $I$ to $K$.
-> We'll then define:
+> The _symmetric extension_ of $T^k$, $T^n\in\mathrm{End}(V^{\otimes n})$, is defined
+> to be:
 >
 > $$
-> T_I^n := P_{\sigma_I^{-1}} T_K^n P_{\sigma_I}
-> $$
->
-> Note that this definition of $T_I^n$ is independent of the choice of $\sigma_I$
-> since $T^k$ is symmetric.
->
-> Define the _symmetric extension_ of $T^k$, $T^n\in\mathrm{End}(V^{\otimes n})$,
-> to be the sum of the operators $T_I^n$ over all subsets $I$ of size $k$:
->
-> $$
-> T^n := \sum_{I\subset\{1,\dots,n\},\,|I|=k}T_I^n
+> T^n := \frac{1}{n!}\sum_{\sigma\in S_n} P_{\sigma^{-1}} T_k^n P_{\sigma}
 > $$ 
->
-> Then, $T^n$ is a symmetric operator on $V^{\otimes n}$. In addition, if $T^k$
+
+> **Claim (Symmetric Extension).**
+> Let $V$ be a vector space, $k \leq n\in\mathbb{Z}$ positive integers
+> and $T^k\in\mathrm{End}(V^{\otimes k})$ an operator on $V^{\otimes k}$.
+
+> Then, the symmetrization extension of $T^k$, $T^n\in\mathrm{End}(V^{\otimes n})$,
+> is a symmetric operator on $V^{\otimes n}$. In addition, if $T^k$
 > is self-adjoint then $T^n$ is self-adjoint.
 
 <details>
@@ -339,80 +350,37 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
-The key to this claim is to show that for all permutations $\sigma\in S_n$ and 
-order $k$ subsets $I\subset\\{1,\dots,n\\}$:
+We'll first show that $T^n$ is symmetric. Let $\sigma\in S_n$ be a permutation.
 
-$$
-P_{\sigma^{-1}} T_I^n P_{\sigma} = T_{\sigma^{-1}(I)}^n
-$$
-
-As in the claim, let $K$ denote the subset $\\{1,\dots,k\\}$ and 
-let $\sigma_I\in S_n$ be some permutation satisfying
-
-$$
-\sigma_I(I) = K
-$$
-
-By the definition of $T_I^n$:
-
-$$
-T_I^n = P_{\sigma_I^{-1}}T_K^n P_{\sigma_I}
-$$
-
-Therefore:
+Then, by the definition of $T^n$:
 
 $$
 \begin{align*}
-P_{\sigma^{-1}} T_I^n P_{\sigma}
-&= P_{\sigma^{-1}} P_{\sigma_I^{-1}}T_K^n P_{\sigma_I} P_{\sigma} \\
-&= P_{(\sigma_I\sigma)^{-1}}T_K^n P_{\sigma_I\sigma}
-\end{align*}
-$$
-
-Now note that:
-
-$$
-\sigma_I\sigma (\sigma^{-1}(I)) = \sigma_I(I) = K
-$$
-
-Therefore, by the definition of $T_{\sigma^{-1}(I)}^n$:
-
-$$
-T_{\sigma^{-1}(I)}^n = P_{(\sigma_I\sigma)^{-1}}T_K^n P_{\sigma_I\sigma}
-$$
-
-which concludes the proof of XXX.
-
-We can now prove that $T^n\in\mathrm{End}(V^{\otimes n})$ is symmetric.
-Let $\sigma\in S_n$ be a permutation. Then:
-
-$$
-\begin{align*}
-P_{\sigma^{-1}}T^n P_\sigma
-&= \sum_{I\subset\{1,\dots,n\},\,|I|=k} P_{\sigma^{-1}} T_I^n P_\sigma \\
-&= \sum_{I\subset\{1,\dots,n\},\,|I|=k} T_{\sigma^{-1}(I)}^n \\
+P_{\sigma^{-1}} T^n P_{\sigma}
+&= P_{\sigma^{-1}} \left(\sum_{\sigma'\in S_n} P_{\sigma'^{-1}} T_k^n P_{\sigma'} P_{\sigma} \\
+&= \sum_{\sigma'\in S_n} P_{(\sigma'\sigma)^{-1}} T_k^n P_{\sigma'\sigma} \\
 &= T^n
 \end{align*}
 $$
 
-Where the last equality follows from the fact that $\sigma^{-1}$ is an automorphism
+The last equality follows from the fact that $\sigma^{-1}$ is an automorphism
 of size $k$ subsets of $\\{1,\dots,n\\}$.
 
 Now suppose that $T^k$ is self adjoint, i.e, $(T^k)^* = T^k$. It's easy to see
-that $T_K^n$ is self adjoint at well. In addition, $P_\sigma$ is unitary for all
-permutations $\sigma\in S_n$ which implies that for all subsets $I$:
+that $T_k^n$ is self adjoint at well. In addition, $P_\sigma$ is unitary for all
+permutations $\sigma\in S_n$ which implies that:
 
 $$
 \begin{align*}
-(T_I^n)^*
-&= (P_{\sigma^{-1}} T_K^n P_\sigma)^* \\
-&= P_\sigma^* (T_K^n)^* P_{\sigma^{-1}}^* \\
-&= P_{\sigma^{-1}} T_K^n P_\sigma \\
-&= T_I^n
+(T_k^n)^*
+&= (P_{\sigma^{-1}} T_k^n P_\sigma)^* \\
+&= P_\sigma^* (T_k^n)^* P_{\sigma^{-1}}^* \\
+&= P_{\sigma^{-1}} T_k^n P_\sigma \\
+&= T_k^n
 \end{align*}
 $$
 
-This means that by definition $T^n$ is a sum of self-adjoint operators which implies
+This means that $T^n$ is a sum of self-adjoint operators which implies
 that it is self-adjoint.
 
 </div>
