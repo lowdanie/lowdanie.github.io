@@ -291,30 +291,7 @@ is that they can be restricted to operators on $\Lambda^n V$.
 By claim XXX, in order to construct an operator on $\Lambda^n V$ it's sufficient to
 construct a symmetric operator on $V^{\otimes n}$.
 We'll now see how to build symmetric operators on $V^{\otimes n}$ 
-from symmetric operators on $V^{\otimes k}$ where $k \leq n$.
-
-First let's introduce some convenient notation for dealing with sequences of integers.
-For a given integer $n$, we'll use the standard notation:
-
-$$
-[n] := \{1,\dots,n\}
-$$
-
-Given another integer $k$, we'll denote the set of length $k$ sequences
-of integers in $[n]$ by $[n]^k$ and denote the set of _monotonically increasing_
-length $k$ sequences of integers in $[n]$ by
-
-$$
-\binom{[n]}{k} \subset [n]^k
-$$
-
-Now let $v_1,\dots,v_n\in V$ be vectors and 
-$I = (i_1,\dots,i_k) \in [n]^k$ a length $k$ sequence.
-We'll define:
-
-$$
-|v_I\rangle := |v_{i_1}\dots v_{i_k}\rangle \in V^{\otimes k}
-$$
+from arbitrary operators on $V^{\otimes k}$ where $k \leq n$.
 
 > **Definition (Symmetric Extension).**
 > Let $V$ be a vector space, $k \leq n\in\mathbb{Z}$ positive integers
@@ -333,7 +310,7 @@ $$
 > to be:
 >
 > $$
-> T^n := \frac{1}{n!}\sum_{\sigma\in S_n} P_{\sigma^{-1}} T_k^n P_{\sigma}
+> T^n := \frac{1}{k!(n-k)!}\sum_{\sigma\in S_n} P_{\sigma^{-1}} T_k^n P_{\sigma}
 > $$ 
 
 > **Claim (Symmetric Extension).**
@@ -350,15 +327,15 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
-We'll first show that $T^n$ is symmetric. Let $\sigma\in S_n$ be a permutation.
+First we'll show that $T^n$ is symmetric. Let $\sigma\in S_n$ be a permutation.
 
 Then, by the definition of $T^n$:
 
 $$
 \begin{align*}
-P_{\sigma^{-1}} T^n P_{\sigma}
-&= P_{\sigma^{-1}} \left(\sum_{\sigma'\in S_n} P_{\sigma'^{-1}} T_k^n P_{\sigma'} P_{\sigma} \\
-&= \sum_{\sigma'\in S_n} P_{(\sigma'\sigma)^{-1}} T_k^n P_{\sigma'\sigma} \\
+P_{\sigma^{-1}} T^n P_{\sigma} 
+&= P_{\sigma^{-1}} \left( \frac{1}{k!(n-k)!}\sum_{\sigma'\in S_n} P_{\sigma'^{-1}} T_k^n P_{\sigma'}\right) P_{\sigma} \\
+&=  \frac{1}{k!(n-k)!}\sum_{\sigma'\in S_n} P_{(\sigma'\sigma)^{-1}} T_k^n P_{\sigma'\sigma} \\
 &= T^n
 \end{align*}
 $$
@@ -652,7 +629,7 @@ $$
 H^n = T^n + V_{\mathrm{en}}^n + V_{\mathrm{e}}^n \in\mathrm{End}(\Lambda^n\mathcal{H})
 $$
 
-where the components were obtained as symmetrizations of the one electron operators
+where the components were obtained as symmetric extensions of the one electron operators
 $T^1\in\mathrm{End}(\mathcal{H})$ and $V_{\mathrm{en}}^1\in\mathrm{End}(\mathcal{H})$
 and the two electron operator $V_{\mathrm{e}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
 
@@ -664,19 +641,41 @@ $$
 
 in terms of expected values of the one and two electron operators above.
 
+First let's introduce some convenient notation for dealing with sequences of integers.
+For a given integer $n$, we'll use the standard notation:
+
+$$
+[n] := \{1,\dots,n\}
+$$
+
+Given another integer $k$, we'll denote the set of length $k$ sequences
+of integers in $[n]$ by $[n]^k$ and denote the set of _monotonically increasing_
+length $k$ sequences of integers in $[n]$ by
+
+$$
+\binom{[n]}{k} \subset [n]^k
+$$
+
+Now let $v_1,\dots,v_n\in V$ be vectors and 
+$I = (i_1,\dots,i_k) \in [n]^k$ a length $k$ sequence.
+We'll define:
+
+$$
+|v_I\rangle := |v_{i_1}\dots v_{i_k}\rangle \in V^{\otimes k}
+$$
 
 > **Claim (Slater Determinant Expectation).**
 > Let $V$ be an inner-product space and $k \leq n\in\mathbb{Z}$ positive integers.
 >
 > Let $v_1,\dots,v_n\in V$ be orthonormal vectors in $V$.
-> Let $T^k\in\mathrm{End}(V^{\otimes k})$ a symmetric operator on $V^{\otimes k}$
-> and $T^n\in\mathrm{End}(V^{\otimes n})$ its symmetrization.
+> Let $T^k\in\mathrm{End}(V^{\otimes k})$ be a symmetric operator on $V^{\otimes k}$
+> and $T^n\in\mathrm{End}(V^{\otimes n})$ its symmetric extension.
 >
 > Then:
 >
 > $$
 > \langle v_1,\dots,v_n | T^n | v_1,\dots,v_n \rangle =
-> \sum_{ I\in S_{n,k} } \sum_{\sigma\in S_k}
+> \sum_{ I\in \binom{[n]}{k} } \sum_{\sigma\in S_k}
 > \mathrm{sgn}(\sigma) \langle v_I | T^k P_\sigma | v_I \rangle
 > $$
 
@@ -687,23 +686,14 @@ Proof [click to expand]
 <div class="details-content">
 
 Given a sequence of integers $J = (j_1,\dots,j_l)$ in the range $\\{1,\dots,n\\}$,
-we'll use the notation $|v_J\rangle$ to denote the tensor $|v_{j_1}\dots v_{j_l}\rangle$.
-
-By definition,
+By definition XXX,
 
 $$
-T^n = \sum_{ I \in S_{n,k} }
-P_{\sigma_I^{-1}} T_k^n P_{\sigma_I}
+T^n = \frac{1}{k!(n-k)!}\sum_{ \rho \in S_n }
+P_{\rho^{-1}} T_k^n P_{\rho}
 $$
 
-where, for all subsequences $I \in S_{n,k}$, $\sigma_I\in S_n$ is a permutation
-that satisfies:
-
-$$
-\mathrm{range}(\sigma_I(I)) = \{1,...,k\}
-$$
-
-In addition, by definition
+And by definition XXX:
 
 $$
 |v_1,\dots,v_n\rangle = 
@@ -715,120 +705,250 @@ $$
 Therefore,
 
 $$
-\langle v_1,\dots,v_n | T^n | v_1,\dots,v_n\rangle =
-\frac{1}{n!}
-\sum_{\sigma,\sigma'\in S_n}\sum_{I \in S_{n,k} }
+\begin{align*}
+\langle v_1,\dots,v_n | T^n | v_1,\dots,v_n\rangle &=
+\frac{1}{k!(n-k)!n!}
+\sum_{\rho\in S_n}
+\sum_{\sigma,\sigma'\in S_n}
 \mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
 \langle v_1\dots v_n | 
-P_{\sigma^{-1}} P_{\sigma_I^{-1}} T_k^n P_{\sigma_I} P_{\sigma'}
+P_{\sigma^{-1}} P_{\rho^{-1}} T_k^n P_{\rho} P_{\sigma'}
+| v_1 \dots v_n \rangle \\
+&= \frac{1}{k!(n-k)!n!}
+\sum_{\rho\in S_n}
+\sum_{\sigma,\sigma'\in S_n}
+\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
+\langle v_1\dots v_n | 
+P_{(\rho\sigma)^{-1}} T_k^n P_{\rho\sigma'}
+| v_1 \dots v_n \rangle \\
+&= \frac{1}{k!(n-k)}
+\sum_{\sigma,\sigma'\in S_n}
+\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
+\langle v_1\dots v_n | 
+P_{\sigma^{-1}} T_k^n P_{\sigma'}
 | v_1 \dots v_n \rangle
+\end{align*}
 $$
 
-Now, let $\sigma,\sigma'\in S_n$ be permutations and $I\in S_{n,k}$ a subsequence.
-Let $I^c \in S_{n,n-k}$ denote the complement of $I$
-in $(1,\dots,n)$.
+Now, let $\sigma,\sigma'\in S_n$ be permutations, and define the sequences 
+$K :=(1,\dots,k)\in [n]^k$ and $K^c := (k+1,\dots,n)\in [n]^{n-k}$.
 
-Then, by the definition of $\sigma_I$:
-
-$$
-\mathrm{range}(\sigma_I\sigma(\sigma^{-1}(I))) =
-\mathrm{range}(\sigma_I\sigma'(\sigma'^{-1}(I))) =
-\{1,\dots,k\}
-$$
-
-Therefore:
+Since $T_k^n$ only acts on the first $k$ factors of $V^{\otimes n}$:
 
 $$
 \langle v_1\dots v_n | 
-P_{\sigma^{-1}} P_{\sigma_I^{-1}} T_k^n P_{\sigma_I} P_{\sigma'}
+P_{\sigma^{-1}} T_k^n P_{\sigma'}
 | v_1 \dots v_n \rangle =
-\langle v_{\sigma^{-1}(I)} | T^k | v_{\sigma'^{-1}(I)} \rangle 
-\langle v_{\sigma^{-1}(I^c)} | v_{\sigma'^{-1}(I^c)} \rangle
+\langle v_{\sigma^{-1}(K)} | T^k | v_{\sigma'^{-1}(K)} \rangle 
+\langle v_{\sigma^{-1}(K^c)} | v_{\sigma'^{-1}(K^c)} \rangle
 $$
 
 By the orthonormality of $v_1,\dots,v_n$, 
 
 $$
-\langle v_{\sigma^{-1}(I^c)} | v_{\sigma'^{-1}(I^c)} \rangle =
+\langle v_{\sigma^{-1}(K^c)} | v_{\sigma'^{-1}(K^c)} \rangle =
 \begin{cases}
-1 & \sigma'^{-1}(I^c) = \sigma^{-1}(I^c) \\
+1 & \sigma'^{-1}(K^c) = \sigma^{-1}(K^c) \\
 0 & \mathrm{else}
 \end{cases}
 $$
 
-We'll now consider the case where $\sigma'^{-1}(I^c) = \sigma^{-1}(I^c)$.
+We'll now consider the non-zero case where $\sigma'^{-1}(K^c) = \sigma^{-1}(K^c)$.
 
-First, note that
-
-$$
-\mathrm{range}(\sigma'^{-1}(I)) = \mathrm{range}(\sigma^{-1}(I))
-$$
-
-which means that there is a permutation $\alpha\in S_k$ such that:
+First, note that in this case $\sigma^{-1}(K)$ and $\sigma'^{-1}(K)$ have the
+same elements. In particular, there is some ordered sequence $I \in \binom{[n]}{k}$
+such that:
 
 $$
-\sigma'^{-1}(I) = \alpha \sigma^{-1}(I)
+\mathrm{range}(I) = \mathrm{range}(\sigma^{-1}(K)) = \mathrm{range}(\sigma'^{-1}(K))
 $$
 
-Since in this case $\sigma^{-1}$ and $\sigma'^{-1}$ agree on $I^c$, together this implies that
-
-$$
-\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma') = \mathrm{sgn}(\alpha)
-$$
-
-Furthermore,
-
-$$
-\langle v_{\sigma^{-1}(I)} | T^k | v_{\sigma'^{-1}(I)} \rangle 
-= \langle v_{\sigma^{-1}(I)} | T^k P_\alpha | v_{\sigma^{-1}(I)} \rangle
-$$
-
-Putting this altogether, we can rewrite the sum XXX as:
+Since $I$, $\sigma^{-1}(K)$ and $\sigma'^{-1}(K)$ have the same range, 
+there are permutations $\alpha,\alpha'\in S_k$
+satisfying:
 
 $$
 \begin{align*}
-\langle v_1,\dots,v_n | T^n | v_1,\dots,v_n\rangle 
-&= \frac{1}{n!}
-\sum_{\sigma\in S_n}\sum_{\alpha\in S_k}\sum_{I \in S_{n,k} }
-\mathrm{sgn}(\alpha)
-\langle v_{\sigma^{-1}(I)} | T^k P_\alpha | v_{\sigma^{-1}(I)} \rangle \\
-&= \frac{1}{n!}
-\sum_{\sigma\in S_n}\sum_{\alpha\in S_k}\sum_{I \in S_{n,k} }
-\mathrm{sgn}(\alpha)
-\langle v_I | T^k P_\alpha | v_I \rangle \\
-&= \sum_{I \in S_{n,k} }\sum_{\alpha\in S_I}
-\mathrm{sgn}(\alpha)
-\langle v_I | T^k P_\alpha | v_I \rangle
+P_\alpha |v_I\rangle &= |v_{\sigma^{-1}(K)}\rangle \\
+P_{\alpha'} |v_I\rangle &= |v_{\sigma'^{-1}(K)}\rangle
 \end{align*}
 $$
+
+Using the definitions of $\alpha$ and $\alpha'$ together with the symmetry of $T^k$:
+
+$$
+\begin{align*}
+\langle v_{\sigma^{-1}(K)} | T^k | v_{\sigma'^{-1}(K)} \rangle
+&= \langle v_I | P_{\alpha^{-1}} T^k P_{\alpha'} |v_I\rangle \\
+&= \langle v_I | T^k P_{\alpha^{-1}\alpha'} |v_I\rangle
+\end{align*}
+$$
+
+Therefore, if we define $\beta := \alpha^{-1}\alpha' \in S_k$ then:
+
+$$
+\langle v_{\sigma^{-1}(K)} | T^k | v_{\sigma'^{-1}(K)}\rangle =
+\langle v_I | T^k P_\beta | v_I \rangle 
+$$
+
+Note that:
+
+$$
+\mathrm{sgn}(\beta) = \mathrm{sgn}(\alpha)\mathrm{sgn}(\alpha') = \mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
+$$
+
+Plugging this all back into XXX we get:
+
+$$
+\begin{align*}
+\langle v_1,\dots,v_n | T^n | v_1,\dots,v_n\rangle
+&= \frac{1}{k!(n-k)}
+\sum_{I\in \binom{[n]}{k}}
+\sum_{\substack{\sigma\in S_n \\ \sigma(I)=K}}
+\sum_{\beta\in S_k}
+\mathrm{sgn}(\beta)
+\langle v_I | T^k P_{\beta}| v_I \rangle \\
+&= \sum_{I\in \binom{[n]}{k}}
+\sum_{\beta\in S_k}
+\mathrm{sgn}(\beta)
+\langle v_I | T^k P_{\beta}| v_I \rangle
+\end{align*}
+$$
+
+_q.e.d_
 
 </div>
 </details>
 
-The expected value of a two-electron operator on a Slater determinant is similar:
+We'll now use apply XXX to compute the expected values of the components of the Hamiltonian $H$.
 
-> **Claim (Two Electron Slater Expectation).**
-> Let $N\in\mathbb{Z}$ be a positive integer and $1 \leq i \leq N$. 
-> Let $\hat{a}$ be an operator on $\Lambda^2\mathcal{H}$ and $\hat{a}_{ij}$ 
-> the corresponding
-> operator on $\Lambda^N\mathcal{H}$ which acts on factors $i$ and $j$.
+> **Claim (Kinetic Energy Expectation).**
+>
+> Let $n\in\mathbb{Z}$ be a positive integer and let
+> $T^1\in\mathrm{End}(\mathcal{H})$ and
+> $T^n\in\mathrm{End}(\Lambda^n \mathcal{H})$ be the $1$-electron and $n$-electron
+> kinetic energy operators.
 >
 > Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
-> one-electron states and
->
-> $$
-> |\chi_1,\dots,\chi_N\rangle\in \Lambda^N\mathcal{H}
-> $$
->
-> the associated Slater determinant.
+> one-electron states.
 >
 > Then:
 >
 > $$
-> \langle \chi_1,\dots,\chi_N | \hat{a}_{12} | \chi_1,\dots,\chi_N \rangle =
-> \frac{2}{N(N-1)}\sum_{i=1}^N\sum_{j>i}^N\left(
-> \langle \chi_i\chi_j | \hat{a} | \chi_i\chi_j \rangle -
-> \langle \chi_i\chi_j | \hat{a} | \chi_j\chi_i \rangle
+> \langle \chi_1,\dots,\chi_n | T^n | \chi_1,\dots,\chi_n \rangle =
+> \sum_{i=1}^n \langle \chi_i | T^1 | \chi_i \rangle
+> $$
+
+> **Claim (Electron Nuclear Attraction Expectation).**
+>
+> Let $n\in\mathbb{Z}$ be a positive integer and let
+> $V_{\mathrm{en}}^1\in\mathrm{End}(\mathcal{H})$ and
+> $V_{\mathrm{en}}^n\in\mathrm{End}(\Lambda^n \mathcal{H})$ 
+> be the $1$-electron and $n$-electron
+> nuclear attraction energy operators.
+>
+> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
+> one-electron states.
+>
+> Then:
+>
+> $$
+> \langle \chi_1,\dots,\chi_n | V_{\mathrm{en}}^n | \chi_1,\dots,\chi_n \rangle =
+> \sum_{i=1}^n \langle \chi_i | V_{\mathrm{en}}^1 | \chi_i \rangle
+> $$
+
+> **Claim (Electron Repulsion Expectation).**
+>
+> Let $n\in\mathbb{Z}$ be a positive integer and let
+> $V_{\mathrm{ee}}^2\in\mathrm{End}(\Lambda^2 \mathcal{H})$ and
+> $V_{\mathrm{ee}}^n\in\mathrm{End}(\Lambda^n \mathcal{H})$ 
+> be the electron-electron repulsion operators for $2$ and $n$ electrons
+> respectively.
+>
+> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
+> one-electron states.
+>
+> Then:
+>
+> $$
+> \langle \chi_1,\dots,\chi_n | V_{\mathrm{ee}}^n | \chi_1,\dots,\chi_n \rangle =
+> \sum_{i=1}^n\sum_{j>i}^n 
+> \left( 
+> \langle \chi_i\chi_j | V_{\mathrm{ee}}^2 | \chi_i\chi_j \rangle -
+> \langle \chi_i\chi_j | V_{\mathrm{ee}}^2 | \chi_j\chi_i \rangle
+> \right)
+> $$
+
+## Closed Shell
+
+Recall that the Hilbert space $\mathcal{H}$ of single electron space is defined as:
+
+$$
+\mathcal{H} := L^2(\mathbf{R}^3)\otimes \mathbb{C}^2
+$$
+
+Where the seconds factor $\mathbb{C}^2$ represents the two-dimensional spin space
+spanned by spin down, denoted $\|0\rangle$ and spin up, denoted $\|1\rangle$.
+
+Therefore, the decomposable single electron states $\|\chi\rangle\in\mathcal{H}$ are of the form:
+
+$$
+|\chi\rangle = |\psi\rangle |s\rangle
+$$
+
+where $\psi\in L^2(\mathbf{R}^3)$ is a positional wave function and $s\in\\{0,1\\}$
+indicates if the spin state is up or down.
+
+Until now we've been considering $n$-electron Slater determinants of arbitrary sequences of
+single-electron states $\|\chi_1\rangle,\dots,\|\chi_n\rangle\in\mathcal{H}$.
+In general, molecules are most stable when, for each positional wave function
+$\|\psi\rangle$, either both or neither of the possible spin states are occupied.
+This type of electron configuration is called
+[closed shell](https://en.wikipedia.org/wiki/Electron_configuration#Open_and_closed_shells)
+as formalized in the following definition.
+
+> **Definition (Closed Shell Slater Determinant).**
+> Let $n\in\mathbb{Z}$ be a positive integer and 
+> $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ positional wave functions.
+>
+> The _closed shell Slater determinant_ with positions $\psi_1,\dots,\psi_n$
+> is denoted $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n(\mathcal{H})$ 
+> and defined to be the Slater determinant of
+> the $2n$ single-electron states 
+>
+> $$
+> |\psi_1\rangle|0\rangle,|\psi_1\rangle|1\rangle,\dots,
+> |\psi_n\rangle|0\rangle,|\psi_n\rangle|1\rangle \in \mathcal{H}
+> $$
+
+In other words, the closed shell Slater determinant of
+$\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ is given by:
+
+$$
+|\psi_1,\dots,\psi_n\rangle := 
+|\psi_10,\psi_11,\dots,\psi_n0\psi_n1\rangle\in\Lambda^n(\mathcal{H})
+$$
+
+From a computational perspective, the advantage of restricting our attention to
+closed shell states is that their expected energy formulas can be expressed in terms
+of positional wave functions alone. First we'll demonstrate this in the case of
+single-electron operator
+
+> **Claim (Single Electron Operator Closed Shell Expectation).**
+> Let $n\in\mathbb{Z}$ be a positive integer and $T\in\mathrm{End}(L^2(\mathbb{R}^3))$
+> an operator.
+>
+> Let $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ be the
+> symmetric extension of
+> $T\otimes\mathrm{Id}\in \mathrm{End}(\mathcal{H})$ 
+>
+> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ be positional wave functions.
+>
+> Then:
+>
+> $$
+> \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle =
+> 2 \sum_{i=1}^n \langle \psi_i | T | \psi_i \rangle
 > $$
 
 <details>
@@ -837,127 +957,94 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
-We'll prove the claim in the case where $i=1$ and $j=2$.
-The remaining cases are identical.
-
-By the definition of the Slater determinant:
-
-$$
-|\chi_1,\dots,\chi_N \rangle = 
-\sum_{\sigma\in S_N}\mathrm{sgn}(\sigma)P_\sigma|\chi_1\dots\chi_N\rangle
-$$
-
-First note that:
-
-$$
-\hat{a}_{12} P_\sigma|\chi_1\dots\chi_N\rangle =
-\hat{a}|\chi_{\sigma(1)}\chi_{\sigma(2)}\rangle|\chi_{\sigma(3)}\dots\chi_{\sigma(N)}\rangle
-$$
-
-Therefore, for all permutations $\sigma,\sigma'\in S_N$:
-
-$$
-\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_{12} | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle =
-\langle \chi_{\sigma(1)}\chi_{\sigma(2)} | \hat{a} | \chi_{\sigma'(1)}\chi_{\sigma'(2)} \rangle
-\langle \chi_{\sigma(3)}\dots\chi_{\sigma(N)} | \chi_{\sigma'(3)}\dots\chi_{\sigma'(N)} \rangle
-$$
-
-If there is some $i>2$ such that
-$\sigma(i)\neq\sigma'(i)$ then, by the orthonormality of 
-$\|\chi_1\rangle,\dots,\|\chi_N\rangle$:
-
-$$
-\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_{12} | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle = 0
-$$
-
-On the other hand, suppose that $\sigma(i) = \sigma'(i)$ for all $i > 2$. This means
-that there is some transposition $\tau\in S_{\{1,2\}}$ such that
-
-$$
-\sigma'(i) = 
-\begin{cases}
-\sigma\tau(i) & 1 \leq i \leq 2 \\
-\sigma(i) & i > 2
-\end{cases}
-$$
-
-Plugging this into XXX and using the orthonormality of $\|\chi_1\rangle,\dots,\|\chi_N\rangle$
-we can see that in this case:
-
-$$
-\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_{12} | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle =
-\langle \chi_{\sigma(1)}\chi_{\sigma(2)} | \hat{a}_{12} | \chi_{\sigma\tau(1)}\chi_{\sigma\tau(2)} \rangle
-$$
-
-Therefore:
+By XXX:
 
 $$
 \begin{align*}
-\langle \chi_1,\dots,\chi_N | \hat{a}_{12} | \chi_1,\dots,\chi_N \rangle &=
-\frac{1}{N!}
-\sum_{\sigma,\sigma'\in S_N}
-\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
-\langle \chi_1,\dots,\chi_N | P_\sigma^* | \hat{a}_1 | P_{\sigma'} | \chi_1,\dots,\chi_N\rangle \\
-&= \frac{1}{N!}
-\sum_{\sigma\in S_N}\sum_{\tau\in S_{\{1,2\}}}
-\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma\tau)
-\langle \chi_{\sigma(1)}\chi_{\sigma(2)} | \hat{a} | \chi_{\sigma\tau(1)}\chi_{\sigma\tau(2)} \rangle \\
-&= \frac{(N-2)!}{N!}\sum_{i=1}^N\sum_{j>i}^N\sum_{\tau \in S_{\{i,j\}}}
-\mathrm{sgn}(\tau)
-\langle \chi_{i}\chi_{j} | \hat{a} | \chi_{\tau(i)}\chi_{\tau(j)} \rangle \\
-&= \frac{2}{N(N-1)}\sum_{i=1}^N\sum_{j>i}^N\left(
-\langle \chi_{i}\chi_{j} | \hat{a} | \chi_{i}\chi_{j}\rangle - 
-\langle \chi_{i}\chi_{j} | \hat{a} | \chi_{j}\chi_{i}\rangle
-\right)
+\langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle 
+&= \sum_{i=1}^n \sum_{s=0}^1 \langle \psi_i s | T\otimes\mathrm{Id} | \psi_i s \rangle \\
+&= \sum_{i=1}^n \sum_{s=0}^1 \langle \psi_i | T | \psi_i \rangle \langle s | s \rangle
 \end{align*}
 $$
+
+By the orthonormality of $\|0\rangle,\|1\rangle\in\mathbb{C}^2$,
+the expression above simplifies to
+
+$$
+2\sum_{i=1}^n \langle \psi_i | T | \psi_i \rangle
+$$
+
+_q.e.d_
 
 </div>
 </details>
 
-We'll now use these claims to derive the expected values of the components of the Hamiltonian $\hat{H}$.
+The case of a two-electron operator is similar.
 
-> **Claim (Kinetic Energy Expectation).**
+> **Claim (Double Electron Operator Closed Shell Expectation).**
+> Let $n\in\mathbb{Z}$ be a positive integer and $T\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$
+> a symmetric operator.
 >
-> Let $N\in\mathbb{Z}$ be a positive integer and let $\hat{T}$ be the $N$-electron
-> kinetic energy operator on $\Lambda^N\mathcal{H}$.
+> Let $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ be the symmetric extension
+> of $T\otimes\mathrm{Id}^{\otimes 2}\in \mathrm{End}(\mathcal{H})$.
 >
-> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
-> one-electron states and
->
-> $$
-> |\chi_1,\dots,\chi_N\rangle\in \Lambda^N\mathcal{H}
-> $$
->
-> the associated Slater determinant.
+> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ be positional wave functions.
 >
 > Then:
 >
 > $$
-> \langle \chi_1,\dots,\chi_N | \hat{T} | \chi_1,\dots,\chi_N \rangle =
-> -\frac{1}{2} \sum_{i=1}^N \langle \chi_i | \Nabla^2 | \chi_i \rangle
+> \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle =
+> \sum_{i,j=1}^n \left(
+> 2\langle \psi_i\psi_j | T | \psi_i \psi_j \rangle
+> -\langle \psi_i\psi_j | T | \psi_j \psi_i \rangle \right)
 > $$
 
-> **Claim (Electron Repulsion Expectation).**
->
-> Let $N\in\mathbb{Z}$ be a positive integer and let $\hat{V}_{\mathrm{elec}}$ 
-> be the electron-electron repulsion operator on $\Lambda^N\mathcal{H}$.
->
-> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
-> one-electron states and
->
-> $$
-> |\chi_1,\dots,\chi_N\rangle\in \Lambda^N\mathcal{H}
-> $$
->
-> the associated Slater determinant.
->
-> Then:
->
-> $$
-> \langle \chi_1,\dots,\chi_N | \hat{V}_{\mathrm{elec}} | \chi_1,\dots,\chi_N \rangle =
-> -\frac{1}{2} \sum_{i=1}^N \langle \chi_i | \Nabla^2 | \chi_i \rangle
-> $$
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+By XXX:
+
+$$
+\begin{align*}
+\langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle 
+&= \frac{1}{2}\sum_{i,j=1}^n \sum_{s,t=0}^1 
+\langle \psi_i s \psi_j t | T' | \psi_i s \psi_j t\rangle 
+-\langle \psi_i s \psi_j t | T' | \psi_j t \psi_i s\rangle \\
+&= \frac{1}{2}\sum_{i,j=1}^n \sum_{s,t=0}^1 
+\langle \psi_i \psi_j | T | \psi_i \psi_j \rangle \langle s t | s t \rangle
+-\langle \psi_i \psi_j | T' | \psi_j \psi_i \rangle \langle s t | t s \rangle
+\end{align*}
+$$
+
+By the orthonormality of $\|0\rangle,\|1\rangle\in\mathbb{C}^2$, for all $s,t\in\\{0,1\\}$:
+
+$$
+\langle s t | s t \rangle = 1
+$$
+
+and
+
+$$
+\langle s t | t s \rangle =
+\begin{cases}
+1 & s = t \\
+0 & s\neq t
+\end{cases}
+$$
+
+Therefore, the above expression simplifies to
+
+$$
+\sum_{i,j=1}^n \left(
+2\langle \psi_i \psi_j | T | \psi_i \psi_j \rangle
+-\langle \psi_i \psi_j | T' | \psi_j \psi_i \rangle\right)
+$$
+
+</div>
+</details>
 
 
 # Cartesian Gaussians
