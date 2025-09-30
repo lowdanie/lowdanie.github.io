@@ -649,16 +649,10 @@ $$
 $$
 
 Given another integer $k$, we'll denote the set of length $k$ sequences
-of integers in $[n]$ by $[n]^k$ and denote the set of _monotonically increasing_
-length $k$ sequences of integers in $[n]$ by
+of integers in $[n]$ by $[n]^k$.
 
-$$
-\binom{[n]}{k} \subset [n]^k
-$$
-
-Now let $v_1,\dots,v_n\in V$ be vectors and 
-$I = (i_1,\dots,i_k) \in [n]^k$ a length $k$ sequence.
-We'll define:
+Finally, given $n$ vectors $v_1,\dots,v_n\in V$ be vectors and a seqeuence
+$I = (i_1,\dots,i_k) \in [n]^k$ a length $k$ we'll define:
 
 $$
 |v_I\rangle := |v_{i_1}\dots v_{i_k}\rangle \in V^{\otimes k}
@@ -675,7 +669,7 @@ $$
 >
 > $$
 > \langle v_1,\dots,v_n | T^n | v_1,\dots,v_n \rangle =
-> \sum_{ I\in \binom{[n]}{k} } \sum_{\sigma\in S_k}
+> \frac{1}{k!}\sum_{ I\in [n]^k } \sum_{\sigma\in S_k}
 > \mathrm{sgn}(\sigma) \langle v_I | T^k P_\sigma | v_I \rangle
 > $$
 
@@ -685,7 +679,6 @@ Proof [click to expand]
 </summary>
 <div class="details-content">
 
-Given a sequence of integers $J = (j_1,\dots,j_l)$ in the range $\\{1,\dots,n\\}$,
 By definition XXX,
 
 $$
@@ -721,7 +714,7 @@ P_{\sigma^{-1}} P_{\rho^{-1}} T_k^n P_{\rho} P_{\sigma'}
 \langle v_1\dots v_n | 
 P_{(\rho\sigma)^{-1}} T_k^n P_{\rho\sigma'}
 | v_1 \dots v_n \rangle \\
-&= \frac{1}{k!(n-k)}
+&= \frac{1}{k!(n-k)!}
 \sum_{\sigma,\sigma'\in S_n}
 \mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
 \langle v_1\dots v_n | 
@@ -756,45 +749,22 @@ $$
 We'll now consider the non-zero case where $\sigma'^{-1}(K^c) = \sigma^{-1}(K^c)$.
 
 First, note that in this case $\sigma^{-1}(K)$ and $\sigma'^{-1}(K)$ have the
-same elements. In particular, there is some ordered sequence $I \in \binom{[n]}{k}$
-such that:
+same elements. Therefore, there is a unique permutation $\tau\in S_k$ such that:
 
 $$
-\mathrm{range}(I) = \mathrm{range}(\sigma^{-1}(K)) = \mathrm{range}(\sigma'^{-1}(K))
+P_\tau |v_{\sigma'^{-1}(K)}\rangle = |v_{\sigma^{-1}(K)}\rangle
 $$
 
-Since $I$, $\sigma^{-1}(K)$ and $\sigma'^{-1}(K)$ have the same range, 
-there are permutations $\alpha,\alpha'\in S_k$
-satisfying:
+Note that since $\sigma'^{-1}(K^c) = \sigma^{-1}(K^c)$:
 
 $$
-\begin{align*}
-P_\alpha |v_I\rangle &= |v_{\sigma^{-1}(K)}\rangle \\
-P_{\alpha'} |v_I\rangle &= |v_{\sigma'^{-1}(K)}\rangle
-\end{align*}
+\mathrm{sgn}(\sigma') = \mathrm{sgn}(\sigma)\mathrm{sgn}(\tau)
 $$
 
-Using the definitions of $\alpha$ and $\alpha'$ together with the symmetry of $T^k$:
+Which implies that
 
 $$
-\begin{align*}
-\langle v_{\sigma^{-1}(K)} | T^k | v_{\sigma'^{-1}(K)} \rangle
-&= \langle v_I | P_{\alpha^{-1}} T^k P_{\alpha'} |v_I\rangle \\
-&= \langle v_I | T^k P_{\alpha^{-1}\alpha'} |v_I\rangle
-\end{align*}
-$$
-
-Therefore, if we define $\beta := \alpha^{-1}\alpha' \in S_k$ then:
-
-$$
-\langle v_{\sigma^{-1}(K)} | T^k | v_{\sigma'^{-1}(K)}\rangle =
-\langle v_I | T^k P_\beta | v_I \rangle 
-$$
-
-Note that:
-
-$$
-\mathrm{sgn}(\beta) = \mathrm{sgn}(\alpha)\mathrm{sgn}(\alpha') = \mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma')
+\mathrm{sgn}(\sigma)\mathrm{sgn}(\sigma') = \mathrm{sgn}(\tau)
 $$
 
 Plugging this all back into XXX we get:
@@ -802,17 +772,70 @@ Plugging this all back into XXX we get:
 $$
 \begin{align*}
 \langle v_1,\dots,v_n | T^n | v_1,\dots,v_n\rangle
-&= \frac{1}{k!(n-k)}
-\sum_{I\in \binom{[n]}{k}}
-\sum_{\substack{\sigma\in S_n \\ \sigma(I)=K}}
-\sum_{\beta\in S_k}
-\mathrm{sgn}(\beta)
-\langle v_I | T^k P_{\beta}| v_I \rangle \\
-&= \sum_{I\in \binom{[n]}{k}}
-\sum_{\beta\in S_k}
-\mathrm{sgn}(\beta)
-\langle v_I | T^k P_{\beta}| v_I \rangle
+&= \frac{1}{k!(n-k)!}
+\sum_{\sigma \in S_n}
+\sum_{\tau\in S_k}
+\mathrm{sgn}(\tau)
+\langle v_{\sigma^{-1}(K)} | T^k P_{\tau}| v_{\sigma^{-1}(K)} \rangle \\
 \end{align*}
+$$
+
+Let $P_{n,k}\subset [n]^k$ denote the set of sequences in $[n]^k$ that have unique
+elements. Note that $\sigma^{-1}(K)$ is in $P_{n,k}$ and that as $\sigma$ ranges over all permutations
+in $S_n$, each element of $P_{n,k}$ appears $(n-k)!$ times. Therefore, we can rewrite XXX
+as:
+
+$$
+\begin{align*}
+\langle v_1,\dots,v_n | T^n | v_1,\dots,v_n\rangle
+&= \frac{1}{k!}
+\sum_{I \in P_{n,k}}
+\sum_{\tau\in S_k}
+\mathrm{sgn}(\tau)
+\langle v_{I} | T^k P_{\tau}| v_{I} \rangle \\
+\end{align*}
+$$
+
+To conclude the proof, we'll show that the sum in XXX can be replaced with a sum over _all_
+sequences in $[n]^k$ rather than just the ones with unique elements.
+
+Let $I\in [n]^k$ be an arbitrary sequence. We claim that if the elements of
+$I$ are not unique then
+
+$$
+\sum_{\tau\in S_k}
+\mathrm{sgn}(\tau)
+\langle v_I | T^k P_{\tau}| v_I \rangle = 0
+$$
+
+To prove this, suppose that there exists $i\neq j \in [n]$ such that $I_i = I_j$
+and let $(i,j)\in S_n$ denote the permutation that swaps $i$ and $j$.
+
+Then
+
+$$
+\begin{align*}
+\sum_{\tau\in S_k}
+\mathrm{sgn}(\tau)
+\langle v_I | T^k P_\tau| v_I \rangle
+&= \sum_{\tau\in S_k}
+\mathrm{sgn}((\tau(i,j))
+\langle v_I | T^k P_{\tau(i,j)}| v_I \rangle \\
+&= -\sum_{\tau\in S_k}
+\mathrm{sgn}((\tau)
+\langle v_I | T^k P_\tau P_{(i,j)}| v_I \rangle \\
+&= -\sum_{\tau\in S_k}
+\mathrm{sgn}((\tau)
+\langle v_I | T^k P_\tau| v_I \rangle
+\end{align*}
+$$
+
+which implies that
+
+$$
+\sum_{\tau\in S_k}
+\mathrm{sgn}(\tau)
+\langle v_I | T^k P_{\tau}| v_I \rangle = 0
 $$
 
 _q.e.d_
@@ -981,12 +1004,13 @@ _q.e.d_
 
 The case of a two-electron operator is similar.
 
-> **Claim (Double Electron Operator Closed Shell Expectation).**
-> Let $n\in\mathbb{Z}$ be a positive integer and $T\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$
+> **Claim (Closed Shell Expectation).**
+> Let $n\in\mathbb{Z}$ be a positive integer and 
+> $T^k\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes k})$
 > a symmetric operator.
 >
 > Let $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ be the symmetric extension
-> of $T\otimes\mathrm{Id}^{\otimes 2}\in \mathrm{End}(\mathcal{H})$.
+> of $T^k\otimes\mathrm{Id}^{\otimes k} \in \mathrm{End}(\mathcal{H}^{\otimes k})$.
 >
 > Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ be positional wave functions.
 >
@@ -994,9 +1018,9 @@ The case of a two-electron operator is similar.
 >
 > $$
 > \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle =
-> \sum_{i,j=1}^n \left(
-> 2\langle \psi_i\psi_j | T | \psi_i \psi_j \rangle
-> -\langle \psi_i\psi_j | T | \psi_j \psi_i \rangle \right)
+> \frac{1}{k!}
+> \sum_{I \in [n]^k}\sum_{\sigma\in S_k}
+> 2^{c(\sigma)}\mathrm{sgn}(\sigma)\langle \psi_I | T^k | \psi_I \rangle 
 > $$
 
 <details>
