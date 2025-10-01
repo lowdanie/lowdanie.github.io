@@ -363,283 +363,39 @@ that it is self-adjoint.
 </div>
 </details>
 
+An important notion in quantum mechanics is the 
+[expectation value](https://en.wikipedia.org/wiki/Expectation_value_(quantum_mechanics))
+of an operator in a given state:
 
-## The Electronic Hamiltonian
+> **Definition (Expectation Value).**
+> Let $V$ be a Hilbert space.
+>
+> Let $\|\psi\rangle\in V$ be a vector and
+> $T\in\mathrm{End}(V)$ an operator.
+>
+> The _expectation value_ of $T$ in state $\|\psi\rangle$ is defined to be:
+>
+> $$
+> \langle \psi | T | \psi \rangle
+> $$
 
-Since electrons have negative charge and nuclei have positive charge, the total energy 
-of a molecule can be expressed as a sum of the kinetic energies of the electrons
-and nuclei,
-the potential energies of the electron-electron and nuclei-nuclei repulsions,
-and the potential energies of the electron-nuclei attractions.
+Let $V$ be a Hilbert space and $n\in\mathbb{Z}$ a positive integer.
 
-Since we are using the
-[Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
-approximation, the kinetic energies of the nuclei are assumed to be zero.
-Furthermore, since in this approximation the nuclei are assumed to be point masses,
-the nuclei-nuclei attraction potential can be computed classically using
-[Coulombs law](https://en.wikipedia.org/wiki/Coulomb%27s_law).
-
-In this section we'll focus on calculating the ground state energy of the 
-electrons in a molecule.
-
-The electronic [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
-is a self-adjoint operator on the $n$-electron state space $\Lambda^n\mathcal{H}$ that 
-corresponds to the total energy of the electrons.
-
-In this section we'll define self-adjoint operators on 
-$\Lambda^n\mathcal{H}$
-corresponding to the electron kinetic energy, the nuclei-electron attraction potential 
-the and electron-electron repulsion potential.
-The total electronic Hamiltonian will then be defined to be their sum.
-
-### Kinetic Energy
-
-The kinetic energy of a single electron corresponds to an operator
-$T^1\in\mathrm{End}(\mathcal{H})$.
-Recall that by definition $\mathcal{H} = L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$.
-
-Let $\psi\in L^2(\mathbb{R}^3)$ be a function and $|\alpha\rangle\in\mathbb{C}^2$ a spin vector.
-Then $T^1$ is defined by:
+In section XXX we saw how to construct elements of 
+$\Lambda^n V$ out of $n$ vectors $\|v_1\rangle,\dots,\|v_n\rangle\in V$
+using a Slater determinant:
 
 $$
-T^1 |\psi\rangle|\alpha\rangle := -\frac{1}{2}|\nabla^2 \psi \rangle |\alpha\rangle
+|v_1,\dots,v_n\rangle\in\Lambda^n V
 $$
 
-where $\nabla^2$ denotes the
-[Laplace operator](https://en.wikipedia.org/wiki/Laplace_operator):
+Similarly, saw how to use [symmetric extension](XXX)
+to construct an operator $T^n\in\mathrm{End}(\Lambda^n V)$ out of an operator
+$T^k\in\mathrm{End}(V^{\otimes k})$.
 
-$$
-\nabla^2\psi =
-\frac{\partial^2}{\partial x^2}\Psi +
-\frac{\partial^2}{\partial y^2}\Psi +
-\frac{\partial^2}{\partial z^2}\Psi
-$$
-
-The Laplace operator
-[is self-adjoint](https://en.wikipedia.org/wiki/Self-adjoint_operator#Boundary_conditions)
-under the assumption that $\phi(\mathbf{r})$ goes to $0$ as $||\mathbf{r}||$ goes to infinity.
-
-The kinetic energy of $n$-electrons, denoted by $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$,
-is defined to be the [symmetric extension](XXX) of
-$T^1$ from $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
-
-### Electron Nuclear Attraction
-
-We'll now consider the potential energy operator corresponding to the 
-[Coulombs](https://en.wikipedia.org/wiki/Coulomb%27s_law) attraction
-between electrons and nuclei.
-
-Suppose there are $m$ nuclei with positions $\mathbf{R}_1,\dots,\mathbf{R}_m\in\mathbb{R}^3$ and
-[atomic numbers](https://en.wikipedia.org/wiki/Atomic_number) $Z_1,\dots,Z_m\in\\mathbb{Z}$.
-
-The nuclei attraction operator for a single electron is an operator
-$V^1_{\mathrm{en}}\in\mathrm{End}(\mathcal{H})$.
-As usual, $\mathcal{H} = L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$.
-
-$V^1_{\mathrm{en}}$ acts on the $L^2(\mathbb{R}^3)$ component by multiplication
-by
-
-$$
-\phi_{\mathrm{en}}(\mathbf{r}) := -\sum_{i=1}^m \frac{Z_i}{||\mathbf{R}_i - \mathbf{r}||}
-$$
-
-and acts trivially on the spin component. Specifically, 
-let $\psi(\mathbf{r})\in L^2(\mathbb{R}^3)$ be a function 
-and $\alpha\in\mathbb{C}^2$ be a spin vector.
-
-Then, $V^1_{\mathrm{en}}$ is defined by:
-
-$$
-V^1_{\mathrm{en}}|\psi\rangle|\alpha\rangle :=
-|(\phi_{\mathrm{en}}\cdot\psi)\rangle|\alpha\rangle
-$$
-
-Since $V^1\_{\mathrm{en}}$ acts on the $L^2(\mathbb{R}^3)$ component by multiplication
-by the constant $\phi_{\mathrm{en}}$, it is self-adjoint.
-
-The operator corresponding to the attraction between $n$ electons and the $m$
-nuclei, denoted by $V_{\mathrm{en}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ 
-is defined to be the symmetric extension of $V_{\mathrm{en}}^1$ from
-$\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
-
-### Electron Repulsion
-
-We'll now consider the potential energy corresponding to the Coulomb repulsion
-between two electrons.
-
-The Coulomb repulsion potential for a pair of electrons corresponds to an operator
-$V_{\mathrm{ee}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
-
-We'll start by defining $V_{\mathrm{ee}}^2$ as a symmetric operator on 
-$\mathcal{H}\otimes\mathcal{H}$
-and use XXX to restrict it to an operator on $\Lambda^2\mathcal{H}$.
-
-In order to define $V_{\mathrm{ee}}^2$ on $\mathcal{H}\otimes\mathcal{H}$,
-we'll use the canonical isomorphism between $L^2(\mathbb{R}^3)\otimes L^2(\mathbb{R}^3)$
-and $L^2(\mathbb{R}^3\times\mathbb{R}^3)$:
-
-$$
-\begin{align*}
-F: L^2(\mathbb{R}^3)\otimes L^2(\mathbb{R}^3) &\rightarrow L^2(\mathbb{R}^3\times\mathbb{R}^3) \\
-(f(\mathbf{r}), g(\mathbf{r})) &\mapsto f(\mathbf{r}_1)\cdot g(\mathbf{r}_2)
-\end{align*}
-$$
-
-See
-[wikipedia](https://en.wikipedia.org/wiki/Tensor_product_of_Hilbert_spaces#Examples_and_applications)
-for more information about the canonical isomorphism.
-
-The operator $V_{\mathrm{ee}}^2$ is defined on 
-$L^2(\mathbb{R}^2\times\mathbb{R}^3)$ by multiplication by
-$\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}$:
-
-$$
-V_{\mathrm{ee}}^2(\psi(\mathbf{r}_1,\mathbf{r}_2)) :=
-\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \cdot \psi(\mathbf{r}_1,\mathbf{r}_2)
-$$
-
-Clearly $V_{\mathrm{ee}}^2$ commutes with the transposition of the coordinates
-$\mathbf{r}\_1$ and $\mathbf{r}\_2$. Therefore, under the canonical isomorphism
-$V_{\mathrm{ee}}^2$ is a symmetric operator on
-$L^2(\mathbb{R}^3)^{\otimes 2}$. We can extend $V_{\mathrm{ee}}^2$ to a symmetric operator on 
-$\mathcal{H}^{\otimes 2}$
-by defining it to act trivially on the spin factors $\mathbb{C}^2$. 
-
-By XXX, $V_{\mathrm{ee}}^2$ can then be restricted to an operator on $\Lambda^2\mathcal{H}$.
-
-Finally, the Coulomb repulsion operator for $n$-electrons, denoted
-$V_{\mathrm{ee}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$, is defined as the
-symmetric extension of $V_{\mathrm{ee}}^2$ from
-$\mathrm{End}(\Lambda^2\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$. 
-
-### Total Hamiltonian
-
-The total electronic Hamiltonian on a molecule with $n$ electrons,
-denoted $H^n \in \mathrm{End}(\Lambda^n\mathcal{H})$,
-is defined to be the sum of the kinetic, electron-nuclei attraction and
-electron-electron repulsion operators: 
-
-$$
-H^n := T^n + V_{\mathrm{en}}^n + V_{\mathrm{ee}}^n
-$$
-
-## The Schrodinger Equation
-
-The 
-[time-independent Schrodinger equation](https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation#Time-independent_equation)
-determines the allowed
-[stationary states](https://en.wikipedia.org/wiki/Stationary_state)
-of a system of $n$ electrons with Hamiltonian $H\in\mathrm{End}(\Lambda^n\mathcal{H})$.
-
-Specifically, it says that if $|\Psi\rangle\in\Lambda^n\mathcal{H}$
-is a stationary state with energy 
-$E\in\mathbb{R}$, then $|\Psi\rangle$ is an eigenvector of $H$
-with eigenvalue $E$:
-
-$$
-H|\Psi\rangle = E|\Psi\rangle
-$$
-
-In particular, the ground state of the system is given by the eigenvector of $H$
-with the smallest eigenvalue.
-
-In theory, all we need to do to determine the electronic ground state of a molecule is to
-diagonalize its Hamiltonian and find the eigenvector with the smallest eigenvalue.
-In practice this is infeasible for all but the simplest systems.
-
-To see why,
-recall that the state space of $n$-electrons is 
-$\Lambda^n(L^2(\mathbb{R}^3)\otimes(\mathbb{C}^2)$.
-The set of integrable functions $$L^2(\mathbb{R}^3)$ 
-is infinite which means that we cannot directly express $H^n$ as a matrix. 
-
-One idea could be to discretize $\mathbb{R}$ into a finite set of
-points and express an orbital $\Psi$ in terms of the vector of its values on each point.
-However, even with a conservative discretization of only $100$ points,
-$L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$ is $2 \cdot 100^3$ dimensional and so
-$\Lambda^n(L^2(\mathbb{R}^3)\otimes(\mathbb{C}^2)$ is $\binom{2 \cdot 100^3}{n}$
-is still quite large.
-
-Rather than finding the exact ground state, we'll instead use the
-[Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
-to approximate it.
-
-## The Variational Principle
-
-The expected energy of a system with state
-$\Psi\in\Lambda^n\mathcal{H}$ and Hamiltonian $H\in\mathrm{End}(\Lambda^n\mathcal{H})$
-given by the inner product of $|\Psi\rangle$ with $H|\Psi\rangle$:
-
-$$
-\langle \Psi | H^n | \Psi \rangle 
-$$
-
-The [Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
-states that for any state $|\Psi\rangle$ with unit norm,
-the expected energy of $|\Psi\rangle$ is an upper bound on the energy of the ground state
-$E_0$:
-
-$$
-\langle \Psi | H | \Psi \rangle >= E_0
-$$
-
-Our strategy for approximating the ground state of an $n$-electron molecule
-will be to first parameterize $n$ single-electron states
-$\|\chi_1(\mathbf{c}_1)\rangle,\dots,\|\chi_n(\mathbf{c}_n)\rangle\in\mathcal{H}$,
-in terms of some parameters $\mathbf{c}_1,\dots\mathbf{c}_n\in\mathbb{R}^K$ 
-where $K$ is polynomial in the number of electrons.
-
-For any set of parameters $\mathbf{c_i}$, the Slater determinant
-
-$$
-|\chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n)\rangle \in \Lambda^n\mathcal{H}
-$$
-
-is a valid $n$-electron state with expected energy 
-
-$$
-E(\mathbf{c}_1,\dots,\mathbf{c}_n) :=
-\langle \chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n) | H^n |
-\chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n) \rangle
-$$
-
-According to the variational principal, the minimum of
-$E(\mathbf{c}_1,\dots,\mathbf{c}_n)$ is an upper bound on the ground state energy of the
-electrons.
-
-The key to this method is to be able to efficiently compute
-$E(\mathbf{c}_1,\dots,\mathbf{c}_n)$. In the next section we'll see how to reduce
-the expected value of the Hamiltonian $H^n$ for a Slater determinant on 
-$n$ electrons to an expected value of single and double electrons.
-
-## Expected Energy
-
-In section XXX we saw how to construct an $n$-electron state out of $n$-single
-electron states $\|\chi_1\rangle,\dots\|\chi_n\rangle\in\mathcal{H}$ using 
-a Slater determinant:
-
-$$
-|\chi_1,\dots,\chi_n\rangle
-$$
-
-Similarly, we constructed the total Hamiltonian of a molecule with $n$ electrons
-is given as the operator
-
-$$
-H^n = T^n + V_{\mathrm{en}}^n + V_{\mathrm{e}}^n \in\mathrm{End}(\Lambda^n\mathcal{H})
-$$
-
-where the components were obtained as symmetric extensions of the one electron operators
-$T^1\in\mathrm{End}(\mathcal{H})$ and $V_{\mathrm{en}}^1\in\mathrm{End}(\mathcal{H})$
-and the two electron operator $V_{\mathrm{e}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
-
-The goal of this section is to express the expected energy of the Slater determinant:
-
-$$
-\langle \chi_1,\dots,\chi_n | H^n | \chi_1,\dots,\chi_n \rangle
-$$
-
-in terms of expected values of the one and two electron operators above.
+We'll now derive a formula for the expectation value $T^n$ in state
+$\|v_1,\dots,v_n\rangle$ in terms of the constituent operator $T^k$ and states
+$\|v_1\rangle,\dots,\|v_n\rangle$.
 
 First let's introduce some convenient notation for dealing with sequences of integers.
 For a given integer $n$, we'll use the standard notation:
@@ -652,7 +408,7 @@ Given another integer $k$, we'll denote the set of length $k$ sequences
 of integers in $[n]$ by $[n]^k$.
 
 Finally, given $n$ vectors $v_1,\dots,v_n\in V$ be vectors and a seqeuence
-$I = (i_1,\dots,i_k) \in [n]^k$ a length $k$ we'll define:
+$I = (i_1,\dots,i_k) \in [n]^k$ we'll define:
 
 $$
 |v_I\rangle := |v_{i_1}\dots v_{i_k}\rangle \in V^{\otimes k}
@@ -843,6 +599,475 @@ _q.e.d_
 </div>
 </details>
 
+## Closed Shell
+
+Recall that the Hilbert space $\mathcal{H}$ of single electron space is defined as:
+
+$$
+\mathcal{H} := L^2(\mathbf{R}^3)\otimes \mathbb{C}^2
+$$
+
+Where the seconds factor $\mathbb{C}^2$ represents the two-dimensional spin space
+spanned by spin down, denoted $\|0\rangle$ and spin up, denoted $\|1\rangle$.
+
+Therefore, the decomposable single electron states $\|\chi\rangle\in\mathcal{H}$ are of the form:
+
+$$
+|\chi\rangle = |\psi\rangle |s\rangle
+$$
+
+where $\psi\in L^2(\mathbf{R}^3)$ is a positional wave function and $s\in\\{0,1\\}$
+indicates if the spin state is up or down.
+
+Until now we've been considering $n$-electron Slater determinants of arbitrary sequences of
+single-electron states $\|\chi_1\rangle,\dots,\|\chi_n\rangle\in\mathcal{H}$.
+In general, molecules are most stable when, for each positional wave function
+$\|\psi\rangle$, either both or neither of the possible spin states are occupied.
+This type of electron configuration is called
+[closed shell](https://en.wikipedia.org/wiki/Electron_configuration#Open_and_closed_shells)
+as formalized in the following definition.
+
+> **Definition (Closed Shell Slater Determinant).**
+> Let $n\in\mathbb{Z}$ be a positive integer and 
+> $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ positional wave functions.
+>
+> The _closed shell Slater determinant_ with positions $\psi_1,\dots,\psi_n$
+> is denoted $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n(\mathcal{H})$ 
+> and defined to be the Slater determinant of
+> the $2n$ single-electron states 
+>
+> $$
+> |\psi_1\rangle|0\rangle,|\psi_1\rangle|1\rangle,\dots,
+> |\psi_n\rangle|0\rangle,|\psi_n\rangle|1\rangle \in \mathcal{H}
+> $$
+
+In other words, the closed shell Slater determinant of
+$\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ is given by:
+
+$$
+|\psi_1,\dots,\psi_n\rangle := 
+|\psi_10,\psi_11,\dots,\psi_n0\psi_n1\rangle\in\Lambda^n(\mathcal{H})
+$$
+
+From a computational perspective, the advantage of restricting our attention to
+closed shell states is that their expected energy formulas can be expressed in terms
+of positional wave functions alone.
+
+The formula will make use of the function
+
+$$
+c : S_n \rightarrow \mathbb{Z}
+$$
+
+which maps a permutation $\sigma\in S_n$ to the number of cycles in the
+[cyclic decomposition](https://en.wikipedia.org/wiki/Permutation#Cycle_notation)
+of $\sigma$.
+
+> **Claim (Closed Shell Expectation).**
+> Let $n\in\mathbb{Z}$ be a positive integer, 
+> $T^k\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes k})$
+> a symmetric operator and $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ the symmetric extension
+> of $T^k\otimes\mathrm{Id}^{\otimes k} \in \mathrm{End}(\mathcal{H}^{\otimes k})$.
+>
+> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ be positional wave functions.
+>
+> Then:
+>
+> $$
+> \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle =
+> \frac{1}{k!}
+> \sum_{I \in [n]^k}\sum_{\sigma\in S_k}
+> 2^{c(\sigma)}\mathrm{sgn}(\sigma)\langle \psi_I | T^k P_{\sigma}| \psi_I \rangle 
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+For each bit-string $s\in [2]^n$, we'll define the spin state:
+
+$$
+|s\rangle := |s_1\dots s_n\rangle \in \left(\mathbb{C}^2\right)^{\otimes n}
+$$
+
+By XXX and the definition of $T^n$:
+
+$$
+\langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle =
+\frac{1}{k!} \sum_{I\in [n]^k} \sum_{\sigma\in S_n}
+\sum_{s \in [2]^k}
+\langle \psi_I | T^k P_\sigma | \psi_I \rangle 
+\langle s_I | P_\sigma | s_I \rangle 
+$$
+
+Let $t\in [2]^k$ be a bit-string and $\sigma\in S_k$ a permutation.
+
+By the orthonormality of $\|0\rangle,\|1\rangle\in\mathbb{C}^2$:
+
+$$
+\langle t | P_\sigma | t \rangle =
+\begin{cases}
+1 & t = \sigma(t) \\
+0 & \mathrm{else}
+\end{cases}
+$$
+
+If $\sigma$ is a cycle, then $t = \sigma(t)$ if and only if $t$ is all zeros or all ones.
+I.e, $t=(0,\dots,0)$ or $t=(1,\dots,1)$. This implies that for a general permutation 
+$\sigma\in S_k$, the number of bit-strings $t\in [2]^k$ such that $t = \sigma(t)$
+is equal to $2^{c(\sigma)}$.
+
+Therefore:
+
+$$
+\sum_{s \in [2]^k}
+\langle s_I | P_\sigma | s_I \rangle = 2^{c(\sigma)}
+$$
+
+_q.e.d_
+
+</div>
+</details>
+
+For the remainder of this post, we'll work exclusively with closed shell states.
+
+## The Electronic Hamiltonian
+
+Since electrons have negative charge and nuclei have positive charge, the total energy 
+of a molecule can be expressed as a sum of the kinetic energies of the electrons
+and nuclei,
+the potential energies of the electron-electron and nuclei-nuclei repulsions,
+and the potential energies of the electron-nuclei attractions.
+
+Since we are using the
+[Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
+approximation, the kinetic energies of the nuclei are assumed to be zero.
+Furthermore, since in this approximation the nuclei are assumed to be point masses,
+the nuclei-nuclei attraction potential can be computed classically using
+[Coulombs law](https://en.wikipedia.org/wiki/Coulomb%27s_law).
+
+In this section we'll focus on calculating the ground state energy of the 
+electrons in a molecule.
+
+The electronic [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
+is a self-adjoint operator on the $n$-electron state space $\Lambda^n\mathcal{H}$ that 
+corresponds to the total energy of the electrons.
+
+In this section we'll define self-adjoint operators on 
+$\Lambda^n\mathcal{H}$
+corresponding to the electron kinetic energy, the nuclei-electron attraction potential 
+the and electron-electron repulsion potential.
+The total electronic Hamiltonian will then be defined to be their sum.
+
+### Kinetic Energy
+
+The kinetic energy of a single electron corresponds to an operator
+$T^1\in\mathrm{End}(\mathcal{H})$.
+Recall that by definition $\mathcal{H} = L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$.
+
+Let $\psi\in L^2(\mathbb{R}^3)$ be a function and $|\alpha\rangle\in\mathbb{C}^2$ a spin vector.
+Then $T^1$ is defined by:
+
+$$
+T^1 |\psi\rangle|\alpha\rangle := -\frac{1}{2}|\nabla^2 \psi \rangle |\alpha\rangle
+$$
+
+where $\nabla^2$ denotes the
+[Laplace operator](https://en.wikipedia.org/wiki/Laplace_operator):
+
+$$
+\nabla^2\psi =
+\frac{\partial^2}{\partial x^2}\Psi +
+\frac{\partial^2}{\partial y^2}\Psi +
+\frac{\partial^2}{\partial z^2}\Psi
+$$
+
+The Laplace operator
+[is self-adjoint](https://en.wikipedia.org/wiki/Self-adjoint_operator#Boundary_conditions)
+under the assumption that $\phi(\mathbf{r})$ goes to $0$ as $||\mathbf{r}||$ goes to infinity.
+
+The kinetic energy of $n$-electrons, denoted by $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$,
+is defined to be the [symmetric extension](XXX) of
+$T^1$ from $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
+
+Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)^{\otimes n}$ be single-electron
+positional wave functions. By XXX, the expected kinetic energy of the closed shell
+Slater determinant $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n L^2(\mathbb{R}^3)$ is
+equal to:
+
+$$
+\begin{align*}
+\langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle
+&= -\frac{1}{2} \sum_{i=1}^n \langle \psi_i | \nabla^2 | \psi_i \rangle \\
+&= -\frac{1}{2} \sum_{i=1}^n 
+\int_{\mathbb{R}^3} \psi_i^*(\mathbf{r})\nabla^2\psi_i(\mathbf{r})d\mathbf{r}
+\end{align*}
+$$
+
+### Electron Nuclear Attraction
+
+We'll now consider the potential energy operator corresponding to the 
+[Coulomb](https://en.wikipedia.org/wiki/Coulomb%27s_law) attraction
+between electrons and nuclei.
+
+Suppose there are $m$ nuclei with positions $\mathbf{R}_1,\dots,\mathbf{R}_m\in\mathbb{R}^3$ and
+[atomic numbers](https://en.wikipedia.org/wiki/Atomic_number) $Z_1,\dots,Z_m\in\\mathbb{Z}$.
+
+The nuclei attraction operator for a single electron is an operator
+$V^1_{\mathrm{en}}\in\mathrm{End}(\mathcal{H})$.
+As usual, $\mathcal{H} = L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$.
+
+$V^1_{\mathrm{en}}$ is defined to act on the $L^2(\mathbb{R}^3)$ component by multiplication
+by
+
+$$
+\phi_{\mathrm{en}}(\mathbf{r}) := -\sum_{i=1}^m \frac{Z_i}{||\mathbf{R}_i - \mathbf{r}||}
+$$
+
+and acts as the identity on the spin component. Specifically, 
+let $\psi(\mathbf{r})\in L^2(\mathbb{R}^3)$ be a positional wave function 
+and $\|\alpha\rangle\in\mathbb{C}^2$ be a spin vector.
+
+Then, $V^1_{\mathrm{en}}$ is defined by:
+
+$$
+V^1_{\mathrm{en}}|\psi\rangle|\alpha\rangle :=
+|(\phi_{\mathrm{en}}\cdot\psi)\rangle|\alpha\rangle
+$$
+
+Since $V^1\_{\mathrm{en}}$ acts on the $L^2(\mathbb{R}^3)$ component by multiplication
+by the constant $\phi_{\mathrm{en}}$, it is self-adjoint.
+
+The operator corresponding to the attraction between $n$ electons and the $m$
+nuclei, denoted by $V_{\mathrm{en}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ 
+is defined to be the symmetric extension of $V_{\mathrm{en}}^1$ from
+$\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
+
+Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)^{\otimes n}$ be single-electron
+positional wave functions. By XXX, the expected nuclear attraction energy of the 
+closed shell Slater determinant 
+$\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n L^2(\mathbb{R}^3)$ is equal to:
+
+$$
+\begin{align*}
+\langle \psi_1,\dots,\psi_n | V_{\mathrm{en}}^n | \psi_1,\dots,\psi_n \rangle
+&= \sum_{i=1}^n \langle \psi_i | \phi_{\mathrm{en}} | \psi_i \rangle \\
+&= - \sum_{i=1}^n \sum_{j=1}^m 
+\int_{\mathbb{R}^3} 
+\psi_i^*(\mathbf{r}) \frac{Z_j}{||\mathbf{R}_j - \mathbf{r}||}\psi_i(\mathbf{r})
+d\mathbf{r}
+\end{align*}
+$$
+
+### Electron Repulsion
+
+We'll now consider the potential energy corresponding to the Coulomb repulsion
+between two electrons.
+
+The Coulomb repulsion potential for a pair of electrons corresponds to an operator
+$V_{\mathrm{ee}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
+
+We'll start by defining $V_{\mathrm{ee}}^2$ as a symmetric operator on 
+$\mathcal{H}\otimes\mathcal{H}$
+and use XXX to extend it to an operator on $\Lambda^n\mathcal{H}$.
+
+In order to define $V_{\mathrm{ee}}^2$ on $\mathcal{H}\otimes\mathcal{H}$,
+we'll use the canonical isomorphism between $L^2(\mathbb{R}^3)\otimes L^2(\mathbb{R}^3)$
+and $L^2(\mathbb{R}^3\times\mathbb{R}^3)$:
+
+$$
+\begin{align*}
+F: L^2(\mathbb{R}^3)\otimes L^2(\mathbb{R}^3) &\rightarrow L^2(\mathbb{R}^3\times\mathbb{R}^3) \\
+(f(\mathbf{r}), g(\mathbf{r})) &\mapsto f(\mathbf{r}_1)\cdot g(\mathbf{r}_2)
+\end{align*}
+$$
+
+See
+[wikipedia](https://en.wikipedia.org/wiki/Tensor_product_of_Hilbert_spaces#Examples_and_applications)
+for more information about the canonical isomorphism.
+
+The operator $V_{\mathrm{ee}}^2$ is defined on 
+$L^2(\mathbb{R}^2\times\mathbb{R}^3)$ by multiplication by
+$\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}$:
+
+$$
+V_{\mathrm{ee}}^2(\psi(\mathbf{r}_1,\mathbf{r}_2)) :=
+\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} \cdot \psi(\mathbf{r}_1,\mathbf{r}_2)
+$$
+
+Clearly $V_{\mathrm{ee}}^2$ commutes with the transposition of the coordinates
+$\mathbf{r}\_1$ and $\mathbf{r}\_2$. Therefore, under the canonical isomorphism
+$V_{\mathrm{ee}}^2$ is a symmetric operator on
+$L^2(\mathbb{R}^3)^{\otimes 2}$. We can extend $V_{\mathrm{ee}}^2$ to a symmetric operator on 
+$\mathcal{H}^{\otimes 2}$
+by defining it to act trivially on the spin factors $\mathbb{C}^2$. 
+
+The Coulomb repulsion operator for $n$-electrons, denoted
+$V_{\mathrm{ee}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$, is defined as the
+symmetric extension of $V_{\mathrm{ee}}^2$ from
+$\mathrm{End}(\Lambda^2\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
+
+Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)^{\otimes n}$ be single-electron
+positional wave functions. By XXX, the expected electron-electron repulsion energy 
+of the closed shell Slater determinant 
+$\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n L^2(\mathbb{R}^3)$ is equal to:
+
+$$
+\begin{align*}
+\langle \psi_1,\dots,\psi_n | V_{\mathrm{ee}}^n | \psi_1,\dots,\psi_n \rangle
+&= \frac{1}{2}\sum_{i,j=1}^n \sum_{\sigma\in S_2}
+2^{c(\sigma)}
+\langle \psi_i\psi_j | \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} P_\sigma | \psi_i\psi_j \rangle \\
+&= \sum_{i,j=1}^n
+2\langle \psi_i\psi_j | \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} | \psi_i\psi_j \rangle -
+\langle \psi_i\psi_j | \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} | \psi_j\psi_i \rangle
+\end{align*}
+$$
+
+By our definition of the $\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}$ operator,
+for any positional wave functions $\psi_1,\dots,\psi_4\in L^2(\mathbb{R}^3)$:
+
+$$
+\langle \psi_1\psi_2 | \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} | \psi_3\psi_4 \rangle =
+\int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
+\psi_1^*(\mathbf{r}_1)\psi_2^*(\mathbf{r}_2)
+\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}
+\psi_3(\mathbf{r}_1)\psi_4(\mathbf{r}_2)
+d\mathbf{r}_1 d\mathbf{r}_2
+$$
+
+### Total Hamiltonian
+
+The total electronic Hamiltonian on a molecule with $n$ electrons,
+denoted $H^n \in \mathrm{End}(\Lambda^n\mathcal{H})$,
+is defined to be the sum of the kinetic, electron-nuclei attraction and
+electron-electron repulsion operators: 
+
+$$
+H^n := T^n + V_{\mathrm{en}}^n + V_{\mathrm{ee}}^n
+$$
+
+## The Schrodinger Equation
+
+The 
+[time-independent Schrodinger equation](https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation#Time-independent_equation)
+determines the allowed
+[stationary states](https://en.wikipedia.org/wiki/Stationary_state)
+of a system of $n$ electrons with Hamiltonian $H\in\mathrm{End}(\Lambda^n\mathcal{H})$.
+
+Specifically, it says that if $|\Psi\rangle\in\Lambda^n\mathcal{H}$
+is a stationary state with energy 
+$E\in\mathbb{R}$, then $|\Psi\rangle$ is an eigenvector of $H$
+with eigenvalue $E$:
+
+$$
+H|\Psi\rangle = E|\Psi\rangle
+$$
+
+In particular, the ground state of the system is given by the eigenvector of $H$
+with the smallest eigenvalue.
+
+In theory, all we need to do to determine the electronic ground state of a molecule is to
+diagonalize its Hamiltonian and find the eigenvector with the smallest eigenvalue.
+In practice this is infeasible for all but the simplest systems.
+
+To see why,
+recall that the state space of $n$-electrons is 
+$\Lambda^n(L^2(\mathbb{R}^3)\otimes(\mathbb{C}^2)$.
+The set of integrable functions $$L^2(\mathbb{R}^3)$ 
+is infinite which means that we cannot directly express $H^n$ as a matrix. 
+
+One idea could be to discretize $\mathbb{R}$ into a finite set of
+points and express an orbital $\Psi$ in terms of the vector of its values on each point.
+However, even with a conservative discretization of only $100$ points,
+$L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$ is $2 \cdot 100^3$ dimensional and so
+$\Lambda^n(L^2(\mathbb{R}^3)\otimes(\mathbb{C}^2)$ is $\binom{2 \cdot 100^3}{n}$
+is still quite large.
+
+Rather than finding the exact ground state, we'll instead use the
+[Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
+to approximate it.
+
+## The Variational Principle
+
+The expected energy of a system with state
+$\Psi\in\Lambda^n\mathcal{H}$ and Hamiltonian $H\in\mathrm{End}(\Lambda^n\mathcal{H})$
+given by the inner product of $|\Psi\rangle$ with $H|\Psi\rangle$:
+
+$$
+\langle \Psi | H^n | \Psi \rangle 
+$$
+
+The [Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
+states that for any state $|\Psi\rangle$ with unit norm,
+the expected energy of $|\Psi\rangle$ is an upper bound on the energy of the ground state
+$E_0$:
+
+$$
+\langle \Psi | H | \Psi \rangle >= E_0
+$$
+
+Our strategy for approximating the ground state of an $n$-electron molecule
+will be to first parameterize $n$ single-electron states
+$\|\chi_1(\mathbf{c}_1)\rangle,\dots,\|\chi_n(\mathbf{c}_n)\rangle\in\mathcal{H}$,
+in terms of some parameters $\mathbf{c}_1,\dots\mathbf{c}_n\in\mathbb{R}^K$ 
+where $K$ is polynomial in the number of electrons.
+
+For any set of parameters $\mathbf{c_i}$, the Slater determinant
+
+$$
+|\chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n)\rangle \in \Lambda^n\mathcal{H}
+$$
+
+is a valid $n$-electron state with expected energy 
+
+$$
+E(\mathbf{c}_1,\dots,\mathbf{c}_n) :=
+\langle \chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n) | H^n |
+\chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n) \rangle
+$$
+
+According to the variational principal, the minimum of
+$E(\mathbf{c}_1,\dots,\mathbf{c}_n)$ is an upper bound on the ground state energy of the
+electrons.
+
+The key to this method is to be able to efficiently compute
+$E(\mathbf{c}_1,\dots,\mathbf{c}_n)$. In the next section we'll see how to reduce
+the expected value of the Hamiltonian $H^n$ for a Slater determinant on 
+$n$ electrons to an expected value of single and double electrons.
+
+## Expected Energy
+
+In section XXX we saw how to construct an $n$-electron state out of $n$-single
+electron states $\|\chi_1\rangle,\dots\|\chi_n\rangle\in\mathcal{H}$ using 
+a Slater determinant:
+
+$$
+|\chi_1,\dots,\chi_n\rangle
+$$
+
+Similarly, we constructed the total Hamiltonian of a molecule with $n$ electrons
+is given as the operator
+
+$$
+H^n = T^n + V_{\mathrm{en}}^n + V_{\mathrm{e}}^n \in\mathrm{End}(\Lambda^n\mathcal{H})
+$$
+
+where the components were obtained as symmetric extensions of the one electron operators
+$T^1\in\mathrm{End}(\mathcal{H})$ and $V_{\mathrm{en}}^1\in\mathrm{End}(\mathcal{H})$
+and the two electron operator $V_{\mathrm{e}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
+
+The goal of this section is to express the expected energy of the Slater determinant:
+
+$$
+\langle \chi_1,\dots,\chi_n | H^n | \chi_1,\dots,\chi_n \rangle
+$$
+
+in terms of expected values of the one and two electron operators above.
+
+
 We'll now use apply XXX to compute the expected values of the components of the Hamiltonian $H$.
 
 > **Claim (Kinetic Energy Expectation).**
@@ -901,175 +1126,6 @@ We'll now use apply XXX to compute the expected values of the components of the 
 > \langle \chi_i\chi_j | V_{\mathrm{ee}}^2 | \chi_j\chi_i \rangle
 > \right)
 > $$
-
-## Closed Shell
-
-Recall that the Hilbert space $\mathcal{H}$ of single electron space is defined as:
-
-$$
-\mathcal{H} := L^2(\mathbf{R}^3)\otimes \mathbb{C}^2
-$$
-
-Where the seconds factor $\mathbb{C}^2$ represents the two-dimensional spin space
-spanned by spin down, denoted $\|0\rangle$ and spin up, denoted $\|1\rangle$.
-
-Therefore, the decomposable single electron states $\|\chi\rangle\in\mathcal{H}$ are of the form:
-
-$$
-|\chi\rangle = |\psi\rangle |s\rangle
-$$
-
-where $\psi\in L^2(\mathbf{R}^3)$ is a positional wave function and $s\in\\{0,1\\}$
-indicates if the spin state is up or down.
-
-Until now we've been considering $n$-electron Slater determinants of arbitrary sequences of
-single-electron states $\|\chi_1\rangle,\dots,\|\chi_n\rangle\in\mathcal{H}$.
-In general, molecules are most stable when, for each positional wave function
-$\|\psi\rangle$, either both or neither of the possible spin states are occupied.
-This type of electron configuration is called
-[closed shell](https://en.wikipedia.org/wiki/Electron_configuration#Open_and_closed_shells)
-as formalized in the following definition.
-
-> **Definition (Closed Shell Slater Determinant).**
-> Let $n\in\mathbb{Z}$ be a positive integer and 
-> $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ positional wave functions.
->
-> The _closed shell Slater determinant_ with positions $\psi_1,\dots,\psi_n$
-> is denoted $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n(\mathcal{H})$ 
-> and defined to be the Slater determinant of
-> the $2n$ single-electron states 
->
-> $$
-> |\psi_1\rangle|0\rangle,|\psi_1\rangle|1\rangle,\dots,
-> |\psi_n\rangle|0\rangle,|\psi_n\rangle|1\rangle \in \mathcal{H}
-> $$
-
-In other words, the closed shell Slater determinant of
-$\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ is given by:
-
-$$
-|\psi_1,\dots,\psi_n\rangle := 
-|\psi_10,\psi_11,\dots,\psi_n0\psi_n1\rangle\in\Lambda^n(\mathcal{H})
-$$
-
-From a computational perspective, the advantage of restricting our attention to
-closed shell states is that their expected energy formulas can be expressed in terms
-of positional wave functions alone. First we'll demonstrate this in the case of
-single-electron operator
-
-> **Claim (Single Electron Operator Closed Shell Expectation).**
-> Let $n\in\mathbb{Z}$ be a positive integer and $T\in\mathrm{End}(L^2(\mathbb{R}^3))$
-> an operator.
->
-> Let $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ be the
-> symmetric extension of
-> $T\otimes\mathrm{Id}\in \mathrm{End}(\mathcal{H})$ 
->
-> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ be positional wave functions.
->
-> Then:
->
-> $$
-> \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle =
-> 2 \sum_{i=1}^n \langle \psi_i | T | \psi_i \rangle
-> $$
-
-<details>
-<summary>
-Proof [click to expand]
-</summary>
-<div class="details-content">
-
-By XXX:
-
-$$
-\begin{align*}
-\langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle 
-&= \sum_{i=1}^n \sum_{s=0}^1 \langle \psi_i s | T\otimes\mathrm{Id} | \psi_i s \rangle \\
-&= \sum_{i=1}^n \sum_{s=0}^1 \langle \psi_i | T | \psi_i \rangle \langle s | s \rangle
-\end{align*}
-$$
-
-By the orthonormality of $\|0\rangle,\|1\rangle\in\mathbb{C}^2$,
-the expression above simplifies to
-
-$$
-2\sum_{i=1}^n \langle \psi_i | T | \psi_i \rangle
-$$
-
-_q.e.d_
-
-</div>
-</details>
-
-The case of a two-electron operator is similar.
-
-> **Claim (Closed Shell Expectation).**
-> Let $n\in\mathbb{Z}$ be a positive integer and 
-> $T^k\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes k})$
-> a symmetric operator.
->
-> Let $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ be the symmetric extension
-> of $T^k\otimes\mathrm{Id}^{\otimes k} \in \mathrm{End}(\mathcal{H}^{\otimes k})$.
->
-> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ be positional wave functions.
->
-> Then:
->
-> $$
-> \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle =
-> \frac{1}{k!}
-> \sum_{I \in [n]^k}\sum_{\sigma\in S_k}
-> 2^{c(\sigma)}\mathrm{sgn}(\sigma)\langle \psi_I | T^k | \psi_I \rangle 
-> $$
-
-<details>
-<summary>
-Proof [click to expand]
-</summary>
-<div class="details-content">
-
-By XXX:
-
-$$
-\begin{align*}
-\langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle 
-&= \frac{1}{2}\sum_{i,j=1}^n \sum_{s,t=0}^1 
-\langle \psi_i s \psi_j t | T' | \psi_i s \psi_j t\rangle 
--\langle \psi_i s \psi_j t | T' | \psi_j t \psi_i s\rangle \\
-&= \frac{1}{2}\sum_{i,j=1}^n \sum_{s,t=0}^1 
-\langle \psi_i \psi_j | T | \psi_i \psi_j \rangle \langle s t | s t \rangle
--\langle \psi_i \psi_j | T' | \psi_j \psi_i \rangle \langle s t | t s \rangle
-\end{align*}
-$$
-
-By the orthonormality of $\|0\rangle,\|1\rangle\in\mathbb{C}^2$, for all $s,t\in\\{0,1\\}$:
-
-$$
-\langle s t | s t \rangle = 1
-$$
-
-and
-
-$$
-\langle s t | t s \rangle =
-\begin{cases}
-1 & s = t \\
-0 & s\neq t
-\end{cases}
-$$
-
-Therefore, the above expression simplifies to
-
-$$
-\sum_{i,j=1}^n \left(
-2\langle \psi_i \psi_j | T | \psi_i \psi_j \rangle
--\langle \psi_i \psi_j | T' | \psi_j \psi_i \rangle\right)
-$$
-
-</div>
-</details>
-
 
 # Cartesian Gaussians
 
