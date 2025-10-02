@@ -763,15 +763,12 @@ The total electronic Hamiltonian will then be defined to be their sum.
 
 ### Kinetic Energy
 
-The kinetic energy of a single electron corresponds to an operator
-$T^1\in\mathrm{End}(\mathcal{H})$.
-Recall that by definition $\mathcal{H} = L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$.
-
-Let $\psi\in L^2(\mathbb{R}^3)$ be a function and $|\alpha\rangle\in\mathbb{C}^2$ a spin vector.
-Then $T^1$ is defined by:
+We'll start by defining the kinetic energy operator $T^1$ on $L^2(\mathbb{R}^3)$,
+the space of single-electron positional wave functions. Let $\|\psi\rangle\in L^2(\mathbb{R}^3)$
+be a positional wave function. By definition:
 
 $$
-T^1 |\psi\rangle|\alpha\rangle := -\frac{1}{2}|\nabla^2 \psi \rangle |\alpha\rangle
+T^1 |\psi\rangle := -\frac{1}{2}|\nabla^2 \psi \rangle \in L^2(\mathbb{R}^3)
 $$
 
 where $\nabla^2$ denotes the
@@ -788,19 +785,22 @@ The Laplace operator
 [is self-adjoint](https://en.wikipedia.org/wiki/Self-adjoint_operator#Boundary_conditions)
 under the assumption that $\phi(\mathbf{r})$ goes to $0$ as $||\mathbf{r}||$ goes to infinity.
 
+We can extend $T^1\in \mathrm{End}(L^2(\mathbb{R}^3))$ to an operator
+$T^1\otimes\mathrm{Id}\in\mathrm{End}(\mathcal{H})$ that acts trivially on the spin component.
+
 The kinetic energy of $n$-electrons, denoted by $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$,
 is defined to be the [symmetric extension](XXX) of
-$T^1$ from $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
+$T^1\otimes\mathrm{Id}$ from $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
 
 Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)^{\otimes n}$ be single-electron
 positional wave functions. By XXX, the expected kinetic energy of the closed shell
-Slater determinant $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n L^2(\mathbb{R}^3)$ is
+Slater determinant $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is
 equal to:
 
 $$
 \begin{align*}
 \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle
-&= -\frac{1}{2} \sum_{i=1}^n \langle \psi_i | \nabla^2 | \psi_i \rangle \\
+&= \sum_{i=1}^n \langle \psi_i | T^1 | \psi_i \rangle \\
 &= -\frac{1}{2} \sum_{i=1}^n 
 \int_{\mathbb{R}^3} \psi_i^*(\mathbf{r})\nabla^2\psi_i(\mathbf{r})d\mathbf{r}
 \end{align*}
@@ -812,48 +812,51 @@ We'll now consider the potential energy operator corresponding to the
 [Coulomb](https://en.wikipedia.org/wiki/Coulomb%27s_law) attraction
 between electrons and nuclei.
 
-Suppose there are $m$ nuclei with positions $\mathbf{R}_1,\dots,\mathbf{R}_m\in\mathbb{R}^3$ and
-[atomic numbers](https://en.wikipedia.org/wiki/Atomic_number) $Z_1,\dots,Z_m\in\\mathbb{Z}$.
+Suppose there are $m$ nuclei with positions
+$\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3m}$ and
+[atomic numbers](https://en.wikipedia.org/wiki/Atomic_number)
+$Z = (Z_1,\dots,Z_m)\in\mathbb{Z}^m$.
 
-The nuclei attraction operator for a single electron is an operator
-$V^1_{\mathrm{en}}\in\mathrm{End}(\mathcal{H})$.
-As usual, $\mathcal{H} = L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$.
-
-$V^1_{\mathrm{en}}$ is defined to act on the $L^2(\mathbb{R}^3)$ component by multiplication
-by
-
-$$
-\phi_{\mathrm{en}}(\mathbf{r}) := -\sum_{i=1}^m \frac{Z_i}{||\mathbf{R}_i - \mathbf{r}||}
-$$
-
-and acts as the identity on the spin component. Specifically, 
-let $\psi(\mathbf{r})\in L^2(\mathbb{R}^3)$ be a positional wave function 
-and $\|\alpha\rangle\in\mathbb{C}^2$ be a spin vector.
-
-Then, $V^1_{\mathrm{en}}$ is defined by:
+The nuclei attraction operator for single-electron positional wave functions
+is an operator 
+$V^1_{\mathrm{en}}(\cdot;\mathbf{R},Z)\in\mathrm{End}(L^2(\mathbb{R}^3))$ that acts as
+multiplication by
 
 $$
-V^1_{\mathrm{en}}|\psi\rangle|\alpha\rangle :=
-|(\phi_{\mathrm{en}}\cdot\psi)\rangle|\alpha\rangle
+\phi_{\mathrm{en}}(\mathbf{r}; \mathbf{R},Z) := -\sum_{i=1}^m \frac{Z_i}{||\mathbf{R}_i - \mathbf{r}||}
+\in L^2(\mathbb{R}^3)
 $$
 
-Since $V^1\_{\mathrm{en}}$ acts on the $L^2(\mathbb{R}^3)$ component by multiplication
+Specifically, given a positional wave function $\psi(\mathbf{r})\in L^2(\mathbb{R}^3)$:
+
+$$
+V^1_{\mathrm{en}}(\cdot; \mathbf{R},Z)|\psi(\mathbf{r})\rangle := 
+|\phi_{\mathrm{en}}(\mathbf{r}; \mathbf{R},Z)\cdot\psi(\mathbf{r})\rangle
+\in L^2(\mathbb{R}^3)
+$$
+
+Since $V^1\_{\mathrm{en}}(\cdot; \mathbf{R},Z)$ acts on the $L^2(\mathbb{R}^3)$ by multiplication
 by the constant $\phi_{\mathrm{en}}$, it is self-adjoint.
 
+As usual, we can extend
+$V^1\_{\mathrm{en}}(\cdot; \mathbf{R},Z)\in\mathrm{End}(L^2(\mathbb{R}^3))$ to an operator
+$V^1\_{\mathrm{en}}(\cdot; \mathbf{R},Z)\otimes\mathrm{Id}\in\mathrm{End}(\mathcal{H})$ that acts
+trivially on the spin component.
+
 The operator corresponding to the attraction between $n$ electons and the $m$
-nuclei, denoted by $V_{\mathrm{en}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ 
-is defined to be the symmetric extension of $V_{\mathrm{en}}^1$ from
+nuclei, denoted by $V_{\mathrm{en}}^n(\cdot; \mathbf{R},Z)\in\mathrm{End}(\Lambda^n\mathcal{H})$ 
+is defined to be the symmetric extension of $V_{\mathrm{en}}^1(\cdot; \mathbf{R},Z)\otimes\mathrm{Id}$ from
 $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
 
 Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)^{\otimes n}$ be single-electron
 positional wave functions. By XXX, the expected nuclear attraction energy of the 
 closed shell Slater determinant 
-$\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n L^2(\mathbb{R}^3)$ is equal to:
+$\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n L^2(\mathcal{H})$ is equal to:
 
 $$
 \begin{align*}
-\langle \psi_1,\dots,\psi_n | V_{\mathrm{en}}^n | \psi_1,\dots,\psi_n \rangle
-&= \sum_{i=1}^n \langle \psi_i | \phi_{\mathrm{en}} | \psi_i \rangle \\
+\langle \psi_1,\dots,\psi_n | V_{\mathrm{en}}^n(\cdot; \mathbf{R},Z) | \psi_1,\dots,\psi_n \rangle
+&= \sum_{i=1}^n \langle \psi_i | V_{\mathrm{en}}^1(\cdot; \mathbf{R},Z) | \psi_i \rangle \\
 &= - \sum_{i=1}^n \sum_{j=1}^m 
 \int_{\mathbb{R}^3} 
 \psi_i^*(\mathbf{r}) \frac{Z_j}{||\mathbf{R}_j - \mathbf{r}||}\psi_i(\mathbf{r})
@@ -864,17 +867,13 @@ $$
 ### Electron Repulsion
 
 We'll now consider the potential energy corresponding to the Coulomb repulsion
-between two electrons.
+between pairs of electrons.
 
-The Coulomb repulsion potential for a pair of electrons corresponds to an operator
-$V_{\mathrm{ee}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
+First we'll define Coulomb repulsion potential for a $2$-electron positional wave function
+as a symmetric operator $V_{\mathrm{ee}}^2\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$.
 
-We'll start by defining $V_{\mathrm{ee}}^2$ as a symmetric operator on 
-$\mathcal{H}\otimes\mathcal{H}$
-and use XXX to extend it to an operator on $\Lambda^n\mathcal{H}$.
-
-In order to define $V_{\mathrm{ee}}^2$ on $\mathcal{H}\otimes\mathcal{H}$,
-we'll use the canonical isomorphism between $L^2(\mathbb{R}^3)\otimes L^2(\mathbb{R}^3)$
+For this purpose,
+we'll use the canonical isomorphism between $L^2(\mathbb{R}^3) \otimes L^2(\mathbb{R}^3)$
 and $L^2(\mathbb{R}^3\times\mathbb{R}^3)$:
 
 $$
@@ -889,7 +888,7 @@ See
 for more information about the canonical isomorphism.
 
 The operator $V_{\mathrm{ee}}^2$ is defined on 
-$L^2(\mathbb{R}^2\times\mathbb{R}^3)$ by multiplication by
+$L^2(\mathbb{R}^3\times\mathbb{R}^3)$ by multiplication by
 $\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}$:
 
 $$
@@ -900,37 +899,39 @@ $$
 Clearly $V_{\mathrm{ee}}^2$ commutes with the transposition of the coordinates
 $\mathbf{r}\_1$ and $\mathbf{r}\_2$. Therefore, under the canonical isomorphism
 $V_{\mathrm{ee}}^2$ is a symmetric operator on
-$L^2(\mathbb{R}^3)^{\otimes 2}$. We can extend $V_{\mathrm{ee}}^2$ to a symmetric operator on 
-$\mathcal{H}^{\otimes 2}$
-by defining it to act trivially on the spin factors $\mathbb{C}^2$. 
+$L^2(\mathbb{R}^3)^{\otimes 2}$.
+
+We can extend $V_{\mathrm{ee}}^2$ to a symmetric operator on 
+$V_{\mathrm{ee}}^2\otimes\mathrm{Id}^{\otimes 2}\in\mathrm{End}(\mathcal{H}^{\otimes 2})$
+that acts trivially on the spin factors $(\mathbb{C}^2)^{\otimes 2}$. 
 
 The Coulomb repulsion operator for $n$-electrons, denoted
 $V_{\mathrm{ee}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$, is defined as the
-symmetric extension of $V_{\mathrm{ee}}^2$ from
+symmetric extension of $V_{\mathrm{ee}}^2\otimes\mathrm{Id}^{\otimes 2}$ from
 $\mathrm{End}(\Lambda^2\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
 
 Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)^{\otimes n}$ be single-electron
 positional wave functions. By XXX, the expected electron-electron repulsion energy 
 of the closed shell Slater determinant 
-$\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n L^2(\mathbb{R}^3)$ is equal to:
+$\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is equal to:
 
 $$
 \begin{align*}
 \langle \psi_1,\dots,\psi_n | V_{\mathrm{ee}}^n | \psi_1,\dots,\psi_n \rangle
 &= \frac{1}{2}\sum_{i,j=1}^n \sum_{\sigma\in S_2}
-2^{c(\sigma)}
-\langle \psi_i\psi_j | \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} P_\sigma | \psi_i\psi_j \rangle \\
+2^{c(\sigma)}\mathrm{sgn}(\sigma)
+\langle \psi_i\psi_j |V_\mathrm{ee}^2 P_\sigma | \psi_i\psi_j \rangle \\
 &= \sum_{i,j=1}^n
-2\langle \psi_i\psi_j | \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} | \psi_i\psi_j \rangle -
-\langle \psi_i\psi_j | \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} | \psi_j\psi_i \rangle
+2\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
+\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle
 \end{align*}
 $$
 
-By our definition of the $\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}$ operator,
+By the definition of $V_\mathrm{ee}^2$,
 for any positional wave functions $\psi_1,\dots,\psi_4\in L^2(\mathbb{R}^3)$:
 
 $$
-\langle \psi_1\psi_2 | \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||} | \psi_3\psi_4 \rangle =
+\langle \psi_1\psi_2 | V_\mathrm{ee}^2 | \psi_3\psi_4 \rangle =
 \int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
 \psi_1^*(\mathbf{r}_1)\psi_2^*(\mathbf{r}_2)
 \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}
