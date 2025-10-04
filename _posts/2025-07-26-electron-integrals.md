@@ -107,10 +107,10 @@ According to the
 the Hilbert space of a collection of $n$ electrons is equal to $\Lambda^n\mathcal{H}$
 I.e, an $n$ electron state is an anti-symmetric tensor of $n$ single electron states.
 
-Now consider a molecule with $n$ electrons and $M$ nuclei.
+Now consider a molecule with $n$ electrons and $m$ nuclei.
 Since nuclei are orders of magnitude heavier than electrons, 
 it's common in quantum chemistry to use the
-[Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenhei mer_approximation)
+[Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
 approximation which assumes that the nuclei are stationary point masses.
 
 This means that quantum state of the molecule is equal to the Hilbert space of its
@@ -735,31 +735,21 @@ For the remainder of this post, we'll work exclusively with closed shell states.
 
 ## The Electronic Hamiltonian
 
-Since electrons have negative charge and nuclei have positive charge, the total energy 
-of a molecule can be expressed as a sum of the kinetic energies of the electrons
-and nuclei,
-the potential energies of the electron-electron and nuclei-nuclei repulsions,
+The goal of this section is to construct an operator that represents energy of 
+the electrons in a molecule.
+
+Since electrons have negative charge and nuclei have positive charge, the electronic energy 
+can be expressed as a sum of the kinetic energies of the electrons,
+the potential energies of the electron-electron repulsions,
 and the potential energies of the electron-nuclei attractions.
 
-Since we are using the
-[Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
-approximation, the kinetic energies of the nuclei are assumed to be zero.
-Furthermore, since in this approximation the nuclei are assumed to be point masses,
-the nuclei-nuclei attraction potential can be computed classically using
-[Coulombs law](https://en.wikipedia.org/wiki/Coulomb%27s_law).
-
-In this section we'll focus on calculating the ground state energy of the 
-electrons in a molecule.
-
-The electronic [Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
-is a self-adjoint operator on the $n$-electron state space $\Lambda^n\mathcal{H}$ that 
-corresponds to the total energy of the electrons.
-
-In this section we'll define self-adjoint operators on 
+We'll start this section by defining self-adjoint operators on 
 $\Lambda^n\mathcal{H}$
-corresponding to the electron kinetic energy, the nuclei-electron attraction potential 
-the and electron-electron repulsion potential.
-The total electronic Hamiltonian will then be defined to be their sum.
+corresponding to each type of energy.
+
+The electronic
+[Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
+will then be defined to be their sum.
 
 ### Kinetic Energy
 
@@ -792,19 +782,35 @@ The kinetic energy of $n$-electrons, denoted by $T^n\in\mathrm{End}(\Lambda^n\ma
 is defined to be the [symmetric extension](XXX) of
 $T^1\otimes\mathrm{Id}$ from $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
 
-Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)^{\otimes n}$ be single-electron
-positional wave functions. By XXX, the expected kinetic energy of the closed shell
-Slater determinant $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is
-equal to:
+The expected kinetic energy of a closed shell Slater determinant follows immediately from XXX.
 
-$$
-\begin{align*}
-\langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle
-&= \sum_{i=1}^n \langle \psi_i | T^1 | \psi_i \rangle \\
-&= -\frac{1}{2} \sum_{i=1}^n 
-\int_{\mathbb{R}^3} \psi_i^*(\mathbf{r})\nabla^2\psi_i(\mathbf{r})d\mathbf{r}
-\end{align*}
-$$
+> **Claim (Kinetic Energy Expectation).**
+> Let $n\in\mathbb{Z}$ be a positive integer and
+> $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$
+> single-electron positional wave functions.
+>
+> The expected kinetic energy of the closed shell Slater determinant
+> $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is given by:
+>
+> $$
+> \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle
+> = \sum_{i=1}^n \langle \psi_i | T^1 | \psi_i \rangle
+> $$
+
+The inner products $\langle \psi_i | T^1 | \psi_i \rangle$ can be evaluated
+using the definition of $T^1$ and the definition of the inner product on
+$L^2(\mathbb{R}^3)$.
+
+> **Claim (Kinetic Energy Integral).**
+> Let $\psi_1,\psi_2\in L^2(\mathbb{R}^3)$ be single-electron wave functions.
+>
+> Then:
+>
+> $$
+> \langle \psi_1 | T^1 | \psi_2 \rangle = 
+> -\frac{1}{2}
+> \int_{\mathbb{R}^3} \psi_1^*(\mathbf{r})\nabla^2\psi_2(\mathbf{r})d\mathbf{r}
+> $$
 
 ### Electron Nuclear Attraction
 
@@ -840,29 +846,55 @@ by the constant $\phi_{\mathrm{en}}$, it is self-adjoint.
 
 As usual, we can extend
 $V^1\_{\mathrm{en}}(\cdot; \mathbf{R},Z)\in\mathrm{End}(L^2(\mathbb{R}^3))$ to an operator
-$V^1\_{\mathrm{en}}(\cdot; \mathbf{R},Z)\otimes\mathrm{Id}\in\mathrm{End}(\mathcal{H})$ that acts
+$V^n\_{\mathrm{en}}(\cdot; \mathbf{R},Z)\otimes\mathrm{Id}\in\mathrm{End}(\mathcal{H})$ that acts
 trivially on the spin component.
 
-The operator corresponding to the attraction between $n$ electons and the $m$
+The operator corresponding to the attraction between $n$ electrons and the $m$
 nuclei, denoted by $V_{\mathrm{en}}^n(\cdot; \mathbf{R},Z)\in\mathrm{End}(\Lambda^n\mathcal{H})$ 
 is defined to be the symmetric extension of $V_{\mathrm{en}}^1(\cdot; \mathbf{R},Z)\otimes\mathrm{Id}$ from
 $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
 
-Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)^{\otimes n}$ be single-electron
-positional wave functions. By XXX, the expected nuclear attraction energy of the 
-closed shell Slater determinant 
-$\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n L^2(\mathcal{H})$ is equal to:
+The nuclear attraction energy of a closed shell Slater determinant also follows
+immediately from XXX.
 
-$$
-\begin{align*}
-\langle \psi_1,\dots,\psi_n | V_{\mathrm{en}}^n(\cdot; \mathbf{R},Z) | \psi_1,\dots,\psi_n \rangle
-&= \sum_{i=1}^n \langle \psi_i | V_{\mathrm{en}}^1(\cdot; \mathbf{R},Z) | \psi_i \rangle \\
-&= - \sum_{i=1}^n \sum_{j=1}^m 
-\int_{\mathbb{R}^3} 
-\psi_i^*(\mathbf{r}) \frac{Z_j}{||\mathbf{R}_j - \mathbf{r}||}\psi_i(\mathbf{r})
-d\mathbf{r}
-\end{align*}
-$$
+> **Claim (Nuclear Attraction Expectation).**
+> Let $m,n\in\mathbb{Z}$ be positive integers.
+>
+> Let $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3m}$ 
+> be $m$ nuclear positions and $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ be $m$
+> nuclear numbers.
+>
+> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$
+> be single-electron positional wave functions.
+>
+> Then the expected nuclear attraction energy of the closed shell Slater determinant
+> $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is given by:
+>
+> $$
+> \langle \psi_1,\dots,\psi_n | V^n_{\mathrm{en}}(\cdot; \mathbf{R},Z) | \psi_1,\dots,\psi_n \rangle
+> = \sum_{i=1}^n \langle \psi_i | V^1_{\mathrm{en}}(\cdot; \mathbf{R},Z) | \psi_i \rangle
+> $$
+
+The single-electron inner-products can be evaluated using the definition of the inner product
+on $L^2(\mathbb{R}^3)$:
+
+> **Claim (Nuclear Attraction Integral).**
+> Let $m,n\in\mathbb{Z}$ be positive integers.
+>
+> Let $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3m}$ 
+> be $m$ nuclear positions and $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ be $m$
+> nuclear numbers.
+>
+> Let $\psi_1,\psi_2\in L^2(\mathbb{R}^3)$ be single-electron wave functions.
+>
+> Then:
+>
+> $$ 
+> \langle \psi_1 | V_{\mathrm{en}}^1(\cdot; \mathbf{R},Z) | \psi_2 \rangle =
+> -\sum_{j=1}^m \int_{\mathbb{R}^3} 
+> \psi_1^*(\mathbf{r}) \frac{Z_j}{||\mathbf{R}_j - \mathbf{r}||}\psi_2(\mathbf{r})
+> d\mathbf{r}
+> $$
 
 ### Electron Repulsion
 
@@ -870,7 +902,7 @@ We'll now consider the potential energy corresponding to the Coulomb repulsion
 between pairs of electrons.
 
 First we'll define Coulomb repulsion potential for a $2$-electron positional wave function
-as a symmetric operator $V_{\mathrm{ee}}^2\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$.
+as a symmetric operator $V_{\mathrm{ee}}^2\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2}$.
 
 For this purpose,
 we'll use the canonical isomorphism between $L^2(\mathbb{R}^3) \otimes L^2(\mathbb{R}^3)$
@@ -910,10 +942,31 @@ $V_{\mathrm{ee}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$, is defined as the
 symmetric extension of $V_{\mathrm{ee}}^2\otimes\mathrm{Id}^{\otimes 2}$ from
 $\mathrm{End}(\Lambda^2\mathcal{H})$ to $\mathrm{End}(\Lambda^n\mathcal{H})$.
 
-Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)^{\otimes n}$ be single-electron
-positional wave functions. By XXX, the expected electron-electron repulsion energy 
-of the closed shell Slater determinant 
-$\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is equal to:
+We can again apply XXX to compute the expected election repulsion energy of
+a closed shell Slater determinant.
+
+> **Claim (Electron Repulsion Expectation).**
+> Let $n\in\mathbb{Z}$ be a positive integer.
+> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ be single-electron
+> positional wave functions.
+>
+> The expected electron repulsion energy of the closed shell Slater determinant 
+> $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is given by:
+>
+> $$
+> \langle \psi_1,\dots,\psi_n | V_{\mathrm{ee}}^n | \psi_1,\dots,\psi_n \rangle
+> = \sum_{i,j=1}^n \left(
+> 2\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
+> \langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle \right)
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+The claim follows immediately from claim XXX:
 
 $$
 \begin{align*}
@@ -921,45 +974,77 @@ $$
 &= \frac{1}{2}\sum_{i,j=1}^n \sum_{\sigma\in S_2}
 2^{c(\sigma)}\mathrm{sgn}(\sigma)
 \langle \psi_i\psi_j |V_\mathrm{ee}^2 P_\sigma | \psi_i\psi_j \rangle \\
-&= \sum_{i,j=1}^n
+&= \sum_{i,j=1}^n\left(
 2\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
-\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle
+\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle\right)
 \end{align*}
 $$
 
-By the definition of $V_\mathrm{ee}^2$,
-for any positional wave functions $\psi_1,\dots,\psi_4\in L^2(\mathbb{R}^3)$:
+_q.e.d_
+
+</div>
+</details>
+
+The two-electron inner-products in the above claim can be computed as follows.
+
+> **Claim (Electron Repulsion Integral).**
+> Let $n\in\mathbb{Z}$ be a positive integer.
+>
+> Let $\psi_1,\dots,\psi_4\in L^2(\mathbb{R}^3)$ be single-electron wave functions.
+>
+> Then:
+>
+> $$
+> \langle \psi_1\psi_2 | V_\mathrm{ee}^2 | \psi_3\psi_4 \rangle =
+> \int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
+> \psi_1^*(\mathbf{r}_1)\psi_2^*(\mathbf{r}_2)
+> \frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}
+> \psi_3(\mathbf{r}_1)\psi_4(\mathbf{r}_2)
+> d\mathbf{r}_1 d\mathbf{r}_2
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+The claim follows from the definition of $V_\mathrm{ee}^2$ and the definition
+of the inner-product on $L^2(\mathbb{R}^3\times\mathbb{R}^3)$.
+
+_q.e.d_
+
+</div>
+</details>
+
+### The Hamiltonian
+
+Consider a molecule with $m$ nuclei and $n$ electrons.
+Suppose that the nuclei have atomic numbers
+$Z = (Z_1,\dots,Z_m)\in\mathbb{Z}^m$ and positions
+$\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3m}$.
+
+The electronic Hamiltonian of the molecule,
+denoted $H^n(\cdot;\mathbf{R},Z) \in \mathrm{End}(\Lambda^n\mathcal{H})$,
+is defined to be the sum of the operators defined above:
 
 $$
-\langle \psi_1\psi_2 | V_\mathrm{ee}^2 | \psi_3\psi_4 \rangle =
-\int_{\mathbb{R}^3}\int_{\mathbb{R}^3}
-\psi_1^*(\mathbf{r}_1)\psi_2^*(\mathbf{r}_2)
-\frac{1}{||\mathbf{r}_1 - \mathbf{r}_2||}
-\psi_3(\mathbf{r}_1)\psi_4(\mathbf{r}_2)
-d\mathbf{r}_1 d\mathbf{r}_2
-$$
-
-### Total Hamiltonian
-
-The total electronic Hamiltonian on a molecule with $n$ electrons,
-denoted $H^n \in \mathrm{End}(\Lambda^n\mathcal{H})$,
-is defined to be the sum of the kinetic, electron-nuclei attraction and
-electron-electron repulsion operators: 
-
-$$
-H^n := T^n + V_{\mathrm{en}}^n + V_{\mathrm{ee}}^n
+H^n(\cdot;\mathbf{R},Z) := 
+T^n + V_{\mathrm{en}}^n(\cdot;\mathbf{R},Z) + V_{\mathrm{ee}}^n
 $$
 
 ## The Schrodinger Equation
 
 The 
 [time-independent Schrodinger equation](https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation#Time-independent_equation)
-determines the allowed
+determines the
 [stationary states](https://en.wikipedia.org/wiki/Stationary_state)
-of a system of $n$ electrons with Hamiltonian $H\in\mathrm{End}(\Lambda^n\mathcal{H})$.
+of a system with Hilbert space $V$ and 
+[Hamiltonian](https://en.wikipedia.org/wiki/Hamiltonian_(quantum_mechanics))
+$H\in\mathrm{End}(V)$.
 
-Specifically, it says that if $|\Psi\rangle\in\Lambda^n\mathcal{H}$
-is a stationary state with energy 
+Specifically, it says that if $|\Psi\rangle\in V$
+is a stationary state with electronic energy 
 $E\in\mathbb{R}$, then $|\Psi\rangle$ is an eigenvector of $H$
 with eigenvalue $E$:
 
@@ -968,24 +1053,30 @@ H|\Psi\rangle = E|\Psi\rangle
 $$
 
 In particular, the ground state of the system is given by the eigenvector of $H$
-with the smallest eigenvalue.
+with the smallest eigenvalue, denoted $E_0$.
 
-In theory, all we need to do to determine the electronic ground state of a molecule is to
-diagonalize its Hamiltonian and find the eigenvector with the smallest eigenvalue.
+In theory, all we need to do to determine the electronic ground state of a molecule
+is to diagonalize the Hamiltonian
+$H^n(\cdot;\mathbf{R},Z)\in\mathrm{End}(\Lambda^n\mathcal{H})$
+and find the eigenvector with the smallest eigenvalue.
 In practice this is infeasible for all but the simplest systems.
 
-To see why,
-recall that the state space of $n$-electrons is 
-$\Lambda^n(L^2(\mathbb{R}^3)\otimes(\mathbb{C}^2)$.
-The set of integrable functions $$L^2(\mathbb{R}^3)$ 
-is infinite which means that we cannot directly express $H^n$ as a matrix. 
+To see why, note that the state space of $n$-electrons is equal to
+
+$$
+\Lambda^n\mathcal{H} = \Lambda^n(L^2(\mathbb{R}^3)\otimes\mathbb{C}^2)
+$$
+
+The set of integrable functions $L^2(\mathbb{R}^3)$ 
+is infinite which means that we cannot directly express
+$H^n(\cdot;\mathbf{R},Z)\in\mathrm{End}(\Lambda^n\mathcal{H})$ as a matrix. 
 
 One idea could be to discretize $\mathbb{R}$ into a finite set of
-points and express an orbital $\Psi$ in terms of the vector of its values on each point.
-However, even with a conservative discretization of only $100$ points,
+points and express an orbital $\|\Psi\rangle$ in terms of the vector of its values on each point.
+However, even with a conservative discretization of only $100$ points per dimension,
 $L^2(\mathbb{R}^3)\otimes\mathbb{C}^2$ is $2 \cdot 100^3$ dimensional and so
 $\Lambda^n(L^2(\mathbb{R}^3)\otimes(\mathbb{C}^2)$ is $\binom{2 \cdot 100^3}{n}$
-is still quite large.
+dimensional which is still quite large.
 
 Rather than finding the exact ground state, we'll instead use the
 [Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
@@ -993,22 +1084,76 @@ to approximate it.
 
 ## The Variational Principle
 
-The expected energy of a system with state
-$\Psi\in\Lambda^n\mathcal{H}$ and Hamiltonian $H\in\mathrm{End}(\Lambda^n\mathcal{H})$
-given by the inner product of $|\Psi\rangle$ with $H|\Psi\rangle$:
-
-$$
-\langle \Psi | H^n | \Psi \rangle 
-$$
-
+Consider a quantum system with Hilbert space $V$ and Hamiltonian $H\in\mathrm{End}(V)$.
 The [Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
-states that for any state $|\Psi\rangle$ with unit norm,
-the expected energy of $|\Psi\rangle$ is an upper bound on the energy of the ground state
-$E_0$:
+states that for any state $\|\Psi\rangle\in V$,
+the normalized expected energy of $\|\Psi\rangle$ is an upper bound on the
+ground state energy $E_0$:
 
 $$
-\langle \Psi | H | \Psi \rangle >= E_0
+\frac{\langle \Psi | H | \Psi \rangle}{\langle \Psi | \Psi \rangle } \geq E_0
 $$
+
+In particular, consider a molecule that has $m$ nuclei with atomic
+numbers $Z=(Z_1,\dots,Z_m)$ and positions $\mathbf{R}=(\mathbf{R}_1,\dots,\mathbf{R}_m)$,
+together with $n$ electrons.
+
+We'll denote the ground state energy of the electronic Hamiltonian
+$H^n(\cdot;\mathbf{R},Z)$ by
+
+$$
+E_\mathrm{elec}(\mathbf{R},Z) \in \mathbb{R}
+$$
+
+As a special case of the variational principle:
+
+> **Claim (Electronic Variational Principle).**
+> Let $n,m\in\mathbb{Z}$ be positive integers, $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$
+> be nuclei atomic numbers and
+> $\mathbf{R}=(\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$ be nuclei positions.
+>
+> For all electronic states $\|\Psi\rangle\in\Lambda^n\mathcal{H}$:
+>
+> $$
+> \frac{\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle }
+> \geq E_\mathrm{elec}(\mathbf{R},Z)
+> $$
+
+In order to compute the total energy of the molecule we'll need to account for the
+energy of the nuclei as well.
+In [Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
+approximation, the nuclei are considered to be motionless classical point masses.
+In particular, their kinetic energy is zero and the nucleus-nucleus repulsion energy is
+given the the classical Coulomb potential:
+
+$$
+V_\mathrm{nn}(\mathbf{R},Z) := \sum_{i=1}^m\sum_{j>i}^m
+\frac{Z_i Z_j}{||\mathbf{R}_i - \mathbf{R}_j||}
+$$
+
+Therefore, the total energy of a molecule in electronic ground state,
+denoted $E_\mathrm{mol}(\mathbf{R},Z)$,
+is equal to the sum of the electronic ground state energy and the nucleus-nucleus
+repulsion energy:
+
+$$
+E_\mathrm{mol}(\mathbf{R},Z) := E_\mathrm{elec}(\mathbf{R},Z) + V_\mathrm{nn}(\mathbf{R},Z)
+$$
+
+For a given molecule, the atomic numbers $Z$ are fixed but the the nuclei can move around.
+The function $E_\mathrm{mol}(\mathbf{R},Z)$ defines a
+[ground state potential energy surface](https://en.wikipedia.org/wiki/Potential_energy_surface)
+for the nuclei. Specifically, it is equal to the energy of the molecule when its nuclei are
+in positions $\mathbf{R}$ and its electrons are in the ground state.
+
+The absolute minimum energy of the molecule, denoted $E_\mathrm{min}(Z)$ is obtained when
+the nuclei are at the global minimum of $E_\mathrm{mol}(\mathbf{R},Z)$:
+
+$$
+E_\mathrm{min}(Z) := \min_{\mathbf{R}\in\mathbb{R}^{3\times m}} E_\mathrm{mol}(\mathbf{R},Z)
+$$
+
+
 
 Our strategy for approximating the ground state of an $n$-electron molecule
 will be to first parameterize $n$ single-electron states
