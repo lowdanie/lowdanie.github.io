@@ -316,7 +316,7 @@ from arbitrary operators on $V^{\otimes k}$ where $k \leq n$.
 > **Claim (Symmetric Extension).**
 > Let $V$ be a vector space, $k \leq n\in\mathbb{Z}$ positive integers
 > and $T^k\in\mathrm{End}(V^{\otimes k})$ an operator on $V^{\otimes k}$.
-
+>
 > Then, the symmetrization extension of $T^k$, $T^n\in\mathrm{End}(V^{\otimes n})$,
 > is a symmetric operator on $V^{\otimes n}$. In addition, if $T^k$
 > is self-adjoint then $T^n$ is self-adjoint.
@@ -632,7 +632,7 @@ as formalized in the following definition.
 > $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ positional wave functions.
 >
 > The _closed shell Slater determinant_ with positions $\psi_1,\dots,\psi_n$
-> is denoted $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n(\mathcal{H})$ 
+> is denoted $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^{2n}(\mathcal{H})$ 
 > and defined to be the Slater determinant of
 > the $2n$ single-electron states 
 >
@@ -646,7 +646,7 @@ $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ is given by:
 
 $$
 |\psi_1,\dots,\psi_n\rangle := 
-|\psi_10,\psi_11,\dots,\psi_n0\psi_n1\rangle\in\Lambda^n(\mathcal{H})
+|\psi_10,\psi_11,\dots,\psi_n0\psi_n1\rangle\in\Lambda^{2n}(\mathcal{H})
 $$
 
 From a computational perspective, the advantage of restricting our attention to
@@ -666,15 +666,16 @@ of $\sigma$.
 > **Claim (Closed Shell Expectation).**
 > Let $n\in\mathbb{Z}$ be a positive integer, 
 > $T^k\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes k})$
-> a symmetric operator and $T^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ the symmetric extension
+> a symmetric operator and $T^{2n}\in\mathrm{End}(\Lambda^{2n}\mathcal{H})$ the symmetric extension
 > of $T^k\otimes\mathrm{Id}^{\otimes k} \in \mathrm{End}(\mathcal{H}^{\otimes k})$.
 >
-> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ be positional wave functions.
+> Let $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in L^2(\mathbb{R}^3)$ 
+> be orthonormal positional wave functions.
 >
 > Then:
 >
 > $$
-> \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle =
+> \langle \psi_1,\dots,\psi_n | T^{2n} | \psi_1,\dots,\psi_n \rangle =
 > \frac{1}{k!}
 > \sum_{I \in [n]^k}\sum_{\sigma\in S_k}
 > 2^{c(\sigma)}\mathrm{sgn}(\sigma)\langle \psi_I | T^k P_{\sigma}| \psi_I \rangle 
@@ -692,12 +693,14 @@ $$
 |s\rangle := |s_1\dots s_n\rangle \in \left(\mathbb{C}^2\right)^{\otimes n}
 $$
 
-By XXX and the definition of $T^n$:
+By XXX and the definition of $T^{2n}$:
 
 $$
-\langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle =
-\frac{1}{k!} \sum_{I\in [n]^k} \sum_{\sigma\in S_n}
+\langle \psi_1,\dots,\psi_n | T^{2n} | \psi_1,\dots,\psi_n \rangle =
+\frac{1}{k!} 
+\sum_{I\in [n]^k} 
 \sum_{s \in [2]^k}
+\sum_{\sigma\in S_n}
 \langle \psi_I | T^k P_\sigma | \psi_I \rangle 
 \langle s_I | P_\sigma | s_I \rangle 
 $$
@@ -728,6 +731,65 @@ $$
 
 _q.e.d_
 
+</div>
+</details>
+
+The following corollary is useful for computing the norm of a closed shell Slater determinant.
+
+> **Claim (Closed Shell Norm).**
+> Let $n\in\mathbb{Z}$ be a positive integer and
+> $\|\psi_1\rangle,\dots,\psi_n\rangle\in L^2(\mathbb{R}^3)$ 
+> orthonormal single-electron positional wave functions.
+>
+> Then:
+>
+> $$
+> \langle \psi_1,\dots,\psi_n | \psi_1,\dots,\psi_n \rangle = 
+> \frac{1}{n}\sum_{i=1}^n \langle \psi_i | \psi_i \rangle
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+We'll apply XXX to the single-electron identity operator
+$T^1 = \mathrm{Id}\in\mathrm{End}(L^2(\mathbb{R}^3))$.
+
+Let $T^{2n}\in\mathrm{End}(\Lambda^{2n}\mathcal{H})$ be the symmetric extension of
+$T^1\otimes\mathrm{Id}\in\mathrm{End}(\mathcal{H})$.
+
+By the definition symmetric extension:
+
+$$
+\begin{align*}
+T^{2n} &= \frac{1}{(2n - 1)!}\sum_{\sigma\in S_{2n}}P_{\sigma^{-1}}T_1^1 P_\sigma \\
+&= \frac{1}{(2n - 1)!}\sum_{\sigma\in S_{2n}}\mathrm{Id} \\
+&= 2n\mathrm{Id}
+\end{align*}
+$$
+
+Therefore:
+
+$$
+\langle \psi_1,\dots,\psi_n | T^{2n} | \psi_1,\dots,\psi_n \rangle = 
+2n \langle \psi_1,\dots,\psi_n | \psi_1,\dots,\psi_n \rangle 
+$$
+
+On the other hand, by claim XXX:
+
+$$
+\begin{align*}
+\langle \psi_1,\dots,\psi_n | T^{2n} | \psi_1,\dots,\psi_n \rangle 
+&= \sum_{i=1}^n 2 \langle \psi_i | T^1 | \psi_i \rangle \\
+&= 2 \sum_{i=1}^n \langle \psi_i | \psi_i \rangle
+\end{align*}
+$$
+
+The claim follows by combining XXX and XXX.
+
+_q.e.d_
 </div>
 </details>
 
@@ -786,8 +848,8 @@ The expected kinetic energy of a closed shell Slater determinant follows immedia
 
 > **Claim (Kinetic Energy Expectation).**
 > Let $n\in\mathbb{Z}$ be a positive integer and
-> $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$
-> single-electron positional wave functions.
+> $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in L^2(\mathbb{R}^3)$
+> be orthonormal single-electron positional wave functions.
 >
 > The expected kinetic energy of the closed shell Slater determinant
 > $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is given by:
@@ -802,7 +864,8 @@ using the definition of $T^1$ and the definition of the inner product on
 $L^2(\mathbb{R}^3)$.
 
 > **Claim (Kinetic Energy Integral).**
-> Let $\psi_1,\psi_2\in L^2(\mathbb{R}^3)$ be single-electron wave functions.
+> Let $\|\psi_1\rangle,\|\psi_2\rangle\in L^2(\mathbb{R}^3)$ 
+> be single-electron wave functions.
 >
 > Then:
 >
@@ -846,7 +909,7 @@ by the constant $\phi_{\mathrm{en}}$, it is self-adjoint.
 
 As usual, we can extend
 $V^1\_{\mathrm{en}}(\cdot; \mathbf{R},Z)\in\mathrm{End}(L^2(\mathbb{R}^3))$ to an operator
-$V^n\_{\mathrm{en}}(\cdot; \mathbf{R},Z)\otimes\mathrm{Id}\in\mathrm{End}(\mathcal{H})$ that acts
+$V^1\_{\mathrm{en}}(\cdot; \mathbf{R},Z)\otimes\mathrm{Id}\in\mathrm{End}(\mathcal{H})$ that acts
 trivially on the spin component.
 
 The operator corresponding to the attraction between $n$ electrons and the $m$
@@ -864,8 +927,8 @@ immediately from XXX.
 > be $m$ nuclear positions and $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ be $m$
 > nuclear numbers.
 >
-> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$
-> be single-electron positional wave functions.
+> Let $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in L^2(\mathbb{R}^3)$
+> be orthonormal single-electron positional wave functions.
 >
 > Then the expected nuclear attraction energy of the closed shell Slater determinant
 > $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is given by:
@@ -885,7 +948,8 @@ on $L^2(\mathbb{R}^3)$:
 > be $m$ nuclear positions and $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ be $m$
 > nuclear numbers.
 >
-> Let $\psi_1,\psi_2\in L^2(\mathbb{R}^3)$ be single-electron wave functions.
+> Let $\|\psi_1\rangle,\|\psi_2\rangle\in L^2(\mathbb{R}^3)$
+> be single-electron wave functions.
 >
 > Then:
 >
@@ -947,8 +1011,8 @@ a closed shell Slater determinant.
 
 > **Claim (Electron Repulsion Expectation).**
 > Let $n\in\mathbb{Z}$ be a positive integer.
-> Let $\psi_1,\dots,\psi_n\in L^2(\mathbb{R}^3)$ be single-electron
-> positional wave functions.
+> Let $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in L^2(\mathbb{R}^3)$
+> be orthonormal  single-electron positional wave functions.
 >
 > The expected electron repulsion energy of the closed shell Slater determinant 
 > $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is given by:
@@ -990,7 +1054,8 @@ The two-electron inner-products in the above claim can be computed as follows.
 > **Claim (Electron Repulsion Integral).**
 > Let $n\in\mathbb{Z}$ be a positive integer.
 >
-> Let $\psi_1,\dots,\psi_4\in L^2(\mathbb{R}^3)$ be single-electron wave functions.
+> Let $\|\psi_1\rangle,\dots,\|\psi_4\rangle\in L^2(\mathbb{R}^3)$
+> be single-electron wave functions.
 >
 > Then:
 >
@@ -1094,6 +1159,8 @@ $$
 \frac{\langle \Psi | H | \Psi \rangle}{\langle \Psi | \Psi \rangle } \geq E_0
 $$
 
+Furthermore, the inequality becomes exact when $\|\Psi\rangle$ is the ground state.
+
 In particular, consider a molecule that has $m$ nuclei with atomic
 numbers $Z=(Z_1,\dots,Z_m)$ and positions $\mathbf{R}=(\mathbf{R}_1,\dots,\mathbf{R}_m)$,
 together with $n$ electrons.
@@ -1112,11 +1179,11 @@ As a special case of the variational principle:
 > be nuclei atomic numbers and
 > $\mathbf{R}=(\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$ be nuclei positions.
 >
-> For all electronic states $\|\Psi\rangle\in\Lambda^n\mathcal{H}$:
+> Then:
 >
 > $$
-> \frac{\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle }
-> \geq E_\mathrm{elec}(\mathbf{R},Z)
+> E_\mathrm{elec}(\mathbf{R},Z) = 
+> \min_{|\Psi\rangle\in\Lambda^n\mathcal{H}}\frac{\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle }
 > $$
 
 In order to compute the total energy of the molecule we'll need to account for the
@@ -1127,7 +1194,7 @@ In particular, their kinetic energy is zero and the nucleus-nucleus repulsion en
 given the the classical Coulomb potential:
 
 $$
-V_\mathrm{nn}(\mathbf{R},Z) := \sum_{i=1}^m\sum_{j>i}^m
+V_\mathrm{nuc}(\mathbf{R},Z) := \sum_{i=1}^m\sum_{j>i}^m
 \frac{Z_i Z_j}{||\mathbf{R}_i - \mathbf{R}_j||}
 $$
 
@@ -1137,141 +1204,186 @@ is equal to the sum of the electronic ground state energy and the nucleus-nucleu
 repulsion energy:
 
 $$
-E_\mathrm{mol}(\mathbf{R},Z) := E_\mathrm{elec}(\mathbf{R},Z) + V_\mathrm{nn}(\mathbf{R},Z)
+E_\mathrm{mol}(\mathbf{R},Z) := E_\mathrm{elec}(\mathbf{R},Z) + V_\mathrm{nuc}(\mathbf{R},Z)
 $$
 
 For a given molecule, the atomic numbers $Z$ are fixed but the the nuclei can move around.
 The function $E_\mathrm{mol}(\mathbf{R},Z)$ defines a
 [ground state potential energy surface](https://en.wikipedia.org/wiki/Potential_energy_surface)
 for the nuclei. Specifically, it is equal to the energy of the molecule when its nuclei are
-in positions $\mathbf{R}$ and its electrons are in the ground state.
+in positions
+$\mathbf{R}=(\mathbf{R}_1,\dots,\mathbf{R}_m)$
+and its electrons are in the corresponding ground state.
 
-The absolute minimum energy of the molecule, denoted $E_\mathrm{min}(Z)$ is obtained when
+The ground state energy of the entire molecule (including both electron and nucleus states),
+denoted $E_\mathrm{min}(Z)$ is obtained when
 the nuclei are at the global minimum of $E_\mathrm{mol}(\mathbf{R},Z)$:
 
 $$
 E_\mathrm{min}(Z) := \min_{\mathbf{R}\in\mathbb{R}^{3\times m}} E_\mathrm{mol}(\mathbf{R},Z)
 $$
 
+By the [electronic variational principle](XXX):
 
-
-Our strategy for approximating the ground state of an $n$-electron molecule
-will be to first parameterize $n$ single-electron states
-$\|\chi_1(\mathbf{c}_1)\rangle,\dots,\|\chi_n(\mathbf{c}_n)\rangle\in\mathcal{H}$,
-in terms of some parameters $\mathbf{c}_1,\dots\mathbf{c}_n\in\mathbb{R}^K$ 
-where $K$ is polynomial in the number of electrons.
-
-For any set of parameters $\mathbf{c_i}$, the Slater determinant
-
-$$
-|\chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n)\rangle \in \Lambda^n\mathcal{H}
-$$
-
-is a valid $n$-electron state with expected energy 
-
-$$
-E(\mathbf{c}_1,\dots,\mathbf{c}_n) :=
-\langle \chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n) | H^n |
-\chi_1(\mathbf{c}_1),\dots,\chi_n(\mathbf{c}_n) \rangle
-$$
-
-According to the variational principal, the minimum of
-$E(\mathbf{c}_1,\dots,\mathbf{c}_n)$ is an upper bound on the ground state energy of the
-electrons.
-
-The key to this method is to be able to efficiently compute
-$E(\mathbf{c}_1,\dots,\mathbf{c}_n)$. In the next section we'll see how to reduce
-the expected value of the Hamiltonian $H^n$ for a Slater determinant on 
-$n$ electrons to an expected value of single and double electrons.
-
-## Expected Energy
-
-In section XXX we saw how to construct an $n$-electron state out of $n$-single
-electron states $\|\chi_1\rangle,\dots\|\chi_n\rangle\in\mathcal{H}$ using 
-a Slater determinant:
-
-$$
-|\chi_1,\dots,\chi_n\rangle
-$$
-
-Similarly, we constructed the total Hamiltonian of a molecule with $n$ electrons
-is given as the operator
-
-$$
-H^n = T^n + V_{\mathrm{en}}^n + V_{\mathrm{e}}^n \in\mathrm{End}(\Lambda^n\mathcal{H})
-$$
-
-where the components were obtained as symmetric extensions of the one electron operators
-$T^1\in\mathrm{End}(\mathcal{H})$ and $V_{\mathrm{en}}^1\in\mathrm{End}(\mathcal{H})$
-and the two electron operator $V_{\mathrm{e}}^2\in\mathrm{End}(\Lambda^2\mathcal{H})$.
-
-The goal of this section is to express the expected energy of the Slater determinant:
-
-$$
-\langle \chi_1,\dots,\chi_n | H^n | \chi_1,\dots,\chi_n \rangle
-$$
-
-in terms of expected values of the one and two electron operators above.
-
-
-We'll now use apply XXX to compute the expected values of the components of the Hamiltonian $H$.
-
-> **Claim (Kinetic Energy Expectation).**
+{: #clm:molecular-ground-state }
+> **Claim (Molecular Ground State).**
+> Let $n,m\in\mathbb{Z}$ and $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$
+> be positive integers.
 >
-> Let $n\in\mathbb{Z}$ be a positive integer and let
-> $T^1\in\mathrm{End}(\mathcal{H})$ and
-> $T^n\in\mathrm{End}(\Lambda^n \mathcal{H})$ be the $1$-electron and $n$-electron
-> kinetic energy operators.
->
-> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
-> one-electron states.
->
-> Then:
+> Then, the ground state energy of a molecule with $m$ nuclei with atomic numbers
+> $Z$ and $n$ electrons is given by:
 >
 > $$
-> \langle \chi_1,\dots,\chi_n | T^n | \chi_1,\dots,\chi_n \rangle =
-> \sum_{i=1}^n \langle \chi_i | T^1 | \chi_i \rangle
+> E_\mathrm{min}(Z) = 
+> \min_{\substack{\mathbf{R}\in\mathbb{R}^{3\times m} \\ |\Psi\rangle\in\Lambda^n\mathcal{H}}}
+> \left(\frac{\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle }
+> + V_\mathrm{nuc}(\mathbf{R}, Z)\right)
 > $$
 
-> **Claim (Electron Nuclear Attraction Expectation).**
->
-> Let $n\in\mathbb{Z}$ be a positive integer and let
-> $V_{\mathrm{en}}^1\in\mathrm{End}(\mathcal{H})$ and
-> $V_{\mathrm{en}}^n\in\mathrm{End}(\Lambda^n \mathcal{H})$ 
-> be the $1$-electron and $n$-electron
-> nuclear attraction energy operators.
->
-> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
-> one-electron states.
->
-> Then:
->
-> $$
-> \langle \chi_1,\dots,\chi_n | V_{\mathrm{en}}^n | \chi_1,\dots,\chi_n \rangle =
-> \sum_{i=1}^n \langle \chi_i | V_{\mathrm{en}}^1 | \chi_i \rangle
-> $$
+The idea of the
+[variational method](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
+is to determine the ground state of a molecule by searching for nuclei positions
+$\mathbf{R}\in\mathbb{R}^{3\times m}$ and an $n$-electron state
+$\|\Psi\rangle\in\Lambda^n\mathcal{H}$ that minimize the expression in 
+[Molecular Ground State](#clm:molecular-ground-state).
 
-> **Claim (Electron Repulsion Expectation).**
->
-> Let $n\in\mathbb{Z}$ be a positive integer and let
-> $V_{\mathrm{ee}}^2\in\mathrm{End}(\Lambda^2 \mathcal{H})$ and
-> $V_{\mathrm{ee}}^n\in\mathrm{End}(\Lambda^n \mathcal{H})$ 
-> be the electron-electron repulsion operators for $2$ and $n$ electrons
-> respectively.
->
-> Let $\chi_1,\dots,\chi_N\in \mathcal{H}$ be orthonormal
-> one-electron states.
->
-> Then:
->
-> $$
-> \langle \chi_1,\dots,\chi_n | V_{\mathrm{ee}}^n | \chi_1,\dots,\chi_n \rangle =
-> \sum_{i=1}^n\sum_{j>i}^n 
-> \left( 
-> \langle \chi_i\chi_j | V_{\mathrm{ee}}^2 | \chi_i\chi_j \rangle -
-> \langle \chi_i\chi_j | V_{\mathrm{ee}}^2 | \chi_j\chi_i \rangle
-> \right)
-> $$
+There are two major obstacles to this approach.
+
+First, as mentioned in section [The Schrodinger Equation](#schrodinger-equation),
+the space of $n$-electron states, $\Lambda^n\mathcal{H}$, is infinite dimensional.
+
+The second issue is that, given a state $\|\Psi\rangle\in\Lambda^n\mathcal{H}$,
+evaluating the inner product
+$\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle$
+involves computing an integral over $\mathbb{R}^{3\times n}$ that is basically impossible to
+solve numerically.
+
+To solve the first problem, we'll restrict our attention to a finite dimensional
+subspace of $\Lambda^n\mathcal{H}$. Specifically, we'll start by choosing a finite
+set of single-electron positional wave functions $B\subset L^2(\mathbb{R}^3)$.
+Then, we'll only consider
+$n$-electron states that are equal to the closed shell Slater determinant of 
+orthonormal states in the span of $B$. 
+In other words, we'll only consider $n$-electron states of the form:
+
+$$
+|\Psi\rangle = |\psi_1,\dots,\psi_{n/2}\rangle \in \Lambda^n\mathcal{H}
+$$
+
+where
+
+$$
+\psi_1,\dots,\psi_{n/2} \in \mathrm{Span}(B) \subset L^2(\mathbb{R}^3)
+$$
+
+are orthonormal.
+
+To solve the second problem, note that by the results of section
+[The Electronic Hamiltonian](#the-electronic-hamiltonian), when $\|\Psi\rangle$
+is a closed shell Slater determinant of orthonormal wave functions as above,
+computing the inner product
+$\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle$
+can be reduced to computing inner products involving just single-electron positional states
+$\|\psi_i\rangle\in L^2(\mathbb{R}^3$ and double-electron positional states
+$\|\psi_i\psi_j\rangle\in L^2(\mathbb{R}^3)^{\otimes 2}$.
+We'll choose a set $B\subset L^2(\mathbb{R}^3)$ 
+in which these simpler inner-products are tractable. 
+
+## Linear Variation
+
+Consider a molecule with $m$ nuclei and $2n$ electrons for some positive
+integers $m,n\in\mathbb{Z}$. Denote the atomic numbers of the nuclei by
+$Z = (Z_1,\dots,Z_m)\in\mathbb{Z}^m$.
+
+In addition, let
+$B\subset L^2(\mathbb{R}^3)$ be a finite subset of linearly independent
+positional wave functions of size $b := |B|$.
+
+As discussed in the previous section, our strategy for approximating the ground state
+of the molecule is to search for nuclei positions
+
+$$
+\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}
+$$
+
+and orthonormal positional wave functions
+
+$$
+|\psi_1\rangle,\dots,|\psi_n\rangle\in\mathrm{Span}(B)\subset L^2(\mathbb{R}^3)
+$$
+
+which minimize the expected energy of the closed shell Slater determinant
+
+$$
+|\Psi\rangle := |\psi_1,\dots,\psi_n\rangle \in \Lambda^{2n}(\mathcal{H})
+$$
+
+In this section we'll state this optimization problem more explicitly in terms of the
+linear coefficients of the wave functions $\|\psi_i\rangle$ in terms of the basis $B$.
+
+We'll denote the elements of $B$ by:
+
+$$
+B = \{ |\phi_1\rangle,\dots,|\phi_b\rangle \}
+$$
+
+Let $\mathbf{C}\in\mathbb{R}^{n\times b}$ be a $n\times b$ matrix and, for all
+$1 \leq i \leq n$ define:
+
+$$
+|\psi_i\rangle := \sum_{j=1}^b C_{ij}|\phi_j\rangle
+$$
+
+By XXX, the expected energy of the molecule when the nuclei are in positions
+$\mathbf{R}\in\mathbb{R}^{3\times m}$ and the electrons are in state
+$\|\Psi\rangle := \|\psi_1,\dots,\psi_n\rangle\in\Lambda^{2n}\mathcal{H}$ is equal to:
+
+$$
+F(\mathbf{C}, \mathbf{R}; Z) := 
+\frac{\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle}
++ V_\mathrm{nuc}(\mathbf{R}, Z)
+$$
+
+Our goal is to minimize $F$ as a function of $\mathbf{C}$ and $\mathbf{R}$
+under the constraint that the wave functions $\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are
+orthonormal.
+
+First we'll rewrite $F$ explicitly in terms of the linear coefficients $\mathbf{C}$
+and the basis states $|\phi_1\rangle,\dots,\|\phi_b\rangle$.
+
+By XXX, assuming that $\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are
+orthonormal:
+
+$$
+\begin{align*}
+\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle
+&= \sum_{i=1}^n \langle \psi_i | T^1 + V_\mathrm{en}^1(\cdot;\mathbf{R},Z) | \psi_i \rangle \\
+&+ \sum_{i,j=1}^n
+   \left( 
+   2\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle
+   -\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle
+   \right)
+\end{align*}
+$$
+
+Substituting
+
+$$
+|\psi_i\rangle = \sum_{k=1}^b C_{ik}|\phi_b\rangle
+$$
+
+into XXX gives us:
+
+$$
+\begin{align*}
+\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle
+&= \sum_{i=1}^n\sum_{s,t=1}^b C_{is}C_{it} \langle \phi_s | T^1 + V_\mathrm{en}^1(\cdot;\mathbf{R},Z) | \phi_t \rangle \\
+&+ \sum_{i,j=1}^n\sum_{s,t,u,v=1}^b
+   (2C_{is}C_{jt}C_{iu}C_{jv}
+    -C_{is}C_{jt}C_{ju}C_{iv})
+   \langle \phi_s\phi_t | V_\mathrm{ee}^2 | \phi_u\phi_v \rangle
+\end{align*}
+$$
 
 # Cartesian Gaussians
 
