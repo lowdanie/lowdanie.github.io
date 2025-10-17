@@ -1151,101 +1151,29 @@ to approximate it.
 
 Consider a quantum system with Hilbert space $V$ and Hamiltonian $H\in\mathrm{End}(V)$.
 The [Variational Principle](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
-states that for any state $\|\Psi\rangle\in V$,
-the normalized expected energy of $\|\Psi\rangle$ is an upper bound on the
+states that for any state $\|\Psi\rangle\in V$ satisfying $\langle\Psi \| \Psi \rangle = 1$,
+the expectation energy of $\|\Psi\rangle$ is an upper bound on the
 ground state energy $E_0$:
 
 $$
-\frac{\langle \Psi | H | \Psi \rangle}{\langle \Psi | \Psi \rangle } \geq E_0
+\langle \Psi | H | \Psi \rangle \geq E_0
 $$
 
 Furthermore, the inequality becomes exact when $\|\Psi\rangle$ is the ground state.
 
-In particular, consider a molecule that has $m$ nuclei with atomic
+In our context, consider a molecule that has $m$ nuclei with atomic
 numbers $Z=(Z_1,\dots,Z_m)$ and positions $\mathbf{R}=(\mathbf{R}_1,\dots,\mathbf{R}_m)$,
-together with $n$ electrons.
+together with $n$ electrons. Let
+$H = H^n(\mathbf{R}, Z)\in\mathrm{End}(\Lambda^n\mathcal{H})$
+be the [electronic Hamiltonian](XXX) of the molecule.
 
-We'll denote the ground state energy of the electronic Hamiltonian
-$H^n(\cdot;\mathbf{R},Z)$ by
-
-$$
-E_\mathrm{elec}(\mathbf{R},Z) \in \mathbb{R}
-$$
-
-As a special case of the variational principle:
-
-> **Claim (Electronic Variational Principle).**
-> Let $n,m\in\mathbb{Z}$ be positive integers, $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$
-> be nuclei atomic numbers and
-> $\mathbf{R}=(\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$ be nuclei positions.
->
-> Then:
->
-> $$
-> E_\mathrm{elec}(\mathbf{R},Z) = 
-> \min_{|\Psi\rangle\in\Lambda^n\mathcal{H}}\frac{\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle }
-> $$
-
-In order to compute the total energy of the molecule we'll need to account for the
-energy of the nuclei as well.
-In [Born Oppenheimer](https://en.wikipedia.org/wiki/Born%E2%80%93Oppenheimer_approximation)
-approximation, the nuclei are considered to be motionless classical point masses.
-In particular, their kinetic energy is zero and the nucleus-nucleus repulsion energy is
-given the the classical Coulomb potential:
+According to the variational principle, in order to find the electronic ground state
+we can search for an $n$-electron state
+$\|\Psi\rangle\in\Lambda^n\mathcal{H}$ with unit norm that minimizes the expectation energy
 
 $$
-V_\mathrm{nuc}(\mathbf{R},Z) := \sum_{i=1}^m\sum_{j>i}^m
-\frac{Z_i Z_j}{||\mathbf{R}_i - \mathbf{R}_j||}
+\langle \Psi | H^n(\mathbf{R}, Z) | \Psi \rangle
 $$
-
-Therefore, the total energy of a molecule in electronic ground state,
-denoted $E_\mathrm{mol}(\mathbf{R},Z)$,
-is equal to the sum of the electronic ground state energy and the nucleus-nucleus
-repulsion energy:
-
-$$
-E_\mathrm{mol}(\mathbf{R},Z) := E_\mathrm{elec}(\mathbf{R},Z) + V_\mathrm{nuc}(\mathbf{R},Z)
-$$
-
-For a given molecule, the atomic numbers $Z$ are fixed but the the nuclei can move around.
-The function $E_\mathrm{mol}(\mathbf{R},Z)$ defines a
-[ground state potential energy surface](https://en.wikipedia.org/wiki/Potential_energy_surface)
-for the nuclei. Specifically, it is equal to the energy of the molecule when its nuclei are
-in positions
-$\mathbf{R}=(\mathbf{R}_1,\dots,\mathbf{R}_m)$
-and its electrons are in the corresponding ground state.
-
-The ground state energy of the entire molecule (including both electron and nucleus states),
-denoted $E_\mathrm{min}(Z)$ is obtained when
-the nuclei are at the global minimum of $E_\mathrm{mol}(\mathbf{R},Z)$:
-
-$$
-E_\mathrm{min}(Z) := \min_{\mathbf{R}\in\mathbb{R}^{3\times m}} E_\mathrm{mol}(\mathbf{R},Z)
-$$
-
-By the [electronic variational principle](XXX):
-
-{: #clm:molecular-ground-state }
-> **Claim (Molecular Ground State).**
-> Let $n,m\in\mathbb{Z}$ and $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$
-> be positive integers.
->
-> Then, the ground state energy of a molecule with $m$ nuclei with atomic numbers
-> $Z$ and $n$ electrons is given by:
->
-> $$
-> E_\mathrm{min}(Z) = 
-> \min_{\substack{\mathbf{R}\in\mathbb{R}^{3\times m} \\ |\Psi\rangle\in\Lambda^n\mathcal{H}}}
-> \left(\frac{\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle }
-> + V_\mathrm{nuc}(\mathbf{R}, Z)\right)
-> $$
-
-The idea of the
-[variational method](https://en.wikipedia.org/wiki/Variational_method_(quantum_mechanics))
-is to determine the ground state of a molecule by searching for nuclei positions
-$\mathbf{R}\in\mathbb{R}^{3\times m}$ and an $n$-electron state
-$\|\Psi\rangle\in\Lambda^n\mathcal{H}$ that minimize the expression in 
-[Molecular Ground State](#clm:molecular-ground-state).
 
 There are two major obstacles to this approach.
 
@@ -1254,40 +1182,81 @@ the space of $n$-electron states, $\Lambda^n\mathcal{H}$, is infinite dimensiona
 
 The second issue is that, given a state $\|\Psi\rangle\in\Lambda^n\mathcal{H}$,
 evaluating the inner product
-$\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle$
+$\langle \Psi | H^n(\mathbf{R},Z) | \Psi \rangle$
 involves computing an integral over $\mathbb{R}^{3\times n}$ that is basically impossible to
 solve numerically.
 
-To solve the first problem, we'll restrict our attention to a finite dimensional
-subspace of $\Lambda^n\mathcal{H}$. Specifically, we'll start by choosing a finite
-set of single-electron positional wave functions $B\subset L^2(\mathbb{R}^3)$.
-Then, we'll only consider
-$n$-electron states that are equal to the closed shell Slater determinant of 
-orthonormal states in the span of $B$. 
-In other words, we'll only consider $n$-electron states of the form:
+As a first step to making the problem more tractable, we'll restrict our search
+to $n$-electron states that are equal to the closed shell Slater determinant of 
+$n/2$ orthonormal single-electron positional wave functions.
+In other words, we'll assume that
+$\|\Psi\rangle$ is of the form:
 
 $$
 |\Psi\rangle = |\psi_1,\dots,\psi_{n/2}\rangle \in \Lambda^n\mathcal{H}
 $$
 
-where
-
-$$
-\psi_1,\dots,\psi_{n/2} \in \mathrm{Span}(B) \subset L^2(\mathbb{R}^3)
-$$
-
+where $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
 are orthonormal.
 
-To solve the second problem, note that by the results of section
-[The Electronic Hamiltonian](#the-electronic-hamiltonian), when $\|\Psi\rangle$
-is a closed shell Slater determinant of orthonormal wave functions as above,
-computing the inner product
-$\langle \Psi | H^n(\cdot;\mathbf{R},Z) | \Psi \rangle$
-can be reduced to computing inner products involving just single-electron positional states
-$\|\psi_i\rangle\in L^2(\mathbb{R}^3$ and double-electron positional states
-$\|\psi_i\psi_j\rangle\in L^2(\mathbb{R}^3)^{\otimes 2}$.
-We'll choose a set $B\subset L^2(\mathbb{R}^3)$ 
-in which these simpler inner-products are tractable. 
+Let $E : L^2(\mathbb{R}^3)^{n/2} \rightarrow \mathbb{R}$ 
+denote the expectation energy of the Slater determinant $|\Psi\rangle$
+as a function of the single-electron wave functions:
+
+$$
+E(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle) := 
+\langle\psi_1,\dots,\psi_{n/2} | H | \psi_1,\dots,\psi_{n/2}\rangle
+$$
+
+We can restate our search as a constrained minimization of $E$. Specifically,
+our objective is to find single-electron wave functions
+$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$ that minimize
+$E(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle)$ subject to the orthonormality constraint:
+
+$$
+\langle \psi_i | \psi_j \rangle = \delta_{ij}
+$$
+
+The point of this reformulation is that we can solve this optimization problem
+using the method of
+[Lagrange multipliers](https://en.wikipedia.org/wiki/Lagrange_multiplier)
+
+First, we'll introduce $(n/2)^2$ Lagrange multipliers $\lambda_{kl}\in\mathbb{R}$
+where $1 \leq k,l \leq n/2$. We'll then introduce the Lagrangian:
+
+$$
+L: L^2(\mathbb{R}^3)^{n/2} \times \mathbb{R}^{n/2 \times n/2}
+$$
+
+defined by:
+
+$$
+L(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle,\lambda_{0,0},\dots,\lambda_{n/2,n/2}) :=
+E(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle) - 
+\sum_{k,l=0}^{n/2}\lambda_{kl}(\langle \psi_k | \psi_l \rangle - \delta_{kl})
+$$
+
+By the theory of Lagrange multipliers, the minima of $E$ subject to the orthonormality
+constraints are critical points of $L$. In particular, if
+$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
+is a solution to the optimization problem, then there exist Lagrange multipliers
+$\lambda_{kl}\in\mathbb{R}$ such that for all $1 \leq i \leq n/2$:
+
+$$
+\frac{\partial}{\partial \psi_i}
+L(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle,\lambda_{0,0},\dots,\lambda_{n/2,n/2}) = 0
+$$
+
+By linearity of the partial derivative, this is equivalent to:
+
+$$
+\frac{\partial}{\partial \psi_i}E(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle) =
+\frac{\partial}{\partial \psi_i} 
+\left( \sum_{k,l=0}^{n/2}\lambda_{kl} \langle \psi_k | \psi_l \rangle \right)
+$$
+
+We can use the results of section XXX to compute the left hand side in terms of
+single and double electron operators: 
 
 ## Linear Variation
 
@@ -1306,7 +1275,7 @@ $$
 \mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}
 $$
 
-and orthonormal positional wave functions
+and positional wave functions
 
 $$
 |\psi_1\rangle,\dots,|\psi_n\rangle\in\mathrm{Span}(B)\subset L^2(\mathbb{R}^3)
@@ -1318,7 +1287,42 @@ $$
 |\Psi\rangle := |\psi_1,\dots,\psi_n\rangle \in \Lambda^{2n}(\mathcal{H})
 $$
 
-In this section we'll state this optimization problem more explicitly in terms of the
+subject to the constraint that the wave functions
+$\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are
+orthonormal.
+
+By XXX, the expected energy of the molecule when the nuclei are in positions
+$\mathbf{R}\in\mathbb{R}^{3\times m}$ and the electrons are in state
+$\|\Psi\rangle$ is equal to:
+
+$$
+F(\Psi, \mathbf{R}; Z) := 
+\frac{\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle}
++ V_\mathrm{nuc}(\mathbf{R}, Z)
+$$
+
+If $\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are orthonormal, then by XXX:
+
+$$
+|\Psi | \Psi \rangle = 1
+$$
+
+Therefore, under the orthonormality constraint:
+
+$$
+F(\Psi, \mathbf{R}; Z) = 
+\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle}
++ V_\mathrm{nuc}(\mathbf{R}, Z)
+$$
+
+We'll apply the method of
+[Lagrange multipliers](https://en.wikipedia.org/wiki/Lagrange_multiplier)
+to minimize $F$ under the constraint that 
+$\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are orthonormal.
+
+Specifically, 
+
+In this section we'll formulate this optimization problem more in terms of the 
 linear coefficients of the wave functions $\|\psi_i\rangle$ in terms of the basis $B$.
 
 We'll denote the elements of $B$ by:
