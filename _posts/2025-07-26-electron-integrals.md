@@ -1020,8 +1020,8 @@ a closed shell Slater determinant.
 > $$
 > \langle \psi_1,\dots,\psi_n | V_{\mathrm{ee}}^n | \psi_1,\dots,\psi_n \rangle
 > = \sum_{i,j=1}^n \left(
-> 2\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
-> \langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle \right)
+> \langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
+> \frac{1}{2}\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle \right)
 > $$
 
 <details>
@@ -1039,8 +1039,8 @@ $$
 2^{c(\sigma)}\mathrm{sgn}(\sigma)
 \langle \psi_i\psi_j |V_\mathrm{ee}^2 P_\sigma | \psi_i\psi_j \rangle \\
 &= \sum_{i,j=1}^n\left(
-2\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
-\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle\right)
+\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
+\frac{1}{2}\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle\right)
 \end{align*}
 $$
 
@@ -1256,7 +1256,227 @@ $$
 $$
 
 We can use the results of section XXX to compute the left hand side in terms of
-single and double electron operators: 
+single and double electron operators. To facilitate notation, we'll denote the sum
+of the single-electron kinetic energy and electron-nuclear attraction operators
+from section XXX by $H^1(\mathbb{R}, Z)$:
+
+$$
+H^1(\mathbb{R}, Z) := 
+T^1 + V^1_{\mathrm{en}}(\mathbb{R}, Z) \in \mathrm{End}(L^2(\mathbb{R}^3))
+$$
+
+> **Definition (Coulomb Operator).**
+> Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be a density operator.
+>
+> The _Coulomb operator_ associated to $\rho$ is an operator on 
+> $L^2(\mathbb{R}^3)$ defined by:
+>
+> $$
+> J(\rho) :=
+> \mathrm{Tr}_2 \left(
+> (\mathrm{Id}^1 \otimes \rho) V_\mathrm{ee}^2 \right)
+> \in\mathrm{End}(L^2(\mathbb{R}^3))
+> $$
+
+> **Definition (Exchange Operator).**
+> Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be a density operator.
+>
+> The _exchange operator_ associated to $\rho$ is an operator on 
+> $L^2(\mathbb{R}^3)$ defined by:
+>
+> $$
+> K(\rho) :=
+> \mathrm{Tr}_2 \left(
+> (\mathrm{Id}^1 \otimes \rho) V_\mathrm{ee}^2 P_{(1,2)} \right)
+> \in\mathrm{End}(L^2(\mathbb{R}^3))
+> $$
+
+> **Claim.**
+> Let $m\in\mathbb{Z}$ be a positive integer,
+> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic numbers and
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
+> nuclear positions.
+>
+> Let $n\in\mathbb{Z}$ be an even integer and let
+> $\|\psi_1\rangle,\dots,|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
+> be single-electron positional states.
+>
+> Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ denote the corresponding 
+> electron density operator:
+>
+> $$
+> \rho := 2\sum_{i=1}^{n/2}|\psi_i\rangle\langle\psi_i| 
+> \in\mathrm{End}(L^2(\mathbb{R}^3))
+> $$
+>
+> Then, for all $1\leq i \leq n/2$ and $\|\delta\psi\rangle\in L^2(\mathbb{R}^3)$:
+>
+> $$
+> \frac{\partial}{\partial \psi_i}E(\psi_1,\dots,\psi_{n/2})|\delta\psi\rangle =
+> \mathrm{Re}\left( 
+> \langle \delta\psi | H^1(\mathbf{R}, Z) + 2J(\rho) - K(\rho) | \psi_i\rangle
+> \right)
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+By definition,
+
+$$
+H^n = T^n +  V_\mathrm{en}^n(\mathbf{R}, Z) + V_\mathrm{ee}^n
+$$
+
+Recall from section XXX that $T^n$ and $V_\mathrm{en}^n(\mathbf{R}, Z)$
+are defined to be the symmetric extensions of the single-electron operators
+$T^1\in\mathrm{End}(L^2(\mathbb{R}^3))$ and 
+$V_\mathrm{en}^1\in\mathrm{End}(L^2(\mathbb{R}^3))$.
+
+Similarly, $V_\mathrm{ee}^n$ is defined to be the symmetric extension of the
+double electron operator
+$V_\mathrm{ee}^2\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$.
+
+We'll split the functional $E$ into two components by defining
+
+$$
+E^1(\psi_1,\dots,\psi_{n/2}) := 
+\langle \psi_1,\dots,\psi_{n/2} | T^n  + V_\mathrm{en}^n(\mathbf{R}, Z) |
+\psi_1,\dots,\psi_{n/2} \rangle
+$$
+
+and
+$$
+E^2(\psi_1,\dots,\psi_{n/2}) := 
+\langle \psi_1,\dots,\psi_{n/2} | V_\mathrm{ee}^n |
+\psi_1,\dots,\psi_{n/2} \rangle
+$$
+
+We'll start by evaluating $E^1(\psi_1,\dots,\psi_{n/2})$.
+By XXX:
+
+$$
+E^1(\psi_1,\dots,\psi_{n/2}) =
+\sum_{j=1}^{n/2}\langle \psi_j | H^1 \psi_j \rangle
+$$
+
+Therefore,
+
+$$
+\frac{\partial}{\partial\psi_i} E^1(\psi_1,\dots,\dots,\psi_{n/2}) =
+\frac{\partial}{\partial\psi_i} \langle \psi_i | H^1 | \psi_i \rangle
+$$
+
+To evaluate 
+$\frac{\partial}{\partial\psi} \langle \psi \| H^1 \| \psi \rangle$,
+note that:
+
+$$
+\begin{align*}
+\langle \psi +\delta\psi | H^1 | \psi+\delta\psi\rangle -
+\langle \psi | H^1 | \psi \rangle &= 
+\langle \delta\psi | H^1 | \psi\rangle + \langle \psi | H^1 | \delta\psi \rangle \\
+&= \langle \delta\psi | H^1 | \psi\rangle + \langle \delta\psi | H^1 | \psi \rangle^* \\
+&= 2\mathrm{Re}(\langle \delta\psi | H^1 | \psi\rangle) + O(||\delta\psi||^2)
+\end{align*}
+$$
+
+which implies that:
+
+$$
+\frac{\partial}{\partial\psi} \langle \psi \| H^1 \| \psi \rangle|\delta\psi\rangle =
+2\mathrm{Re}(\langle \delta\psi | H^1 | \psi\rangle)
+$$
+
+Therefore:
+
+$$
+\frac{\partial}{\partial\psi_i} E^1(\psi_1,\dots,\psi_{n/2})|\delta\psi\rangle =
+2\mathrm{Re}(\langle \delta\psi | H^1 | \psi\rangle)
+$$
+
+The analysis for $E^2$ is similar.
+
+Recall that by XXX:
+
+$$
+E^2(\psi_1,\dots,\psi_{n/2}) = 
+\sum_{k,l=1}^{n/2}(
+    \langle\psi_k\psi_l | V_\mathrm{ee}^2 | \psi_k\psi_l\rangle -
+    \frac{1}{2}\langle\psi_k\psi_l | V_\mathrm{ee}^2 | \psi_l\psi_k\rangle)
+$$
+
+It's easy to see that
+
+1. $$
+   \frac{\partial}{\partial\psi}\langle\psi\psi | V_\mathrm{ee}^2 | \psi\psi\rangle|\delta\psi\rangle =
+   4\mathrm{Re}(\langle\delta\psi\psi | \psi\psi\rangle)
+   $$
+
+1. $$
+   \frac{\partial}{\partial\psi}\langle\psi\phi | V_\mathrm{ee}^2 | \psi\phi\rangle|\delta\psi\rangle =
+   2\mathrm{Re}(\langle\delta\psi\phi | \psi\phi\rangle)
+   $$
+
+1. $$
+   \frac{\partial}{\partial\psi}\langle\psi\phi | V_\mathrm{ee}^2 | \phi\psi\rangle|\delta\psi\rangle =
+   2\mathrm{Re}(\langle\delta\psi\phi | \phi\psi\rangle)
+   $$
+
+Together this implies that
+
+$$
+\frac{\partial}{\partial\psi_i}E^2(\psi_1,\dots,\psi_{n/2}) = 
+2\mathrm{Re}\left(
+   \sum_{j=1}^{n/2}(
+    2\langle\delta\psi\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j\rangle -
+    \langle\delta\psi\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i\rangle)\right)
+$$
+
+Finally, note that
+
+$$
+\begin{align*}
+\sum_{j=1}^{n/2}(
+    \langle\delta\psi\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j\rangle
+&= \langle \delta\psi | \sum_{j=1}^{n/2}(
+    (\mathrm{Id}\otimes\langle\psi_j |) V_\mathrm{ee}^2 (\mathrm{Id}\otimes\langle\psi_j|) |\psi_i\rangle \\
+&= \langle \delta\psi | \mathrm{Tr}_2 (\rho V_\mathrm{ee}^2) | \psi_i \rangle \\
+&= \langle \delta\psi | J | \psi_i \rangle
+\end{align*}
+
+Similarly:
+
+$$
+\sum_{j=1}^{n/2}(
+    \langle\delta\psi\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i\rangle =
+\langle \delta\psi | K | \psi_i \rangle
+$$
+
+_q.e.d_
+</div>
+</details>
+
+
+> **Definition (Fock Operator).**
+> Let $m\in\mathbb{Z}$ be a positive integer,
+> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic number and
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
+> nuclear positions.
+>
+> Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be a density operator.
+>
+> The _Fock operator_ associated to the molecule $(\mathbf{R}, Z)$ and electron
+> density $\rho$ is an operator on $L^2(\mathbb{R}^3)$:
+>
+> $$
+> F(\rho, \mathbf{R}, Z) := H^1(\mathbf{R}, Z) + 
+> \mathrm{Tr}_2 \left(
+> (\mathrm{Id}^1 \otimes \rho) H^2(2\mathrm{Id}^2 - P_{(1,2)}) \right)
+> \in\mathrm{End}(L^2(\mathbb{R}^3))
+> $$
 
 ## Linear Variation
 
