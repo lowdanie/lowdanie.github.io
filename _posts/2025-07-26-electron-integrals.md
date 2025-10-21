@@ -1243,16 +1243,14 @@ is a solution to the optimization problem, then there exist Lagrange multipliers
 $\lambda_{kl}\in\mathbb{R}$ such that for all $1 \leq i \leq n/2$:
 
 $$
-\frac{\partial}{\partial \psi_i}
+\delta
 L(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle,\lambda_{0,0},\dots,\lambda_{n/2,n/2}) = 0
 $$
 
-By linearity of the partial derivative, this is equivalent to:
+By linearity of the first variation, this is equivalent to:
 
 $$
-\frac{\partial}{\partial \psi_i}E(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle) =
-\frac{\partial}{\partial \psi_i} 
-\left( \sum_{k,l=0}^{n/2}\lambda_{kl} \langle \psi_k | \psi_l \rangle \right)
+\delta E = \sum_{k,l=0}^{n/2}\lambda_{kl} \delta \langle \psi_k | \psi_l \rangle \right)
 $$
 
 We can use the results of section XXX to compute the left hand side in terms of
@@ -1263,6 +1261,92 @@ from section XXX by $H^1(\mathbb{R}, Z)$:
 $$
 H^1(\mathbb{R}, Z) := 
 T^1 + V^1_{\mathrm{en}}(\mathbb{R}, Z) \in \mathrm{End}(L^2(\mathbb{R}^3))
+$$
+
+> **Definition (First Variation).**
+> Let $n\in\mathbb{Z}$ be a positive integer, let $V_1,\dots,V_n$ be Hilbert spaces
+> and $f:\Prod_i=1^nV_i \rightarrow \mathbf{C}$ a function.
+>
+> The _first variation_ of $f$ at $(v_1,\dots,v_n)\in\Prod_i=1^nV_i$ is a linear function
+> $\delta f(v_1,\dots,v_n)\in\mathrm{Hom}(\Prod_i=1^nV_i,\mathbb{C}$
+> that satisfies the property that for all $(\delta v_1,\dots,\delta v_n)\in\Prod_i=1^nV_i$:
+>
+> $$
+> f(v_1+\delta v_1,\dots,v_n+\delta v_n) = 
+> f(v_1,\dots,v_n) + \delta f(v_1,\dots,v_n)[\delta v_1,\dots,\delta v_n]
+> + O(\sum_{i=1}^n||\delta v_i||^2)
+> $$
+
+> **Claim (Expectation First Variation).**
+> Let $V$ be a Hilbert space, $A\in\mathrm{End}(V)$ a self-adjoint operator on $V$ and
+> $f:V\rightarrow\mathbb{C}$ the function defined by:
+>
+> $$
+> f(v) := \langle v | A | v \rangle
+> $$
+>
+> Then
+>
+> $$
+> \delta f(v)[\delta v] = 2\mathrm{Re}(\langle \delta v | A | v \rangle)
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Consider the function $B: V \times V \rightarrow \mathbb{C}$
+defined by:
+
+$$
+B(v_1,v_2) := \langle v_1 | A | v_2 \rangle
+$$
+
+The first variation of $B$ is given by:
+$$
+\delta B = \langle\delta v_1 | A | v_2 \rangle + \langle v_1 | A | \delta v_2 \rangle
+$$
+
+Let $g:V \rightarrow V\times V$ denote the diagonal
+map defined by $g(v) = (v,v)$. Applying the chain rule
+to $B\circ g$:
+
+$$
+\begin{align*}
+\delta\langle v | A | v \rangle =
+&= \langle \delta v | A | v \rangle + \langle v | A | \delta v \rangle \\
+&= \langle \delta v | A | v \rangle + \langle \delta v | A | v \rangle^* \\
+&= 2\mathrm{Re}(\langle \delta v | A | v \rangle)
+\end{align*}
+$$
+
+_q.e.d_
+</div>
+</details>
+
+> **Claim (Double Expectation First Variation).**
+> Let $V$ be a Hilbert space and $A\in\mathrm{End}(V^{\otimes 2})$ an operator on $V^{\otimes 2}$.
+> Let $f:V^{\otimes 2}\rightarrow\mathbb{C}$ be defined by:
+>
+> $$
+> f(v,w) := \langle v w | A | v w \rangle
+> $$
+>
+> Then
+>
+> $$
+> \delta f(v,w)[\delta v,\delta w] = 2\mathrm{Re}(
+>    \langle \delta v w | A | v w \rangle + \langle \delta w v | A | w v \rangle
+> )
+> $$
+
+When the arguments of $\delta f$ are clear from the context, we will omit them.
+For example, we'll sometimes write the statement of claim XXX as:
+
+$$
+\delta \langle v | A | v \rangle = 2\mathrm{Re}(\langle \delta v | A | v \rangle)
 $$
 
 > **Definition (Coulomb Operator).**
@@ -1309,12 +1393,12 @@ $$
 > \in\mathrm{End}(L^2(\mathbb{R}^3))
 > $$
 >
-> Then, for all $1\leq i \leq n/2$ and $\|\delta\psi\rangle\in L^2(\mathbb{R}^3)$:
+> Then, for all $1\leq i \leq n/2$$:
 >
 > $$
-> \frac{\partial}{\partial \psi_i}E(\psi_1,\dots,\psi_{n/2})|\delta\psi\rangle =
+> \delta E =
 > \mathrm{Re}\left( 
-> \langle \delta\psi | H^1(\mathbf{R}, Z) + 2J(\rho) - K(\rho) | \psi_i\rangle
+>   \sum_{i=1}^{n/2}\langle \delta\psi_i | H^1(\mathbf{R}, Z) + 2J(\rho) - K(\rho) | \psi_i\rangle
 > \right)
 > $$
 
@@ -1342,19 +1426,21 @@ $V_\mathrm{ee}^2\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$.
 We'll split the functional $E$ into two components by defining
 
 $$
-E^1(\psi_1,\dots,\psi_{n/2}) := 
+E_1(\psi_1,\dots,\psi_{n/2}) := 
 \langle \psi_1,\dots,\psi_{n/2} | T^n  + V_\mathrm{en}^n(\mathbf{R}, Z) |
 \psi_1,\dots,\psi_{n/2} \rangle
 $$
 
 and
+
 $$
-E^2(\psi_1,\dots,\psi_{n/2}) := 
+E_2(\psi_1,\dots,\psi_{n/2}) := 
 \langle \psi_1,\dots,\psi_{n/2} | V_\mathrm{ee}^n |
 \psi_1,\dots,\psi_{n/2} \rangle
 $$
 
-We'll start by evaluating $E^1(\psi_1,\dots,\psi_{n/2})$.
+We'll start by evaluating $\delta_i E_1$.
+
 By XXX:
 
 $$
@@ -1362,98 +1448,50 @@ E^1(\psi_1,\dots,\psi_{n/2}) =
 \sum_{j=1}^{n/2}\langle \psi_j | H^1 \psi_j \rangle
 $$
 
-Therefore,
+Therefore, by XXX:
 
 $$
-\frac{\partial}{\partial\psi_i} E^1(\psi_1,\dots,\dots,\psi_{n/2}) =
-\frac{\partial}{\partial\psi_i} \langle \psi_i | H^1 | \psi_i \rangle
+\delta E^1 &= 2\mathrm{Re}\left(
+   \sum_{j=1}^{n/2}\langle \delta\psi_i | H^1 | \psi_i \rangle
+\right)
 $$
 
-To evaluate 
-$\frac{\partial}{\partial\psi} \langle \psi \| H^1 \| \psi \rangle$,
-note that:
+The analysis for $E^2$ is similar. To facilitate notation, we'll define:
 
 $$
-\begin{align*}
-\langle \psi +\delta\psi | H^1 | \psi+\delta\psi\rangle -
-\langle \psi | H^1 | \psi \rangle &= 
-\langle \delta\psi | H^1 | \psi\rangle + \langle \psi | H^1 | \delta\psi \rangle \\
-&= \langle \delta\psi | H^1 | \psi\rangle + \langle \delta\psi | H^1 | \psi \rangle^* \\
-&= 2\mathrm{Re}(\langle \delta\psi | H^1 | \psi\rangle) + O(||\delta\psi||^2)
-\end{align*}
+H^2 := V_\mathrm{ee}^2(\mathrm{Id} - \frac{1}{2}P_{(1,2)})
 $$
 
-which implies that:
+By XXX:
 
 $$
-\frac{\partial}{\partial\psi} \langle \psi \| H^1 \| \psi \rangle|\delta\psi\rangle =
-2\mathrm{Re}(\langle \delta\psi | H^1 | \psi\rangle)
+E_2(\psi_1,\dots,\psi_{n/2}) = 
+\sum_{i,j=1}^{n/2}(
+    \langle\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle -
+)
 $$
 
-Therefore:
+Therefore, by XXX:
 
 $$
-\frac{\partial}{\partial\psi_i} E^1(\psi_1,\dots,\psi_{n/2})|\delta\psi\rangle =
-2\mathrm{Re}(\langle \delta\psi | H^1 | \psi\rangle)
-$$
-
-The analysis for $E^2$ is similar.
-
-Recall that by XXX:
-
-$$
-E^2(\psi_1,\dots,\psi_{n/2}) = 
-\sum_{k,l=1}^{n/2}(
-    \langle\psi_k\psi_l | V_\mathrm{ee}^2 | \psi_k\psi_l\rangle -
-    \frac{1}{2}\langle\psi_k\psi_l | V_\mathrm{ee}^2 | \psi_l\psi_k\rangle)
-$$
-
-It's easy to see that
-
-1. $$
-   \frac{\partial}{\partial\psi}\langle\psi\psi | V_\mathrm{ee}^2 | \psi\psi\rangle|\delta\psi\rangle =
-   4\mathrm{Re}(\langle\delta\psi\psi | \psi\psi\rangle)
-   $$
-
-1. $$
-   \frac{\partial}{\partial\psi}\langle\psi\phi | V_\mathrm{ee}^2 | \psi\phi\rangle|\delta\psi\rangle =
-   2\mathrm{Re}(\langle\delta\psi\phi | \psi\phi\rangle)
-   $$
-
-1. $$
-   \frac{\partial}{\partial\psi}\langle\psi\phi | V_\mathrm{ee}^2 | \phi\psi\rangle|\delta\psi\rangle =
-   2\mathrm{Re}(\langle\delta\psi\phi | \phi\psi\rangle)
-   $$
-
-Together this implies that
-
-$$
-\frac{\partial}{\partial\psi_i}E^2(\psi_1,\dots,\psi_{n/2}) = 
+\delta E_2 = 
 2\mathrm{Re}\left(
-   \sum_{j=1}^{n/2}(
-    2\langle\delta\psi\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j\rangle -
-    \langle\delta\psi\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i\rangle)\right)
+\sum_{i,j=1}^{n/2}(
+    2\langle\delta\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle -
+)\left)
 $$
 
-Finally, note that
+Finally, note that for all $1\leq i \leq n/2$:
 
 $$
 \begin{align*}
 \sum_{j=1}^{n/2}(
-    \langle\delta\psi\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j\rangle
-&= \langle \delta\psi | \sum_{j=1}^{n/2}(
-    (\mathrm{Id}\otimes\langle\psi_j |) V_\mathrm{ee}^2 (\mathrm{Id}\otimes\langle\psi_j|) |\psi_i\rangle \\
-&= \langle \delta\psi | \mathrm{Tr}_2 (\rho V_\mathrm{ee}^2) | \psi_i \rangle \\
-&= \langle \delta\psi | J | \psi_i \rangle
+    \langle\delta\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle
+&= \langle \delta\psi_i | \sum_{j=1}^{n/2}(
+    (\mathrm{Id}\otimes\langle\psi_j |) H^2 (\mathrm{Id}\otimes |psi_j\rangle) |\psi_i\rangle \\
+&= \langle \delta\psi_i | \mathrm{Tr}_2 (\rho H^2) | \psi_i \rangle \\
+&= \langle \delta\psi_i | J(\rho) - \frac{1}{2}K(\rho) | \psi_i \rangle
 \end{align*}
-
-Similarly:
-
-$$
-\sum_{j=1}^{n/2}(
-    \langle\delta\psi\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i\rangle =
-\langle \delta\psi | K | \psi_i \rangle
-$$
 
 _q.e.d_
 </div>
@@ -1472,9 +1510,7 @@ _q.e.d_
 > density $\rho$ is an operator on $L^2(\mathbb{R}^3)$:
 >
 > $$
-> F(\rho, \mathbf{R}, Z) := H^1(\mathbf{R}, Z) + 
-> \mathrm{Tr}_2 \left(
-> (\mathrm{Id}^1 \otimes \rho) H^2(2\mathrm{Id}^2 - P_{(1,2)}) \right)
+> F(\rho, \mathbf{R}, Z) := H^1(\mathbf{R}, Z) + J(\rho) - \frac{1}{2}K(\rho)
 > \in\mathrm{End}(L^2(\mathbb{R}^3))
 > $$
 
