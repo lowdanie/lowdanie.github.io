@@ -1167,7 +1167,7 @@ together with $n$ electrons. Let
 $H = H^n(\mathbf{R}, Z)\in\mathrm{End}(\Lambda^n\mathcal{H})$
 be the [electronic Hamiltonian](XXX) of the molecule.
 
-According to the variational principle, in order to find the electronic ground state
+According to the variational principle, to find the electronic ground state
 we can search for an $n$-electron state
 $\|\Psi\rangle\in\Lambda^n\mathcal{H}$ with unit norm that minimizes the expectation energy
 
@@ -1180,11 +1180,11 @@ There are two major obstacles to this approach.
 First, as mentioned in section [The Schrodinger Equation](#schrodinger-equation),
 the space of $n$-electron states, $\Lambda^n\mathcal{H}$, is infinite dimensional.
 
-The second issue is that, given a state $\|\Psi\rangle\in\Lambda^n\mathcal{H}$,
-evaluating the inner product
+The second issue is that
+evaluating inner products of the form
 $\langle \Psi | H^n(\mathbf{R},Z) | \Psi \rangle$
-involves computing an integral over $\mathbb{R}^{3\times n}$ that is basically impossible to
-solve numerically.
+involves computing an integral over $\mathbb{R}^{3\times n}$ 
+which is basically impossible to solve numerically.
 
 As a first step to making the problem more tractable, we'll restrict our search
 to $n$-electron states that are equal to the closed shell Slater determinant of 
@@ -1204,82 +1204,139 @@ denote the expectation energy of the Slater determinant $|\Psi\rangle$
 as a function of the single-electron wave functions:
 
 $$
-E(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle) := 
-\langle\psi_1,\dots,\psi_{n/2} | H | \psi_1,\dots,\psi_{n/2}\rangle
+E(\psi_1,\dots,\psi_{n/2}) := 
+\langle\psi_1,\dots,\psi_{n/2} | H^n(\mathbf{R},Z) | \psi_1,\dots,\psi_{n/2}\rangle
 $$
 
 We can restate our search as a constrained minimization of $E$. Specifically,
 our objective is to find single-electron wave functions
 $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$ that minimize
-$E(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle)$ subject to the orthonormality constraint:
+$E(\psi_1,\dots,\psi_{n/2})$ subject to the orthonormality constraints:
 
 $$
 \langle \psi_i | \psi_j \rangle = \delta_{ij}
 $$
 
+for all $1 \leq i,j \leq n/2$ where $\delta_{ij}$ is the
+[Kronecker delta](https://en.wikipedia.org/wiki/Kronecker_delta).
+
 The point of this reformulation is that we can solve this optimization problem
 using the method of
-[Lagrange multipliers](https://en.wikipedia.org/wiki/Lagrange_multiplier)
+[Lagrange multipliers](https://en.wikipedia.org/wiki/Lagrange_multiplier).
 
-First, we'll introduce $(n/2)^2$ Lagrange multipliers $\lambda_{kl}\in\mathbb{R}$
-where $1 \leq k,l \leq n/2$. We'll then introduce the Lagrangian:
+Following that method,
+we'll introduce $(n/2)^2$ Lagrange multipliers $\lambda_{kl}\in\mathbb{R}$
+where $1 \leq i,j \leq n/2$. We'll then introduce the Lagrangian:
 
 $$
-L: L^2(\mathbb{R}^3)^{n/2} \times \mathbb{R}^{n/2 \times n/2}
+L: L^2(\mathbb{R}^3)^{n/2} \times \mathbb{R}^{n/2 \times n/2} \rightarrow \mathbb{C}
 $$
 
 defined by:
 
 $$
-L(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle,\lambda_{0,0},\dots,\lambda_{n/2,n/2}) :=
-E(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle) - 
-\sum_{k,l=0}^{n/2}\lambda_{kl}(\langle \psi_k | \psi_l \rangle - \delta_{kl})
+L(\psi_1,\dots,\psi_{n/2},\lambda_{0,0},\dots,\lambda_{n/2,n/2}) :=
+E(\psi_1,\dots,\psi_{n/2}) - 
+\sum_{i,j=0}^{n/2}\lambda_{ij}(\langle \psi_i | \psi_j \rangle - \delta_{kl})
 $$
 
 By the theory of Lagrange multipliers, the minima of $E$ subject to the orthonormality
-constraints are critical points of $L$. In particular, if
-$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
-is a solution to the optimization problem, then there exist Lagrange multipliers
-$\lambda_{kl}\in\mathbb{R}$ such that for all $1 \leq i \leq n/2$:
+constraints are critical points of $L$.
 
-$$
-\delta
-L(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle,\lambda_{0,0},\dots,\lambda_{n/2,n/2}) = 0
-$$
+In order to formalize the notion of a critical point
+of $L$, we'll start by defining a generalization of the derivative called the
+_first variation_.
 
-By linearity of the first variation, this is equivalent to:
+Next we'll introduce the _Coulomb_ and _exchange_ operators which are useful for 
+concisely expressing the first variation of $L$.
 
-$$
-\delta E = \sum_{k,l=0}^{n/2}\lambda_{kl} \delta \langle \psi_k | \psi_l \rangle \right)
-$$
+Finally, we'll put these two together and derive an equation satisfied
+by the critical points of $L$.
 
-We can use the results of section XXX to compute the left hand side in terms of
-single and double electron operators. To facilitate notation, we'll denote the sum
-of the single-electron kinetic energy and electron-nuclear attraction operators
-from section XXX by $H^1(\mathbb{R}, Z)$:
+### The First Variation
 
-$$
-H^1(\mathbb{R}, Z) := 
-T^1 + V^1_{\mathrm{en}}(\mathbb{R}, Z) \in \mathrm{End}(L^2(\mathbb{R}^3))
-$$
+Let $f$ be a function defined on a product of Hilbert spaces.
+Intuitively, the [first variation](https://en.wikipedia.org/wiki/First_variation) of $f$ is
+the best linear approximation to $f$. More formally:
 
 > **Definition (First Variation).**
 > Let $n\in\mathbb{Z}$ be a positive integer, let $V_1,\dots,V_n$ be Hilbert spaces
-> and $f:\Prod_i=1^nV_i \rightarrow \mathbf{C}$ a function.
+> and $f:\prod_i=1^n V_i \rightarrow \mathbb{C}$ a function.
 >
-> The _first variation_ of $f$ at $(v_1,\dots,v_n)\in\Prod_i=1^nV_i$ is a linear function
-> $\delta f(v_1,\dots,v_n)\in\mathrm{Hom}(\Prod_i=1^nV_i,\mathbb{C}$
-> that satisfies the property that for all $(\delta v_1,\dots,\delta v_n)\in\Prod_i=1^nV_i$:
+> The _first variation_ of $f$ at $(v_1,\dots,v_n)\in\prod_{i=1}^nV_i$ is a linear function
 >
 > $$
-> f(v_1+\delta v_1,\dots,v_n+\delta v_n) = 
-> f(v_1,\dots,v_n) + \delta f(v_1,\dots,v_n)[\delta v_1,\dots,\delta v_n]
-> + O(\sum_{i=1}^n||\delta v_i||^2)
+> \delta f(v_1,\dots,v_n) : \prod_{i=1}^nV_i \rightarrow \mathbb{C}
+> $$
+> 
+> that satisfies the property that for all
+> $(\delta v_1,\dots,\delta v_n)\in\prod_{i=1}^nV_i$:
+>
+> $$
+> \begin{align*}
+> f(v_1+\delta v_1,\dots,v_n+\delta v_n) &= 
+> f(v_1,\dots,v_n) + \delta f(v_1,\dots,v_n)[\delta v_1,\dots,\delta v_n] \\
+> &+ O(\sum_{i=1}^n||\delta v_i||^2)
+> \end{align*}
 > $$
 
+Here is a fundamental example: 
+
+> **Claim (Matrix Element First Variation).**
+> Let $V$ be a Hilbert space, $A\in\mathrm{End}(V)$ an operator on $V$ and
+> $f:V\times V\rightarrow\mathbb{C}$ the function defined by:
+>
+> $$
+> f(v,w) := \langle v | A | w \rangle
+> $$
+>
+> Then
+>
+> $$
+> \delta f(v,w)[\delta v,\delta w] =
+> \langle \delta v | A | w \rangle + \langle v | A | \delta w \rangle
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+The proof follows by direct calculation:
+
+$$
+\begin{align*}
+\langle v + \delta v | A | w +\delta w \rangle
+&= \langle v | A | w  \rangle +
+\langle \delta v | A | w \rangle +
+\langle v | A | \delta w \rangle +
+\langle \delta v | A | \delta w \rangle \\
+&= \langle v | A | w  \rangle +
+(\langle \delta v | A | w \rangle +
+\langle v | A | \delta w \rangle) +
+O(||\delta v||^2 + ||\delta w||^2)
+\end{align*}
+$$
+
+</div>
+</details>
+
+When the arguments of $\delta f$ are clear from the context, we will omit them.
+For example, we'll sometimes write the statement of the previous claim as:
+
+$$
+\delta \langle v | A | w \rangle = 
+\langle \delta v | A | w \rangle +
+\langle v | A | \delta  w \rangle
+$$
+
+The following special case will be useful as well.
+
 > **Claim (Expectation First Variation).**
-> Let $V$ be a Hilbert space, $A\in\mathrm{End}(V)$ a self-adjoint operator on $V$ and
-> $f:V\rightarrow\mathbb{C}$ the function defined by:
+> Let $V$ be a Hilbert space, $A\in\mathrm{End}(V)$ a self-adjoint operator on $V$
+> and
+> $f:V\times V\rightarrow\mathbb{C}$ the function defined by:
 >
 > $$
 > f(v) := \langle v | A | v \rangle
@@ -1288,7 +1345,7 @@ $$
 > Then
 >
 > $$
-> \delta f(v)[\delta v] = 2\mathrm{Re}(\langle \delta v | A | v \rangle)
+> \delta f = 2\mathrm{Re}(\langle \delta v | A | v \rangle)
 > $$
 
 <details>
@@ -1304,7 +1361,7 @@ $$
 B(v_1,v_2) := \langle v_1 | A | v_2 \rangle
 $$
 
-The first variation of $B$ is given by:
+By XXX, the first variation of $B$ is given by:
 $$
 \delta B = \langle\delta v_1 | A | v_2 \rangle + \langle v_1 | A | \delta v_2 \rangle
 $$
@@ -1326,28 +1383,172 @@ _q.e.d_
 </div>
 </details>
 
-> **Claim (Double Expectation First Variation).**
-> Let $V$ be a Hilbert space and $A\in\mathrm{End}(V^{\otimes 2})$ an operator on $V^{\otimes 2}$.
-> Let $f:V^{\otimes 2}\rightarrow\mathbb{C}$ be defined by:
+### Coulomb And Exchange Operators
+
+The most complicated part of the electronic Hamiltonian $H^n(\mathbf{R},Z)$ is
+the Coulomb repulsion potential between each pair of electrons.
+
+Interestingly, as we will see in the following sections, the solutions to the 
+expectation energy minimization problem XXX can be expressed in terms of the Coulomb
+repulsion between each electron and the _average_ over the other electrons.
+
+This has the effect of replacing a quadratic expression with a linear one and is
+the primary benefit of restricting our search to closed shell Slater determinants.
+
+In this section we'll start by introducing the notion of the _trace_ of an operator
+which formalizes the notion of averaging the value of an operator over space.
+We'll then define the _density operator_ which is a way
+of representing a collection of quantum states. Finally, we'll define the _Coulomb_ and _exchange_ operators
+as the result of averaging out the Coulomb potential with respect to a given density.
+
+The (trace)[https://en.wikipedia.org/wiki/Trace_(linear_algebra)] of a matrix is
+defined as the sum of the diagonal elements. Similarly, the trace of a linear operator
+over Hilbert space is defined as the sum over the diagonal matrix elements.
+
+> **Definition (Trace).**
+> Let $V$ be a Hilbert space and $A\in\mathrm{End}(V)$ an operator on $V$.
+> Let $|i\rangle$ for $i\in\mathbb{Z}$ be an orthonormal basis of $V$.
+>
+> The _trace_ of $A$ is a linear map
 >
 > $$
-> f(v,w) := \langle v w | A | v w \rangle
+> \mathrm{Tr}: \mathrm{End}(V) \rightarrow \mathbb{C}
 > $$
+>
+> defined by:
+>
+> $$
+> \mathrm{Tr}(A) := \sum_i \langle i | A | i \rangle
+> $$
+
+It is possible to 
+[show](https://en.wikipedia.org/wiki/Trace_(linear_algebra)#Trace_of_a_linear_operator)
+that the trace is independent of the chosen basis $\|i\rangle$.
+
+Intuitively, we can think of the trace as integrating the diagonal elements of the
+kernel $A$ over space.
+
+When the underlying space is a tensor product $V\otimes W$, we can take the trace with
+respect to just one of the factors by summing over that factors basis.
+
+> **Definition (Partial Trace).**
+> Let $V$ and $W$ be Hilbert spaces and $A\in\mathrm{End}(V\otimes W)$
+> an operator on $V\otimes W$.
+>
+> Let $|i\rangle$ for $i\in\mathbb{Z}$ be an orthonormal basis of $W$.
+>
+> The _partial trace_ of $A$ over $W$ is a linear map
+>
+> $$
+> \mathrm{Tr}_W: \mathrm{End}(V\otimes W) \rightarrow \mathrm{End}(V)
+> $$
+>
+> defined by:
+>
+> $$
+> \mathrm{Tr}_W(A) := 
+> \sum_i (\mathrm{Id}_V \otimes \langle i |) A (| i \rangle \otimes \mathrm{Id}_V)
+> $$
+
+Similarly to the trace, this definition is independent of the orthonormal basis
+on $W$.
+
+Intuitively, the partial trace can be thought of as integrating the kernel $A$ over
+$W$ to obtain a kernel on $V$.
+
+We'll now show how the trace can be used to compactly represent the expectation
+value of a collection of states.
+
+Let $V$ be a Hilbert space, $A$ an operator on $V$ and $|v\rangle\in V$ a unit vector.
+Recall that the expectation of $A$ in state $\|v\rangle$ is defined to be:
+
+$$
+\langle v | A | v \rangle
+$$
+
+using the trace, we can rewrite this as:
+
+$$
+\langle v | A | v \rangle = \mathrm{Tr}(|v\rangle\langle v| A)
+$$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Let $\langle i |$ be an orthonormal basis of $V$. Then:
+
+$$
+\begin{align*}
+\mathrm{Tr}(|v\rangle\langle v| A)
+&= \sum_{i=1}\langle i | v \rangle \langle v | A | i \rangle \\
+&= \langle v | A | \sum_{i=1}\langle i | v \rangle i \rangle \\
+&= \langle v | A | v \rangle
+\end{align*}
+
+_q.e.d_
+</div>
+</details>
+
+Now consider a collection of states $\|v_1\rangle,\dots,\|v_n\rangle\in V$.
+By linearity of the trace, the sum of the expectations is:
+
+$$
+\sum_i \langle v_i | A | v_i \rangle =
+\mathrm{Tr}(\sum_i |v_i\rangle\langle v_i | A)
+$$
+
+This motivates the following definition:
+
+> **Definition (Density Operator).**
+> Let $V$ be a Hilbert space,
+> $n\in\mathbb{Z}$ an integer and $\|v_1\rangle,\dots,\|v_n\rangle\in V$
+> orthonormal vectors.
+>
+> The corresponding _density operator_, $\rho\in\mathrm{End}(V)$ is defined to be:
+>
+> $$
+> \rho := \sum_{i=1}^n |v_i\rangle\langle v_i|
+> $$
+
+If $A\in\mathrm{A}$ is an operator on $V$, we can rewrite equation XXX as follows:
+
+> **Claim (Trace of a Density Operator).**
+> Let $V$ be a Hilbert space and $A\in\mathrm{End}(V)$ an operator on $V$.
+> Let $n\in\mathbb{Z}$ an integer, $\|v_1\rangle,\dots,\|v_n\rangle\in V$
+> orthonormal vectors and $\rho\in\mathrm{End}(V)$ the corresponding density
+> operator.
 >
 > Then
 >
 > $$
-> \delta f(v,w)[\delta v,\delta w] = 2\mathrm{Re}(
->    \langle \delta v w | A | v w \rangle + \langle \delta w v | A | w v \rangle
-> )
+> \sum_i \langle v_i | A | v_i \rangle = \mathrm{Tr}(\rho A)
 > $$
 
-When the arguments of $\delta f$ are clear from the context, we will omit them.
-For example, we'll sometimes write the statement of claim XXX as:
+In terms of our analogy between the trace and integration,
+this corresponds to integrating the kernel $A$ with respect to the density $\rho$.
 
-$$
-\delta \langle v | A | v \rangle = 2\mathrm{Re}(\langle \delta v | A | v \rangle)
-$$
+Similarly, we can use the partial trace to integrate over one factor of a tensor product
+$V\otimes W$ with respect to a density operator on that factor:
+
+> **Claim (Partial Trace of a Density Operator).**
+> Let $V$ and $W$ be Hilbert spaces, $A\in\mathrm{End}(V\otimes W)$ an operator on $V\otimes W$.
+> Let $n\in\mathbb{Z}$ be an integer, $\|w_1\rangle,\dots,\|w_n\rangle\in W$
+> orthonormal vectors and $\rho_W\in\mathrm{End}(W)$ the corresponding density operator.
+>
+> Then
+>
+> $$
+> \sum_i (\mathrm{Id}_V\otimes \langle v_i|) A (\mathrm{Id}_V\otimes | v_i \rangle) 
+> = \mathrm{Tr}_W(\rho A) \in \mathrm{End}(V)
+> $$
+
+In section XXX we defined the electron-electron repulsion operator. 
+$V_\mathrm{ee}\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$ between a pair of electrons.
+Intuitively, the _Coulomb operator_ represents the average repulsion on a single electron
+by an electron density distribution.
 
 > **Definition (Coulomb Operator).**
 > Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be a density operator.
@@ -1362,8 +1563,12 @@ $$
 > \in\mathrm{End}(L^2(\mathbb{R}^3))
 > $$
 
+The _exchange operator_ is defined similarly.
+
 > **Definition (Exchange Operator).**
 > Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be a density operator.
+> Let $P_{(1,2)}\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$ be the
+> [permutation operator](XXX) that exchanges the two factors.
 >
 > The _exchange operator_ associated to $\rho$ is an operator on 
 > $L^2(\mathbb{R}^3)$ defined by:
@@ -1375,7 +1580,37 @@ $$
 > \in\mathrm{End}(L^2(\mathbb{R}^3))
 > $$
 
-> **Claim.**
+### The Fock Operator
+
+We are now ready to characterize the solutions to the constrained optimization of $E$
+defined above.
+
+By the method of Lagrange multipliers, if
+$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
+is a solution to the optimization problem, then there exist Lagrange multipliers
+$\lambda_{ij}\in\mathbb{R}$ such that:
+
+$$
+\delta L(\psi_1,\dots,\psi_{n/2},\lambda_{0,0},\dots,\lambda_{n/2,n/2}) = 0
+$$
+
+By linearity of the first variation, this implies that the solution satisfies:
+
+$$
+\delta E = \sum_{i,j=1}^{n/2}\lambda_{ij} \delta \langle \psi_i | \psi_j \rangle
+$$
+
+We can use the results of section XXX to compute the left hand side of XXX in terms of
+single and double electron operators. To facilitate notation, we'll denote the sum
+of the single-electron kinetic energy and electron-nuclear attraction operators
+from section XXX by $H^1(\mathbb{R}, Z)$:
+
+$$
+H^1(\mathbb{R}, Z) := 
+T^1 + V^1_{\mathrm{en}}(\mathbb{R}, Z) \in \mathrm{End}(L^2(\mathbb{R}^3))
+$$
+
+> **Claim (Expectation Energy Variation).**
 > Let $m\in\mathbb{Z}$ be a positive integer,
 > $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic numbers and
 > $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
@@ -1392,12 +1627,12 @@ $$
 > \rho := 2\sum_{i=1}^{n/2}|\psi_i\rangle\langle\psi_i| 
 > \in\mathrm{End}(L^2(\mathbb{R}^3))
 > $$
->
-> Then, for all $1\leq i \leq n/2$$:
+> 
+> Then
 >
 > $$
 > \delta E =
-> \mathrm{Re}\left( 
+> 2\mathrm{Re}\left( 
 >   \sum_{i=1}^{n/2}\langle \delta\psi_i | H^1(\mathbf{R}, Z) + 2J(\rho) - K(\rho) | \psi_i\rangle
 > \right)
 > $$
@@ -1497,6 +1732,8 @@ _q.e.d_
 </div>
 </details>
 
+This claim motivates the definition of the
+[Fock operator](https://en.wikipedia.org/wiki/Hartree%E2%80%93Fock_method#Mathematical_formulation)
 
 > **Definition (Fock Operator).**
 > Let $m\in\mathbb{Z}$ be a positive integer,
@@ -1507,143 +1744,48 @@ _q.e.d_
 > Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be a density operator.
 >
 > The _Fock operator_ associated to the molecule $(\mathbf{R}, Z)$ and electron
-> density $\rho$ is an operator on $L^2(\mathbb{R}^3)$:
+> density $\rho$ is an operator $F(\rho, \mathbf{R}, Z)\in\mathrm{End}(L^2(\mathbb{R}^3))$
+> defined by:
 >
 > $$
-> F(\rho, \mathbf{R}, Z) := H^1(\mathbf{R}, Z) + J(\rho) - \frac{1}{2}K(\rho)
+> F(\rho, \mathbf{R}, Z) := H^1(\mathbf{R}, Z) + 2J(\rho) - K(\rho)
 > \in\mathrm{End}(L^2(\mathbb{R}^3))
 > $$
 
-## Linear Variation
-
-Consider a molecule with $m$ nuclei and $2n$ electrons for some positive
-integers $m,n\in\mathbb{Z}$. Denote the atomic numbers of the nuclei by
-$Z = (Z_1,\dots,Z_m)\in\mathbb{Z}^m$.
-
-In addition, let
-$B\subset L^2(\mathbb{R}^3)$ be a finite subset of linearly independent
-positional wave functions of size $b := |B|$.
-
-As discussed in the previous section, our strategy for approximating the ground state
-of the molecule is to search for nuclei positions
+Going back to equation XXX, note that by XXX the first variation of the right-hand
+side is given by:
 
 $$
-\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}
+\sum_{i,j=1}^{n/2}\lambda_{ij} \delta \langle \psi_i | \psi_j \rangle =
+2\mathrm{Re}(\sum_{i,j=1}^{n/2} \lambda_{ij}\langle \delta\psi_i | \psi_j)
 $$
 
-and positional wave functions
+Substituting this equality and claim XXX back into XXX:
 
 $$
-|\psi_1\rangle,\dots,|\psi_n\rangle\in\mathrm{Span}(B)\subset L^2(\mathbb{R}^3)
+2\mathrm{Re}\left( 
+   \sum_{i=1}^{n/2}\langle \delta\psi_i | F(\rho, \mathbf{R}, Z) + 2J(\rho) - K(\rho) | \psi_i\rangle
+\right) =
+2\mathrm{Re}(\sum_{i,j=1}^{n/2} \lambda_{ij}\langle \delta\psi_i | \psi_j \rangle)
 $$
 
-which minimize the expected energy of the closed shell Slater determinant
+where $\rho$ is the density operator
 
 $$
-|\Psi\rangle := |\psi_1,\dots,\psi_n\rangle \in \Lambda^{2n}(\mathcal{H})
+\rho := 2\sum_{i=1}^{n/2} |\psi_i\rangle\langle\psi_i|
 $$
 
-subject to the constraint that the wave functions
-$\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are
-orthonormal.
-
-By XXX, the expected energy of the molecule when the nuclei are in positions
-$\mathbf{R}\in\mathbb{R}^{3\times m}$ and the electrons are in state
-$\|\Psi\rangle$ is equal to:
+Since this holds for all $\|\delta\psi_i\rangle\in L^2(\mathbb{R}^3)$, it follows that
+for all $1\leq i \leq n/2$:
 
 $$
-F(\Psi, \mathbf{R}; Z) := 
-\frac{\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle}
-+ V_\mathrm{nuc}(\mathbf{R}, Z)
+F(\rho, \mathbf{R}, Z) + 2J(\rho) - K(\rho) | \psi_i\rangle =
+\sum_{j=1}^{n/2} \lambda_{ij} |\psi_j\rangle
 $$
 
-If $\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are orthonormal, then by XXX:
-
-$$
-|\Psi | \Psi \rangle = 1
-$$
-
-Therefore, under the orthonormality constraint:
-
-$$
-F(\Psi, \mathbf{R}; Z) = 
-\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle}
-+ V_\mathrm{nuc}(\mathbf{R}, Z)
-$$
-
-We'll apply the method of
-[Lagrange multipliers](https://en.wikipedia.org/wiki/Lagrange_multiplier)
-to minimize $F$ under the constraint that 
-$\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are orthonormal.
-
-Specifically, 
-
-In this section we'll formulate this optimization problem more in terms of the 
-linear coefficients of the wave functions $\|\psi_i\rangle$ in terms of the basis $B$.
-
-We'll denote the elements of $B$ by:
-
-$$
-B = \{ |\phi_1\rangle,\dots,|\phi_b\rangle \}
-$$
-
-Let $\mathbf{C}\in\mathbb{R}^{n\times b}$ be a $n\times b$ matrix and, for all
-$1 \leq i \leq n$ define:
-
-$$
-|\psi_i\rangle := \sum_{j=1}^b C_{ij}|\phi_j\rangle
-$$
-
-By XXX, the expected energy of the molecule when the nuclei are in positions
-$\mathbf{R}\in\mathbb{R}^{3\times m}$ and the electrons are in state
-$\|\Psi\rangle := \|\psi_1,\dots,\psi_n\rangle\in\Lambda^{2n}\mathcal{H}$ is equal to:
-
-$$
-F(\mathbf{C}, \mathbf{R}; Z) := 
-\frac{\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle}{\langle \Psi | \Psi \rangle}
-+ V_\mathrm{nuc}(\mathbf{R}, Z)
-$$
-
-Our goal is to minimize $F$ as a function of $\mathbf{C}$ and $\mathbf{R}$
-under the constraint that the wave functions $\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are
-orthonormal.
-
-First we'll rewrite $F$ explicitly in terms of the linear coefficients $\mathbf{C}$
-and the basis states $|\phi_1\rangle,\dots,\|\phi_b\rangle$.
-
-By XXX, assuming that $\|\psi_1\rangle,\dots,\|\psi_n\rangle$ are
-orthonormal:
-
-$$
-\begin{align*}
-\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle
-&= \sum_{i=1}^n \langle \psi_i | T^1 + V_\mathrm{en}^1(\cdot;\mathbf{R},Z) | \psi_i \rangle \\
-&+ \sum_{i,j=1}^n
-   \left( 
-   2\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle
-   -\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle
-   \right)
-\end{align*}
-$$
-
-Substituting
-
-$$
-|\psi_i\rangle = \sum_{k=1}^b C_{ik}|\phi_b\rangle
-$$
-
-into XXX gives us:
-
-$$
-\begin{align*}
-\langle \Psi | H(\cdot;\mathbf{R},Z) | \Psi \rangle
-&= \sum_{i=1}^n\sum_{s,t=1}^b C_{is}C_{it} \langle \phi_s | T^1 + V_\mathrm{en}^1(\cdot;\mathbf{R},Z) | \phi_t \rangle \\
-&+ \sum_{i,j=1}^n\sum_{s,t,u,v=1}^b
-   (2C_{is}C_{jt}C_{iu}C_{jv}
-    -C_{is}C_{jt}C_{ju}C_{iv})
-   \langle \phi_s\phi_t | V_\mathrm{ee}^2 | \phi_u\phi_v \rangle
-\end{align*}
-$$
+We can simplify further by taking advantage of XXX which implies that the density
+$\rho$ is invariant to unitary transformations that preserve the subspace spanned
+by the solutions $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle$.
 
 # Cartesian Gaussians
 
