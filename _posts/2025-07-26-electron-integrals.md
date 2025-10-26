@@ -1779,13 +1779,34 @@ Since this holds for all $\|\delta\psi_i\rangle\in L^2(\mathbb{R}^3)$, it follow
 for all $1\leq i \leq n/2$:
 
 $$
-F(\rho, \mathbf{R}, Z) + 2J(\rho) - K(\rho) | \psi_i\rangle =
+F(\rho, \mathbf{R}, Z) | \psi_i\rangle =
 \sum_{j=1}^{n/2} \lambda_{ij} |\psi_j\rangle
 $$
 
-We can simplify further by taking advantage of XXX which implies that the density
-$\rho$ is invariant to unitary transformations that preserve the subspace spanned
-by the solutions $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle$.
+Let
+
+$$
+V := \mathrm{Span}(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle)\subspace L^2(\mathbb{R}^3)
+$$
+
+denote the subspace spanned by $\|\psi_1\rangle,\dots,\|\psi_{n/2}$. By equation XXX
+the operator
+$F(\rho, \mathbf{R}, Z)$
+restricts to an operator on $V$. Since $F(\rho, \mathbf{R}, Z)$ is Hermitian,
+there is an orthonormal basis of $V$ in which $F(\rho, \mathbf{R}, Z)$ is diagonal.
+
+Therefore, if there is a solution to the energy minimization problem XXX
+then there are orthonormal states 
+$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
+and multipliers $\lambda_1,\dots,\lambda_{n/2}\in\mathbb{R}$ such that:
+
+$$
+F(\rho, \mathbf{R}, Z)|\psi_i\rangle = \lambda_i|\psi_i\rangle
+$$
+
+where $\rho$ is the density operator associated to
+$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle$.
+
 
 # Cartesian Gaussians
 
