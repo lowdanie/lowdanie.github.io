@@ -1401,7 +1401,7 @@ We'll then define the _density operator_ which is a way
 of representing a collection of quantum states. Finally, we'll define the _Coulomb_ and _exchange_ operators
 as the result of averaging out the Coulomb potential with respect to a given density.
 
-The (trace)[https://en.wikipedia.org/wiki/Trace_(linear_algebra)] of a matrix is
+The [trace](https://en.wikipedia.org/wiki/Trace_(linear_algebra)) of a matrix is
 defined as the sum of the diagonal elements. Similarly, the trace of a linear operator
 over Hilbert space is defined as the sum over the diagonal matrix elements.
 
@@ -1435,7 +1435,7 @@ respect to just one of the factors by summing over that factors basis.
 > Let $V$ and $W$ be Hilbert spaces and $A\in\mathrm{End}(V\otimes W)$
 > an operator on $V\otimes W$.
 >
-> Let $|i\rangle$ for $i\in\mathbb{Z}$ be an orthonormal basis of $W$.
+> Let $\|i\rangle$ for $i\in\mathbb{Z}$ be an orthonormal basis of $W$.
 >
 > The _partial trace_ of $A$ over $W$ is a linear map
 >
@@ -1447,24 +1447,21 @@ respect to just one of the factors by summing over that factors basis.
 >
 > $$
 > \mathrm{Tr}_W(A) := 
-> \sum_i (\mathrm{Id}_V \otimes \langle i |) A (| i \rangle \otimes \mathrm{Id}_V)
+> \sum_i (\mathrm{Id}_V \otimes \langle i |) A (\mathrm{Id}_V \otimes |i \rangle)
 > $$
 
 Similarly to the trace, this definition is independent of the orthonormal basis
 on $W$.
 
-Intuitively, the partial trace can be thought of as integrating the kernel $A$ over
-$W$ to obtain a kernel on $V$.
+Intuitively, the partial trace can be thought of as integrating out the kernel $A$ over
+$W$ to obtain a kernel on $V$ only.
 
 We'll now show how the trace can be used to compactly represent the expectation
 value of a collection of states.
 
 Let $V$ be a Hilbert space, $A$ an operator on $V$ and $|v\rangle\in V$ a unit vector.
-Recall that the expectation of $A$ in state $\|v\rangle$ is defined to be:
-
-$$
-\langle v | A | v \rangle
-$$
+Recall that the expectation of $A$ in state $\|v\rangle$ is defined to be
+$\langle v \| A \| v \rangle$
 
 using the trace, we can rewrite this as:
 
@@ -1524,7 +1521,7 @@ If $A\in\mathrm{A}$ is an operator on $V$, we can rewrite equation XXX as follow
 > Then
 >
 > $$
-> \sum_i \langle v_i | A | v_i \rangle = \mathrm{Tr}(\rho A)
+> \sum_{i=1}^n \langle v_i | A | v_i \rangle = \mathrm{Tr}(\rho A)
 > $$
 
 In terms of our analogy between the trace and integration,
@@ -1534,33 +1531,35 @@ Similarly, we can use the partial trace to integrate over one factor of a tensor
 $V\otimes W$ with respect to a density operator on that factor:
 
 > **Claim (Partial Trace of a Density Operator).**
-> Let $V$ and $W$ be Hilbert spaces, $A\in\mathrm{End}(V\otimes W)$ an operator on $V\otimes W$.
+> Let $V$ and $W$ be Hilbert spaces and $A\in\mathrm{End}(V\otimes W)$ an operator on $V\otimes W$.
 > Let $n\in\mathbb{Z}$ be an integer, $\|w_1\rangle,\dots,\|w_n\rangle\in W$
 > orthonormal vectors and $\rho_W\in\mathrm{End}(W)$ the corresponding density operator.
 >
 > Then
 >
 > $$
-> \sum_i (\mathrm{Id}_V\otimes \langle v_i|) A (\mathrm{Id}_V\otimes | v_i \rangle) 
-> = \mathrm{Tr}_W(\rho A) \in \mathrm{End}(V)
+> \sum_i (\mathrm{Id}_V\otimes \langle w_i|) A (\mathrm{Id}_V\otimes | w_i \rangle) 
+> = \mathrm{Tr}_W(\rho A)
 > $$
+
+When $V=W$, we'll denote the partial trace on $\mathrm{End}(V\otimes V)$ with respect
+to the second factor by $\mathrm{Tr}_2$.
 
 In section XXX we defined the electron-electron repulsion operator. 
 $V_\mathrm{ee}\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$ between a pair of electrons.
-Intuitively, the _Coulomb operator_ represents the average repulsion on a single electron
-by an electron density distribution.
+Intuitively, the _Coulomb operator_ represents the average repulsion between a single electron
+and an electron density distribution.
 
 > **Definition (Coulomb Operator).**
 > Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be a density operator.
 >
-> The _Coulomb operator_ associated to $\rho$ is an operator on 
-> $L^2(\mathbb{R}^3)$ defined by:
+> The _Coulomb operator_ associated to $\rho$ is an operator 
+> $J(\rho)\in\mathrm{End}(L^2(\mathbb{R}^3))$ defined by:
 >
 > $$
 > J(\rho) :=
 > \mathrm{Tr}_2 \left(
-> (\mathrm{Id}^1 \otimes \rho) V_\mathrm{ee}^2 \right)
-> \in\mathrm{End}(L^2(\mathbb{R}^3))
+> (\mathrm{Id} \otimes \rho) V_\mathrm{ee}^2 \right)
 > $$
 
 The _exchange operator_ is defined similarly.
@@ -1571,13 +1570,12 @@ The _exchange operator_ is defined similarly.
 > [permutation operator](XXX) that exchanges the two factors.
 >
 > The _exchange operator_ associated to $\rho$ is an operator on 
-> $L^2(\mathbb{R}^3)$ defined by:
+> $K(\rho)\in\mathrm{End}(L^2(\mathbb{R}^3))$ defined by:
 >
 > $$
 > K(\rho) :=
 > \mathrm{Tr}_2 \left(
-> (\mathrm{Id}^1 \otimes \rho) V_\mathrm{ee}^2 P_{(1,2)} \right)
-> \in\mathrm{End}(L^2(\mathbb{R}^3))
+> (\mathrm{Id} \otimes \rho) V_\mathrm{ee}^2 P_{(1,2)} \right)
 > $$
 
 ### The Fock Operator
@@ -1679,19 +1677,19 @@ We'll start by evaluating $\delta_i E_1$.
 By XXX:
 
 $$
-E^1(\psi_1,\dots,\psi_{n/2}) =
+E_1(\psi_1,\dots,\psi_{n/2}) =
 \sum_{j=1}^{n/2}\langle \psi_j | H^1 \psi_j \rangle
 $$
 
 Therefore, by XXX:
 
 $$
-\delta E^1 &= 2\mathrm{Re}\left(
+\delta E_1 = 2\mathrm{Re}\left(
    \sum_{j=1}^{n/2}\langle \delta\psi_i | H^1 | \psi_i \rangle
 \right)
 $$
 
-The analysis for $E^2$ is similar. To facilitate notation, we'll define:
+The analysis for $E_2$ is similar. To facilitate notation, we'll define:
 
 $$
 H^2 := V_\mathrm{ee}^2(\mathrm{Id} - \frac{1}{2}P_{(1,2)})
@@ -1702,7 +1700,7 @@ By XXX:
 $$
 E_2(\psi_1,\dots,\psi_{n/2}) = 
 \sum_{i,j=1}^{n/2}(
-    \langle\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle -
+    \langle\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle
 )
 $$
 
@@ -1712,21 +1710,22 @@ $$
 \delta E_2 = 
 2\mathrm{Re}\left(
 \sum_{i,j=1}^{n/2}(
-    2\langle\delta\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle -
-)\left)
+    2\langle\delta\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle
+)\right)
 $$
 
 Finally, note that for all $1\leq i \leq n/2$:
 
 $$
 \begin{align*}
-\sum_{j=1}^{n/2}(
+\sum_{j=1}^{n/2}
     \langle\delta\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle
 &= \langle \delta\psi_i | \sum_{j=1}^{n/2}(
-    (\mathrm{Id}\otimes\langle\psi_j |) H^2 (\mathrm{Id}\otimes |psi_j\rangle) |\psi_i\rangle \\
+    (\mathrm{Id}\otimes\langle\psi_j |) H^2 (\mathrm{Id}\otimes | \psi_j\rangle) |\psi_i\rangle \\
 &= \langle \delta\psi_i | \mathrm{Tr}_2 (\rho H^2) | \psi_i \rangle \\
 &= \langle \delta\psi_i | J(\rho) - \frac{1}{2}K(\rho) | \psi_i \rangle
 \end{align*}
+$$
 
 _q.e.d_
 </div>
@@ -1749,30 +1748,64 @@ This claim motivates the definition of the
 >
 > $$
 > F(\rho, \mathbf{R}, Z) := H^1(\mathbf{R}, Z) + 2J(\rho) - K(\rho)
-> \in\mathrm{End}(L^2(\mathbb{R}^3))
 > $$
 
-Going back to equation XXX, note that by XXX the first variation of the right-hand
-side is given by:
+Interestingly, it is always possible to find solutions to XXX
+that are eigenvectors of the Fock operator.
+
+> **Claim (Slater Ground State).**
+> Let $m\in\mathbb{Z}$ be a positive integer, $n\in\mathbb{Z}$ an even integer,
+> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic number and
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
+> nuclear positions.
+>
+> Then, there exist orthonormal states
+>
+> $$
+> |\psi_1\rangle,\dots,|\psi_{n/2}\rangle \in L^2(\mathbb{R}^3)
+> $$
+>
+> and Lagrange multipliers
+>
+> $$
+> \lambda_1,\dots,\lambda_{n/2}\in\mathbb{R}
+> $$
+>
+> such that the states
+> $\|\psi_i\rangle$ are a solution to the 
+> $n$-electron ground state optimization problem XXX 
+> and such that for all $1\leq i \leq n/2$:
+>
+> $$
+> F(\pho, \mathbb{R}, Z)|\psi_i\rangle = \lambda_i|\psi_i\rangle
+> $$
+>
+> where $\pho$ is the density operator corresponding to the $\|psi_i\rangle$.
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Let $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$ be a solution
+to XXX and let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be the corresponding density
+operator.
+
+By XXX the first variation of the right-hand side of equation XXX is given by:
 
 $$
 \sum_{i,j=1}^{n/2}\lambda_{ij} \delta \langle \psi_i | \psi_j \rangle =
-2\mathrm{Re}(\sum_{i,j=1}^{n/2} \lambda_{ij}\langle \delta\psi_i | \psi_j)
+2\mathrm{Re}\left(\sum_{i,j=1}^{n/2} \lambda_{ij}\langle \delta\psi_i | \psi_j\rangle\right)
 $$
 
 Substituting this equality and claim XXX back into XXX:
 
 $$
 2\mathrm{Re}\left( 
-   \sum_{i=1}^{n/2}\langle \delta\psi_i | F(\rho, \mathbf{R}, Z) + 2J(\rho) - K(\rho) | \psi_i\rangle
+   \sum_{i=1}^{n/2}\langle \delta\psi_i | F(\rho, \mathbf{R}, Z) | \psi_i\rangle
 \right) =
 2\mathrm{Re}(\sum_{i,j=1}^{n/2} \lambda_{ij}\langle \delta\psi_i | \psi_j \rangle)
-$$
-
-where $\rho$ is the density operator
-
-$$
-\rho := 2\sum_{i=1}^{n/2} |\psi_i\rangle\langle\psi_i|
 $$
 
 Since this holds for all $\|\delta\psi_i\rangle\in L^2(\mathbb{R}^3)$, it follows that
@@ -1786,27 +1819,25 @@ $$
 Let
 
 $$
-V := \mathrm{Span}(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle)\subspace L^2(\mathbb{R}^3)
+V := \mathrm{Span}(|\psi_1\rangle,\dots,|\psi_{n/2}\rangle)\subset L^2(\mathbb{R}^3)
 $$
 
-denote the subspace spanned by $\|\psi_1\rangle,\dots,\|\psi_{n/2}$. By equation XXX
-the operator
+denote the subspace spanned by $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle$. 
+By equation XXX, the operator
 $F(\rho, \mathbf{R}, Z)$
-restricts to an operator on $V$. Since $F(\rho, \mathbf{R}, Z)$ is Hermitian,
-there is an orthonormal basis of $V$ in which $F(\rho, \mathbf{R}, Z)$ is diagonal.
+restricts to an operator on $V$.
 
-Therefore, if there is a solution to the energy minimization problem XXX
-then there are orthonormal states 
-$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
-and multipliers $\lambda_1,\dots,\lambda_{n/2}\in\mathbb{R}$ such that:
+Since $F(\rho, \mathbf{R}, Z)$ is Hermitian,
+there is an orthonormal basis of $V$,
+$\|\phi_1\rangle,\dots,\|\phi_{n/2}}\rangle\in V$,
+in which the restriction of $F(\rho, \mathbf{R}, Z)$ 
+is diagonal. By XXX, the density operator corresponding to the $\|\phi_i\rangle$
+is also equal to $\rho$.
 
-$$
-F(\rho, \mathbf{R}, Z)|\psi_i\rangle = \lambda_i|\psi_i\rangle
-$$
+_q.e.d_
 
-where $\rho$ is the density operator associated to
-$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle$.
-
+</div>
+</details>
 
 # Cartesian Gaussians
 
