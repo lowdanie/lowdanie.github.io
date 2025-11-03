@@ -177,25 +177,25 @@ We can extend this construction to the case of $n$ electrons using the
 $\mathcal{A}^n$ which maps the tensor product $V^{\otimes n}$ to the space of
 alternating tensors $\Lambda^n V$.
 
-> **Definition (Antisymmetrization).**
+> **Definition (Anti-symmetrization).**
 > Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
 >
-> The _antisymmetrization map_, denoted $\mathrm{Alt}^n$, is defined as:
+> The _anti-symmetrization map_, denoted $\mathrm{Alt}^n$, is defined as:
 >
 > $$
 > \begin{align*}
 > \mathrm{Alt}^n: V^{\otimes n} &\rightarrow V^{\otimes n} \\
-> |\phi\rangle &\mapsto \sum_{\sigma\in S_n}\mathrm{sgn}(\sigma) P_\sigma |\phi\rangle
+> |v\rangle &\mapsto \sum_{\sigma\in S_n}\mathrm{sgn}(\sigma) P_\sigma |v\rangle
 > \end{align*}
 > $$
 
-> **Claim (Antisymmetrization).**
+> **Claim (Anti-symmetrization).**
 > Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
 >
-> Then, for all tensors $\|\phi\rangle\in V^{\otimes n}$,
-> $\mathrm{Alt}^n(\|\phi\rangle)$ is an anti-symmetric tensor.
+> Then, for all tensors $\|v\rangle\in V^{\otimes n}$,
+> $\mathrm{Alt}^n(\|v\rangle)$ is an anti-symmetric tensor.
 >
-> In particular, the image of the antisymmetrization map is contained in $\Lambda^n V$:
+> In particular, the image of the anti-symmetrization map is contained in $\Lambda^n V$:
 >
 > $$
 > \mathrm{Alt}^n : V^{\otimes n} \rightarrow \Lambda^n V
@@ -214,7 +214,7 @@ $$
 P_\sigma \mathrm{Alt}^n(|\phi\rangle) = \mathrm{sgn}(\sigma)\mathrm{Alt}^n(|\phi\rangle).
 $$
 
-Let $\sigma\in S_n$ be a permutation. Then, by the definition of the antisymmetrization map:
+Let $\sigma\in S_n$ be a permutation. Then, by the definition of the anti-symmetrization map:
 
 $$
 \begin{align*}
@@ -233,13 +233,13 @@ of $S_n$.
 </details>
 
 The [Slater determinant](https://en.wikipedia.org/wiki/Slater_determinant)
-is a normalized version of the antisymmetrization map.
+is a normalized version of the anti-symmetrization map.
 
 > **Definition (Slater Determinant).**
 > Let $V$ be a vector space and $n\in\mathbb{Z}$ a positive integer.
 > 
-> The _Slater determinant_ of a decomposable tensor
-> $\|v_1\dots v_n\rangle\in V^{\otimes n}$ is denoted by
+> The _Slater determinant_ of the vectors
+> $\|v_1\rangle,\dots \|v_n\rangle\in V$ is denoted by
 > $\|v_1,\dots,v_n\rangle$ (note the commas) and defined by:
 >
 > $$
@@ -247,6 +247,28 @@ is a normalized version of the antisymmetrization map.
 > $$
 
 In practice, all anti-symmetric tensors considered in this post will be Slater determinants.
+
+A convenient property of Slater determinants is that, up to a scalar, they are invariant
+to linear transformations of the constituent vectors:
+
+> **Claim (Slater Determinant Transformation).**
+> Let $V$ be a vector space, $n\in\mathbb{Z}$ a positive integer
+> and $\|v_1\rangle,\dots \|v_n\rangle\in V$ vectors.
+>
+> Let $W\subset V$ be the span of the vectors:
+>
+> $$
+> W = \mathrm{Span}(|v_1\rangle,\dots,|v_n\rangle)
+> $$
+>
+> and let $T\in\mathrm{End}(W)$ be a linear transformation of $W$. Then:
+> 
+> $$
+> |T|v_1\rangle,\dots,T|v_n\rangle\rangle = \mathrm{det}(T)|v_1,\dots,v_n\rangle
+> $$
+
+In other words, transforming the vectors has the effect of scaling the
+Slater determinant by the determinant of $T$.
 
 ## Molecular Operators
 
@@ -407,7 +429,7 @@ $$
 Given another integer $k$, we'll denote the set of length $k$ sequences
 of integers in $[n]$ by $[n]^k$.
 
-Finally, given $n$ vectors $v_1,\dots,v_n\in V$ be vectors and a seqeuence
+Finally, given $n$ vectors $v_1,\dots,v_n\in V$ be vectors and a sequence
 $I = (i_1,\dots,i_k) \in [n]^k$ we'll define:
 
 $$
@@ -847,16 +869,16 @@ $T^1\otimes\mathrm{Id}$ from $\mathrm{End}(\mathcal{H})$ to $\mathrm{End}(\Lambd
 The expected kinetic energy of a closed shell Slater determinant follows immediately from XXX.
 
 > **Claim (Kinetic Energy Expectation).**
-> Let $n\in\mathbb{Z}$ be a positive integer and
-> $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in L^2(\mathbb{R}^3)$
+> Let $n\in\mathbb{Z}$ be an even integer and
+> $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
 > be orthonormal single-electron positional wave functions.
 >
 > The expected kinetic energy of the closed shell Slater determinant
-> $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is given by:
+> $\|\psi_1,\dots,\psi_{n/2}\rangle\in\Lambda^n \mathcal{H}$ is given by:
 >
 > $$
-> \langle \psi_1,\dots,\psi_n | T^n | \psi_1,\dots,\psi_n \rangle
-> = \sum_{i=1}^n \langle \psi_i | T^1 | \psi_i \rangle
+> \langle \psi_1,\dots,\psi_{n/2} | T^n | \psi_1,\dots,\psi_{n/2} \rangle
+> = 2\sum_{i=1}^{n/2} \langle \psi_i | T^1 | \psi_i \rangle
 > $$
 
 The inner products $\langle \psi_i | T^1 | \psi_i \rangle$ can be evaluated
@@ -921,21 +943,21 @@ The nuclear attraction energy of a closed shell Slater determinant also follows
 immediately from XXX.
 
 > **Claim (Nuclear Attraction Expectation).**
-> Let $m,n\in\mathbb{Z}$ be positive integers.
+> Let $m\in\mathbb{Z}$ be a positive integer and $n\in\mathbb{Z}$ an even integer.
 >
 > Let $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3m}$ 
 > be $m$ nuclear positions and $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ be $m$
 > nuclear numbers.
 >
-> Let $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in L^2(\mathbb{R}^3)$
+> Let $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
 > be orthonormal single-electron positional wave functions.
 >
 > Then the expected nuclear attraction energy of the closed shell Slater determinant
-> $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is given by:
+> $\|\psi_1,\dots,\psi_{n/2}\rangle\in\Lambda^n \mathcal{H}$ is given by:
 >
 > $$
-> \langle \psi_1,\dots,\psi_n | V^n_{\mathrm{en}}(\cdot; \mathbf{R},Z) | \psi_1,\dots,\psi_n \rangle
-> = \sum_{i=1}^n \langle \psi_i | V^1_{\mathrm{en}}(\cdot; \mathbf{R},Z) | \psi_i \rangle
+> \langle \psi_1,\dots,\psi_{n/2} | V^n_{\mathrm{en}}(\cdot; \mathbf{R},Z) | \psi_1,\dots,\psi_{n/2} \rangle
+> = 2\sum_{i=1}^{n/2} \langle \psi_i | V^1_{\mathrm{en}}(\cdot; \mathbf{R},Z) | \psi_i \rangle
 > $$
 
 The single-electron inner-products can be evaluated using the definition of the inner product
@@ -1010,18 +1032,18 @@ We can again apply XXX to compute the expected election repulsion energy of
 a closed shell Slater determinant.
 
 > **Claim (Electron Repulsion Expectation).**
-> Let $n\in\mathbb{Z}$ be a positive integer.
-> Let $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in L^2(\mathbb{R}^3)$
+> Let $n\in\mathbb{Z}$ be an even integer.
+> Let $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
 > be orthonormal  single-electron positional wave functions.
 >
 > The expected electron repulsion energy of the closed shell Slater determinant 
-> $\|\psi_1,\dots,\psi_n\rangle\in\Lambda^n \mathcal{H}$ is given by:
+> $\|\psi_1,\dots,\psi_{n/2}\rangle\in\Lambda^n \mathcal{H}$ is given by:
 >
 > $$
-> \langle \psi_1,\dots,\psi_n | V_{\mathrm{ee}}^n | \psi_1,\dots,\psi_n \rangle
+> \langle \psi_1,\dots,\psi_{n/2} | V_{\mathrm{ee}}^n | \psi_1,\dots,\psi_{n/2} \rangle
 > = \sum_{i,j=1}^n \left(
-> \langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
-> \frac{1}{2}\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle \right)
+> 2\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
+> \langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle \right)
 > $$
 
 <details>
@@ -1039,8 +1061,8 @@ $$
 2^{c(\sigma)}\mathrm{sgn}(\sigma)
 \langle \psi_i\psi_j |V_\mathrm{ee}^2 P_\sigma | \psi_i\psi_j \rangle \\
 &= \sum_{i,j=1}^n\left(
-\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
-\frac{1}{2}\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle\right)
+2\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_i\psi_j \rangle -
+\langle \psi_i\psi_j | V_\mathrm{ee}^2 | \psi_j\psi_i \rangle\right)
 \end{align*}
 $$
 
@@ -1201,17 +1223,18 @@ are orthonormal.
 
 Let $E : L^2(\mathbb{R}^3)^{n/2} \rightarrow \mathbb{R}$ 
 denote the expectation energy of the Slater determinant $|\Psi\rangle$
-as a function of the single-electron wave functions:
+as a function of the single-electron wave functions, parameterized by the
+molecule $(\mathbf{R}, Z)$:
 
 $$
-E(\psi_1,\dots,\psi_{n/2}) := 
+E(\psi_1,\dots,\psi_{n/2}; \mathbf{R}, Z) := 
 \langle\psi_1,\dots,\psi_{n/2} | H^n(\mathbf{R},Z) | \psi_1,\dots,\psi_{n/2}\rangle
 $$
 
 We can restate our search as a constrained minimization of $E$. Specifically,
 our objective is to find single-electron wave functions
 $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$ that minimize
-$E(\psi_1,\dots,\psi_{n/2})$ subject to the orthonormality constraints:
+$E(\psi_1,\dots,\psi_{n/2}; \mathbf{R}, Z)$ subject to the orthonormality constraints:
 
 $$
 \langle \psi_i | \psi_j \rangle = \delta_{ij}
@@ -1236,7 +1259,7 @@ defined by:
 
 $$
 L(\psi_1,\dots,\psi_{n/2},\lambda_{0,0},\dots,\lambda_{n/2,n/2}) :=
-E(\psi_1,\dots,\psi_{n/2}) - 
+E(\psi_1,\dots,\psi_{n/2}; \mathbf{R}, Z) - 
 \sum_{i,j=0}^{n/2}\lambda_{ij}(\langle \psi_i | \psi_j \rangle - \delta_{kl})
 $$
 
@@ -1527,7 +1550,7 @@ If $A\in\mathrm{A}$ is an operator on $V$, we can rewrite equation XXX as follow
 In terms of our analogy between the trace and integration,
 this corresponds to integrating the kernel $A$ with respect to the density $\rho$.
 
-Similarly, we can use the partial trace to integrate over one factor of a tensor product
+We can also use the partial trace to integrate over one factor of a tensor product
 $V\otimes W$ with respect to a density operator on that factor:
 
 > **Claim (Partial Trace of a Density Operator).**
@@ -1595,7 +1618,8 @@ $$
 By linearity of the first variation, this implies that the solution satisfies:
 
 $$
-\delta E = \sum_{i,j=1}^{n/2}\lambda_{ij} \delta \langle \psi_i | \psi_j \rangle
+\delta E(\psi_1,\dots,\psi_n; \mathbf{R}, Z) =
+\sum_{i,j=1}^{n/2}\lambda_{ij} \delta \langle \psi_i | \psi_j \rangle
 $$
 
 We can use the results of section XXX to compute the left hand side of XXX in terms of
@@ -1619,7 +1643,7 @@ $$
 > be single-electron positional states.
 >
 > Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ denote the corresponding 
-> electron density operator:
+> closed shell electron density operator:
 >
 > $$
 > \rho := 2\sum_{i=1}^{n/2}|\psi_i\rangle\langle\psi_i| 
@@ -1629,9 +1653,9 @@ $$
 > Then
 >
 > $$
-> \delta E =
-> 2\mathrm{Re}\left( 
->   \sum_{i=1}^{n/2}\langle \delta\psi_i | H^1(\mathbf{R}, Z) + 2J(\rho) - K(\rho) | \psi_i\rangle
+> \delta E(\psi_1,\dots,\psi_n; \mathbf{R}, Z) =
+> 4\mathrm{Re}\left( 
+>   \sum_{i=1}^{n/2}\langle \delta\psi_i | H^1(\mathbf{R}, Z) + J(\rho) - \frac{1}{2}K(\rho) | \psi_i\rangle
 > \right)
 > $$
 
@@ -1672,19 +1696,19 @@ E_2(\psi_1,\dots,\psi_{n/2}) :=
 \psi_1,\dots,\psi_{n/2} \rangle
 $$
 
-We'll start by evaluating $\delta_i E_1$.
+We'll start by evaluating $\delta E_1$.
 
 By XXX:
 
 $$
 E_1(\psi_1,\dots,\psi_{n/2}) =
-\sum_{j=1}^{n/2}\langle \psi_j | H^1 \psi_j \rangle
+2\sum_{j=1}^{n/2}\langle \psi_j | H^1 | \psi_j \rangle
 $$
 
 Therefore, by XXX:
 
 $$
-\delta E_1 = 2\mathrm{Re}\left(
+\delta E_1 = 4\mathrm{Re}\left(
    \sum_{j=1}^{n/2}\langle \delta\psi_i | H^1 | \psi_i \rangle
 \right)
 $$
@@ -1699,7 +1723,7 @@ By XXX:
 
 $$
 E_2(\psi_1,\dots,\psi_{n/2}) = 
-\sum_{i,j=1}^{n/2}(
+2\sum_{i,j=1}^{n/2}(
     \langle\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle
 )
 $$
@@ -1708,7 +1732,7 @@ Therefore, by XXX:
 
 $$
 \delta E_2 = 
-2\mathrm{Re}\left(
+4\mathrm{Re}\left(
 \sum_{i,j=1}^{n/2}(
     2\langle\delta\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle
 )\right)
@@ -1718,11 +1742,11 @@ Finally, note that for all $1\leq i \leq n/2$:
 
 $$
 \begin{align*}
-\sum_{j=1}^{n/2}
+2\sum_{j=1}^{n/2}
     \langle\delta\psi_i\psi_j | H^2 | \psi_i\psi_j\rangle
-&= \langle \delta\psi_i | \sum_{j=1}^{n/2}(
+&= 2\langle \delta\psi_i | \sum_{j=1}^{n/2}(
     (\mathrm{Id}\otimes\langle\psi_j |) H^2 (\mathrm{Id}\otimes | \psi_j\rangle) |\psi_i\rangle \\
-&= \langle \delta\psi_i | \mathrm{Tr}_2 (\rho H^2) | \psi_i \rangle \\
+&= langle \delta\psi_i | \mathrm{Tr}_2 (\rho H^2) | \psi_i \rangle \\
 &= \langle \delta\psi_i | J(\rho) - \frac{1}{2}K(\rho) | \psi_i \rangle
 \end{align*}
 $$
@@ -1747,50 +1771,13 @@ This claim motivates the definition of the
 > defined by:
 >
 > $$
-> F(\rho, \mathbf{R}, Z) := H^1(\mathbf{R}, Z) + 2J(\rho) - K(\rho)
+> F(\rho, \mathbf{R}, Z) := H^1(\mathbf{R}, Z) + J(\rho) - \frac{1}{2}K(\rho)
 > $$
 
-Interestingly, it is always possible to find solutions to XXX
-that are eigenvectors of the Fock operator.
-
-> **Claim (Slater Ground State).**
-> Let $m\in\mathbb{Z}$ be a positive integer, $n\in\mathbb{Z}$ an even integer,
-> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic number and
-> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
-> nuclear positions.
->
-> Then, there exist orthonormal states
->
-> $$
-> |\psi_1\rangle,\dots,|\psi_{n/2}\rangle \in L^2(\mathbb{R}^3)
-> $$
->
-> and Lagrange multipliers
->
-> $$
-> \lambda_1,\dots,\lambda_{n/2}\in\mathbb{R}
-> $$
->
-> such that the states
-> $\|\psi_i\rangle$ are a solution to the 
-> $n$-electron ground state optimization problem XXX 
-> and such that for all $1\leq i \leq n/2$:
->
-> $$
-> F(\pho, \mathbb{R}, Z)|\psi_i\rangle = \lambda_i|\psi_i\rangle
-> $$
->
-> where $\pho$ is the density operator corresponding to the $\|psi_i\rangle$.
-
-<details>
-<summary>
-Proof [click to expand]
-</summary>
-<div class="details-content">
-
+Continuing with the method of Lagrange multipliers,
 Let $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$ be a solution
-to XXX and let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be the corresponding density
-operator.
+to XXX and let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be the corresponding
+closed shell density operator.
 
 By XXX the first variation of the right-hand side of equation XXX is given by:
 
@@ -1802,7 +1789,7 @@ $$
 Substituting this equality and claim XXX back into XXX:
 
 $$
-2\mathrm{Re}\left( 
+4\mathrm{Re}\left( 
    \sum_{i=1}^{n/2}\langle \delta\psi_i | F(\rho, \mathbf{R}, Z) | \psi_i\rangle
 \right) =
 2\mathrm{Re}(\sum_{i,j=1}^{n/2} \lambda_{ij}\langle \delta\psi_i | \psi_j \rangle)
@@ -1813,7 +1800,7 @@ for all $1\leq i \leq n/2$:
 
 $$
 F(\rho, \mathbf{R}, Z) | \psi_i\rangle =
-\sum_{j=1}^{n/2} \lambda_{ij} |\psi_j\rangle
+\frac{1}{2}\sum_{j=1}^{n/2} \lambda_{ij} |\psi_j\rangle
 $$
 
 Let
@@ -1824,20 +1811,265 @@ $$
 
 denote the subspace spanned by $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle$. 
 By equation XXX, the operator
-$F(\rho, \mathbf{R}, Z)$
-restricts to an operator on $V$.
+$F(\rho, \mathbf{R}, Z)$ restricts to an operator on $V$.
 
-Since $F(\rho, \mathbf{R}, Z)$ is Hermitian,
-there is an orthonormal basis of $V$,
-$\|\phi_1\rangle,\dots,\|\phi_{n/2}}\rangle\in V$,
-in which the restriction of $F(\rho, \mathbf{R}, Z)$ 
-is diagonal. By XXX, the density operator corresponding to the $\|\phi_i\rangle$
-is also equal to $\rho$.
+Since $F(\rho, \mathbf{R}, Z)$ is Hermitian, there is a unitary transformation
+$U\in\mathrm{End}(V)$ that diagonalizes $F(\rho, \mathbf{R}, Z)$.
 
-_q.e.d_
+Let $\|\psi'\_1\rangle,\dots,\|\psi'\_{n/2}\rangle\in V$
+be the transformed basis. I.e:
 
-</div>
-</details>
+$$
+|\psi'_i\rangle = U|\psi_i\rangle
+$$
+
+By XXX,
+
+$$
+\begin{align*}
+E(\psi'_1,\dots,\psi'_{n/2}) 
+&= |\mathrm{det}(U)|^2 E(\psi_1,\dots,\psi_{n/2}) \\
+&= E(\psi_1,\dots,\psi_{n/2})
+\end{align*}
+$$
+
+and so the transformed basis also minimizes the expectation energy.
+
+By XXX, the density operator corresponding to the transformed basis
+$\|\psi'_i\rangle$ is also equal to $\rho$.
+
+Therefore, the transformed basis $\|\psi'_1\rangle,\dots,\|\psi'_n\rangle$ is
+a solution to XXX consisting of eigenvectors of $F(\rho, \mathbf{R}, Z)$.
+
+> **Claim (Lowest Energy Slater Determinant).**
+> Let $m\in\mathbb{Z}$ be a positive integer, $n\in\mathbb{Z}$ an even integer,
+> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic number and
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
+> nuclear positions.
+>
+> Then, there exist orthonormal states
+>
+> $$
+> |\psi_1\rangle,\dots,|\psi_{n/2}\rangle \in L^2(\mathbb{R}^3)
+> $$
+>
+> that the states minimize the expectation energy $E(\psi_1,\dots,\psi_n; \mathbf{R}, Z)$
+> and are eigenvectors of $F(\rho, \mathbb{R}, Z)$
+> where $\rho$ is the density operator corresponding to the $\|\psi_i\rangle$.
+
+Note that by the theory of Lagrange multipliers, the eigenvalue condition is a necessary
+but not sufficient condition for the $\|\psi_i\rangle$ to be a global minimum.
+In general, orthonormal states 
+$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle \in L^2(\mathbb{R}^3)$ that are eigenvectors
+of $F(\rho, \mathbb{R}, Z)$ are only guaranteed to be local minima of  
+$E(\psi_1,\dots,\psi_n; \mathbf{R}, Z)$ with respect to the orthonormality constraint.
+
+Also note that since $\rho$ depends on the the states $\|\psi_i\rangle$, this is not
+a standard eigenvector equation. We'll instead solve it with an iterative approach in
+which we alternate between fixing $\rho$ and solving for the eigenvectors, and between
+constructing a new density $\rho$ from the current eigenvectors.
+
+One remaining obstacle to this plan is that the space $L^2(\mathbb{R}^3)$ of single electron
+positional states is infinite dimensional. The goal of the next section is to apply this theory
+to a finite dimensional approximation.
+
+### The Roothaan Equations
+
+As we mentioned in the previous section, a key obstacle to optimizing for the lowest energy
+Slater determinant using the Fock operator is that the space $L^2(\mathbb{R}^3)$
+of single electron positional states is infinite dimensional.
+A simple remedy
+is to choose some large but finite set of independent vectors in $L^2(\mathbb{R}^3)$ and
+restrict our search to states that are in their span.
+
+In this section we'll
+derive an expression for matrix representation of the Fock operator with respect 
+to a finite basis and use it to solve for local minima of the expectation energy
+function $E(\psi_1,\dots,\psi_n; \mathbf{R}, Z)$.
+
+Let $b\in\mathbb{Z}$ be an integer and let
+
+$$
+B = \{|\phi_1\rangle,\dots,|\phi_b\rangle\} \subset L^2(\mathbb{R}^3)
+$$
+
+be $b$ linearly independent vectors in $L^2(\mathbb{R}^3)$. Our goal in this section
+is to find $n$ vectors $\|\phi_i\rangle \in \mathrm{Span}(B)$ that are orthonormal
+and whose Slater determinant minimizes the $n$-electron expectation energy.
+
+Let $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in\mathrm{Span}(B)$ be vectors and
+let $\mathbf{C}\in\mathrm{Mat}_{b\times n}(\mathbf{C})$ be a $b\times n$ matrix whose
+$i$-th column is the coordinates of $\|\psi_i\rangle$ in the basis $B$. Specifically, for
+each $1\leq i \leq n$:
+
+$$
+|\psi_i\rangle = \sum_{j=1}^b C_{ji}|\phi_j\rangle
+$$
+
+Recall that the closed shell density operator corresponding to the $\|\psi_i\rangle$
+is defined by:
+
+$$
+\rho := 2\sum_{i=1}^n |\psi_i\rangle\langle\psi_i|
+$$
+
+We can express $\rho$ in terms of the basis $B$ by substituting XXX into XXX:
+
+$$
+\begin{align*}
+\rho
+&= 2\sum_{i=1}^n |\psi_i\rangle\langle\psi_i| \\
+&= 2\sum_{i=1}^n\sum_{k,l=1}^b C_{ki}C_{li}^* |\phi_k\rangle\langle\phi_l| \\
+&= 2\sum_{k,l=1}^b \sum_{i=1}^n C_{ki} C_{li}^* |\phi_k\rangle\langle\phi_l| \\
+&= 2\sum_{k,l=1}^b (\mathbf{C}\mathbf{C}^*)_{kl} |\phi_k\rangle\langle\phi_l|
+\end{align*}
+$$
+
+This motivates the introduction of the _density matrix_
+$\mathbf{P}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$:
+
+$$
+\mathbf{P} := 2\mathbf{C}\mathbf{C}^*
+$$
+
+We can then rewrite XXX as:
+
+$$
+\rho = \sum_{i,j=1}^b P_{ij}|\phi_i\rangle\langle\phi_j|
+$$
+
+We'll now convert the eigenvector equation
+
+$$
+F(\rho, \mathbf{R}, Z)|\psi_i\rangle = \lambda_i |\psi_i\rangle
+$$
+
+into a matrix equation involving the coordinates $\mathbf{C}$. Substituting XXX
+into XXX:
+
+$$
+F(\rho, \mathbf{R}, Z)\sum_{k=1}^b C_{ki}|\phi_k\rangle =
+\lambda_i \sum_{k=1}^b C_{ki}|\phi_k\rangle
+$$
+
+Taking the inner product of both sides with $\|\phi_j\rangle$ and rearranging the sums:
+
+$$
+\sum_{k=1}^b \langle \phi_j| F(\rho, \mathbf{R}, Z) |\phi_k\rangle C_{ki} =
+\sum_{k=1}^b \langle \phi_j|\phi_k\rangle C_{ki} \lambda_i
+$$
+
+Therefore, if we define the _Fock matrix_
+$\mathbf{F}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ by:
+
+$$
+F_{ij} := \langle\phi_i| F(\rho, \mathbf{R}, Z) |\phi_j\rangle
+$$
+
+and similarly define _overlap matrix_ $\mathbf{S}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ by:
+
+$$
+S_{ij} := \langle\phi_i |\phi_j\rangle
+$$
+
+and finally define the diagonal matrix
+$\mathbf{D}\in\mathrm{Mat}_{n\times n}(\mathbb{R})$ by:
+
+$$
+D_{ii} = \lambda_i
+$$
+
+then we can rewrite XXX as:
+
+$$
+\mathbf{F}\mathbf{C} = \mathbf{S}\mathbf{C}\mathbf{D}
+$$
+
+Note that the Fock matrix $\mathbf{F}$ depends on the density operator $\rho$.
+We'll now derive a more explicit formula for the
+Fock matrix in terms the basis vectors $B$ and the density matrix $\mathbf{P}$.
+
+Recall that by definition:
+
+$$
+F(\rho, \mathbf{R}, Z) = H^1(\mathbf{R}, Z) + J(\rho) - \frac{1}{2}K(\rho)
+$$
+
+To facilitate notation, we'll
+collect the matrix elements corresponding to the Coulomb and exchange operators into a
+matrix $\mathbf{G}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ defined by:
+
+$$
+G_{ij} := \langle \phi_i | J(\rho) - \frac{1}{2}K(\rho) | \phi_j \rangle
+$$
+
+With this notation:
+
+$$
+F_{ij} = \langle \phi_i | H^1(\mathbf{R}, Z) | \phi_j\rangle + G_{ij}
+$$
+
+It remains to compute the matrix $\mathbf{G}$.
+By the definition of the Coulomb operator and equation XXX:
+
+$$
+\begin{align*}
+J(\rho)
+&= \mathrm{Tr}_2((\mathrm{Id}\otimes\rho)V_\mathrm{ee}^2) \\
+&= \sum_{kl}P_{kl} \mathrm{Tr}_2((\mathrm{Id}\otimes |\phi_k\rangle\langle\phi_l|)V_\mathrm{ee}^2) \\
+&= \sum_{kl}P_{kl} (\mathrm{Id}\otimes \langle \phi_l|) V_\mathrm{ee}^2 (\mathrm{Id}\otimes |\phi_k\rangle)
+\end{align*}
+$$
+
+Therefore:
+
+$$
+\langle \phi_i | J(\rho) | \phi_j \rangle =
+\sum_{kl} P_{kl} \langle \phi_i \phi_l | V_\mathrm{ee}^2 | \phi_j \phi_k\rangle
+$$
+
+Similarly:
+
+$$
+\begin{align*}
+\langle \phi_i | K(\rho) | \phi_j \rangle
+&= \sum_{kl} P_{kl} \langle \phi_i \phi_l | V_\mathrm{ee}^2 P_{(1,2)} | \phi_j \phi_k\rangle \\
+&= \sum_{kl} P_{kl} \langle \phi_i \phi_l | V_\mathrm{ee}^2 | \phi_k \phi_j\rangle
+\end{align*}
+$$
+
+Together this implies that:
+
+$$
+G_{ij} =
+\sum_{kl} P_{kl} (
+   \langle \phi_i \phi_l | V_\mathrm{ee}^2 | \phi_j \phi_k \rangle
+   -\frac{1}{2} \langle \phi_i \psi_l | V_\mathrm{ee}^2 | \phi_k \phi_j \rangle
+)
+$$
+
+
+
+
+
+
+We'll now derive the matrix representation
+$\mathbf{P}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ of $\rho$ in the basis $\|\phi_i\rangle$.
+By definition:
+
+$$
+\begin{align*}
+\rho 
+&= 2\sum_{i=1}^n |\psi_i\rangle\langle\psi_i| \\
+&= 2\sum_{i=1}^n\sum_{j=1}^b C_{ji}C_{ji}^* |\phi_j\rangle\langle\phi_j| \\
+&= \sum_{j=1}^b 2\sum_{i=1}^n C_{ji}C_{ji}^* |\phi_j\rangle\langle\phi_j| 
+\end{align*}
+$$
+
+
+Let $\rhoUsing $\mathbf{C}$, we can construct a matrix representation of the density operator
+
+We'll now derive an expression for the 
 
 # Cartesian Gaussians
 
