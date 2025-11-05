@@ -1843,7 +1843,7 @@ a solution to XXX consisting of eigenvectors of $F(\rho, \mathbf{R}, Z)$.
 
 > **Claim (Lowest Energy Slater Determinant).**
 > Let $m\in\mathbb{Z}$ be a positive integer, $n\in\mathbb{Z}$ an even integer,
-> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic number and
+> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic numbers and
 > $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
 > nuclear positions.
 >
@@ -1893,14 +1893,12 @@ $$
 B = \{|\phi_1\rangle,\dots,|\phi_b\rangle\} \subset L^2(\mathbb{R}^3)
 $$
 
-be $b$ linearly independent vectors in $L^2(\mathbb{R}^3)$. Our goal in this section
-is to find $n$ vectors $\|\phi_i\rangle \in \mathrm{Span}(B)$ that are orthonormal
-and whose Slater determinant minimizes the $n$-electron expectation energy.
+be $b$ linearly independent vectors in $L^2(\mathbb{R}^3)$.
 
-Let $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in\mathrm{Span}(B)$ be vectors and
-let $\mathbf{C}\in\mathrm{Mat}_{b\times n}(\mathbf{C})$ be a $b\times n$ matrix whose
-$i$-th column is the coordinates of $\|\psi_i\rangle$ in the basis $B$. Specifically, for
-each $1\leq i \leq n$:
+Let $\mathbf{C}\in\mathrm{Mat}_{b\times n}(\mathbb{C})$ be a $b\times n$ matrix 
+and let $\|\psi_1\rangle,\dots,\|\psi_n\rangle\in\mathrm{Span}(B)$ be vectors whose
+coordinates in the basis $B$ are equal to the columns of $\mathbf{C}$.
+Specifically, for each $1\leq i \leq n$:
 
 $$
 |\psi_i\rangle = \sum_{j=1}^b C_{ji}|\phi_j\rangle
@@ -1920,25 +1918,33 @@ $$
 \rho
 &= 2\sum_{i=1}^n |\psi_i\rangle\langle\psi_i| \\
 &= 2\sum_{i=1}^n\sum_{k,l=1}^b C_{ki}C_{li}^* |\phi_k\rangle\langle\phi_l| \\
-&= 2\sum_{k,l=1}^b \sum_{i=1}^n C_{ki} C_{li}^* |\phi_k\rangle\langle\phi_l| \\
 &= 2\sum_{k,l=1}^b (\mathbf{C}\mathbf{C}^*)_{kl} |\phi_k\rangle\langle\phi_l|
 \end{align*}
 $$
 
-This motivates the introduction of the _density matrix_
-$\mathbf{P}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$:
+This motivates the introduction of the _closed shell density matrix_.
 
-$$
-\mathbf{P} := 2\mathbf{C}\mathbf{C}^*
-$$
+> **Definition (Closed Shell Density Matrix).**
+> Let $b,n\in\mathbb{Z}$ be integers and
+> $\mathbf{C}\in\mathrm{Mat}\_{b\times n}(\mathbb{C})$
+> be a $b\times n$ matrix. The associated _closed shell density matrix_
+> $\mathbf{P}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ is defined by:
+>
+> $$
+> \mathbf{P} := 2\mathbf{C}\mathbf{C}^*
+> $$
 
-We can then rewrite XXX as:
+We can rewrite XXX using the density matrix as:
 
 $$
 \rho = \sum_{i,j=1}^b P_{ij}|\phi_i\rangle\langle\phi_j|
 $$
 
-We'll now convert the eigenvector equation
+By XXX, the states $|\psi_1\rangle,\dots,\|\psi_n\rangle$ are a local minimum
+of the expectation energy function with respect to the orthogonality constraint
+if and only if they are eigenvectors of the Fock operator $F(\rho, \mathbf{R}, Z)$.
+
+We'll now convert the eigenvector condition
 
 $$
 F(\rho, \mathbf{R}, Z)|\psi_i\rangle = \lambda_i |\psi_i\rangle
@@ -1959,35 +1965,123 @@ $$
 \sum_{k=1}^b \langle \phi_j|\phi_k\rangle C_{ki} \lambda_i
 $$
 
-Therefore, if we define the _Fock matrix_
-$\mathbf{F}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ by:
+We can rewrite this as a matrix equation by introducing the Fock and overlap matrices.
+
+> **Definition (Fock Matrix).**
+> Let $n\in\mathbb{Z}$ be an integer, 
+> $Z=(Z_1,\dots,Z_n)\in\mathbb{Z}^n$ atomic numbers,
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_n)\in\mathbb{R}^{3\times n}$
+> nuclear positions.
+>
+> Let $b\in\mathbb{Z}$ be an integer and
+> $\|\phi_1\rangle,\dots,\|\phi_b\rangle\in L^2(\mathbb{R}^3)$ be independent
+> states.
+>
+> Let $\mathbf{P}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ be a density
+> matrix and let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be the associated density
+> operator:
+>
+> $$
+> \rho = \sum_{i,j=1}^b P_{ij}|\phi_i\rangle\langle\phi_j|
+> $$
+>
+> The _Fock matrix_
+> $\mathbf{F}(\mathbf{P})\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ is defined by:
+>
+> $$
+> F_{ij} := \langle\phi_i| F(\rho, \mathbf{R}, Z) |\phi_j\rangle
+> $$
+
+> **Definition (Overlap Matrix).**
+> Let $b\in\mathbb{Z}$ be an integer and
+> $\|\phi_1\rangle,\dots,\|\phi_b\rangle\in L^2(\mathbb{R}^3)$ be independent
+> states.
+>
+> The associated _overlap matrix_
+> $\mathbf{S}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ is defined by:
+>
+> $$
+> S_{ij} := \langle\phi_i | \phi_j\rangle
+> $$
+
+We can now rewrite XXX a a matrix equation:
+
+> **Definition (Roothaan Equation).**
+> Let $n\in\mathbb{Z}$ be an integer, 
+> $Z=(Z_1,\dots,Z_n)\in\mathbb{Z}^n$ atomic numbers,
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_n)\in\mathbb{R}^{3\times n}$
+> nuclear positions.
+>
+> Let $b\in\mathbb{Z}$ be an integer and
+> $\|\phi_1\rangle,\dots,\|\phi_b\rangle\in L^2(\mathbb{R}^3)$ be independent
+> states and let $\mathbf{S}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ be the associated
+> overlap matrix.
+>
+> Let $\mathbf{C}\in\mathrm{Mat}_{b\times n}(\mathbb{C})$ be a matrix,
+> let $\mathbf{P}=2\mathbf{C}\mathbf{C}^*\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$
+> be the associated closed shell density
+> matrix and let $\mathbf{F}(\mathbf{P})\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$
+> the corresponding Fock matrix.
+>
+> The _Roothaan equation_ is:
+>
+> $$
+> \mathbf{F}(\mathbf{P})\cdot \mathbf{C} = \mathbf{S}\mathbf{C}\mathbf{D}
+> $$
+>
+> for a diagonal matrix $\mathbf{D}\in\mathrm{Diag}_n(\mathbb{C})$.
+
+The significance of the Roothan equation is that, following the analysis above,
+it provides a necessary and sufficient condition for the states
+$\|\psi_1\rangle,\dots,\|\psi_n\rangle$ to be a local minimum
+of the expectation energy function with respect to the orthogonality constraint.
+
+We'll conclude this section by deriving a more explicit formula for the
+Fock matrix in terms of the basis $B$ and the density matrix $\mathbf{P}$.
+
+> **Claim (Fock Matrix Coefficients).**
+> Let $n\in\mathbb{Z}$ be an integer, 
+> $Z=(Z_1,\dots,Z_n)\in\mathbb{Z}^n$ atomic numbers,
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_n)\in\mathbb{R}^{3\times n}$
+> nuclear positions.
+>
+> Let $b\in\mathbb{Z}$ be an integer and
+> $\|\phi_1\rangle,\dots,\|\phi_b\rangle\in L^2(\mathbb{R}^3)$ be independent
+> states.
+>
+> Let $\mathbf{P}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ be a density
+> matrix.
+>
+> Then the associated Fock matrix
+> $\mathbf{F}(\mathbf{P})\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ satisfies:
+>
+> $$
+> F_{ij} := \langle \phi_i | H^1(\mathbf{R}, Z) | \phi_j\rangle + G_{ij}
+> $$
+>
+> where the matrix $\mathbf{G}\in\mathrm{Mat}_{b\times b}(\mathbf{C})$ is
+> defined by:
+>
+> $$
+> G_{ij} =
+> \sum_{kl} P_{kl} (
+>    \langle \phi_i \phi_l | V_\mathrm{ee}^2 | \phi_j \phi_k \rangle
+>    -\frac{1}{2} \langle \phi_i \psi_l | V_\mathrm{ee}^2 | \phi_k \phi_j \rangle
+> )
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be the density operator corresponding to
+$\mathbf{P}$:
 
 $$
-F_{ij} := \langle\phi_i| F(\rho, \mathbf{R}, Z) |\phi_j\rangle
+\rho = \sum_{i,j=1}^b P_{ij}|\phi_i\rangle\langle\phi_j|
 $$
-
-and similarly define _overlap matrix_ $\mathbf{S}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ by:
-
-$$
-S_{ij} := \langle\phi_i |\phi_j\rangle
-$$
-
-and finally define the diagonal matrix
-$\mathbf{D}\in\mathrm{Mat}_{n\times n}(\mathbb{R})$ by:
-
-$$
-D_{ii} = \lambda_i
-$$
-
-then we can rewrite XXX as:
-
-$$
-\mathbf{F}\mathbf{C} = \mathbf{S}\mathbf{C}\mathbf{D}
-$$
-
-Note that the Fock matrix $\mathbf{F}$ depends on the density operator $\rho$.
-We'll now derive a more explicit formula for the
-Fock matrix in terms the basis vectors $B$ and the density matrix $\mathbf{P}$.
 
 Recall that by definition:
 
@@ -1995,21 +2089,19 @@ $$
 F(\rho, \mathbf{R}, Z) = H^1(\mathbf{R}, Z) + J(\rho) - \frac{1}{2}K(\rho)
 $$
 
-To facilitate notation, we'll
-collect the matrix elements corresponding to the Coulomb and exchange operators into a
-matrix $\mathbf{G}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ defined by:
-
-$$
-G_{ij} := \langle \phi_i | J(\rho) - \frac{1}{2}K(\rho) | \phi_j \rangle
-$$
-
-With this notation:
+Therefore,
 
 $$
 F_{ij} = \langle \phi_i | H^1(\mathbf{R}, Z) | \phi_j\rangle + G_{ij}
 $$
 
-It remains to compute the matrix $\mathbf{G}$.
+where
+
+$$
+G_{ij} := \langle \phi_i | J(\rho) - \frac{1}{2}K(\rho) | \phi_j \rangle
+$$
+
+It remains to compute the coefficients $G_{ij}$.
 By the definition of the Coulomb operator and equation XXX:
 
 $$
@@ -2048,28 +2140,12 @@ G_{ij} =
 )
 $$
 
+_q.e.d_
 
+</div>
+</details>
 
-
-
-
-We'll now derive the matrix representation
-$\mathbf{P}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ of $\rho$ in the basis $\|\phi_i\rangle$.
-By definition:
-
-$$
-\begin{align*}
-\rho 
-&= 2\sum_{i=1}^n |\psi_i\rangle\langle\psi_i| \\
-&= 2\sum_{i=1}^n\sum_{j=1}^b C_{ji}C_{ji}^* |\phi_j\rangle\langle\phi_j| \\
-&= \sum_{j=1}^b 2\sum_{i=1}^n C_{ji}C_{ji}^* |\phi_j\rangle\langle\phi_j| 
-\end{align*}
-$$
-
-
-Let $\rhoUsing $\mathbf{C}$, we can construct a matrix representation of the density operator
-
-We'll now derive an expression for the 
+### Generalized Eigenvalues
 
 # Cartesian Gaussians
 
