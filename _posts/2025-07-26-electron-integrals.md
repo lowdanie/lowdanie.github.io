@@ -2036,6 +2036,17 @@ it provides a necessary and sufficient condition for the states
 $\|\psi_1\rangle,\dots,\|\psi_n\rangle$ to be a local minimum
 of the expectation energy function with respect to the orthogonality constraint.
 
+The Roothaan equation is non-linear due to the dependence of the Fock
+matrix on $\mathbf{P}$ which in turn depends on $\mathbf{C}$.
+Therefore, the equation is typically solved via an iterative
+_self consistent field_ method which alternates between fixing $\mathbf{P}$
+to solve for $\mathbf{C}$,
+and using $\mathbf{C}$ to compute $\mathbf{P}$.
+
+Once we've fixed $\mathbf{P}$, the Roothaan equation becomes an instance of a
+[generalized eigenvalue problem](https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix#Generalized_eigenvalue_problem).
+which can be solved directly as we'll see in the next section.
+
 We'll conclude this section by deriving a more explicit formula for the
 Fock matrix in terms of the basis $B$ and the density matrix $\mathbf{P}$.
 
@@ -2146,6 +2157,172 @@ _q.e.d_
 </details>
 
 ### Generalized Eigenvalues
+
+If we fix the density matrix $\mathbf{P}$ in the Roothaan equation, we obtain a
+matrix equation of the form:
+
+$$
+\mathbf{F}\mathbf{C} = \mathbf{S}\mathbf{C}\mathbf{D}
+$$
+
+where $\mathbf{F},\mathbf{S}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$ are fixed Hermitian
+matrices and we are trying to solve for an arbitrary matrix
+$\mathbf{C}\in\mathrm{Mat}\_{b\times n}(\mathbb{C})$ and a diagonal matrix
+$\mathbf{D}\in\mathrm{Diag}\_n(\mathbb{C})$. This is a special case of the
+[generalized eigenvalue problem](https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix#Generalized_eigenvalue_problem).
+
+
+The goal of this section is to develop an algorithm for solving matrix equations
+of this form.
+
+The first thing to note is that if $\mathbf{S}$ was the identity matrix, then
+equation XXX would be a standard
+[eigenvalue equation](http://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix)
+which could be solved by finding the eigen-decomposition of $\mathbf{F}$.
+
+To handle the general case, the idea is to apply a coordinate transformation that
+transforms $\mathbf{S}$ to the identity, solve the equation there, and then transform the solution
+back to the original coordinates.
+
+To start, suppose that
+$\mathbf{X}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ is a matrix satisfying:
+
+$$
+\mathbf{X}^* \mathbf{S} \mathbf{X} = \mathrm{Id}
+$$
+
+This is equivalent to:
+
+$$
+\mathbf{S} = (\mathbf{X}\mathbf{X}^*)^{-1}
+$$
+
+Substituting this into XXX gives us:
+
+$$
+\mathbf{F}\mathbf{C} = (\mathbf{X}\mathbf{X}^*)^{-1}\mathbf{C}\mathbf{D}
+$$
+
+which, after a bit of manipulation, is equivalent to:
+
+$$
+\mathbf{X}^*\mathbf{F}\mathbf{X} \cdot \mathbf{X}^{-1}\mathbf{C} = 
+\mathbf{X}^{-1}\mathbf{C} \cdot \mathbf{D}
+$$
+
+Therefore, we can first solve for 
+$\mathbf{C}'\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ in the eigenvector equation:
+
+$$
+\mathbf{X}^*\mathbf{F}\mathbf{X} \cdot\mathbf{C}' = \mathbf{C}' \cdot \mathbf{D}
+$$
+
+and then solve the original equation XXX by setting:
+
+$$
+\mathbf{C} = \mathbf{X}\mathbf{C}'
+$$
+
+Note that since $\mathbf{F}$ is Hermitian,
+$\mathbf{X}^*\mathbf{F}\mathbf{X}$ is Hermitian as well which means that
+the eigenvector equation XXX can be solved with the a standard method such as the
+[QR algorithm](https://en.wikipedia.org/wiki/QR_algorithm).
+
+It remains to find a matrix 
+$\mathbf{X}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ that satisfies
+
+$$
+\mathbf{X}^* \mathbf{S} \mathbf{X} = \mathrm{Id}
+$$
+
+Since $\mathbf{S}$ is Hermitian, there is a unitary matrix
+$\mathbf{U}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ and
+and a real diagonal matrix $\mathbf{s}\in\mathrm{Diag}_b(\mathbb{R})$ such that:
+
+$$
+\mathbf{S} = \mathbf{U}\mathbf{s}\mathbf{U}^*
+$$
+
+Let $\mathbf{s}^{1/2}\in\mathrm{Diag}_b(\mathbb{R})$ 
+denote the diagonal matrix obtained by taking the square roots
+of the diagonal elements of $\mathbf{s}$. It is easy to see that the matrix
+$\mathbf{X}$ defined by:
+
+$$
+\mathbf{X} = \mathbf{U}\mathbf{s}^{-1/2}\mathbf{U}^*
+$$
+
+satisfies the desired property.
+
+## The SCF Algorithm
+
+We'll now apply the theory in the previous sections to describe the 
+_self consistent field_ algorithm for finding the closed-shell Slater determinant
+that minimizes the expectation energy for a given molecule.
+
+As usual, the molecule is specified by $m$ atomic numbers
+$Z=(Z_1,\dots,Z_n)\in\mathbb{Z}^m$
+and $m$ nuclei positions
+$\mathbf{R}=(\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$.
+
+We'll also fix a set of $b$ independent states
+$B=\{\|\phi_1\rangle,\dots,\|\phi_b\rangle\}\subset L^2(\mathbb{R}^3)$.
+
+The output of the algorithm is a set of $n$ orthogonal states:
+
+$$
+|\psi_1\rangle,dots,|\psi_n\rangle\in\mathrm{Span}(B)
+$$
+
+together with the expectation energy of the closed-shell Slater determinant 
+
+$$
+|\psi_1,\dots,\psi_n\rangle\in\Lambda^n(\mathcal{H})
+$$
+
+The returned energy is guaranteed to be locally minimal among closed-shell Slater
+determinants of orthogonal states.
+
+The algorithm proceeds as follows.
+
+1. Compute the overlap matrix $\mathbf{S}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$,
+   the one-electron part of the Fock matrix
+   $\mathbf{H}^1(\mathbf{R},\mathbf{Z})\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$.
+
+1. Diagonalize $\mathbf{S}$ to find a matrix
+   $\mathbf{X}\in\\mathrm{Mat}\_{b\times b}(\mathbb{C})$ that satisfies
+   $\mathbf{X}^*\mathbf{S}\mathbf{X}$.
+
+1. Initialize the density matrix
+   $\mathbf{P}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$ to a random matrix.
+
+1. Compute the Fock matrix
+   $\mathbf{F} = \mathbf{F}(\mathbf{P})\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$
+   from the one-electron Fock matrix
+   $\mathbf{H}^1(\mathbf{R},\mathbf{Z})$, the density matrix $\mathbf{P}$ and
+   the two-electron inner-products $\langle\phi_i\phi_j|\phi_k\phi_l\rangle$.
+
+1. Solve the Roothan equation
+
+   $$
+   \mathbf{F}\mathbf{C} = \mathbf{S}\mathbf{C}\mathbf{D}
+   $$
+
+   to obtain a coefficient matrix
+   $\mathbf{C}\in\mathrm{Mat}\_{b\times n}(\mathbb{C})$.
+
+1. Update the density matrix to $\mathbf{P} = 2\mathbf{C}\mathbf{C}^*$.
+   If the density matrix did not change very much, go to the next step.
+   Otherwise, go back to step 4 using the updated density matrix.
+
+1. The algorithm is complete. The columns of $\mathbf{C}$ contain the
+   linear coefficients of the $\|psi_i\rangle$ in the basis $B$. The expectation
+   electronic energy of the closed shell Slater determinant
+   $\|\psi_1,\dots,\psi_n\rangle$ is given by XXX:
+
+   $$
+
+   $$
 
 # Cartesian Gaussians
 
