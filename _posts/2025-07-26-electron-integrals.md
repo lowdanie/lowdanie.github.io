@@ -1847,31 +1847,90 @@ a solution to XXX consisting of eigenvectors of $F(\rho, \mathbf{R}, Z)$.
 > $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
 > nuclear positions.
 >
-> Then, there exist orthonormal states
+> Let $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle \in L^2(\mathbb{R}^3)$ be
+> orthonormal states, 
+> let $V\subset L^2(\mathbb{R}^3)$ be their span and
+> let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be the
+> associated closed-shell density operator. 
 >
-> $$
-> |\psi_1\rangle,\dots,|\psi_{n/2}\rangle \in L^2(\mathbb{R}^3)
-> $$
->
-> that the states minimize the expectation energy $E(\psi_1,\dots,\psi_n; \mathbf{R}, Z)$
-> and are eigenvectors of $F(\rho, \mathbb{R}, Z)$
-> where $\rho$ is the density operator corresponding to the $\|\psi_i\rangle$.
+> Then, the states $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle$ are a local minimum of the expectation
+> energy function $E(\psi_1,\dots,\psi_n; \mathbf{R}, Z)$ with respect to the 
+> ortho-normality constraint iff, up to a unitary
+> transformation of $V$, they are eigenvectors of $F(\rho, \mathbb{R}, Z)$.
 
-Note that by the theory of Lagrange multipliers, the eigenvalue condition is a necessary
-but not sufficient condition for the $\|\psi_i\rangle$ to be a global minimum.
-In general, orthonormal states 
-$\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle \in L^2(\mathbb{R}^3)$ that are eigenvectors
-of $F(\rho, \mathbb{R}, Z)$ are only guaranteed to be local minima of  
-$E(\psi_1,\dots,\psi_n; \mathbf{R}, Z)$ with respect to the orthonormality constraint.
-
-Also note that since $\rho$ depends on the the states $\|\psi_i\rangle$, this is not
-a standard eigenvector equation. We'll instead solve it with an iterative approach in
-which we alternate between fixing $\rho$ and solving for the eigenvectors, and between
-constructing a new density $\rho$ from the current eigenvectors.
+Note that since $\rho$ depends on the the states $\|\psi_i\rangle$, we cannot simply
+solve for eigenvectors of $F(\rho, \mathbb{R}, Z)$.
+We'll instead apply an iterative approach which alternates between fixing $\rho$ 
+and solving for the eigenvectors of $F(\rho, \mathbb{R}, Z)$,
+and between constructing a new density $\rho$ from the current eigenvectors.
 
 One remaining obstacle to this plan is that the space $L^2(\mathbb{R}^3)$ of single electron
 positional states is infinite dimensional. The goal of the next section is to apply this theory
 to a finite dimensional approximation.
+
+We'll conclude this section by noting that the expectation energy function can
+be expressed in terms of the Fock operator. As we'll see later, the utility of this is that after 
+the iterative process outlined above converges,
+we can reuse the Fock operator to compute the expectation energy at
+the converged point.
+
+> **Claim (Expectation Energy From Fock).**
+> Let $m\in\mathbb{Z}$ be a positive integer, $n\in\mathbb{Z}$ an even integer,
+> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic numbers and
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
+> nuclear positions.
+>
+> Let $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle \in L^2(\mathbb{R}^3)$ be
+> orthonormal states and let $\rho\in\mathrm{End}(L^2(\mathbb{R}^3))$ be the 
+> associated closed shell density operator. Then:
+>
+> $$
+> E(\psi_1,\dots,\psi_{n/2}; \mathbf{R}, Z) =
+> \sum_{i=1}^{n/2}
+>  \langle \psi_i | H^1(\mathbf{R}, Z) + F(\rho, \mathbf{R}, Z) | \psi_i \rangle
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+Let $H^2\in\mathrm{End}(L^2(\mathbb{R}^3)^{\otimes 2})$ be the operator defined by:
+
+$$
+H^2 = V_\mathrm{ee}^2 - \frac{1}{2}V_\mathrm{ee}^2 P_{(1,2)}
+$$
+
+By the definitions of the Coulomb and exchange operator:
+
+$$
+\mathrm{Tr}_2((\mathrm{Id}\otimes\rho)H^2) = J(\rho) - \frac{1}{2}K(\rho)
+$$
+
+By XXX:
+
+$$
+E(\psi_1,\dots,\psi_{n/2}) = 
+  2\sum_{i=1}^{n/2}\langle \psi_i | H^1(\mathbf{R}, Z) | \psi_i \rangle +
+  2\sum_{i,j=1}^{n/2}\langle \psi_i\psi_j | H^2 | \psi_i \psi_j \rangle
+$$
+
+Focussing on the second term, note that:
+
+$$
+\begin{align*}
+2\sum_{i,j=1}^{n/2}\langle \psi_i\psi_j | H^2 | \psi_i \psi_j \rangle
+&= 2\sum_{i=1}^{n/2}\langle \psi_i | \mathrm{Tr}_2((\mathrm{Id}\otimes\frac{1}{2}\rho)H^2) | \psi_i \rangle \\
+&= \sum_{i=1}^{n/2}\langle \psi_i | J(\rho) - \frac{1}{2}K(\rho) |\psi_i\rangle
+\end{align*}
+$$
+
+The claim now follows by the definition of the Fock operator.
+
+_q.e.d_
+</div>
+</details>
 
 ### The Roothaan Equations
 
