@@ -2106,13 +2106,31 @@ Once we've fixed $\mathbf{P}$, the Roothaan equation becomes an instance of a
 [generalized eigenvalue problem](https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix#Generalized_eigenvalue_problem).
 which can be solved directly as we'll see in the next section.
 
-We'll conclude this section by deriving a more explicit formula for the
+We'll now deriving a more explicit formula for the
 Fock matrix in terms of the basis $B$ and the density matrix $\mathbf{P}$.
+First we'll introduce notation for the one-electron matrix elements.
 
-> **Claim (Fock Matrix Coefficients).**
-> Let $n\in\mathbb{Z}$ be an integer, 
-> $Z=(Z_1,\dots,Z_n)\in\mathbb{Z}^n$ atomic numbers,
-> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_n)\in\mathbb{R}^{3\times n}$
+> **Definition (One Electron Matrix).**
+> Let $m\in\mathbb{Z}$ be an integer, 
+> $Z=(Z_1,\dots,Z_n)\in\mathbb{Z}^m$ atomic numbers,
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
+> nuclear positions.
+>
+> Let $b\in\mathbb{Z}$ be an integer and
+> $\|\phi_1\rangle,\dots,\|\phi_b\rangle\in L^2(\mathbb{R}^3)$ be independent
+> states.
+>
+> The associated one electron Hamiltonian matrix is denoted 
+> $\mathbf{H}^1(\mathbf{R}, Z)\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ and defined by:
+>
+> $$
+> H_{ij}^1 := \langle \phi_i | H^1(\mathbf{R}, Z) | \phi_j \rangle
+> $$
+
+> **Claim (Fock Matrix).**
+> Let $m\in\mathbb{Z}$ be an integer, 
+> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic numbers,
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
 > nuclear positions.
 >
 > Let $b\in\mathbb{Z}$ be an integer and
@@ -2126,7 +2144,7 @@ Fock matrix in terms of the basis $B$ and the density matrix $\mathbf{P}$.
 > $\mathbf{F}(\mathbf{P})\in\mathrm{Mat}_{b\times b}(\mathbb{C})$ satisfies:
 >
 > $$
-> F_{ij} := \langle \phi_i | H^1(\mathbf{R}, Z) | \phi_j\rangle + G_{ij}
+> F_{ij} := H_{ij}^1 + G_{ij}
 > $$
 >
 > where the matrix $\mathbf{G}\in\mathrm{Mat}_{b\times b}(\mathbf{C})$ is
@@ -2208,6 +2226,78 @@ G_{ij} =
    \langle \phi_i \phi_l | V_\mathrm{ee}^2 | \phi_j \phi_k \rangle
    -\frac{1}{2} \langle \phi_i \psi_l | V_\mathrm{ee}^2 | \phi_k \phi_j \rangle
 )
+$$
+
+_q.e.d_
+
+</div>
+</details>
+
+We can also apply XXX to express the expectation energy of a closed shell Slater
+determinant using the Fock matrix and density matrices.
+
+> **Claim (Expectation Energy From Fock Matrix).**
+> Let $m\in\mathbb{Z}$ be an integer, 
+> $Z=(Z_1,\dots,Z_m)\in\mathbb{Z}^m$ atomic numbers,
+> $\mathbf{R} = (\mathbf{R}_1,\dots,\mathbf{R}_m)\in\mathbb{R}^{3\times m}$
+> nuclear positions.
+>
+> Let $b\in\mathbb{Z}$ be an integer and let
+> $B = \{ \|\phi_1\rangle,\dots,\|\phi_b\rangle\} \subset L^2(\mathbb{R}^3)$
+> be independent states.
+>
+> Let $n\in\mathbb{Z}$ be an even integer,
+> $\mathbf{C}\in\mathrm{Mat}\_{b\times n/2}(\mathbb{C})$ a coefficient matrix,
+> $\mathbf{P} = 2\mathbf{C}\mathbf{C}^*$ be the associated closed shell density matrix
+> and $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle\in L^2(\mathbb{R}^3)$
+> be states whose coefficients in the basis $B$ are given by the columns of $\mathbf{C}$.
+>
+> Let $\mathbf{H}^1 = \mathbf{H}^1(\mathbf{R}, Z)$ 
+> and $\mathbf{F} = \mathbf{F}(\mathbf{P})$
+> be the associated one-electron and Fock matrices.
+>
+> Then
+>
+> $$
+> E(\psi_1,\dots,\psi_{n/2}; \mathbf{R}, Z) =
+> \frac{1}{2} \sum_{i,j=1}^b P_{ij} (H^1_{ji} + F_{ji})
+> $$
+
+<details>
+<summary>
+Proof [click to expand]
+</summary>
+<div class="details-content">
+
+By XXX:
+
+$$
+E(\psi_1,\dots,\psi_{n/2}; \mathbf{R}, Z) =
+\sum_{i=1}^{n/2}
+ \langle \psi_i | H^1(\mathbf{R}, Z) + F(\rho, \mathbf{R}, Z) | \psi_i \rangle
+$$
+
+By XXX this is equal to:
+
+$$
+\mathbf{Tr}(\frac{1}{2}\rho (H^1(\mathbf{R}, Z) + F(\rho, \mathbf{R}, Z)))
+$$
+
+Now recall that by XXX:
+
+$$
+\rho = \sum_{i,j=1}^b P_{ij} |\phi_i\rangle\langle\phi_j|
+$$
+
+Substituting this into XXX we obtain:
+
+$$
+\begin{align*}
+E(\psi_1,\dots,\psi_{n/2}; \mathbf{R}, Z)
+&= \frac{1}{2}\mathrm{Tr}(\sum_{i,j=1}^b P_{ij}|\phi_i\rangle\langle\phi_j|(H^1(\mathbf{R}, Z) + F(\rho, \mathbf{R}, Z))) \\
+&= \frac{1}{2}\sum_{i,j=1}^b P_{ij}\langle \phi_j | H^1(\mathbf{R}, Z) + F(\rho, \mathbf{R}, Z) | \phi_i \rangle \\
+&= \frac{1}{2}\sum_{i,j=1}^b P_{ij} (H_{ji} + F_{ji})
+\end{align*}
 $$
 
 _q.e.d_
@@ -2330,7 +2420,7 @@ $B=\{\|\phi_1\rangle,\dots,\|\phi_b\rangle\}\subset L^2(\mathbb{R}^3)$.
 The output of the algorithm is a set of $n$ orthogonal states:
 
 $$
-|\psi_1\rangle,dots,|\psi_n\rangle\in\mathrm{Span}(B)
+|\psi_1\rangle,\dots,|\psi_n\rangle\in\mathrm{Span}(B)
 $$
 
 together with the expectation energy of the closed-shell Slater determinant 
@@ -2342,46 +2432,95 @@ $$
 The returned energy is guaranteed to be locally minimal among closed-shell Slater
 determinants of orthogonal states.
 
-The algorithm proceeds as follows.
+The algorithm starts by initializing the following matrices:
 
-1. Compute the overlap matrix $\mathbf{S}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$,
-   the one-electron part of the Fock matrix
-   $\mathbf{H}^1(\mathbf{R},\mathbf{Z})\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$.
-
-1. Diagonalize $\mathbf{S}$ to find a matrix
-   $\mathbf{X}\in\\mathrm{Mat}\_{b\times b}(\mathbb{C})$ that satisfies
-   $\mathbf{X}^*\mathbf{S}\mathbf{X}$.
-
-1. Initialize the density matrix
-   $\mathbf{P}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$ to a random matrix.
-
-1. Compute the Fock matrix
-   $\mathbf{F} = \mathbf{F}(\mathbf{P})\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$
-   from the one-electron Fock matrix
-   $\mathbf{H}^1(\mathbf{R},\mathbf{Z})$, the density matrix $\mathbf{P}$ and
-   the two-electron inner-products $\langle\phi_i\phi_j|\phi_k\phi_l\rangle$.
-
-1. Solve the Roothan equation
-
+1. Compute the overlap matrix $\mathbf{S}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$:
+   
    $$
-   \mathbf{F}\mathbf{C} = \mathbf{S}\mathbf{C}\mathbf{D}
+   S_{ij} := \langle \phi_i | \phi_j \rangle
    $$
 
-   to obtain a coefficient matrix
-   $\mathbf{C}\in\mathrm{Mat}\_{b\times n}(\mathbb{C})$.
-
-1. Update the density matrix to $\mathbf{P} = 2\mathbf{C}\mathbf{C}^*$.
-   If the density matrix did not change very much, go to the next step.
-   Otherwise, go back to step 4 using the updated density matrix.
-
-1. The algorithm is complete. The columns of $\mathbf{C}$ contain the
-   linear coefficients of the $\|psi_i\rangle$ in the basis $B$. The expectation
-   electronic energy of the closed shell Slater determinant
-   $\|\psi_1,\dots,\psi_n\rangle$ is given by XXX:
+1. Compute the one-electron matrix $\mathbf{H}^1\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$:
 
    $$
+   H^1_{ij} = \langle \phi_i | H^1(\mathbf{R}, Z) | \phi_j \rangle
+   $$
+
+1. Compute the inverse square root of $\mathbf{S}$ as follows. First diagonalize 
+   $\mathbf{S}$ to obtain a unitary matrix
+   $\mathbf{U}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$ and a diagonal matrix
+   $\mathbf{s}\in\mathrm{Diag}\_b(\mathbb{R})$ satisfying:
 
    $$
+   \mathbf{S} = \mathbf{U}\mathbf{s}\mathbf{U}^*
+   $$
+
+1. The inverse square root, $\mathbf{X}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$,
+   is obtained by:
+
+   $$
+   \mathbf{X} = \mathbf{U}\mathbf{s}^{-1/2}\mathbf{U}^*
+   $$
+
+1. Randomly initialize a density matrix $\mathbf{P}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$.
+
+The next step is to iteratively update $\mathbf{P}$.
+
+1. Compute the two electron matrix
+   $\mathbf{G}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$ defined by:
+   
+   $$
+   G_{ij} =
+   \sum_{kl} P_{kl} (
+      \langle \phi_i \phi_l | V_\mathrm{ee}^2 | \phi_j \phi_k \rangle
+     -\frac{1}{2} \langle \phi_i \psi_l | V_\mathrm{ee}^2 | \phi_k \phi_j \rangle
+   )
+   $$
+
+   and the Fock matrix
+   $\mathbf{F}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$:
+
+   $$
+   F_{ij} = H^1_{ij} + G_{ij}
+   $$
+
+1. Compute the eigen-decomposition $\mathbf{X}^*\mathbf{F}\mathbf{X}$ and define
+   $\mathbf{C}'\in\mathrm{Mat}\_{b\times n/2}(\mathbb{C})$ to be the matrix whose
+   columns are the $n/2$ eigenvectors with the smallest eigenvalues.
+
+1. Compute the coefficient matrix
+   $\mathbf{C}\in\mathrm{Mat}\_{b\times n/2}(\mathbb{C})$ by:
+
+   $$
+   \mathbf{C} = \mathbf{X}\mathbf{C}'
+   $$
+
+1. Update the density matrix to $\mathbf{P}' = 2\mathbf{C}\mathbf{C}^*$.
+   If the norm $||\mathbf{P} - \mathbf{P}'||^2$ is small enough, the density matrix 
+   loop is complete. Otherwise, do another iteration with the updated density matrix.
+
+Once the density matrix iteration is complete,
+we can use the converged Fock and density matrices
+to compute the states $\|\psi_1\rangle,\dots,\|\psi_{n/2}\rangle$ and the
+expectation energy of their closed shell Slater determinants.
+
+The states are defined by:
+
+$$
+|\psi_i\rangle = \sum_{b=1}^b C_{bi}|\phi_b\rangle
+$$
+
+and expectation electronic energy of their closed shell Slater determinant is equal to:
+
+$$
+E(\psi_1,\dots,\psi_{n/2}; \mathbf{R}, Z) =
+\frac{1}{2} \sum_{i,j=1}^b P_{ij} (H^1_{ji} + F_{ji})
+$$
+
+In order to run the SCF algorithm, we must choose basis states
+$\|\phi_i\rangle\in L^2(\mathbb{R}^3)$ and have an efficient method for computing 
+the inner products that are used to define $\mathbf{S}$, $\mathbf{H}^1$ and
+$\mathbf{G}$. This will be the focus of the next section.
 
 # Cartesian Gaussians
 
