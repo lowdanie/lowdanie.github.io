@@ -21,8 +21,8 @@ A good basis set must satisfy the following requirements:
 1. Completeness: It must be possible to reasonably approximate the ground state
    single-electron wave functions as linear combinations of the basis vectors.
 
-2. Computability: There must be an efficient algorithm for computing inner
-   products of the basis vectors that are required by the SCF algorithm.
+2. Computability: There must be an efficient algorithm for computing the
+   inner-products of the basis vectors that are required by the SCF algorithm.
 
 The goal of this post is to present a family of functions called _Cartesian Gaussians_
 together with efficient algorithms for their inner-products.
