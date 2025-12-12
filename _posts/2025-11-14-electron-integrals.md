@@ -28,7 +28,7 @@ The goal of this post is to present a family of functions called _Cartesian Gaus
 together with efficient algorithms for their inner-products.
 
 Implementations of all of the algorithms in this post can be found in
-[slaterform/integrals](https://github.com/lowdanie/slaterform/tree/main/slaterform/integrals)
+[slaterform/integrals](https://github.com/lowdanie/slaterform/tree/main/slaterform/integrals).
 
 # Cartesian Gaussians
 
