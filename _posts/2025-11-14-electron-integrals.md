@@ -27,6 +27,9 @@ A good basis set must satisfy the following requirements:
 The goal of this post is to present a family of functions called _Cartesian Gaussians_
 together with efficient algorithms for their inner-products.
 
+Implementations of all of the algorithms in this post can be found in
+[slaterform/integrals](https://github.com/lowdanie/slaterform/tree/main/slaterform/integrals)
+
 # Cartesian Gaussians
 
 We will denote the Cartesian coordinates of a point $\mathbf{A}\in\mathbb{R}^3$ by:
