@@ -1,17 +1,5 @@
 ---
-layout: default
+layout: blog_list
+title: "Daniel's Blog"
 toc: false
 ---
-<div class="posts-container">
-  <h1 class="posts-heading">Daniel's Blog</h1>
-  <div class="posts-list-wrapper">
-    {% for post in site.posts %}
-    <div class="post-item-grid"> 
-      <div class="post-date-grid">{{ post.date | date_to_string }}</div>
-      <div class="post-title-grid">
-        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-</div>

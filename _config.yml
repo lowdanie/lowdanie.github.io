@@ -4,3 +4,8 @@ kramdown:
   parse_block_html: true
 highlighter: rouge
 permalink: /blog/:year/:month/:day/:title
+
+collections:
+  notes:
+    output: true
+    permalink: /notes/:path/
