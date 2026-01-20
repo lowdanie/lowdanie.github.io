@@ -225,10 +225,10 @@ First consider the electron-nuclear attraction operator. In the single-electron
 case, the operator $V_{\mathrm{en}}^1\in\mathrm{End}(\mathcal{H})$ is defined by
 
 $$
-V_{\mathrm{en}}^1 |\psi\rangle\otimes|s\rangle = |v_{\mathrm{ne}} \psi \rangle|s\rangle
+V_{\mathrm{en}}^1 |\psi\rangle\otimes|s\rangle = |v_{\mathrm{en}} \psi \rangle|s\rangle
 $$
 
-where $v_{\mathrm{ne}}(\mathbf{r})\in L^2(\mathbb{R}^3)$ is the electron-nuclear attraction potential:
+where $v_{\mathrm{en}}(\mathbf{r})\in L^2(\mathbb{R}^3)$ is the electron-nuclear attraction potential:
 
 $$
 v_\mathrm{en}(\mathbf{r}) = -\sum_{i=1}^m \frac{Z_i}{||\mathbf{R}_i - \mathbf{r}||}
@@ -237,11 +237,11 @@ $$
 Note that by definition:
 
 $$
-V_{\mathrm{en}}^1 |\mathbf{r}\rangle = v_{\mathrm{ne}}(\mathbf{r})|\mathbf{r}\rangle
+V_{\mathrm{en}}^1 |\mathbf{r}\rangle = v_{\mathrm{en}}(\mathbf{r})|\mathbf{r}\rangle
 $$
 
 In other words, $V_{\mathrm{en}}^1$ is diagonal in the position basis
-$\|\mathbf{r}\rangle$ with eigenvalues $v_{\mathrm{ne}}(\mathbf{r})$.
+$\|\mathbf{r}\rangle$ with eigenvalues $v_{\mathrm{en}}(\mathbf{r})$.
 
 The $n$-electron electron-nuclear attraction operator
 $V_{\mathrm{en}}^n\in\mathrm{End}(\Lambda^n\mathcal{H})$ is defined to be the symmetric
@@ -270,11 +270,11 @@ Together this implies that:
 
 $$
 \langle \Psi | V_{\mathrm{en}}^n | \Psi \rangle =
-\langle v_{\mathrm{ne}}(\mathbf{r}) | \rho(\mathbf{r}) \rangle_{L^2(\mathbb{R}^3)}
+\langle v_{\mathrm{en}}(\mathbf{r}) | \rho(\mathbf{r}) \rangle_{L^2(\mathbb{R}^3)}
 $$
 
 In summary, the expectation value of $V_{\mathrm{en}}^n$ in the state $\|\Psi\rangle$
-can be computed in terms of the potential $v_{\mathrm{ne}}$ and the
+can be computed in terms of the potential $v_{\mathrm{en}}$ and the
 density function associated to $\|\Psi\rangle$.
 
 ## Electron Repulsion
@@ -363,7 +363,13 @@ $$
 \rho(\mathbf{r}) = \langle \Phi_S | N^n(\mathbf{r}) | \Phi_S\rangle = \sum_{i=1}^n|\phi_i(\mathbf{r})|^2
 $$
 
-We can now define the "non-interacting" reference energies.
+Note that under this assumption, the density has the form:
+
+$$
+\rho(\mathbf{r}) = \sum_{i=1}^n|\phi_i(\mathbf{r})|^2
+$$
+
+We can now define the "non-interacting" reference energies and the error term $E_{XC}$.
 
 ### Non-Interacting Kinetic Energy
 
@@ -371,12 +377,337 @@ The non-interacting kinetic energy $T_S$ is defined as the expectation kinetic e
 the Slater determinant $\Psi_S$:
 
 $$
-T_S[{\phi_i}] := \langle\Psi_S|T^n|\Psi_S\rangle = 
-\sum_{i=1}^n\langle\phi_i|T^n|\phi_i\rangle
+T_S[\{\phi_i\}] := \langle\Psi_S|T^n|\Psi_S\rangle = 
+\sum_{i=1}^n\langle\phi_i|T^1|\phi_i\rangle
 $$
 
 ### Hartree Energy
 
-In order to approximate the expectation electron repulsion energy
+In order to approximate the expectation electron repulsion energy, we make the
+simplifying assumption that the electron densities are uncorrelated.
+Specifically, we assume that:
+
+$$
+\rho_2(\mathbf{r}_1,\mathbf{r}_2) = \frac{1}{2}\rho(\mathbf{r}_1)\rho(\mathbf{r}_2)
+$$
+
+The electron repulsion potential is now given by the Coulomb functional
+
+$$
+\begin{align*}
+J[\rho] &= \frac{1}{2}\langle v_\mathrm{ee}(\mathbf{r}_1,\mathbf{r}_2) | \rho(\mathbf{r}_1)\rho(\mathbf{r}_2)\rangle \\
+&= \frac{1}{2}\sum_{i,j=1}^n\langle\phi_i\phi_j|V_\mathrm{ee}|\phi_i\phi_j\rangle
+\end{align*}
+$$
+
+### Exchange Correlation Energy
+
+Finally, we define the exchange-correlation functional
+$E_{XC}[\rho]$ to be the exact difference between the true energy terms and our
+non-interacting approximations:
+
+$$
+E_{XC}[\rho] := (T[\rho] - T_S[\{\phi_i\}]) + (\langle v_\mathrm{ee} | \rho_2 \rangle - J[\rho])
+$$
+
+### Total Energy
+
+The total energy of the original system with density $\rho$ can now be written as:
+
+$$
+E[\rho] = T_S[\{\phi_i\}] + J[\rho] + V_\mathrm{en}[\rho] + E_{XC}[\rho]
+$$
+
+Note that under the Kohn-Sham ansatz, $\rho$ is itself a function of the
+KS orbitals $\{\phi_i\}$.
+
+In Kohn-Sham DFT, we must first choose an approximation to $E_{XC}[\rho]$. 
+Then we use the method of Lagrange multipliers to minimize
+$E[\rho]$ with respect to the orbitals $\{\phi_i\}$ subject to the orthonormality
+constraint.
+
+## The Kohn-Sham Equation
+
+In the previous section we saw that, under the Kohn-Sham ansatz, the density
+is given by:
+
+$$
+\rho(\mathbf{r}) = \sum_{i=1}^n|\phi_i(\mathbf{r})|^2
+$$
+
+and the total energy is equal to:
+
+$$
+E[\rho] = T_S[\{\phi_i\}] + J[\rho] + V_\mathrm{en}[\rho] + E_{XC}[\rho]
+$$
+
+In this section we apply the method of Lagrange multipliers to minimize $E$
+with respect to the orbitals $\phi_i$ subject to the orthonormality constraint
+
+$$
+\langle \phi_i | \phi_j \rangle = \delta_{ij}
+$$
+
+First we introduce Lagrange multipliers $\lambda_{ij}$ for $1\leq i,j \leq n$.
+We can then setup the Lagrangian
+
+$$
+L[\{\phi_i\}] := E[\{\phi_i\}] - \sum_{i,j=1}^n \lambda_{ij}\langle \phi_i | \phi_j \rangle
+$$
+
+At solutions to the optimization problem, the variation of $L$ must vanish:
+
+$$
+\frac{\delta L}{\delta \phi_i^*} = 0
+$$
+
+We'll now derive an expression for the variation and obtain a system of equations
+satisfied by a solution $\{\phi_i\}$.
+
+### The Chain Rule
+
+Since most of the terms in the total energy are given in terms of $\rho$,
+we'll compute their variations with respect the orbitals using the chain rule.
+For this purpose, we'll start by computing the variation of the density:
+
+$$
+\begin{align*}
+\frac{\delta\rho(\mathbf{r})}{\delta\phi_i^*(\mathbf{r}')}
+&= \sum_{j=1}^n 
+\frac{\delta}{\delta \phi_i^*(\mathbf{r}')}(\phi_j^*(\mathbf{r})\phi_j(\mathbf{r})) \\
+&= \phi_i(\mathbf{r})\delta(\mathbf{r} - \mathbf{r}')
+\end{align*}
+$$
+
+Therefore, if $F[\rho]$ is any functional of $\rho$ then by the chain rule:
+
+$$
+\begin{align*}
+\frac{\delta F}{\delta\phi^*(\mathbf{r})} 
+&= \left\langle \frac{\delta F}{\delta\rho} \Bigg| \frac{\delta\rho}{\delta\phi_i^*(\mathbf{r})}\right\rangle \\
+&= \left\langle \frac{\delta F}{\delta\rho} \Bigg| \phi_i(\mathbf{x})\delta(\mathbf{x}-\mathbf{r})\right\rangle_\mathbf{x} \\
+&= \frac{\delta F}{\delta\rho(\mathbf{r})}\phi_i(\mathbf{r})
+\end{align*}
+$$
+
+### Non-Interacting Kinetic Energy
+
+In the previous section we saw that 
+
+$$
+T_S[\{\phi_i\}] = \sum_{i=1}^n\langle\phi_i|T^1|\phi_i\rangle
+$$
+
+Therefore:
+
+$$
+\begin{align*}
+\frac{\delta}{\delta\phi_i^*(\mathbf{r})}T_S
+&= \sum_{j=1}^n \frac{\delta}{\delta\phi_i^*(\mathbf{r})}\langle\phi_j|T^1|\phi_j\rangle \\
+&= \frac{\delta}{\delta\phi_i^*(\mathbf{r})}\langle\phi_i|T^1|\phi_i\rangle \\
+&= T^1\phi_i(\mathbf{r})
+\end{align*}
+$$
+
+### Hartree-Energy
+
+By definition:
+
+$$
+J[\rho] = \frac{1}{2}\langle v_\mathrm{ee}(\mathbf{r}_1,\mathbf{r}_2) | \rho(\mathbf{r}_1)\rho(\mathbf{r}_2)\rangle
+$$
+
+Therefore, by the chain rule:
+
+$$
+\begin{align*}
+\frac{\delta J}{\delta\phi_i^*(\mathbf{r})}
+&= \frac{\delta J}{\delta\rho(\mathbf{r})}\phi_i(\mathbf{r}) \\
+&= \langle v_\mathrm{ee}(\mathbf{r},\cdot) | \rho\rangle \phi_i(\mathbf{r})
+\end{align*}
+$$
+
+To facilitate notation, we'll introduce the _Hartree potential_ associated to a
+density function $\rho$ denoted by $v_H[\rho]$ and defined by:
+
+$$
+v_H[\rho](\mathbf{r}) := \langle v_\mathrm{ee}(\mathbf{r},\cdot) | \rho\rangle
+$$
+
+We can now write the functional derivative of $J$ as:
+
+$$
+\frac{\delta J}{\delta\phi_i^*} = v_H[\rho]\phi_i
+$$
+
+### Electron Nuclear Attraction
+
+We've seen above that the electron-nuclear attraction energy has an expectation
+value:
+
+$$
+V_\mathrm{en}[\rho] = \langle v_\mathrm{en} | \rho \rangle
+$$
+
+Therefore, by the chain rule:
+
+$$
+\begin{align*}
+\frac{\delta V_\mathrm{en}}{\delta\phi_i^*(\mathbf{r})}
+&= \frac{\delta V_\mathrm{en}}{\delta\rho(\mathbf{r})}\phi_i(\mathbf{r}) \\
+&= v_\mathrm{en}(\mathbf{r}) \phi_i(\mathbf{r})
+\end{align*}
+$$
+
+### Exchange Correlation
+
+Since we do not have an explicit definition of $E_{XC}[\rho]$, we'll define the
+_exchange correlation potential_ to be the functional derivative of $E_{XC}$:
+
+$$
+v_{XC}[\rho](\mathbf{r}) := \frac{\delta E_{XC}}{\delta \rho}
+$$
+
+Then by the chain rule:
+
+$$
+\frac{\delta E_{XC}}{\delta\phi_i^*(\mathbf{r})} = v_{XC}[\rho](\mathbf{r})\phi_i(\mathbf{r})
+$$
+
+### The Kohn-Sham Equation
+
+Putting this all together, the functional derivative of the Lagrangian defined above
+is equal to:
+
+$$
+\frac{\delta L}{\delta\phi_i^*} = 
+(T^1 + v_\mathrm{en} + v_H[\rho] + v_{XC})\phi_i -\sum_{j=1}^n\lambda_ij\phi_j
+$$
+
+The Lagrange multiplier condition now becomes:
+
+$$
+(T^1 + v_\mathrm{en} + v_H[\rho] + v_{XC}[\rho])\phi_i = \sum_{j=1}^n\lambda_{ij}\phi_j
+$$
+
+This motivates the introduction of the _Kohn-Sham Hamiltonian_ $H_{KS}$:
+
+$$
+H_{KS}[\rho] := T^1 + v_\mathrm{en} + v_H[\rho] + v_{XC}[\rho]
+$$
+
+We can simplify the Lagrange multiplier further by noting that, since
+$H_{KS}$ is Hermitian, there is a unitary transformation of the orbitals $\{\phi_i\}$
+that diagonalizes $\lambda_{ij}$. Furthermore, unitary transformations of the orbitals
+do not change the corresponding density $\rho$. Therefore, without loss of generality
+we can assume that the orbitals and Lagrange multipliers satisfy:
+
+$$
+H_{KS}[\rho]\phi_i = \lambda_i\phi_i
+$$
+
+Since $H_{KS}$ depends on the density $\rho$ which in turn depends on the orbitals
+$\phi$, this must be solved via a self-consistent field method similarly to the
+Hartree-Fock equation.
+
+## The Matrix Equation
+
+In this section we assume that the Kohn-Sham orbitals $\{\phi_i\}$ can be expanded
+as a linear combination of a fixed set of $b$ basis functions $\{\eta_i}_{i=1}^b$.
+Under this assumption,
+the Kohn-Sham equation can be expressed as a matrix equation which parallels the
+Roothan equations in Hartree-Fock theory.
+
+First, we'll collect the linear coefficients of the Kohn-Sham orbitals into the columns of the
+_coefficient matrix_
+$\mathbf{C}\in\mathrm{Mat}_{b\times n}(\mathbb{C})$:
+
+$$
+|\phi_i\rangle = \sum_{j=1}^bC_{ji}|\eta_j\rangle
+$$
+
+Similarly to the Roothaan equations, we also define the overlap matrix $\mathbf{S}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$:
+
+$$
+S_{ij} := \langle\eta_i|\eta_i\rangle
+$$
+
+and the density matrix $\mathbf{P}\in\mathrm{Mat}_{b\times b}(\mathbb{C})$:
+
+$$
+\mathbf{P}=\mathbf{C}\mathbf{C}^*
+$$
+
+Note that the density function $\rho$ can be expressed in terms of the density matrix via:
+
+$$
+\rho = \sum_{i,j=1}^b P_{ij}\eta_i\eta_j^*
+$$
+
+Finally, we define the _Kohn-Sham matrix_ $\mathbf{F}^{KS}\in\mathrm{Mat}\_{b\times b}(\mathbb{C})$
+to contain the matrix elements of the Kohn-Sham Hamiltonian:
+
+$$
+F_{ij}^{KS}[\mathbf{P}] := \langle\eta_i | H_{KS}[\rho] | \eta_j\rangle
+$$
+
+Analogously to the Roothaan equation, the Kohn-Sham equation can now be expressed as:
+
+$$
+\mathbf{F}^{KS}[\mathbf{P}]\mathbf{C} = \mathbf{S}\mathbf{C}\mathbf{D}
+$$
+
+This is a generalized eigenvalue equation which again can be solved identically to the
+Roothaan equation. All that remains is to compute the Kohn-Sham matrix $\mathbf{F}^{KS}[\mathbf{P}]$.
+
+### The Kohn-Sham Matrix
+
+By the definition of the Kohn-Sham Hamiltonian, the Kohn-Sham matrix is a sum of the following terms:
+
+$$
+\mathbf{F}^{KS}[\mathbf{P}] = \mathbf{H}^\mathrm{core} + \mathbf{J}[\mathbf{P}] + \mathbf{V}^{XC}[\mathbf{P}]
+$$
+
+where $\mathbf{H}^\mathrm{core}$ contains the non-interacting kinetic energy and
+the electron-nuclear attraction similarly to Hartree-Fock.
+
+We'll now compute the Hartree matrix $\mathbf{J}[\mathbf{P}]$. By definition:
+
+$$
+\mathbf{J}[\mathbf{P}]_{ij} = \langle\eta_i | v_H[\rho] | \eta_j \rangle
+$$
+
+Using the above expansion of $\rho$ in terms of the density matrix $\mathbf{P}$:
+
+$$
+ v_H[\rho](\mathbf{r}) = \sum_{kl}P_{kl} \langle \eta_l | v_\mathrm{ee}(\mathbf{r},\cdot) | \eta_k \rangle
+$$
+
+Plugging this into the definition of the Hartree matrix:
+
+$$
+\mathbf{J}[\mathbf{P}]_{ij} = \sum_{kl} P_{kl} \langle \eta_i \eta_l | V_\mathrm{ee} | \eta_j \eta_k \rangle
+$$
+
+Finally, the exchange correlation matrix is by definition equal to:
+
+$$
+V_{ij}^{XC}[\mathbf{P}] = \langle \eta_i | v_{XC}[\rho] | \eta_j \rangle
+$$
+
+Unlike the Hartree matrix, the exchange correlation matrix cannot in general be reduced to
+standard electron integrals and must be computed numerically via a evaluation on a grid.
+
+### Restricted Kohn-Sham
+
+Similarly to restricted Hartree-Fock, in restricted Kohn-Sham (RKS) we assume that
+the Kohn-Sham orbitals form a closed-shell system. In this case, the $n$ spin orbitals
+are replaced with $n/2$ spatial orbitals $\{\phi_i}_{i=1}^{n/2}$. The density matrix must
+by modified to account for the fact that each spatial orbital appears in two spin orbitals:
+
+$$
+\mathbf{P} = 2\mathbf{C}\mathbf{C}^*
+$$
+
 
 
