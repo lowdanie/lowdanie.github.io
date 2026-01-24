@@ -270,7 +270,7 @@ Together this implies that:
 
 $$
 \langle \Psi | V_{\mathrm{en}}^n | \Psi \rangle =
-\langle v_{\mathrm{en}}(\mathbf{r}) | \rho(\mathbf{r}) \rangle_{L^2(\mathbb{R}^3)}
+\langle v_{\mathrm{en}} | \rho \rangle_{L^2(\mathbb{R}^3)}
 $$
 
 In summary, the expectation value of $V_{\mathrm{en}}^n$ in the state $\|\Psi\rangle$
@@ -669,7 +669,11 @@ $$
 $$
 
 where $\mathbf{H}^\mathrm{core}$ contains the non-interacting kinetic energy and
-the electron-nuclear attraction similarly to Hartree-Fock.
+the electron-nuclear attraction similarly to Hartree-Fock:
+
+$$
+H_{ij}^\mathrm{core} = \langle \eta_i | T^1 + V_\mathrm{en}^1 | \eta_j \rangle
+$$
 
 We'll now compute the Hartree matrix $\mathbf{J}[\mathbf{P}]$. By definition:
 
@@ -698,7 +702,74 @@ $$
 Unlike the Hartree matrix, the exchange correlation matrix cannot in general be reduced to
 standard electron integrals and must be computed numerically via a evaluation on a grid.
 
-### Restricted Kohn-Sham
+## Electron Energy
+
+Similarly to Hartree-Fock, once we've found a solution
+$\mathbf{C}\in\mathrm{Mat}_{b\times n}(\mathbb{C})$ to the matrix Kohn-Sham
+equation, we can reuse the constituent matrix terms to compute the associated
+electronic energy.
+
+Starting with the non-interacting kinetic energy, recall that by definition,
+
+$$
+T_S[\rho] = \sum_{i=1}^n \langle \phi_i | T^1 | \phi_i \rangle
+$$
+
+For the electron-nuclear repulsion energy, recall that we saw above that its
+expectation value satisfies:
+
+$$
+V_\mathrm{en}[\rho] = \langle \Psi | V_{\mathrm{en}}^n | \Psi \rangle =
+\langle v_{\mathrm{en}} | \rho \rangle_{L^2(\mathbb{R}^3)}
+$$
+
+Since this only depends on the density function $\rho$, by the definition of the Kohn-Sham
+ansatz:
+
+$$
+\begin{align*}
+V_\mathrm{en}[\rho]
+&= \langle \Psi_{KS} | V_{\mathrm{en}}^n | \Psi_{KS} \rangle \\
+&= \sum_{i=1}^n \langle \phi_i | V_\mathrm{en}^1 | \phi_i \rangle
+\end{align*}
+$$
+
+Together this means that:
+
+$$
+(T_S + V_\mathrm{en})[\rho] = \sum_{i=1}^n \langle \phi_i | H_\mathrm{core} | \phi_i \rangle
+$$
+
+Plugging in the linear expansion of $\{\phi_i\}$ in terms of the basis $\{\eta_i\}$ we get:
+
+$$
+\begin{align*}
+(T_S + V_\mathrm{en})[\rho]
+&= \sum_{i=1}^n \sum_{k,l=1}^b\langle C_{ki}\eta_k | H_\mathrm{core} | C_{li}\eta_l \rangle \\
+&= \sum_{k,l=1}^b \sum_{i=1}^n C_{li} C_{ik}^* \langle \eta_k | H_\mathrm{core} | \eta_l \rangle \\
+&= \sum_{k,l=1}^b P_{lk}H_{kl}^\mathrm{core}
+\end{align*}
+$$
+
+For the Hartree energy, by definition
+
+$$
+\begin{align*}
+J[\rho] 
+&= \frac{1}{2}\langle v_\mathrm{ee}(\mathbf{r}_1,\mathbf{r}_2)|\rho(\mathbf{r}_1)\rho(\mathbf{r}_2)\rangle \\
+&= \frac{1}{2} \langle v_H[\rho] | \rho \rangle \\
+&= \frac{1}{2} \sum_{i,j=1}^b P_{ij}\langle\eta_j | v_H[\rho] | \eta_i\rangle \\
+&= \frac{1}{2} \sum_{i,j=1}^b P_{ij} J[\mathbf{P}]_{ji}
+\end{align*}
+$$
+
+In summary:
+
+$$
+E[\rho] = \sum_{i,j=1}^b P_{ij}(H_{ji}^\mathrm{core} + \frac{1}{2}J[\mathbf{P}]_{ji}) + E_{XC}[\rho]
+$$
+
+## Restricted Kohn-Sham
 
 Similarly to restricted Hartree-Fock, in restricted Kohn-Sham (RKS) we assume that
 the Kohn-Sham orbitals form a closed-shell system. In this case, the $n$ spin orbitals
